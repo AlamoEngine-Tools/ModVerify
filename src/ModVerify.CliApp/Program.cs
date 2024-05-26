@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using AET.ModVerify;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
@@ -21,7 +22,6 @@ using PG.StarWarsGame.Infrastructure.Clients;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
-using RepublicAtWar.DevLauncher.Petroglyph.Verification;
 using RepublicAtWar.DevLauncher.Services;
 
 namespace ModVerify.CliApp;
