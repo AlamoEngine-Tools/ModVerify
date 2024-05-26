@@ -1,0 +1,3 @@
+[submodule "PetroglyphTools"]
+	path = PetroglyphTools
+	url = https://github.com/AlamoEngine-Tools/PetroglyphTools
