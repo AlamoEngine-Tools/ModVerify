@@ -1,10 +1,10 @@
 <Project>
 
 	<PropertyGroup>
-		<RepoRootPath>$(MSBuildThisFileDirectory)</RepoRootPath>
+		<RepoRootPath>$(MSBuildThisFileDirectory)../</RepoRootPath>
 		<ProduceReferenceAssembly>true</ProduceReferenceAssembly>
 		<EnableDynamicPlatformResolution>true</EnableDynamicPlatformResolution>
-		<GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+		<GitVersionBaseDirectory>$(RepoRootPath)</GitVersionBaseDirectory>
 		<PackageOutputPath>$(RepoRootPath)bin\Packages\$(Configuration)\</PackageOutputPath>
 	</PropertyGroup>
 
@@ -12,7 +12,7 @@
 		<Authors>Alamo Engine Tools and Contributors</Authors>
 		<Copyright>Copyright © 2024 Alamo Engine Tools and contributors. All rights reserved.</Copyright>
 		<PackageProjectUrl>https://github.com/AlamoEngine-Tools/ModVerify</PackageProjectUrl>
-		<LicenseFile>$(MSBuildThisFileDirectory)LICENSE</LicenseFile>
+		<LicenseFile>$(RepoRootPath)LICENSE</LicenseFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/AlamoEngine-Tools/ModVerify</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
@@ -35,12 +35,12 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath=""/>
+		<None Include="$(RepoRootPath)README.md" Pack="true" PackagePath=""/>
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(IsPackable)' == 'true'">
 		<None Include="$(LicenseFile)" Pack="true" PackagePath=""/>
-		<None Include="$(MSBuildThisFileDirectory)aet.png" Pack="true" PackagePath=""/>
+		<None Include="$(RepoRootPath)aet.png" Pack="true" PackagePath=""/>
 	</ItemGroup>
 
 </Project>

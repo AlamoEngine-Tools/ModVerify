@@ -1,4 +1,6 @@
-﻿namespace ModVerify.CliApp;
+﻿using System;
+
+namespace ModVerify.CliApp;
 
 internal class Program
 {
