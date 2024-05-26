@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<Title>PG.StarWarsGame.Files.XML</Title>
+		<Product>PG.StarWarsGame.Files.XML</Product>
+		<PackageId>AlamoEngineTools.PG.StarWarsGame.Files.XML</PackageId>
+		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
+	</PropertyGroup>
+	<PropertyGroup>
+		<!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
+		<InheritDocEnabled>true</InheritDocEnabled>
+	</PropertyGroup>
+	<PropertyGroup>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
+	</ItemGroup>
+</Project>
