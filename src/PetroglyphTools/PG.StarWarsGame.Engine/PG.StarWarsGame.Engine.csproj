@@ -16,6 +16,19 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.2-beta" />
+		<PackageReference Include="IsExternalInit" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Required" Version="1.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\PetroglyphTools\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
+		<ProjectReference Include="..\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj" />
 	</ItemGroup>
 </Project>

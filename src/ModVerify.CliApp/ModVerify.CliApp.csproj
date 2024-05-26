@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<IsPackable>false</IsPackable>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<Title>AET.ModVerify.CommandLine</Title>
 		<Product>AET.ModVerify</Product>
@@ -16,6 +16,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Clients" Version="3.0.6" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="3.0.6" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\PetroglyphTools\PG.StarWarsGame.Files.DAT\PG.StarWarsGame.Files.DAT\PG.StarWarsGame.Files.DAT.csproj" />
 	  <ProjectReference Include="..\ModVerify\ModVerify.csproj" />
 	</ItemGroup>
 
