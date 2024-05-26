@@ -31,4 +31,7 @@
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Audio\" />
+	</ItemGroup>
 </Project>
