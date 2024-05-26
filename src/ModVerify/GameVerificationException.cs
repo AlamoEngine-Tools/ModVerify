@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using AET.ModVerify.Steps;
 using AnakinRaW.CommonUtilities.SimplePipeline;
-using RepublicAtWar.DevLauncher.Petroglyph.Verification.Steps;
 
-namespace RepublicAtWar.DevLauncher.Petroglyph.Verification;
+namespace AET.ModVerify;
 
 public sealed class GameVerificationException(IEnumerable<GameVerificationStep> failedSteps) : Exception
 {

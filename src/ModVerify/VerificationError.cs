@@ -1,7 +1,7 @@
 ﻿using System;
 using AnakinRaW.CommonUtilities;
 
-namespace RepublicAtWar.DevLauncher.Petroglyph.Verification;
+namespace AET.ModVerify;
 
 public class VerificationError
 {

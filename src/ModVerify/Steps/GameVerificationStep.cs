@@ -10,7 +10,7 @@ using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.FileSystem;
 using PG.StarWarsGame.Engine.Pipeline;
 
-namespace RepublicAtWar.DevLauncher.Petroglyph.Verification.Steps;
+namespace AET.ModVerify.Steps;
 
 public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabaseStep, IGameRepository repository, IServiceProvider serviceProvider)
     : PipelineStep(serviceProvider)

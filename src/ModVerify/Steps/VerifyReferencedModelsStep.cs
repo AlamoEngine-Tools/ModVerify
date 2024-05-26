@@ -14,7 +14,8 @@ using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
-namespace RepublicAtWar.DevLauncher.Petroglyph.Verification.Steps;
+
+namespace AET.ModVerify.Steps;
 
 internal class VerifyReferencedModelsStep(CreateGameDatabaseStep createDatabaseStep, IGameRepository repository, IServiceProvider serviceProvider)
     : GameVerificationStep(createDatabaseStep, repository, serviceProvider)

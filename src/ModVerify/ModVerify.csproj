@@ -5,6 +5,7 @@
 		<Title>AET.ModVerify</Title>
 		<Product>AET.ModVerify</Product>
 		<PackageId>AlamoEngineTools.ModVerify</PackageId>
+		<RootNamespace>AET.ModVerify</RootNamespace>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 

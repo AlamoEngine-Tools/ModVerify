@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AET.ModVerify.Steps;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using PG.StarWarsGame.Engine.FileSystem;
 using PG.StarWarsGame.Engine.Pipeline;
-using RepublicAtWar.DevLauncher.Petroglyph.Verification.Steps;
 
-namespace RepublicAtWar.DevLauncher.Petroglyph.Verification;
+namespace AET.ModVerify;
 
 public class VerifyFocPipeline(IList<string> modDirectories, string gameDirectory, string fallbackGameDirectory, IServiceProvider serviceProvider)
     : ParallelPipeline(serviceProvider, 4, false)
