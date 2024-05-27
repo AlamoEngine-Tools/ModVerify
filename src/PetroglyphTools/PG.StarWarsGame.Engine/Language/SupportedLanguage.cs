@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PG.StarWarsGame.Engine.Language;
+﻿namespace PG.StarWarsGame.Engine.Language;
 
 public enum LanguageType
 {

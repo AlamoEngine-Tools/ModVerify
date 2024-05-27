@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.FileSystem;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.DAT.Services.Builder;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
@@ -22,7 +23,6 @@ using PG.StarWarsGame.Infrastructure.Clients;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
-using RepublicAtWar.DevLauncher.Services;
 
 namespace ModVerify.CliApp;
 
@@ -92,8 +92,12 @@ internal class Program
                 .ToList();
         }
 
-        return new VerifyFocPipeline(mods, playableObject.Game.Directory.FullName, fallbackGame.Directory.FullName,
-            _services);
+        var gameLocations = new GameLocations(
+            mods,
+            playableObject.Game.Directory.FullName,
+            fallbackGame.Directory.FullName);
+
+        return new VerifyFocPipeline(gameLocations, _services);
     }
 
     private static IServiceProvider CreateAppServices()

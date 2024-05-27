@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<IsPackable>false</IsPackable>
-		<TargetFrameworks>net8.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net48</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<Title>AET.ModVerify.CommandLine</Title>
 		<Product>AET.ModVerify</Product>
@@ -23,6 +23,10 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="IsExternalInit" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>

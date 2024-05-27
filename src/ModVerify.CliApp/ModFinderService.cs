@@ -10,7 +10,7 @@ using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace RepublicAtWar.DevLauncher.Services;
+namespace ModVerify.CliApp;
 
 internal class ModFinderService
 {
@@ -91,5 +91,3 @@ internal class ModFinderService
         return new GameFinderResult(foc, eaw);
     }
 }
-
-public readonly record struct GameFinderResult(IGame Game, IGame FallbackGame);

@@ -29,10 +29,3 @@ internal sealed class PetroglyphXmlFileParserFactory(IServiceProvider servicePro
         throw new NotImplementedException($"The parser for the type {type} is not yet implemented.");
     }
 }
-
-public interface IPetroglyphXmlFileParserFactory
-{
-    IPetroglyphXmlFileParser<T> GetFileParser<T>();
-
-    IPetroglyphXmlFileParser GetFileParser(Type type);
-}

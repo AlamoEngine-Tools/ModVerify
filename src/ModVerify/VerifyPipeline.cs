@@ -10,14 +10,14 @@ using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify;
 
-public class VerifyFocPipeline(IList<string> modDirectories, string gameDirectory, string fallbackGameDirectory, IServiceProvider serviceProvider)
+public class VerifyFocPipeline(GameLocations gameLocations, IServiceProvider serviceProvider)
     : ParallelPipeline(serviceProvider, 4, false)
 {
     private IList<GameVerificationStep> _verificationSteps = null!;
 
     protected override Task<IList<IStep>> BuildSteps()
     {
-        var repository = new FocGameRepository(modDirectories, gameDirectory, fallbackGameDirectory, ServiceProvider);
+        var repository = new FocGameRepository(gameLocations, ServiceProvider);
 
         var buildIndexStep = new CreateGameDatabaseStep(repository, ServiceProvider);
         _verificationSteps = new List<GameVerificationStep>

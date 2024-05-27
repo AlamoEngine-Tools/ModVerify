@@ -30,38 +30,17 @@ public class FocGameRepository : IGameRepository
     private readonly string _gameDirectory;
 
     private readonly IList<string> _modPaths = new List<string>();
-
-    private readonly string _fallbackPath;
+    private readonly IList<string> _fallbackPaths = new List<string>();
 
     private readonly IVirtualMegArchive? _masterMegArchive;
 
     public IRepository EffectsRepository { get; }
-
-    public FocGameRepository(string mod, string baseGame, string fallbackGame, IServiceProvider serviceProvider) :
-        this(baseGame, fallbackGame, serviceProvider)
+    
+    public FocGameRepository(GameLocations gameLocations, IServiceProvider serviceProvider)
     {
-        if (mod == null) 
-            throw new ArgumentNullException(nameof(mod));
+        if (gameLocations == null)
+            throw new ArgumentNullException(nameof(gameLocations));
 
-        _modPaths.Add(_fileSystem.Path.GetFullPath(mod));
-    }
-
-    public FocGameRepository(IList<string> mods, string baseGame, string fallbackGame, IServiceProvider serviceProvider) :
-        this(baseGame, fallbackGame, serviceProvider)
-    {
-        if (mods == null)
-            throw new ArgumentNullException(nameof(mods));
-
-        foreach (var mod in mods)
-            _modPaths.Add(_fileSystem.Path.GetFullPath(mod));
-    }
-
-    public FocGameRepository(string baseGame, string fallbackGame, IServiceProvider serviceProvider)
-    {
-        if (fallbackGame == null)
-            throw new ArgumentNullException(nameof(fallbackGame));
-        if (fallbackGame == null)
-            throw new ArgumentNullException(nameof(fallbackGame));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _megPathNormalizer = serviceProvider.GetRequiredService<PetroglyphDataEntryPathNormalizer>();
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
@@ -71,8 +50,28 @@ public class FocGameRepository : IGameRepository
 
         _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-        _gameDirectory = _fileSystem.Path.GetFullPath(baseGame);
-        _fallbackPath = _fileSystem.Path.GetFullPath(fallbackGame);
+        foreach (var mod in gameLocations.ModPaths)
+        {
+            if (string.IsNullOrEmpty(mod))
+            {
+                _logger?.LogTrace("Skipping null or empty mod path.");
+                continue;
+            }
+            _modPaths.Add(_fileSystem.Path.GetFullPath(mod));
+        }
+
+        _gameDirectory = _fileSystem.Path.GetFullPath(gameLocations.GamePath);
+
+
+        foreach (var fallbackPath in gameLocations.FallbackPaths)
+        {
+            if (string.IsNullOrEmpty(fallbackPath))
+            {
+                _logger?.LogTrace("Skipping null or empty fallback path.");
+                continue;
+            }
+            _fallbackPaths.Add(_fileSystem.Path.GetFullPath(fallbackPath));
+        }
 
         _masterMegArchive = CreateMasterMegArchive();
 
@@ -85,23 +84,28 @@ public class FocGameRepository : IGameRepository
 
         var megsToConsider = new List<IMegFile>();
 
-        var eawMegs = LoadMegArchivesFromXml(_fallbackPath);
-        var eawPatch = LoadMegArchive(_fileSystem.Path.Combine(_fallbackPath, "Data\\Patch.meg"));
-        var eawPatch2 = LoadMegArchive(_fileSystem.Path.Combine(_fallbackPath, "Data\\Patch2.meg"));
-        var eaw64Patch = LoadMegArchive(_fileSystem.Path.Combine(_fallbackPath, "Data\\64Patch.meg"));
+        // We assume that the first fallback path (if present at all) is always Empire at War.
+        var firstFallback = _fallbackPaths.FirstOrDefault();
+        if (firstFallback is not null)
+        {
+            var eawMegs = LoadMegArchivesFromXml(firstFallback);
+            var eawPatch = LoadMegArchive(_fileSystem.Path.Combine(firstFallback, "Data\\Patch.meg"));
+            var eawPatch2 = LoadMegArchive(_fileSystem.Path.Combine(firstFallback, "Data\\Patch2.meg"));
+            var eaw64Patch = LoadMegArchive(_fileSystem.Path.Combine(firstFallback, "Data\\64Patch.meg"));
+
+            megsToConsider.AddRange(eawMegs);
+            if (eawPatch is not null)
+                megsToConsider.Add(eawPatch);
+            if (eawPatch2 is not null)
+                megsToConsider.Add(eawPatch2);
+            if (eaw64Patch is not null)
+                megsToConsider.Add(eaw64Patch);
+        }
 
         var focOrModMegs = LoadMegArchivesFromXml(".");
         var focPatch = LoadMegArchive("Data\\Patch.meg");
         var focPatch2 = LoadMegArchive("Data\\Patch2.meg");
         var foc64Patch = LoadMegArchive("Data\\64Patch.meg");
-
-        megsToConsider.AddRange(eawMegs);
-        if (eawPatch is not null)
-            megsToConsider.Add(eawPatch);
-        if (eawPatch2 is not null)
-            megsToConsider.Add(eawPatch2);
-        if (eaw64Patch is not null)
-            megsToConsider.Add(eaw64Patch);
 
         megsToConsider.AddRange(focOrModMegs);
         if (focPatch is not null)
@@ -132,7 +136,6 @@ public class FocGameRepository : IGameRepository
         var megaFilesXml = parser.ParseFile(xmlStream);
 
 
-
         var megs = new List<IMegFile>(megaFilesXml.Files.Count);
 
         foreach (var file in megaFilesXml.Files.Select(x => x.Trim()))
@@ -151,7 +154,7 @@ public class FocGameRepository : IGameRepository
         using var megFileStream = TryOpenFile(megPath);
         if (megFileStream is not FileSystemStream fileSystemStream)
         {
-            _logger?.LogTrace($"Unable to find MEG data at '{megPath}'");
+            _logger?.LogWarning($"Unable to find MEG data at '{megPath}'");
             return null;
         }
 
@@ -215,9 +218,13 @@ public class FocGameRepository : IGameRepository
 
         if (!megFileOnly)
         {
-            var fallbackPath = _fileSystem.Path.Combine(_fallbackPath, filePath);
-            if (_fileSystem.File.Exists(fallbackPath))
-                return true;
+
+            foreach (var fallbackPath in _fallbackPaths)
+            {
+                var fallbackFilePath = _fileSystem.Path.Combine(fallbackPath, filePath);
+                if (_fileSystem.File.Exists(fallbackFilePath))
+                    return true;
+            }
         }
 
         return false;
@@ -256,11 +263,13 @@ public class FocGameRepository : IGameRepository
 
         if (!megFileOnly)
         {
-            var fallbackPath = _fileSystem.Path.Combine(_fallbackPath, filePath);
-            if (_fileSystem.File.Exists(fallbackPath))
-                return OpenFileRead(fallbackPath);
+            foreach (var fallbackPath in _fallbackPaths)
+            {
+                var fallbackFilePath = _fileSystem.Path.Combine(fallbackPath, filePath);
+                if (_fileSystem.File.Exists(fallbackFilePath))
+                    return OpenFileRead(fallbackFilePath);
+            }
         }
-
         return null;
     }
 
@@ -281,8 +290,12 @@ public class FocGameRepository : IGameRepository
 
         if (_fileSystem.Path.IsChildOf(_gameDirectory, filePath))
             return true;
-        if (_fileSystem.Path.IsChildOf(_fallbackPath, filePath))
-            return true;
+
+        foreach (var fallbackPath in _fallbackPaths)
+        {
+            if (_fileSystem.Path.IsChildOf(fallbackPath, filePath))
+                return true;
+        }
 
         return false;
     }
