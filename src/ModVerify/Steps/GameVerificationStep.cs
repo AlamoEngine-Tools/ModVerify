@@ -28,6 +28,8 @@ public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabase
 
     protected abstract string LogFileName { get; }
 
+    public abstract string Name { get; }
+
     protected sealed override void RunCore(CancellationToken token)
     {
         createDatabaseStep.Wait();
@@ -78,7 +80,7 @@ public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabase
     }
     private StreamWriter CreateVerificationLogFile()
     {
-        var fileName = $"VerifyLog_{LogFileName}.txt";
+        var fileName = $"VerifyResult_{LogFileName}.txt";
         var fs = FileSystem.FileStream.New(fileName, FileMode.Create, FileAccess.Write, FileShare.Read);
         return new StreamWriter(fs);
     }

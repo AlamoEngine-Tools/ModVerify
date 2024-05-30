@@ -9,4 +9,6 @@ public interface IGameLanguageManager
     IReadOnlyCollection<LanguageType> EawSupportedLanguages { get; }
 
     string LocalizeFileName(string fileName, LanguageType language, out bool localized);
+
+    bool IsFileNameLocalizable(string fileName, bool requireEnglishName);
 }

@@ -17,7 +17,7 @@ using PG.StarWarsGame.Files.ChunkFiles.Data;
 
 namespace AET.ModVerify.Steps;
 
-internal class VerifyReferencedModelsStep(CreateGameDatabaseStep createDatabaseStep, IGameRepository repository, IServiceProvider serviceProvider)
+internal sealed class VerifyReferencedModelsStep(CreateGameDatabaseStep createDatabaseStep, IGameRepository repository, IServiceProvider serviceProvider)
     : GameVerificationStep(createDatabaseStep, repository, serviceProvider)
 {
     public const string ModelNotFound = "ALO00";
@@ -32,7 +32,9 @@ internal class VerifyReferencedModelsStep(CreateGameDatabaseStep createDatabaseS
 
     private readonly IAloFileService _modelFileService = serviceProvider.GetRequiredService<IAloFileService>();
 
-    protected override string LogFileName => "ModelTextureShader";
+    protected override string LogFileName => "Model";
+
+    public override string Name => "Model";
 
     protected override void RunVerification(CancellationToken token)
     {

@@ -97,7 +97,7 @@ internal class Program
             playableObject.Game.Directory.FullName,
             fallbackGame.Directory.FullName);
 
-        return new VerifyFocPipeline(gameLocations, _services);
+        return new VerifyFocPipeline(gameLocations, VerificationSettings.Default, _services);
     }
 
     private static IServiceProvider CreateAppServices()
