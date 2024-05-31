@@ -25,9 +25,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
       - name: Create NetFramework Release
-        run:  dotnet build .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net48 --output ./releases/net48
+        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net48 --output ./releases/net48
       - name: Create Net Core Release
-        run:  dotnet build .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net8.0 --output ./releases/net8.0
+        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net8.0 --output ./releases/net8.0
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -52,8 +52,8 @@ jobs:
           path: ./releases
       - name: Create NET Core zip
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
-        working-directory: YoutubeDownloader/
-        run: zip -r ./releases/ModVerify-Net8.zip ./releases/net8.0
+        working-directory: ./releases/net8.0
+        run: zip -r ./releases/ModVerify-Net8.zip .
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       - name: Create GitHub release
