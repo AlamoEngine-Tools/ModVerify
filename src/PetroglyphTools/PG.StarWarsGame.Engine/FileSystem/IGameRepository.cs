@@ -2,7 +2,9 @@
 
 public interface IGameRepository : IRepository
 {
-   IRepository EffectsRepository { get; }
+    public GameEngineType EngineType { get; }
 
-   bool FileExists(string filePath, string[] extensions, bool megFileOnly = false);
+    IRepository EffectsRepository { get; }
+
+    bool FileExists(string filePath, string[] extensions, bool megFileOnly = false);
 }

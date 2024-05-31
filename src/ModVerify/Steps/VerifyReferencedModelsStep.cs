@@ -17,8 +17,12 @@ using PG.StarWarsGame.Files.ChunkFiles.Data;
 
 namespace AET.ModVerify.Steps;
 
-internal sealed class VerifyReferencedModelsStep(CreateGameDatabaseStep createDatabaseStep, IGameRepository repository, IServiceProvider serviceProvider)
-    : GameVerificationStep(createDatabaseStep, repository, serviceProvider)
+internal sealed class VerifyReferencedModelsStep(
+    CreateGameDatabaseStep createDatabaseStep,
+    IGameRepository repository, 
+    VerificationSettings settings,
+    IServiceProvider serviceProvider)
+    : GameVerificationStep(createDatabaseStep, repository, settings, serviceProvider)
 {
     public const string ModelNotFound = "ALO00";
     public const string ModelBroken = "ALO01";

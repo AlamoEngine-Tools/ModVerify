@@ -80,7 +80,7 @@ internal class Program
         }
     }
 
-    private static VerifyFocPipeline BuildPipeline(IPlayableObject playableObject, IGame fallbackGame)
+    private static VerifyGamePipeline BuildPipeline(IPlayableObject playableObject, IGame fallbackGame)
     {
         IList<string> mods = Array.Empty<string>();
         if (playableObject is IMod mod)
@@ -97,7 +97,9 @@ internal class Program
             playableObject.Game.Directory.FullName,
             fallbackGame.Directory.FullName);
 
-        return new VerifyFocPipeline(gameLocations, VerificationSettings.Default, _services);
+        var repo = _services.GetRequiredService<IGameRepositoryFactory>().Create(GameEngineType.Foc, gameLocations);
+
+        return new VerifyGamePipeline(repo, VerificationSettings.Default, _services);
     }
 
     private static IServiceProvider CreateAppServices()

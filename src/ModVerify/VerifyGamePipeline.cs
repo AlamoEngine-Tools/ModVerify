@@ -11,36 +11,26 @@ using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify;
 
-
-public record VerificationSettings
-{
-    public static readonly VerificationSettings Default = new();
-
-    public bool ThrowOnError { get; init; }
-}
-
-
-public class VerifyFocPipeline : ParallelPipeline
+public class VerifyGamePipeline : ParallelPipeline
 {
     private IList<GameVerificationStep> _verificationSteps = null!;
-    private readonly GameLocations _gameLocations;
+    private readonly IGameRepository _repository;
     private readonly VerificationSettings _settings;
 
-    public VerifyFocPipeline(GameLocations gameLocations, VerificationSettings settings, IServiceProvider serviceProvider)
+    public VerifyGamePipeline(IGameRepository gameRepository, VerificationSettings settings, IServiceProvider serviceProvider)
         : base(serviceProvider, 4, false)
     {
-        _gameLocations = gameLocations;
+        _repository = gameRepository;
         _settings = settings;
     }
 
     protected override Task<IList<IStep>> BuildSteps()
     {
-        var repository = new FocGameRepository(_gameLocations, ServiceProvider);
+        var buildIndexStep = new CreateGameDatabaseStep(_repository, ServiceProvider);
 
-        var buildIndexStep = new CreateGameDatabaseStep(repository, ServiceProvider);
         _verificationSteps = new List<GameVerificationStep>
         {
-            new VerifyReferencedModelsStep(buildIndexStep, repository, ServiceProvider),
+            new VerifyReferencedModelsStep(buildIndexStep, _repository, _settings, ServiceProvider),
         };
 
         var allSteps = new List<IStep>
@@ -71,7 +61,7 @@ public class VerifyFocPipeline : ParallelPipeline
                 }
             }
 
-            if (_settings.ThrowOnError && failedSteps.Count > 0)
+            if (_settings.ThrowBehavior == VerifyThrowBehavior.FinalThrow && failedSteps.Count > 0)
                 throw new GameVerificationException(stepsWithVerificationErrors);
         }
         finally

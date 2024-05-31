@@ -75,6 +75,7 @@ internal class CreateGameDatabasePipeline(IGameRepository repository, IServicePr
 
         GameDatabase = new GameDatabase
         {
+            EngineType = repository.EngineType,
             GameConstants = _parseGameConstants.Database,
             GameObjects = _parseGameObjects.Database
         };

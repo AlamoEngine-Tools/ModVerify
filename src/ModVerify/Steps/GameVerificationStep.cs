@@ -12,7 +12,11 @@ using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify.Steps;
 
-public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabaseStep, IGameRepository repository, IServiceProvider serviceProvider)
+public abstract class GameVerificationStep(
+    CreateGameDatabaseStep createDatabaseStep,
+    IGameRepository repository, 
+    VerificationSettings settings,
+    IServiceProvider serviceProvider)
     : PipelineStep(serviceProvider)
 {
     protected readonly IFileSystem FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
@@ -21,6 +25,8 @@ public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabase
     private StreamWriter _errorLog = null!;
 
     public IReadOnlyCollection<VerificationError> VerifyErrors => _verifyErrors;
+
+    protected VerificationSettings Settings { get; } = settings;
 
     protected GameDatabase Database { get; private set; } = null!;
 
@@ -34,7 +40,8 @@ public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabase
     {
         createDatabaseStep.Wait();
         Database = createDatabaseStep.GameDatabase;
-
+        
+        Logger?.LogInformation($"Running verifier '{Name}'...");
         try
         {
             _errorLog = CreateVerificationLogFile();
@@ -42,6 +49,7 @@ public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabase
         }
         finally
         {
+            Logger?.LogInformation($"Finished verifier '{Name}'");
             _errorLog.Dispose();
             _errorLog = null!;
         }
@@ -57,9 +65,11 @@ public abstract class GameVerificationStep(CreateGameDatabaseStep createDatabase
             Logger?.LogTrace($"Error suppressed: '{error}'");
             return;
         }
-
         _verifyErrors.Add(error);
         _errorLog.WriteLine(error.Message);
+
+        if (Settings.ThrowBehavior == VerifyThrowBehavior.FailFast)
+            throw new GameVerificationException(this);
     }
 
     protected virtual bool OnError(VerificationError error)

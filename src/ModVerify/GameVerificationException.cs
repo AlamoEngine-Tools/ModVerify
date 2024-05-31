@@ -11,6 +11,10 @@ public sealed class GameVerificationException(IEnumerable<GameVerificationStep> 
     private readonly string? _error = null;
     private readonly IEnumerable<IStep> _failedSteps = failedSteps ?? throw new ArgumentNullException(nameof(failedSteps));
 
+    public GameVerificationException(GameVerificationStep step) : this([step])
+    {
+    }
+
     /// <inheritdoc/>
     public override string Message => Error;
 
