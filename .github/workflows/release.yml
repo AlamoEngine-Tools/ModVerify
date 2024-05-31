@@ -51,10 +51,10 @@ jobs:
         with:
           name: Binary Releases
           path: ./releases
-      - name: Create NET Core zip
+      - name: Create NET Core .zip
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
         working-directory: ./releases/net8.0
-        run: zip -r ./releases/ModVerify-Net8.zip .
+        run: zip -r ../ModVerify-Net8.zip .
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       - name: Create GitHub release
