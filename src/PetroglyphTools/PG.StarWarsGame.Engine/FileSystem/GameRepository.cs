@@ -34,6 +34,8 @@ public class FocGameRepository : IGameRepository
 
     private readonly IVirtualMegArchive? _masterMegArchive;
 
+    public GameEngineType EngineType => GameEngineType.Foc;
+
     public IRepository EffectsRepository { get; }
     
     public FocGameRepository(GameLocations gameLocations, IServiceProvider serviceProvider)
