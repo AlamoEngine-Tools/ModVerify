@@ -8,8 +8,6 @@ using PG.Commons.Binary;
 using PG.Commons.Files;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.FileSystem;
-using PG.StarWarsGame.Engine.Pipeline;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
@@ -18,11 +16,10 @@ using PG.StarWarsGame.Files.ChunkFiles.Data;
 namespace AET.ModVerify.Steps;
 
 internal sealed class VerifyReferencedModelsStep(
-    CreateGameDatabaseStep createDatabaseStep,
-    IGameRepository repository, 
+    GameDatabase database,
     VerificationSettings settings,
     IServiceProvider serviceProvider)
-    : GameVerificationStep(createDatabaseStep, repository, settings, serviceProvider)
+    : GameVerificationStep(database, settings, serviceProvider)
 {
     public const string ModelNotFound = "ALO00";
     public const string ModelBroken = "ALO01";

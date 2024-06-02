@@ -4,13 +4,28 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.SimplePipeline;
+using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.FileSystem;
 
 namespace PG.StarWarsGame.Engine.Pipeline;
 
-internal class CreateGameDatabasePipeline(IGameRepository repository, IServiceProvider serviceProvider) 
-    : ParallelPipeline(serviceProvider)
+public interface IGameDatabaseService
+{
+    Task<IGameDatabase> CreateDatabaseAsync(GameEngineType targetEngineType, GameLocations locations, CancellationToken cancellationToken = default);
+}
+
+internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameDatabaseService
+{
+    public async Task<IGameDatabase> CreateDatabaseAsync(GameEngineType targetEngineType, GameLocations locations, CancellationToken cancellationToken = default)
+    {
+        var pipeline = new GameDatabaseCreationPipeline(repository, serviceProvider, cancellationToken);
+        await pipeline.RunAsync(cancellationToken);
+        return pipeline.GameDatabase;
+    }
+}
+
+internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider) : ParallelPipeline(serviceProvider)
 {
     private ParseSingletonXmlStep<GameConstants> _parseGameConstants = null!;
     private ParseFromContainerStep<GameObject> _parseGameObjects = null!;
@@ -71,14 +86,22 @@ internal class CreateGameDatabasePipeline(IGameRepository repository, IServicePr
 
     protected override async Task RunCoreAsync(CancellationToken token)
     {
-        await base.RunCoreAsync(token);
+        Logger?.LogInformation("Creating Game Database...");
 
-        GameDatabase = new GameDatabase
+        try
         {
-            EngineType = repository.EngineType,
-            GameConstants = _parseGameConstants.Database,
-            GameObjects = _parseGameObjects.Database
-        };
+            await base.RunCoreAsync(token);
+
+            GameDatabase = new GameDatabase
+            {
+                GameConstants = _parseGameConstants.Database,
+                GameObjects = _parseGameObjects.Database
+            };
+        }
+        finally
+        {
+            Logger?.LogInformation("Finished creating game database");
+        }
     }
 
     private sealed class ParseSingletonXmlStep<T>(string name, string xmlFile, IGameRepository repository, IServiceProvider serviceProvider)

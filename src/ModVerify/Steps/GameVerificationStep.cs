@@ -8,13 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.FileSystem;
-using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify.Steps;
 
 public abstract class GameVerificationStep(
-    CreateGameDatabaseStep createDatabaseStep,
-    IGameRepository repository, 
+    GameDatabase gameDatabase,
     VerificationSettings settings,
     IServiceProvider serviceProvider)
     : PipelineStep(serviceProvider)
@@ -28,9 +26,9 @@ public abstract class GameVerificationStep(
 
     protected VerificationSettings Settings { get; } = settings;
 
-    protected GameDatabase Database { get; private set; } = null!;
+    protected GameDatabase Database { get; } = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
 
-    protected IGameRepository Repository => repository;
+    protected IGameRepository Repository => gameDatabase.GameRepository;
 
     protected abstract string LogFileName { get; }
 
@@ -38,9 +36,6 @@ public abstract class GameVerificationStep(
 
     protected sealed override void RunCore(CancellationToken token)
     {
-        createDatabaseStep.Wait();
-        Database = createDatabaseStep.GameDatabase;
-        
         Logger?.LogInformation($"Running verifier '{Name}'...");
         try
         {
@@ -57,12 +52,11 @@ public abstract class GameVerificationStep(
 
     protected abstract void RunVerification(CancellationToken token);
 
-
     protected void AddError(VerificationError error)
     {
         if (!OnError(error))
         {
-            Logger?.LogTrace($"Error suppressed: '{error}'");
+            Logger?.LogTrace($"Error suppressed for verifier '{Name}': '{error}'");
             return;
         }
         _verifyErrors.Add(error);

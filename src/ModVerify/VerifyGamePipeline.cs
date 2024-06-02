@@ -5,49 +5,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Steps;
 using AnakinRaW.CommonUtilities.SimplePipeline;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.FileSystem;
 using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify;
 
-public class VerifyGamePipeline : ParallelPipeline
+public abstract class VerifyGamePipeline : Pipeline
 {
-    private IList<GameVerificationStep> _verificationSteps = null!;
-    private readonly IGameRepository _repository;
+    private IList<GameVerificationStep> _verificationSteps = new List<GameVerificationStep>();
+    private readonly GameLocations _gameLocations;
     private readonly VerificationSettings _settings;
 
-    public VerifyGamePipeline(IGameRepository gameRepository, VerificationSettings settings, IServiceProvider serviceProvider)
-        : base(serviceProvider, 4, false)
+    protected VerifyGamePipeline(GameLocations gameLocations, VerificationSettings settings, IServiceProvider serviceProvider) 
+        : base(serviceProvider)
     {
-        _repository = gameRepository;
-        _settings = settings;
+        _gameLocations = gameLocations ?? throw new ArgumentNullException(nameof(gameLocations));
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
     }
 
-    protected override Task<IList<IStep>> BuildSteps()
+
+    protected override Task<bool> PrepareCoreAsync()
     {
-        var buildIndexStep = new CreateGameDatabaseStep(_repository, ServiceProvider);
-
-        _verificationSteps = new List<GameVerificationStep>
-        {
-            new VerifyReferencedModelsStep(buildIndexStep, _repository, _settings, ServiceProvider),
-        };
-
-        var allSteps = new List<IStep>
-        {
-            buildIndexStep
-        };
-        allSteps.AddRange(_verificationSteps);
-
-        return Task.FromResult<IList<IStep>>(allSteps);
+        throw new NotImplementedException();
     }
 
-    public override async Task RunAsync(CancellationToken token = default)
+    protected override async Task RunCoreAsync(CancellationToken token)
     {
         Logger?.LogInformation("Verifying game...");
         try
         {
-            await base.RunAsync(token).ConfigureAwait(false);
+            var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
+
+            await databaseService.CreateDatabaseAsync()
+
+
 
             var stepsWithVerificationErrors = _verificationSteps.Where(x => x.VerifyErrors.Any()).ToList();
 
@@ -69,4 +62,26 @@ public class VerifyGamePipeline : ParallelPipeline
             Logger?.LogInformation("Finished game verification");
         }
     }
+
+
+    //protected sealed override async Task<IList<IStep>> BuildSteps()
+    //{
+    //    var buildIndexStep = new CreateGameDatabaseStep(_repository, ServiceProvider);
+
+    //    _verificationSteps = new List<GameVerificationStep>
+    //    {
+    //        new VerifyReferencedModelsStep(buildIndexStep, _repository, _settings, ServiceProvider),
+    //    };
+
+    //    var allSteps = new List<IStep>
+    //    {
+    //        buildIndexStep
+    //    };
+    //    allSteps.AddRange(CreateVeificationSteps());
+
+    //    return allSteps;
+    //}
+
+
+    protected abstract IEnumerable<GameVerificationStep> CreateVerificationSteps();
 }
