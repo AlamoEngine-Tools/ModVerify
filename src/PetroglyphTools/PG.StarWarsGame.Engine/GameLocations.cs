@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AnakinRaW.CommonUtilities;
 
-namespace PG.StarWarsGame.Engine.FileSystem;
+namespace PG.StarWarsGame.Engine;
 
 public sealed class GameLocations
 {
@@ -30,7 +30,7 @@ public sealed class GameLocations
 
     public GameLocations(IList<string> modPaths, string gamePath, IList<string> fallbackPaths)
     {
-        if (modPaths == null) 
+        if (modPaths == null)
             throw new ArgumentNullException(nameof(modPaths));
         if (fallbackPaths == null)
             throw new ArgumentNullException(nameof(fallbackPaths));

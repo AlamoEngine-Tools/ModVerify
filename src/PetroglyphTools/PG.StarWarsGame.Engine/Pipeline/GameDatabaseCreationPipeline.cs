@@ -5,25 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using Microsoft.Extensions.Logging;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.DataTypes;
-using PG.StarWarsGame.Engine.FileSystem;
+using PG.StarWarsGame.Engine.Repositories;
 
 namespace PG.StarWarsGame.Engine.Pipeline;
-
-public interface IGameDatabaseService
-{
-    Task<IGameDatabase> CreateDatabaseAsync(GameEngineType targetEngineType, GameLocations locations, CancellationToken cancellationToken = default);
-}
-
-internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameDatabaseService
-{
-    public async Task<IGameDatabase> CreateDatabaseAsync(GameEngineType targetEngineType, GameLocations locations, CancellationToken cancellationToken = default)
-    {
-        var pipeline = new GameDatabaseCreationPipeline(repository, serviceProvider, cancellationToken);
-        await pipeline.RunAsync(cancellationToken);
-        return pipeline.GameDatabase;
-    }
-}
 
 internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider) : ParallelPipeline(serviceProvider)
 {
@@ -92,8 +78,11 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
         {
             await base.RunCoreAsync(token);
 
+            repository.Seal();
+
             GameDatabase = new GameDatabase
             {
+                GameRepository = repository,
                 GameConstants = _parseGameConstants.Database,
                 GameObjects = _parseGameObjects.Database
             };

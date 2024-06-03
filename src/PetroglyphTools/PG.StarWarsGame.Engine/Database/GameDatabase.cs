@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using PG.StarWarsGame.Engine.DataTypes;
-using PG.StarWarsGame.Engine.FileSystem;
+using PG.StarWarsGame.Engine.Repositories;
 
-namespace PG.StarWarsGame.Engine;
+namespace PG.StarWarsGame.Engine.Database;
 
-public class GameDatabase
+internal class GameDatabase : IGameDatabase
 {
     public required IGameRepository GameRepository { get; init; }
 

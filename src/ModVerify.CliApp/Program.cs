@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AET.ModVerify;
+using AET.ModVerify.Steps;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.FileSystem;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.DAT.Services.Builder;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
@@ -97,9 +98,8 @@ internal class Program
             playableObject.Game.Directory.FullName,
             fallbackGame.Directory.FullName);
 
-        var repo = _services.GetRequiredService<IGameRepositoryFactory>().Create(GameEngineType.Foc, gameLocations);
 
-        return new VerifyGamePipeline(repo, VerificationSettings.Default, _services);
+        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, VerificationSettings.Default, _services);
     }
 
     private static IServiceProvider CreateAppServices()
@@ -121,8 +121,9 @@ internal class Program
         RuntimeHelpers.RunClassConstructor(typeof(IMegArchive).TypeHandle);
         AloServiceContribution.ContributeServices(serviceCollection);
         serviceCollection.CollectPgServiceContributions();
-
+        
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
+        ModVerifyServiceContribution.ContributeServices(serviceCollection);
 
         return serviceCollection.BuildServiceProvider();
     }
@@ -139,5 +140,18 @@ internal class Program
 #endif
         loggingBuilder.AddConsole();
     }
+}
 
+internal class ModVerifyPipeline(
+    GameEngineType targetType,
+    GameLocations gameLocations,
+    VerificationSettings settings,
+    IServiceProvider serviceProvider)
+    : VerifyGamePipeline(targetType, gameLocations, settings, serviceProvider)
+{
+    protected override IEnumerable<GameVerificationStep> CreateVerificationSteps(IGameDatabase database)
+    {
+        var verifyProvider = ServiceProvider.GetRequiredService<IVerificationProvider>();
+        return verifyProvider.GetAllDefaultVerifiers(database, Settings);
+    }
 }

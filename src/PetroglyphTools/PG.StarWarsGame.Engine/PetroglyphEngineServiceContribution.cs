@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.FileSystem;
 using PG.StarWarsGame.Engine.Language;
+using PG.StarWarsGame.Engine.Pipeline;
+using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Engine.Xml;
 
 namespace PG.StarWarsGame.Engine;
@@ -12,5 +13,6 @@ public static class PetroglyphEngineServiceContribution
         serviceCollection.AddSingleton<IGameRepositoryFactory>(sp => new GameRepositoryFactory(sp));
         serviceCollection.AddSingleton<IGameLanguageManager>(sp => new GameLanguageManager(sp));
         serviceCollection.AddSingleton<IPetroglyphXmlFileParserFactory>(sp => new PetroglyphXmlFileParserFactory(sp));
+        serviceCollection.AddSingleton<IGameDatabaseService>(sp => new GameDatabaseService(sp));
     }
 }

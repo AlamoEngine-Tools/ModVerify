@@ -8,6 +8,7 @@ using PG.Commons.Binary;
 using PG.Commons.Files;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
@@ -16,7 +17,7 @@ using PG.StarWarsGame.Files.ChunkFiles.Data;
 namespace AET.ModVerify.Steps;
 
 internal sealed class VerifyReferencedModelsStep(
-    GameDatabase database,
+    IGameDatabase database,
     VerificationSettings settings,
     IServiceProvider serviceProvider)
     : GameVerificationStep(database, settings, serviceProvider)
@@ -42,7 +43,7 @@ internal sealed class VerifyReferencedModelsStep(
         var aloQueue = new Queue<string>(Database.GameObjects
             .SelectMany(x => x.Models)
             .Concat(FocHardcodedConstants.HardcodedModels));
-
+        
         var visitedAloFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         while (aloQueue.Count != 0)

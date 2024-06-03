@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace PG.StarWarsGame.Engine.FileSystem;
+namespace PG.StarWarsGame.Engine.Repositories;
 
 internal sealed class GameRepositoryFactory(IServiceProvider serviceProvider) :  IGameRepositoryFactory
 {
-    public IGameRepository Create(GameEngineType engineType, GameLocations gameLocations)
+    public GameRepository Create(GameEngineType engineType, GameLocations gameLocations)
     {
         if (engineType == GameEngineType.Eaw)
             throw new NotImplementedException("Empire at War is currently not supported.");

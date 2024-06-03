@@ -5,42 +5,70 @@ using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Steps;
 using AnakinRaW.CommonUtilities.SimplePipeline;
+using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.FileSystem;
+using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify;
 
 public abstract class VerifyGamePipeline : Pipeline
 {
-    private IList<GameVerificationStep> _verificationSteps = new List<GameVerificationStep>();
+    private readonly List<GameVerificationStep> _verificationSteps = new();
+    private readonly GameEngineType _targetType;
     private readonly GameLocations _gameLocations;
-    private readonly VerificationSettings _settings;
+    private readonly ParallelRunner _verifyRunner;
 
-    protected VerifyGamePipeline(GameLocations gameLocations, VerificationSettings settings, IServiceProvider serviceProvider) 
+    protected VerificationSettings Settings { get; }
+
+    protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, VerificationSettings settings, IServiceProvider serviceProvider) 
         : base(serviceProvider)
     {
+        _targetType = targetType;
         _gameLocations = gameLocations ?? throw new ArgumentNullException(nameof(gameLocations));
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
+        if (settings.ParallelWorkers is < 0 or > 64)
+            throw new ArgumentException("Settings has invalid parallel worker number.", nameof(settings));
+        
+        _verifyRunner = new ParallelRunner(settings.ParallelWorkers, serviceProvider);
     }
 
 
-    protected override Task<bool> PrepareCoreAsync()
+    protected sealed override Task<bool> PrepareCoreAsync()
     {
-        throw new NotImplementedException();
+        _verificationSteps.Clear();
+        return Task.FromResult(true);
     }
 
-    protected override async Task RunCoreAsync(CancellationToken token)
+    protected sealed override async Task RunCoreAsync(CancellationToken token)
     {
         Logger?.LogInformation("Verifying game...");
         try
         {
             var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
-            await databaseService.CreateDatabaseAsync()
+            var database = await databaseService.CreateDatabaseAsync(_targetType, _gameLocations, token);
 
+            foreach (var gameVerificationStep in CreateVerificationSteps(database))
+            {
+                _verifyRunner.AddStep(gameVerificationStep);
+                _verificationSteps.Add(gameVerificationStep);
+            }
 
+            try
+            {
+                Logger?.LogInformation("Verifying...");
+                _verifyRunner.Error += OnError;
+                await _verifyRunner.RunAsync(token);
+            }
+            finally
+            {
+                _verifyRunner.Error -= OnError;
+                Logger?.LogInformation("Finished Verifying");
+            }
 
             var stepsWithVerificationErrors = _verificationSteps.Where(x => x.VerifyErrors.Any()).ToList();
 
@@ -54,7 +82,7 @@ public abstract class VerifyGamePipeline : Pipeline
                 }
             }
 
-            if (_settings.ThrowBehavior == VerifyThrowBehavior.FinalThrow && failedSteps.Count > 0)
+            if (Settings.ThrowBehavior == VerifyThrowBehavior.FinalThrow && failedSteps.Count > 0)
                 throw new GameVerificationException(stepsWithVerificationErrors);
         }
         finally
@@ -63,25 +91,5 @@ public abstract class VerifyGamePipeline : Pipeline
         }
     }
 
-
-    //protected sealed override async Task<IList<IStep>> BuildSteps()
-    //{
-    //    var buildIndexStep = new CreateGameDatabaseStep(_repository, ServiceProvider);
-
-    //    _verificationSteps = new List<GameVerificationStep>
-    //    {
-    //        new VerifyReferencedModelsStep(buildIndexStep, _repository, _settings, ServiceProvider),
-    //    };
-
-    //    var allSteps = new List<IStep>
-    //    {
-    //        buildIndexStep
-    //    };
-    //    allSteps.AddRange(CreateVeificationSteps());
-
-    //    return allSteps;
-    //}
-
-
-    protected abstract IEnumerable<GameVerificationStep> CreateVerificationSteps();
+    protected abstract IEnumerable<GameVerificationStep> CreateVerificationSteps(IGameDatabase database);
 }

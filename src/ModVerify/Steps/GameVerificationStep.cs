@@ -6,13 +6,13 @@ using System.Threading;
 using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.FileSystem;
+using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine.Repositories;
 
 namespace AET.ModVerify.Steps;
 
 public abstract class GameVerificationStep(
-    GameDatabase gameDatabase,
+    IGameDatabase gameDatabase,
     VerificationSettings settings,
     IServiceProvider serviceProvider)
     : PipelineStep(serviceProvider)
@@ -26,7 +26,7 @@ public abstract class GameVerificationStep(
 
     protected VerificationSettings Settings { get; } = settings;
 
-    protected GameDatabase Database { get; } = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
+    protected IGameDatabase Database { get; } = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
 
     protected IGameRepository Repository => gameDatabase.GameRepository;
 

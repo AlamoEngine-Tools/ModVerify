@@ -4,7 +4,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PG.StarWarsGame.Engine.FileSystem;
+namespace PG.StarWarsGame.Engine.Repositories;
 
 public class EffectsRepository(IGameRepository baseRepository, IServiceProvider serviceProvider) : IRepository
 {

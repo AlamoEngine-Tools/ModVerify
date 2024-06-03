@@ -1,4 +1,6 @@
-﻿namespace PG.StarWarsGame.Engine.FileSystem;
+﻿using System.Collections.Generic;
+
+namespace PG.StarWarsGame.Engine.Repositories;
 
 public interface IGameRepository : IRepository
 {
@@ -7,4 +9,6 @@ public interface IGameRepository : IRepository
     IRepository EffectsRepository { get; }
 
     bool FileExists(string filePath, string[] extensions, bool megFileOnly = false);
+
+    IEnumerable<string> FindFiles(string searchPattern, bool megFileOnly = false);
 }

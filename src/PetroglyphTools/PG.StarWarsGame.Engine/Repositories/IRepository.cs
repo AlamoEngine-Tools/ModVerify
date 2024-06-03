@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace PG.StarWarsGame.Engine.FileSystem;
+namespace PG.StarWarsGame.Engine.Repositories;
 
 public interface IRepository
 {
