@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Engine.Xml;
 
-namespace PG.StarWarsGame.Engine.Pipeline;
+namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-public abstract class ParseXmlDatabaseStep<T>(
+internal abstract class ParseXmlDatabaseStep<T>(
     IList<string> xmlFiles,
     IGameRepository repository,
     IServiceProvider serviceProvider)

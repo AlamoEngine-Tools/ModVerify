@@ -1,27 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
 
-namespace PG.StarWarsGame.Engine.Pipeline;
+namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-public abstract class ParseXmlDatabaseFromContainerStep<T>(
+internal class ParseXmlDatabaseFromContainerStep<T>(
+    string name,
     string xmlFile,
     IGameRepository repository,
     IServiceProvider serviceProvider)
-    : CreateDatabaseStep<T>(repository, serviceProvider)
-    where T : class
+    : CreateDatabaseStep<IXmlDatabase<T>>(repository, serviceProvider)
+    where T : XmlObject
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
     protected readonly IPetroglyphXmlFileParserFactory FileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
 
-    protected sealed override T CreateDatabase()
+    protected override string Name => name;
+
+    protected sealed override IXmlDatabase<T> CreateDatabase()
     {
         using var containerStream = GameRepository.OpenFile(xmlFile);
         var containerParser = FileParserFactory.GetFileParser<XmlFileContainer>();
@@ -30,19 +34,17 @@ public abstract class ParseXmlDatabaseFromContainerStep<T>(
 
         var xmlFiles = container.Files.Select(x => _fileSystem.Path.Combine("DATA\\XML", x)).ToList();
 
+        var parsedEntries = new ValueListDictionary<Crc32, T>();
 
-        var parsedDatabaseEntries = new List<T>();
         foreach (var file in xmlFiles)
         {
             using var fileStream = GameRepository.OpenFile(file);
 
             var parser = FileParserFactory.GetFileParser<T>();
             Logger?.LogDebug($"Parsing File '{file}'");
-            var parsedData = parser.ParseFile(fileStream);
-            parsedDatabaseEntries.Add(parsedData);
+            parser.ParseFile(fileStream, parsedEntries);
         }
-        return CreateDatabase(parsedDatabaseEntries);
-    }
 
-    protected abstract T CreateDatabase(IList<T> files);
+        return new XmlDatabase<T>(parsedEntries, Services);
+    }
 }

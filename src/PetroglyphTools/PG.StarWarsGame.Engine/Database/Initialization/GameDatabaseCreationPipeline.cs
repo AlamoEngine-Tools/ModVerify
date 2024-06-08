@@ -4,24 +4,45 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.SimplePipeline;
+using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
+using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.Repositories;
 
-namespace PG.StarWarsGame.Engine.Pipeline;
+namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider) : ParallelPipeline(serviceProvider)
+internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider)
+    : Pipeline(serviceProvider)
 {
     private ParseSingletonXmlStep<GameConstants> _parseGameConstants = null!;
-    private ParseFromContainerStep<GameObject> _parseGameObjects = null!;
+    private ParseXmlDatabaseFromContainerStep<GameObject> _parseGameObjects = null!;
+    private ParseXmlDatabaseFromContainerStep<SfxEvent> _parseSfxEvents = null!;
+
+    private ParallelRunner _parseXmlRunner = null!;
 
     public GameDatabase GameDatabase { get; private set; } = null!;
-    
-    protected override Task<IList<IStep>> BuildSteps()
+
+
+    protected override Task<bool> PrepareCoreAsync()
     {
-        _parseGameConstants = new ParseSingletonXmlStep<GameConstants>("GameConstants", "DATA\\XML\\GAMECONSTANTS.XML", repository, ServiceProvider);
-        _parseGameObjects = new ParseFromContainerStep<GameObject>("GameObjects", "DATA\\XML\\GAMEOBJECTFILES.XML", repository, ServiceProvider);
+        _parseXmlRunner = new ParallelRunner(4, ServiceProvider);
+        foreach (var xmlParserStep in CreateXmlParserSteps()) _parseXmlRunner.AddStep(xmlParserStep);
+
+
+        return Task.FromResult(true);
+    }
+
+    private IEnumerable<PipelineStep> CreateXmlParserSteps()
+    {
+        yield return _parseGameConstants = new ParseSingletonXmlStep<GameConstants>("GameConstants",
+            "DATA\\XML\\GAMECONSTANTS.XML", repository, ServiceProvider);
+
+        yield return _parseGameObjects = new ParseXmlDatabaseFromContainerStep<GameObject>("GameObjects",
+            "DATA\\XML\\GAMEOBJECTFILES.XML", repository, ServiceProvider);
+
+        yield return _parseSfxEvents = new ParseXmlDatabaseFromContainerStep<SfxEvent>("SFXEvents",
+            "DATA\\XML\\SFXEventFiles.XML", repository, ServiceProvider);
 
         // GUIDialogs.xml
         // LensFlares.xml
@@ -54,7 +75,6 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
 
         // CONTAINER FILES:
         // GameObjectFiles.xml
-        // SFXEventFiles.xml
         // CommandBarComponentFiles.xml
         // TradeRouteFiles.xml
         // HardPointDataFiles.xml
@@ -62,12 +82,6 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
         // FactionFiles.xml
         // TargetingPrioritySetFiles.xml
         // MousePointerFiles.xml
-
-        return Task.FromResult<IList<IStep>>(new List<IStep>
-        {
-            _parseGameConstants,
-            _parseGameObjects
-        });
     }
 
     protected override async Task RunCoreAsync(CancellationToken token)
@@ -76,7 +90,22 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
 
         try
         {
-            await base.RunCoreAsync(token);
+            try
+            {
+                Logger?.LogInformation("Parsing XML Files...");
+                _parseXmlRunner.Error += OnError;
+                await _parseXmlRunner.RunAsync(token);
+            }
+            finally
+            {
+                Logger?.LogInformation("Finished parsing XML Files...");
+                _parseXmlRunner.Error -= OnError;
+            }
+
+            ThrowIfAnyStepsFailed(_parseXmlRunner.Steps);
+
+            token.ThrowIfCancellationRequested();
+            
 
             repository.Seal();
 
@@ -84,7 +113,8 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
             {
                 GameRepository = repository,
                 GameConstants = _parseGameConstants.Database,
-                GameObjects = _parseGameObjects.Database
+                GameObjects = _parseGameObjects.Database,
+                SfxEvents = _parseSfxEvents.Database,
             };
         }
         finally
@@ -104,22 +134,6 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
                 throw new InvalidOperationException($"There can be only one {Name} model.");
 
             return parsedDatabaseEntries.First();
-        }
-    }
-
-
-    private sealed class ParseFromContainerStep<T>(
-        string name,
-        string xmlFile,
-        IGameRepository repository,
-        IServiceProvider serviceProvider) 
-        : ParseXmlDatabaseFromContainerStep<IList<T>>(xmlFile, repository, serviceProvider)
-    {
-        protected override string Name => name;
-
-        protected override IList<T> CreateDatabase(IList<IList<T>> parsedDatabaseEntries)
-        {
-            return parsedDatabaseEntries.SelectMany(x => x).ToList();
         }
     }
 }

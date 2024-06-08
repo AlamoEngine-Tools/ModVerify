@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.Pipeline;
 
 namespace AET.ModVerify;
 

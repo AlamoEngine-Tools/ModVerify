@@ -4,9 +4,9 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Repositories;
 
-namespace PG.StarWarsGame.Engine.Pipeline;
+namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-public abstract class CreateDatabaseStep<T>(IGameRepository repository, IServiceProvider serviceProvider)
+internal abstract class CreateDatabaseStep<T>(IGameRepository repository, IServiceProvider serviceProvider)
     : PipelineStep(serviceProvider) where T : class
 {
     public T Database { get; private set; } = null!;

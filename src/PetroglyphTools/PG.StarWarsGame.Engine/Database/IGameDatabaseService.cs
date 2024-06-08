@@ -1,8 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using PG.StarWarsGame.Engine.Database;
 
-namespace PG.StarWarsGame.Engine.Pipeline;
+namespace PG.StarWarsGame.Engine.Database;
 
 public interface IGameDatabaseService
 {

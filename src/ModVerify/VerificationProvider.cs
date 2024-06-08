@@ -10,5 +10,6 @@ internal class VerificationProvider(IServiceProvider serviceProvider) : IVerific
     public IEnumerable<GameVerificationStep> GetAllDefaultVerifiers(IGameDatabase database, VerificationSettings settings)
     {
         yield return new VerifyReferencedModelsStep(database, settings, serviceProvider);
+        yield return new DuplicateFinderStep(database, settings, serviceProvider);
     }
 }

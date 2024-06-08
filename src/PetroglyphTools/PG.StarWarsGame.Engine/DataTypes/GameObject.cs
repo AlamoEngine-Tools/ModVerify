@@ -1,24 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PG.Commons.DataTypes;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.DataTypes;
 
-public sealed class GameObject(string type, string name, Crc32 nameCrc, GameObjectType estimatedType, ValueListDictionary<string, object> properties, XmlLocationInfo location)
-    : IHasCrc32
+public sealed class GameObject : XmlObject
 {
-    public string Type { get; } = type ?? throw new ArgumentNullException(nameof(type));
+    private readonly IReadOnlyValueListDictionary<string, object> _properties;
 
-    public string Name { get; } = name ?? throw new ArgumentNullException(nameof(name));
+    internal GameObject(
+        string type, 
+        string name, 
+        Crc32 nameCrc, 
+        GameObjectType estimatedType, 
+        IReadOnlyValueListDictionary<string, object> properties, 
+        XmlLocationInfo location) 
+        : base(name, nameCrc, location)
+    {
+        _properties = properties;
+        Type = type ?? throw new ArgumentNullException(nameof(type));
+        EstimatedType = estimatedType;
+    }
 
-    public Crc32 Crc32 { get; } = nameCrc;
+    public string Type { get; }
 
-    public GameObjectType EstimatedType { get; } = estimatedType;
 
-    public XmlLocationInfo Location { get; } = location;
+    public GameObjectType EstimatedType { get; }
 
     /// <summary>
     /// Gets all model files (including particles) the game object references.
@@ -27,22 +36,24 @@ public sealed class GameObject(string type, string name, Crc32 nameCrc, GameObje
     {
         get
         {
-            var models = properties.AggregateValues<string>(new HashSet<string>
-            {
-                "Galactic_Model_Name",
-                "Destroyed_Galactic_Model_Name",
-                "Land_Model_Name",
-                "Space_Model_Name",
-                "Model_Name",
-                "Tactical_Model_Name",
-                "Galactic_Fleet_Override_Model_Name",
-                "GUI_Model_Name",
-                "GUI_Model",
-                // This can either be a model or a unit reference
-                "Land_Model_Anim_Override_Name",
-                "xxxSpace_Model_Name",
-                "Damaged_Smoke_Asset_Name"
-            }, v => v.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
+            var models = _properties.AggregateValues<string, object, string>
+            (new HashSet<string>
+                {
+                    "Galactic_Model_Name",
+                    "Destroyed_Galactic_Model_Name",
+                    "Land_Model_Name",
+                    "Space_Model_Name",
+                    "Model_Name",
+                    "Tactical_Model_Name",
+                    "Galactic_Fleet_Override_Model_Name",
+                    "GUI_Model_Name",
+                    "GUI_Model",
+                    // This can either be a model or a unit reference
+                    "Land_Model_Anim_Override_Name",
+                    "xxxSpace_Model_Name",
+                    "Damaged_Smoke_Asset_Name"
+                }, v => v.EndsWith(".alo", StringComparison.OrdinalIgnoreCase),
+                ValueListDictionaryExtensions.AggregateStrategy.LastValuePerKey);
 
             var terrainMappedModels = LandTerrainModelMapping?.Select(x => x.Model);
             if (terrainMappedModels is null)
@@ -57,7 +68,7 @@ public sealed class GameObject(string type, string name, Crc32 nameCrc, GameObje
 
     private T? GetLastPropertyOrDefault<T>(string tagName, T? defaultValue = default)
     {
-        if (!properties.TryGetLastValue(tagName, out var value))
+        if (!_properties.TryGetLastValue(tagName, out var value))
             return defaultValue;
         return (T)value;
     }

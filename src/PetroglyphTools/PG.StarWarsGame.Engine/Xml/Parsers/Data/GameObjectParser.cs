@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
@@ -8,7 +7,7 @@ using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Parsers;
 using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers;
+namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class GameObjectParser(IServiceProvider serviceProvider) : PetroglyphXmlElementParser<GameObject>(serviceProvider)
 {
@@ -40,13 +39,17 @@ public sealed class GameObjectParser(IServiceProvider serviceProvider) : Petrogl
 
     public override GameObject Parse(XElement element)
     {
+        throw new NotSupportedException();
+    }
+
+    public override GameObject Parse(XElement element, IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements, out Crc32 nameCrc)
+    {
         var properties = ToKeyValuePairList(element);
         var name = GetNameAttributeValue(element);
-        var nameCrc = _crc32Hashing.GetCrc32(name, PGConstants.PGCrc32Encoding);
+        nameCrc = _crc32Hashing.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
         var type = GetTagName(element);
         var objectType = EstimateType(type);
-        var location = XmlLocationInfo.FromElement(element);
-        var gameObject = new GameObject(type, name, nameCrc, objectType, properties, location);
+        var gameObject = new GameObject(type, name, nameCrc, objectType, properties, XmlLocationInfo.FromElement(element));
         return gameObject;
     }
 
@@ -99,13 +102,6 @@ public sealed class GameObjectParser(IServiceProvider serviceProvider) : Petrogl
             "UpgradeObject" => GameObjectType.UpgradeUnit,
             _ => GameObjectType.Unknown
         };
-    }
-
-    public string GetNameAttributeValue(XElement element)
-    {
-        var nameAttribute = element.Attributes()
-            .FirstOrDefault(a => a.Name.LocalName == "Name");
-        return nameAttribute is null ? string.Empty : nameAttribute.Value;
     }
 
     public string GetTagName(XElement element)

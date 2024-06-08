@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using PG.Commons.Hashing;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -33,5 +34,10 @@ public sealed class CommaSeparatedStringKeyValueListParser(IServiceProvider serv
         }
 
         return keyValueList;
+    }
+
+    public override IList<(string key, string value)> Parse(XElement element, IReadOnlyValueListDictionary<Crc32, IList<(string key, string value)>> parsedElements, out Crc32 nameCrc)
+    {
+        throw new NotSupportedException();
     }
 }

@@ -16,7 +16,7 @@ using PG.StarWarsGame.Files.ChunkFiles.Data;
 
 namespace AET.ModVerify.Steps;
 
-internal sealed class VerifyReferencedModelsStep(
+public sealed class VerifyReferencedModelsStep(
     IGameDatabase database,
     VerificationSettings settings,
     IServiceProvider serviceProvider)
@@ -34,13 +34,13 @@ internal sealed class VerifyReferencedModelsStep(
 
     private readonly IAloFileService _modelFileService = serviceProvider.GetRequiredService<IAloFileService>();
 
-    protected override string LogFileName => "Model";
+    protected override string LogFileName => "ModelRefs";
 
-    public override string Name => "Model";
+    public override string Name => "Referenced Models";
 
     protected override void RunVerification(CancellationToken token)
     {
-        var aloQueue = new Queue<string>(Database.GameObjects
+        var aloQueue = new Queue<string>(Database.GameObjects.Entries
             .SelectMany(x => x.Models)
             .Concat(FocHardcodedConstants.HardcodedModels));
         

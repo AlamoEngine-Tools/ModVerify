@@ -2,14 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine.Database.Initialization;
 using PG.StarWarsGame.Engine.Repositories;
 
-namespace PG.StarWarsGame.Engine.Pipeline;
+namespace PG.StarWarsGame.Engine.Database;
 
 internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameDatabaseService
 {
-    public async Task<IGameDatabase> CreateDatabaseAsync(GameEngineType targetEngineType, GameLocations locations, CancellationToken cancellationToken = default)
+    public async Task<IGameDatabase> CreateDatabaseAsync(
+        GameEngineType targetEngineType, 
+        GameLocations locations, 
+        CancellationToken cancellationToken = default)
     {
         var repoFactory = serviceProvider.GetRequiredService<IGameRepositoryFactory>();
         var repository = repoFactory.Create(targetEngineType, locations);

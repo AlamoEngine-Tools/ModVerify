@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Linq;
+using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
@@ -8,12 +10,15 @@ public abstract class PetroglyphXmlElementParser<T>(IServiceProvider serviceProv
 {
     protected IServiceProvider ServiceProvider { get; } = serviceProvider;
 
+
     protected virtual IPetroglyphXmlElementParser? GetParser(string tag)
     {
         return PetroglyphXmlStringParser.Instance;
     }
 
     public abstract T Parse(XElement element);
+
+    public abstract T Parse(XElement element, IReadOnlyValueListDictionary<Crc32, T> parsedElements, out Crc32 nameCrc);
 
     public ValueListDictionary<string, object> ToKeyValuePairList(XElement element)
     {
@@ -30,8 +35,14 @@ public abstract class PetroglyphXmlElementParser<T>(IServiceProvider serviceProv
                 keyValuePairList.Add(tagName, value);
             }
         }
-
         return keyValuePairList;
+    }
+
+    protected string GetNameAttributeValue(XElement element)
+    {
+        var nameAttribute = element.Attributes()
+            .FirstOrDefault(a => a.Name.LocalName == "Name");
+        return nameAttribute is null ? string.Empty : nameAttribute.Value;
     }
 
     object? IPetroglyphXmlElementParser.Parse(XElement element)
