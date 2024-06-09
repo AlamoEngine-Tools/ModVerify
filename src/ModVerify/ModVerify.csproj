@@ -20,7 +20,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.3-beta" />
+	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.15-beta" />
 	  <PackageReference Include="IsExternalInit" Version="1.0.3">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

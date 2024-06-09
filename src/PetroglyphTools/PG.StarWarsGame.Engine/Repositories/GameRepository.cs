@@ -249,9 +249,10 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
 
     protected MegDataEntryReference? FindFileInMasterMeg(string filePath)
     {
-        // TODO To Span, as we don't use the name elsewhere
-        var normalizedPath = _megPathNormalizer.Normalize(filePath);
-        var crc = _crc32HashingService.GetCrc32(normalizedPath, PGConstants.PGCrc32Encoding);
+        Span<char> fileNameBuffer = stackalloc char[260];
+        var length = _megPathNormalizer.Normalize(filePath.AsSpan(), fileNameBuffer);
+        var fileName = fileNameBuffer.Slice(0, length);
+        var crc = _crc32HashingService.GetCrc32(fileName, PGConstants.PGCrc32Encoding);
 
         return MasterMegArchive?.FirstEntryWithCrc(crc);
     }
