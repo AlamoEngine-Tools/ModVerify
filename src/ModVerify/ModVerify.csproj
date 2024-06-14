@@ -4,6 +4,7 @@
 		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 		<Title>AET.ModVerify</Title>
 		<Product>AET.ModVerify</Product>
+		<Description>Provides interfaces and classes to verify Empire at War / Forces of Corruption game modifications.</Description>
 		<PackageId>AlamoEngineTools.ModVerify</PackageId>
 		<RootNamespace>AET.ModVerify</RootNamespace>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>

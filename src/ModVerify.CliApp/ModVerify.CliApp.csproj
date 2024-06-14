@@ -6,6 +6,7 @@
 		<OutputType>Exe</OutputType>
 		<Title>AET.ModVerify.CommandLine</Title>
 		<Product>AET.ModVerify</Product>
+		<Description>Application that allows to verify to verify game modifications for Empire at War / Forces of Corruption against a set of common rules.</Description>
 		<PackageId>AlamoEngineTools.ModVerify.CliApp</PackageId>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
