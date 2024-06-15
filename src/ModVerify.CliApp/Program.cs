@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
+using CommandLine;
 using EawModinfo.Spec;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,45 +32,62 @@ namespace ModVerify.CliApp;
 internal class Program
 {
     private static IServiceProvider _services = null!;
+    private static CliOptions _options;
 
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
+        _options = Parser.Default.ParseArguments<CliOptions>(args).WithParsed(o => { }).Value;
         _services = CreateAppServices();
 
-        var gameFinderResult = new ModFinderService(_services).FindAndAddModInCurrentDirectory();
-        
-        var game = gameFinderResult.Game;
-        Console.WriteLine($"0: {game.Name}");
-
-        var list = new List<IPlayableObject> { game };
-
-        var counter = 1;
-        foreach (var mod in game.Mods)
-        {
-            var isSteam = mod.Type == ModType.Workshops;
-            var line = $"{counter++}: {mod.Name}";
-            if (isSteam)
-                line += "*";
-            Console.WriteLine(line);
-            list.Add(mod);
-        }
-
+        GameFinderResult gameFinderResult;
         IPlayableObject? selectedObject = null;
 
-        do
+        if (!string.IsNullOrEmpty(_options.Path))
         {
-            Console.Write("Select a game or mod to verify: ");
-            var numberString = Console.ReadLine();
+            var fs = _services.GetService<IFileSystem>();
+            if (!fs!.Directory.Exists(_options.Path))
+                throw new DirectoryNotFoundException($"No directory found at {_options.Path}");
 
-            if (int.TryParse(numberString, out var number))
+            gameFinderResult = new ModFinderService(_services).FindAndAddModInDirectory(_options.Path);
+            var selectedPath = fs.Path.GetFullPath(_options.Path).ToUpper();
+            selectedObject =
+                (from mod1 in gameFinderResult.Game.Mods.OfType<IPhysicalMod>()
+                    let modPath = fs.Path.GetFullPath(mod1.Directory.FullName)
+                    where selectedPath.Equals(modPath)
+                    select mod1).FirstOrDefault();
+            if (selectedObject == null) throw new Exception($"The selected directory {_options.Path} is not a mod.");
+        }
+        else
+        {
+            gameFinderResult = new ModFinderService(_services).FindAndAddModInCurrentDirectory();
+            var game = gameFinderResult.Game;
+            Console.WriteLine($"0: {game.Name}");
+
+            var list = new List<IPlayableObject> { game };
+
+            var counter = 1;
+            foreach (var mod in game.Mods)
             {
+                var isSteam = mod.Type == ModType.Workshops;
+                var line = $"{counter++}: {mod.Name}";
+                if (isSteam)
+                    line += "*";
+                Console.WriteLine(line);
+                list.Add(mod);
+            }
+
+            do
+            {
+                Console.Write("Select a game or mod to verify: ");
+                var numberString = Console.ReadLine();
+
+                if (!int.TryParse(numberString, out var number)) continue;
                 if (number < list.Count)
                     selectedObject = list[number];
-            }
-        } while (selectedObject is null);
+            } while (selectedObject is null);
+        }
 
         Console.WriteLine($"Verifying {selectedObject.Name}...");
-
         var verifyPipeline = BuildPipeline(selectedObject, gameFinderResult.FallbackGame);
 
         try
@@ -121,7 +140,7 @@ internal class Program
         RuntimeHelpers.RunClassConstructor(typeof(IMegArchive).TypeHandle);
         AloServiceContribution.ContributeServices(serviceCollection);
         serviceCollection.CollectPgServiceContributions();
-        
+
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
         ModVerifyServiceContribution.ContributeServices(serviceCollection);
 
@@ -137,8 +156,25 @@ internal class Program
 #if DEBUG
         logLevel = LogLevel.Debug;
         loggingBuilder.AddDebug();
+#else
+        if (_options.Verbose)
+        {
+            logLevel = LogLevel.Debug;
+            loggingBuilder.AddDebug();
+        }
 #endif
         loggingBuilder.AddConsole();
+        loggingBuilder.SetMinimumLevel(logLevel);
+    }
+
+
+    internal class CliOptions
+    {
+        [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
+        public bool Verbose { get; set; }
+
+        [Option('p', "path", Required = false, HelpText = "The path to a mod directory to verify.")]
+        public string Path { get; set; }
     }
 }
 

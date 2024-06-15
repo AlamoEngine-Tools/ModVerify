@@ -29,9 +29,9 @@ internal class ModFinderService
         _logger = _serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
     }
 
-    public GameFinderResult FindAndAddModInCurrentDirectory()
+    public GameFinderResult FindAndAddModInDirectory(string path)
     {
-        var currentDirectory = _fileSystem.DirectoryInfo.New(Environment.CurrentDirectory);
+        var currentDirectory = _fileSystem.DirectoryInfo.New(path);
 
         // Assuming the currentDir is inside a Mod's directory, we need to go up two level (Game/Mods/ModDir)
         var potentialGameDirectory = currentDirectory.Parent?.Parent;
@@ -89,5 +89,10 @@ internal class ModFinderService
         var eaw = _gameFactory.CreateGame(eawDetectionResult);
 
         return new GameFinderResult(foc, eaw);
+    }
+
+    public GameFinderResult FindAndAddModInCurrentDirectory()
+    {
+        return FindAndAddModInDirectory(Environment.CurrentDirectory);
     }
 }

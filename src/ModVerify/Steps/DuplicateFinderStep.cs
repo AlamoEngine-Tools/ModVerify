@@ -42,7 +42,7 @@ public sealed class DuplicateFinderStep(
         var message = $"{context} '{firstEntry.Name}' ({firstEntry.Crc32}) has duplicate definitions: ";
 
         foreach (var entry in entries) 
-            message += $"['{entry.Name}' in {entry.Location.XmlFile}] ";
+            message += $"['{entry.Name}' in {entry.Location.XmlFile}:{entry.Location.Line}] ";
 
         return message.TrimEnd();
     }
