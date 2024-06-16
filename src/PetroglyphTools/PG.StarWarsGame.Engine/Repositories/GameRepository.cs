@@ -249,7 +249,9 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
 
     protected MegDataEntryReference? FindFileInMasterMeg(string filePath)
     {
-        Span<char> fileNameBuffer = stackalloc char[260];
+        Span<char> fileNameBuffer = stackalloc char[PGConstants.MaxPathLength];
+
+        // TODO: Is the engine really "to-uppering" the input???
         var length = _megPathNormalizer.Normalize(filePath.AsSpan(), fileNameBuffer);
         var fileName = fileNameBuffer.Slice(0, length);
         var crc = _crc32HashingService.GetCrc32(fileName, PGConstants.PGCrc32Encoding);

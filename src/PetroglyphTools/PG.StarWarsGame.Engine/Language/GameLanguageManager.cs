@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.Utilities;
@@ -59,6 +58,13 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         };
 
 
+    public bool TryGetLanguage(string languageName, out LanguageType language)
+    {
+        language = LanguageType.English;
+        return Enum.TryParse(languageName, true, out language);
+    }
+
+
     public bool IsFileNameLocalizable(string fileName, bool requiredEnglishName)
     {
         var fileSpan = fileName.AsSpan();
@@ -96,7 +102,7 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
 
     public string LocalizeFileName(string fileName, LanguageType language, out bool localized)
     {
-        if (fileName.Length > 260)
+        if (fileName.Length > PGConstants.MaxPathLength)
             throw new ArgumentOutOfRangeException(nameof(fileName), "fileName is too long");
 
         localized = true;
@@ -113,9 +119,7 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
 
         // The game only localizes file names iff they have the english suffix
         // NB: Also note that the engine does *not* check whether the filename actually ends with this suffix
-        // but instead only take the first occurrence. This means that a file name like
-        // 'test_eng.wav_ger.wav'
-        // will trick the algorithm.
+        // but instead only take the first occurrence. This means that a file name like 'test_eng.wav_ger.wav' will trick the algorithm.
         var engSuffixIndex = fileSpan.IndexOf("_ENG.WAV".AsSpan(), StringComparison.OrdinalIgnoreCase);
         if (engSuffixIndex != -1)
             isWav = true;
@@ -145,9 +149,7 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         else
             throw new InvalidOperationException();
 
-        // 260 is roughly the MAX file path size on default Windows,
-        // so we don't expect game files to be larger.
-        var sb = new ValueStringBuilder(stackalloc char[260]);
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
 
         sb.Append(withoutSuffix);
         sb.Append(newLocalizedSuffix);
