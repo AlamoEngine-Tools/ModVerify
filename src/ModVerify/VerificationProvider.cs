@@ -7,7 +7,7 @@ namespace AET.ModVerify;
 
 internal class VerificationProvider(IServiceProvider serviceProvider) : IVerificationProvider
 {
-    public IEnumerable<GameVerificationStep> GetAllDefaultVerifiers(IGameDatabase database, VerificationSettings settings)
+    public IEnumerable<GameVerificationStep> GetAllDefaultVerifiers(IGameDatabase database, ModVerifySettings settings)
     {
         yield return new VerifyReferencedModelsStep(database, settings, serviceProvider);
         yield return new DuplicateFinderStep(database, settings, serviceProvider);

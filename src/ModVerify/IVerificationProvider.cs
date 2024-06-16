@@ -6,5 +6,5 @@ namespace AET.ModVerify;
 
 public interface IVerificationProvider
 {
-    IEnumerable<GameVerificationStep> GetAllDefaultVerifiers(IGameDatabase database, VerificationSettings settings);
+    IEnumerable<GameVerificationStep> GetAllDefaultVerifiers(IGameDatabase database, ModVerifySettings settings);
 }

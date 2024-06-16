@@ -13,7 +13,7 @@ namespace AET.ModVerify.Steps;
 
 public abstract class GameVerificationStep(
     IGameDatabase gameDatabase,
-    VerificationSettings settings,
+    ModVerifySettings settings,
     IServiceProvider serviceProvider)
     : PipelineStep(serviceProvider)
 {
@@ -24,7 +24,7 @@ public abstract class GameVerificationStep(
 
     public IReadOnlyCollection<VerificationError> VerifyErrors => _verifyErrors;
 
-    protected VerificationSettings Settings { get; } = settings;
+    protected ModVerifySettings Settings { get; } = settings;
 
     protected IGameDatabase Database { get; } = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
 

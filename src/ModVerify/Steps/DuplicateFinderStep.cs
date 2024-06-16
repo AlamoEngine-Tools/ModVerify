@@ -9,7 +9,7 @@ namespace AET.ModVerify.Steps;
 
 public sealed class DuplicateFinderStep(
     IGameDatabase gameDatabase, 
-    VerificationSettings settings, 
+    ModVerifySettings settings, 
     IServiceProvider serviceProvider)
     : GameVerificationStep(gameDatabase, settings, serviceProvider)
 {

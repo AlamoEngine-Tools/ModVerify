@@ -118,7 +118,7 @@ internal class Program
             fallbackGame.Directory.FullName);
 
 
-        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, VerificationSettings.Default, _services);
+        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, ModVerifySettings.Default, _services);
     }
 
     private static IServiceProvider CreateAppServices()
@@ -181,7 +181,7 @@ internal class Program
 internal class ModVerifyPipeline(
     GameEngineType targetType,
     GameLocations gameLocations,
-    VerificationSettings settings,
+    ModVerifySettings settings,
     IServiceProvider serviceProvider)
     : VerifyGamePipeline(targetType, gameLocations, settings, serviceProvider)
 {

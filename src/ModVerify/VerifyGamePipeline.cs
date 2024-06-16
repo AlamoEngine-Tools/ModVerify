@@ -20,9 +20,9 @@ public abstract class VerifyGamePipeline : Pipeline
     private readonly GameLocations _gameLocations;
     private readonly ParallelRunner _verifyRunner;
 
-    protected VerificationSettings Settings { get; }
+    protected ModVerifySettings Settings { get; }
 
-    protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, VerificationSettings settings, IServiceProvider serviceProvider) 
+    protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, ModVerifySettings settings, IServiceProvider serviceProvider) 
         : base(serviceProvider)
     {
         _targetType = targetType;

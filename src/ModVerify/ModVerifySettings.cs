@@ -1,10 +1,10 @@
 ﻿namespace AET.ModVerify;
 
-public record VerificationSettings
+public record ModVerifySettings
 {
     public int ParallelWorkers { get; init; } = 4;
 
-    public static readonly VerificationSettings Default = new()
+    public static readonly ModVerifySettings Default = new()
     {
         ThrowBehavior = VerifyThrowBehavior.None
     };
