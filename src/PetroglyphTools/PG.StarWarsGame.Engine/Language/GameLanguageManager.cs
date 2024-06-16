@@ -6,8 +6,9 @@ using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.Language;
 
+// TODO: Manager for each game
 internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : ServiceBase(serviceProvider), IGameLanguageManager
-{
+{ 
     private static readonly IDictionary<LanguageType, string> LanguageToFileSuffixMapMp3 =
         new Dictionary<LanguageType, string>
         {
@@ -63,8 +64,7 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         language = LanguageType.English;
         return Enum.TryParse(languageName, true, out language);
     }
-
-
+    
     public bool IsFileNameLocalizable(string fileName, bool requiredEnglishName)
     {
         var fileSpan = fileName.AsSpan();
