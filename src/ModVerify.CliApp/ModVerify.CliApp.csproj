@@ -4,6 +4,7 @@
 		<IsPackable>false</IsPackable>
 		<TargetFrameworks>net8.0;net48</TargetFrameworks>
 		<OutputType>Exe</OutputType>
+		<ApplicationIcon>$(RepoRootPath)aet.ico</ApplicationIcon>
 		<Title>AET.ModVerify.CommandLine</Title>
 		<Product>AET.ModVerify</Product>
 		<Description>Application that allows to verify to verify game modifications for Empire at War / Forces of Corruption against a set of common rules.</Description>
@@ -41,5 +42,13 @@
 	  <ProjectReference Include="..\..\PetroglyphTools\PG.StarWarsGame.Files.DAT\PG.StarWarsGame.Files.DAT\PG.StarWarsGame.Files.DAT.csproj" />
 	  <ProjectReference Include="..\ModVerify\ModVerify.csproj" />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<WeaverConfiguration Condition="'$(Configuration)' == 'Release'">
+			<Weavers>
+				<Costura IncludeDebugSymbols="false" IgnoreSatelliteAssemblies="true" />
+			</Weavers>
+		</WeaverConfiguration>
+	</PropertyGroup>
 
 </Project>
