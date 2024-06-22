@@ -177,7 +177,7 @@ internal class Program
     private static void SetupXmlParseLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
     {
         const string xmlParseLogFileName = "XmlParseLog.txt";
-        const string parserNamespace = nameof(PG.StarWarsGame.Engine.Xml.Parsers);
+        const string parserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
 
         fileSystem.File.TryDeleteWithRetry(xmlParseLogFileName);
 
