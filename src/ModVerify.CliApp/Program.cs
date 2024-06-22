@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AET.ModVerify;
 using AET.ModVerify.Steps;
 using AET.SteamAbstraction;
+using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
@@ -15,6 +17,7 @@ using CommandLine;
 using EawModinfo.Spec;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
@@ -26,6 +29,8 @@ using PG.StarWarsGame.Infrastructure.Clients;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
+using Serilog;
+using Serilog.Filters;
 
 namespace ModVerify.CliApp;
 
@@ -125,12 +130,12 @@ internal class Program
     {
         var fileSystem = new FileSystem();
         var serviceCollection = new ServiceCollection();
-
-        serviceCollection.AddLogging(ConfigureLogging);
-
+        
         serviceCollection.AddSingleton<IRegistry>(new WindowsRegistry());
         serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
         serviceCollection.AddSingleton<IFileSystem>(fileSystem);
+
+        serviceCollection.AddLogging(builder => ConfigureLogging(builder, fileSystem));
 
         SteamAbstractionLayer.InitializeServices(serviceCollection);
         PetroglyphGameClients.InitializeServices(serviceCollection);
@@ -147,7 +152,7 @@ internal class Program
         return serviceCollection.BuildServiceProvider();
     }
 
-    private static void ConfigureLogging(ILoggingBuilder loggingBuilder)
+    private static void ConfigureLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
     {
         loggingBuilder.ClearProviders();
 
@@ -165,6 +170,35 @@ internal class Program
 #endif
         loggingBuilder.AddConsole();
         loggingBuilder.SetMinimumLevel(logLevel);
+
+        SetupXmlParseLogging(loggingBuilder, fileSystem);
+    }
+
+    private static void SetupXmlParseLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
+    {
+        const string xmlParseLogFileName = "XmlParseLog.txt";
+        const string parserNamespace = nameof(PG.StarWarsGame.Engine.Xml.Parsers);
+
+        fileSystem.File.TryDeleteWithRetry(xmlParseLogFileName);
+
+        var logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .MinimumLevel.Warning()
+            .Filter.ByIncludingOnly(Matching.FromSource(parserNamespace))
+            .WriteTo.File(xmlParseLogFileName, outputTemplate: "[{Level:u3}] [{SourceContext}] {Message}{NewLine}{Exception}")
+            .CreateLogger();
+
+        loggingBuilder.AddSerilog(logger);
+
+        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, level) =>
+        {
+            if (string.IsNullOrEmpty(category))
+                return false;
+            if (category.StartsWith(parserNamespace))
+                return false;
+
+            return true;
+        });
     }
 
 
