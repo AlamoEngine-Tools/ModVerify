@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Xml.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class SfxEventParser(IServiceProvider serviceProvider) : XmlObjectParser<SfxEvent>(serviceProvider)
 {
-    private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-
-    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(SfxEventParser));
+    protected override IPetroglyphXmlElementParser? GetParser(string tag)
+    {
+        return null;
+    }
 
     public override SfxEvent Parse(
         XElement element, 
@@ -20,7 +20,7 @@ public sealed class SfxEventParser(IServiceProvider serviceProvider) : XmlObject
         out Crc32 nameCrc)
     {
         var name = GetNameAttributeValue(element);
-        nameCrc = _hashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
+        nameCrc = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
 
         var valueList = new ValueListDictionary<string, object?>();
 
@@ -37,7 +37,7 @@ public sealed class SfxEventParser(IServiceProvider serviceProvider) : XmlObject
             if (tagName.Equals("Use_Preset"))
             {
                 var presetName = parser.Parse(child) as string;
-                var presetNameCrc = _hashingService.GetCrc32Upper(presetName.AsSpan(), PGConstants.PGCrc32Encoding);
+                var presetNameCrc = HashingService.GetCrc32Upper(presetName.AsSpan(), PGConstants.PGCrc32Encoding);
                 if (presetNameCrc == default || !parsedElements.TryGetFirstValue(presetNameCrc, out var preset))
                 {
                     // Unable to find Preset
@@ -58,10 +58,5 @@ public sealed class SfxEventParser(IServiceProvider serviceProvider) : XmlObject
     public override SfxEvent Parse(XElement element)
     {
         throw new NotSupportedException();
-    }
-
-    protected override bool IsTagSupported(string tag)
-    {
-        throw new NotImplementedException();
     }
 }

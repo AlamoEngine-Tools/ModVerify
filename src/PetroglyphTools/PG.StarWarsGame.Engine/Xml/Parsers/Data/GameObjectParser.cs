@@ -1,31 +1,44 @@
 ﻿using System;
 using System.Xml.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Parsers;
+using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class GameObjectParser(IServiceProvider serviceProvider) : XmlObjectParser<GameObject>(serviceProvider)
 {
-    private readonly ICrc32HashingService _crc32Hashing = serviceProvider.GetRequiredService<ICrc32HashingService>();
-
-    protected override bool IsTagSupported(string tag)
+    protected override IPetroglyphXmlElementParser? GetParser(string tag)
     {
-        throw new NotImplementedException();
-    }
-    
-    public override GameObject Parse(XElement element)
-    {
-        throw new NotSupportedException();
+        switch (tag)
+        {
+            case "Land_Terrain_Model_Mapping":
+                return CommaSeparatedStringKeyValueListParser.Instance;
+            case "Galactic_Model_Name":
+            case "Destroyed_Galactic_Model_Name":
+            case "Land_Model_Name":
+            case "Space_Model_Name":
+            case "Model_Name":
+            case "Tactical_Model_Name":
+            case "Galactic_Fleet_Override_Model_Name":
+            case "GUI_Model_Name":
+            case "GUI_Model":
+            case "Land_Model_Anim_Override_Name":
+            case "xxxSpace_Model_Name":
+            case "Damaged_Smoke_Asset_Name":
+                return PetroglyphXmlStringParser.Instance;
+            default:
+                return null;
+        }
     }
 
     public override GameObject Parse(XElement element, IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements, out Crc32 nameCrc)
     {
         var properties = ToKeyValuePairList(element);
         var name = GetNameAttributeValue(element);
-        nameCrc = _crc32Hashing.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
+        nameCrc = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
         var type = GetTagName(element);
         var objectType = EstimateType(type);
         var gameObject = new GameObject(type, name, nameCrc, objectType, properties, XmlLocationInfo.FromElement(element));
@@ -83,8 +96,5 @@ public sealed class GameObjectParser(IServiceProvider serviceProvider) : XmlObje
         };
     }
 
-    public string GetTagName(XElement element)
-    {
-        return element.Name.LocalName;
-    }
+    public override GameObject Parse(XElement element) => throw new NotSupportedException();
 }

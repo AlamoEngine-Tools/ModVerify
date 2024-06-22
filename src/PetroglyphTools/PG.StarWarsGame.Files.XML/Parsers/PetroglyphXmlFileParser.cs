@@ -7,8 +7,7 @@ using PG.Commons.Utilities;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvider)
-    : PetroglyphXmlParser<T>, IPetroglyphXmlFileParser<T>
+public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvider) : PetroglyphXmlParser<T>, IPetroglyphXmlFileParser<T>
 {
     protected IServiceProvider ServiceProvider { get; } = serviceProvider;
 
@@ -25,11 +24,6 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
         var root = GetRootElement(xmlStream);
         if (root is not null) 
             Parse(root, parsedEntries);
-    }
-
-    public sealed override T Parse(XElement element, IReadOnlyValueListDictionary<Crc32, T> parsedElements, out Crc32 nameCrc)
-    {
-        throw new NotSupportedException();
     }
 
     protected abstract void Parse(XElement element, IValueListDictionary<Crc32, T> parsedElements);

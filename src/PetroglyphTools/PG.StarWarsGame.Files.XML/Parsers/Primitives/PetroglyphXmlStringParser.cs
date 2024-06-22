@@ -2,7 +2,7 @@
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlStringParser : PetroglyphXmlPrimitiveParser<string>
+public sealed class PetroglyphXmlStringParser : PetroglyphXmlPrimitiveElementParser<string>
 {
     public static readonly PetroglyphXmlStringParser Instance = new();
 

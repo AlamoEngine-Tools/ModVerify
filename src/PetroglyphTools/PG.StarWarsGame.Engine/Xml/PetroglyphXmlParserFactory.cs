@@ -15,7 +15,7 @@ internal sealed class PetroglyphXmlFileParserFactory(IServiceProvider servicePro
         return (IPetroglyphXmlFileParser<T>)GetFileParser(typeof(T));
     }
 
-    public IPetroglyphXmlFileParser GetFileParser(Type type)
+    private IPetroglyphXmlFileParser GetFileParser(Type type)
     {
         if (type == typeof(XmlFileContainer))
             return new XmlFileContainerParser(serviceProvider);
@@ -29,6 +29,6 @@ internal sealed class PetroglyphXmlFileParserFactory(IServiceProvider servicePro
         if (type == typeof(SfxEvent))
             return new SfxEventFileParser(serviceProvider);
 
-        throw new NotImplementedException($"The parser for the type {type} is not yet implemented.");
+        throw new ParserNotFoundException(type);
     }
 }
