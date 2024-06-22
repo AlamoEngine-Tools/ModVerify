@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml.Linq;
-using PG.Commons.Hashing;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 // Used e.g, by <Land_Terrain_Model_Mapping>
 // Format: Key, Value, Key, Value
 // There might be arbitrary spaces, tabs and newlines
-public sealed class CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider)
-    : PetroglyphXmlElementParser<IList<(string key, string value)>>(serviceProvider)
+public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphXmlPrimitiveParser<IList<(string key, string value)>>
 {
+    public static readonly CommaSeparatedStringKeyValueListParser Instance = new();
+
+    private CommaSeparatedStringKeyValueListParser()
+    {
+    }
+
     public override IList<(string key, string value)> Parse(XElement element)
     {
         var values = element.Value.Split(',');
@@ -21,7 +24,7 @@ public sealed class CommaSeparatedStringKeyValueListParser(IServiceProvider serv
 
         var keyValueList = new List<(string key, string value)>(values.Length + 1 / 2);
 
-        for (int i = 0; i < values.Length; i += 2)
+        for (var i = 0; i < values.Length; i += 2)
         {
             // Case: Incomplete key-value pair
             if (values.Length - 1 < i + 1)
@@ -34,10 +37,5 @@ public sealed class CommaSeparatedStringKeyValueListParser(IServiceProvider serv
         }
 
         return keyValueList;
-    }
-
-    public override IList<(string key, string value)> Parse(XElement element, IReadOnlyValueListDictionary<Crc32, IList<(string key, string value)>> parsedElements, out Crc32 nameCrc)
-    {
-        throw new NotSupportedException();
     }
 }

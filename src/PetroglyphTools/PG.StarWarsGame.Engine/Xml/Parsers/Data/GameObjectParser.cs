@@ -4,39 +4,18 @@ using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
-using PG.StarWarsGame.Files.XML.Parsers;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
-public sealed class GameObjectParser(IServiceProvider serviceProvider) : PetroglyphXmlElementParser<GameObject>(serviceProvider)
+public sealed class GameObjectParser(IServiceProvider serviceProvider) : XmlObjectParser<GameObject>(serviceProvider)
 {
     private readonly ICrc32HashingService _crc32Hashing = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    protected override IPetroglyphXmlElementParser? GetParser(string tag)
+    protected override bool IsTagSupported(string tag)
     {
-        switch (tag)
-        {
-            case "Land_Terrain_Model_Mapping":
-                return new CommaSeparatedStringKeyValueListParser(ServiceProvider);
-            case "Galactic_Model_Name":
-            case "Destroyed_Galactic_Model_Name":
-            case "Land_Model_Name":
-            case "Space_Model_Name":
-            case "Model_Name":
-            case "Tactical_Model_Name":
-            case "Galactic_Fleet_Override_Model_Name":
-            case "GUI_Model_Name":
-            case "GUI_Model":
-            case "Land_Model_Anim_Override_Name":
-            case "xxxSpace_Model_Name":
-            case "Damaged_Smoke_Asset_Name":
-                return PetroglyphXmlStringParser.Instance;
-            default:
-                return null;
-        }
+        throw new NotImplementedException();
     }
-
+    
     public override GameObject Parse(XElement element)
     {
         throw new NotSupportedException();

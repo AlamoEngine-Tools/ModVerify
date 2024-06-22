@@ -1,31 +1,18 @@
 ﻿using System;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
-using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
-public sealed class SfxEventParser(IServiceProvider serviceProvider) : PetroglyphXmlElementParser<SfxEvent>(serviceProvider)
+public sealed class SfxEventParser(IServiceProvider serviceProvider) : XmlObjectParser<SfxEvent>(serviceProvider)
 {
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    protected override IPetroglyphXmlElementParser? GetParser(string tag)
-    {
-        return null;
-        //switch (tag)
-        //{
-        //    case "Land_Terrain_Model_Mapping":
-        //        return new CommaSeparatedStringKeyValueListParser(ServiceProvider);
-        //    case "Galactic_Model_Name":
-        //    case "Damaged_Smoke_Asset_Name":
-        //        return PetroglyphXmlStringParser.Instance;
-        //    default:
-        //        return null;
-        //}
-    }
+    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(SfxEventParser));
 
     public override SfxEvent Parse(
         XElement element, 
@@ -42,7 +29,10 @@ public sealed class SfxEventParser(IServiceProvider serviceProvider) : Petroglyp
             var tagName = child.Name.LocalName;
             var parser = GetParser(tagName);
             if (parser is null)
+            {
+                //_logger?.LogWarning($"Unable to find parser for tag '{tagName}' in element '{name}'");
                 continue;
+            }
 
             if (tagName.Equals("Use_Preset"))
             {
@@ -70,4 +60,8 @@ public sealed class SfxEventParser(IServiceProvider serviceProvider) : Petroglyp
         throw new NotSupportedException();
     }
 
+    protected override bool IsTagSupported(string tag)
+    {
+        throw new NotImplementedException();
+    }
 }

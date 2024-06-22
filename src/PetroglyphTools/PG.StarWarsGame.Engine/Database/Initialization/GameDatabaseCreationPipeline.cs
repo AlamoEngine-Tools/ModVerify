@@ -27,7 +27,8 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
     protected override Task<bool> PrepareCoreAsync()
     {
         _parseXmlRunner = new ParallelRunner(4, ServiceProvider);
-        foreach (var xmlParserStep in CreateXmlParserSteps()) _parseXmlRunner.AddStep(xmlParserStep);
+        foreach (var xmlParserStep in CreateXmlParserSteps())
+            _parseXmlRunner.AddStep(xmlParserStep);
 
 
         return Task.FromResult(true);
