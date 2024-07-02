@@ -21,7 +21,7 @@ public class XmlFileContainerParser(IServiceProvider serviceProvider) : Petrogly
         {
             if (child.Name == "File")
             {
-                var file = PetroglyphXmlStringParser.Instance.Parse(child);
+                var file = PrimitiveParserProvider.StringParser.Parse(child);
                 files.Add(file);
             }
         }

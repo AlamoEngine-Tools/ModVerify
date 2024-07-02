@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AET.ModVerify;
@@ -30,12 +29,16 @@ using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 using Serilog;
+using Serilog.Events;
 using Serilog.Filters;
 
 namespace ModVerify.CliApp;
 
 internal class Program
 {
+    private const string EngineParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
+    private const string ParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
+
     private static IServiceProvider _services = null!;
     private static CliOptions _options;
 
@@ -123,7 +126,7 @@ internal class Program
             fallbackGame.Directory.FullName);
 
 
-        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, ModVerifySettings.Default, _services);
+        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, GameVerifySettings.Default, _services);
     }
 
     private static IServiceProvider CreateAppServices()
@@ -177,28 +180,32 @@ internal class Program
     private static void SetupXmlParseLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
     {
         const string xmlParseLogFileName = "XmlParseLog.txt";
-        const string parserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
 
         fileSystem.File.TryDeleteWithRetry(xmlParseLogFileName);
 
         var logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
             .MinimumLevel.Warning()
-            .Filter.ByIncludingOnly(Matching.FromSource(parserNamespace))
+            .Filter.ByIncludingOnly(IsXmlParserLogging)
             .WriteTo.File(xmlParseLogFileName, outputTemplate: "[{Level:u3}] [{SourceContext}] {Message}{NewLine}{Exception}")
             .CreateLogger();
 
         loggingBuilder.AddSerilog(logger);
 
-        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, level) =>
+        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, _) =>
         {
             if (string.IsNullOrEmpty(category))
                 return false;
-            if (category.StartsWith(parserNamespace))
+            if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
                 return false;
 
             return true;
         });
+    }
+
+    private static bool IsXmlParserLogging(LogEvent logEvent)
+    {
+        return Matching.FromSource(ParserNamespace)(logEvent) || Matching.FromSource(EngineParserNamespace)(logEvent);
     }
 
 
@@ -215,7 +222,7 @@ internal class Program
 internal class ModVerifyPipeline(
     GameEngineType targetType,
     GameLocations gameLocations,
-    ModVerifySettings settings,
+    GameVerifySettings settings,
     IServiceProvider serviceProvider)
     : VerifyGamePipeline(targetType, gameLocations, settings, serviceProvider)
 {

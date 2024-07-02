@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
@@ -9,38 +8,44 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-public abstract class XmlObjectParser<T> : PetroglyphXmlElementParser<T> where T : XmlObject
-{
-    protected IServiceProvider ServiceProvider { get; }
+public abstract class XmlObjectParser<T>(IReadOnlyValueListDictionary<Crc32, T> parsedElements, IServiceProvider serviceProvider)
+    : PetroglyphXmlElementParser<T>(serviceProvider) where T : XmlObject
+{ 
+    protected IReadOnlyValueListDictionary<Crc32, T> ParsedElements { get; } = parsedElements ?? throw new ArgumentNullException(nameof(parsedElements));
 
-    protected ILogger? Logger { get; }
-    
-    protected ICrc32HashingService HashingService { get; }
+    protected ICrc32HashingService HashingService { get; } = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    protected XmlObjectParser(IServiceProvider serviceProvider)
-    {
-        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
-        HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-    }
+    public abstract T Parse(XElement element, out Crc32 nameCrc);
 
     protected abstract IPetroglyphXmlElementParser? GetParser(string tag);
 
-    protected ValueListDictionary<string, object> ToKeyValuePairList(XElement element)
+    protected ValueListDictionary<string, object?> ParseXmlElement(XElement element, string? name = null)
     {
-        var keyValuePairList = new ValueListDictionary<string, object>();
+        var xmlProperties = new ValueListDictionary<string, object?>();
         foreach (var elm in element.Elements())
         {
             var tagName = elm.Name.LocalName;
 
             var parser = GetParser(tagName);
 
-            if (parser is not null)
+            if (parser is null)
             {
-                var value = parser.Parse(elm);
-                keyValuePairList.Add(tagName, value);
+                // TODO
+                //var nameOrPosition = name ?? XmlLocationInfo.FromElement(element).ToString();
+                //Logger?.LogWarning($"Unable to find parser for tag '{tagName}' in element '{nameOrPosition}'");
+                continue;
             }
+            
+            var value = parser.Parse(elm);
+            
+            if (OnParsed(tagName, value, xmlProperties, name))
+                xmlProperties.Add(tagName, value);
         }
-        return keyValuePairList;
+        return xmlProperties;
+    }
+
+    protected virtual bool OnParsed(string tag, object value, ValueListDictionary<string, object?> properties, string? elementName)
+    {
+        return true;
     }
 }

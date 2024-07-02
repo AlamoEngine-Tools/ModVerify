@@ -12,7 +12,14 @@ namespace PG.StarWarsGame.Files.XML;
 public interface IReadOnlyValueListDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
     ICollection<TValue> Values { get; }
+    
     ICollection<TKey> Keys { get; }
+
+    int Count { get; }
+
+    TKey this[int index] { get; }
+
+    TValue GetValueAtIndex(int index);
 
     bool ContainsKey(TKey key);
 
@@ -37,12 +44,44 @@ public interface IValueListDictionary<TKey, TValue> : IReadOnlyValueListDictiona
 // NOT THREAD-SAFE!
 public class ValueListDictionary<TKey, TValue> : IValueListDictionary<TKey, TValue> where TKey : notnull
 {
+    private readonly List<TKey> _insertionTrackingList = new();
     private readonly Dictionary<TKey, TValue> _singleValueDictionary = new ();
     private readonly Dictionary<TKey, List<TValue>> _multiValueDictionary = new();
+
+    private readonly EqualityComparer<TKey> _equalityComparer = EqualityComparer<TKey>.Default;
+
+    public int Count => _insertionTrackingList.Count;
+
+    public TKey this[int index] => _insertionTrackingList[index];
 
     public ICollection<TKey> Keys => _singleValueDictionary.Keys.Concat(_multiValueDictionary.Keys).ToList();
 
     public ICollection<TValue> Values => this.Select(x => x.Value).ToList();
+
+    public TValue GetValueAtIndex(int index)
+    {
+        if (index < 0 || index >= Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+
+        var key = this[index];
+        if (_singleValueDictionary.TryGetValue(key, out var value))
+            return value;
+
+        if (index == 0)
+            return _multiValueDictionary[key].First();
+        
+        if (index == Count - 1)
+            return _multiValueDictionary[key].Last();
+
+        var keyCount = 0;
+        foreach (var k in _insertionTrackingList.Take(index + 1))
+        {
+            if (_equalityComparer.Equals(key, k))
+                keyCount++;
+        }
+
+        return _multiValueDictionary[key][keyCount - 1];
+    }
 
     public bool ContainsKey(TKey key)
     {
@@ -53,6 +92,8 @@ public class ValueListDictionary<TKey, TValue> : IValueListDictionary<TKey, TVal
     {
         if (key is null)
             throw new ArgumentNullException(nameof(key));
+
+        _insertionTrackingList.Add(key);
 
         if (!_singleValueDictionary.ContainsKey(key))
         {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
@@ -8,9 +9,7 @@ namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 // There might be arbitrary spaces, tabs and newlines
 public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphXmlPrimitiveElementParser<IList<(string key, string value)>>
 {
-    public static readonly CommaSeparatedStringKeyValueListParser Instance = new();
-
-    private CommaSeparatedStringKeyValueListParser()
+    internal CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider) : base(serviceProvider)
     {
     }
 

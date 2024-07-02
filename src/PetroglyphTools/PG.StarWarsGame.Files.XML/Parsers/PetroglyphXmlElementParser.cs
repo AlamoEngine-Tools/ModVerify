@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Xml.Linq;
-using PG.Commons.Hashing;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphXmlElementParser<T> : PetroglyphXmlParser<T>
+public abstract class PetroglyphXmlElementParser<T>(IServiceProvider serviceProvider) 
+    : PetroglyphXmlParser<T>(serviceProvider)
 {
     protected string GetTagName(XElement element)
     {
@@ -17,6 +18,4 @@ public abstract class PetroglyphXmlElementParser<T> : PetroglyphXmlParser<T>
             .FirstOrDefault(a => a.Name.LocalName == "Name");
         return nameAttribute is null ? string.Empty : nameAttribute.Value;
     }
-
-    public abstract T Parse(XElement element, IReadOnlyValueListDictionary<Crc32, T> parsedElements, out Crc32 nameCrc);
 }

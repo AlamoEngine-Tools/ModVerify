@@ -8,18 +8,15 @@ namespace PG.StarWarsGame.Engine.DataTypes;
 
 public sealed class GameObject : XmlObject
 {
-    private readonly IReadOnlyValueListDictionary<string, object> _properties;
-
     internal GameObject(
         string type, 
         string name, 
         Crc32 nameCrc, 
         GameObjectType estimatedType, 
-        IReadOnlyValueListDictionary<string, object> properties, 
+        IReadOnlyValueListDictionary<string, object?> properties, 
         XmlLocationInfo location) 
-        : base(name, nameCrc, location)
+        : base(name, nameCrc, properties, location)
     {
-        _properties = properties;
         Type = type ?? throw new ArgumentNullException(nameof(type));
         EstimatedType = estimatedType;
     }
@@ -36,7 +33,7 @@ public sealed class GameObject : XmlObject
     {
         get
         {
-            var models = _properties.AggregateValues<string, object, string>
+            var models = XmlProperties.AggregateValues<string, object?, string>
             (new HashSet<string>
                 {
                     "Galactic_Model_Name",
@@ -65,11 +62,4 @@ public sealed class GameObject : XmlObject
 
     public IList<(string Terrain, string Model)>? LandTerrainModelMapping =>
         GetLastPropertyOrDefault<IList<(string Terrain, string Model)>>("Land_Terrain_Model_Mapping");
-
-    private T? GetLastPropertyOrDefault<T>(string tagName, T? defaultValue = default)
-    {
-        if (!_properties.TryGetLastValue(tagName, out var value))
-            return defaultValue;
-        return (T)value;
-    }
 }

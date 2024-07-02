@@ -13,12 +13,12 @@ internal class GameObjectFileFileParser(IServiceProvider serviceProvider)
 {
     protected override void Parse(XElement element, IValueListDictionary<Crc32, GameObject> parsedElements)
     {
-        var parser = new GameObjectParser(ServiceProvider);
+        var parser = new GameObjectParser(parsedElements, ServiceProvider);
 
         foreach (var xElement in element.Elements())
         {
-            var sfxEvent = parser.Parse(xElement, parsedElements, out var nameCrc);
-            parsedElements.Add(nameCrc, sfxEvent);
+            var gameObject = parser.Parse(xElement, out var nameCrc);
+            parsedElements.Add(nameCrc, gameObject);
         }
     }
 

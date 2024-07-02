@@ -7,11 +7,9 @@ using PG.Commons.Utilities;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvider) : PetroglyphXmlParser<T>, IPetroglyphXmlFileParser<T>
+public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvider) : PetroglyphXmlParser<T>(serviceProvider), IPetroglyphXmlFileParser<T>
 {
-    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
-
-    protected virtual bool LoadLineInfo => false;
+    protected virtual bool LoadLineInfo => true;
 
     public T ParseFile(Stream xmlStream)
     {

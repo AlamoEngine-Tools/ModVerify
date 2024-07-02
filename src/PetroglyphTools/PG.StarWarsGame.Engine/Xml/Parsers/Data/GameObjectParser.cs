@@ -8,14 +8,17 @@ using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
-public sealed class GameObjectParser(IServiceProvider serviceProvider) : XmlObjectParser<GameObject>(serviceProvider)
+public sealed class GameObjectParser(
+    IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements,
+    IServiceProvider serviceProvider)
+    : XmlObjectParser<GameObject>(parsedElements, serviceProvider)
 {
     protected override IPetroglyphXmlElementParser? GetParser(string tag)
     {
         switch (tag)
         {
             case "Land_Terrain_Model_Mapping":
-                return CommaSeparatedStringKeyValueListParser.Instance;
+                return PrimitiveParserProvider.CommaSeparatedStringKeyValueListParser;
             case "Galactic_Model_Name":
             case "Destroyed_Galactic_Model_Name":
             case "Land_Model_Name":
@@ -28,15 +31,15 @@ public sealed class GameObjectParser(IServiceProvider serviceProvider) : XmlObje
             case "Land_Model_Anim_Override_Name":
             case "xxxSpace_Model_Name":
             case "Damaged_Smoke_Asset_Name":
-                return PetroglyphXmlStringParser.Instance;
+                return PrimitiveParserProvider.StringParser;
             default:
                 return null;
         }
     }
 
-    public override GameObject Parse(XElement element, IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements, out Crc32 nameCrc)
+    public override GameObject Parse(XElement element, out Crc32 nameCrc)
     {
-        var properties = ToKeyValuePairList(element);
+        var properties = ParseXmlElement(element);
         var name = GetNameAttributeValue(element);
         nameCrc = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
         var type = GetTagName(element);

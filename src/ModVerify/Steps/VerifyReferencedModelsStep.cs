@@ -18,7 +18,7 @@ namespace AET.ModVerify.Steps;
 
 public sealed class VerifyReferencedModelsStep(
     IGameDatabase database,
-    ModVerifySettings settings,
+    GameVerifySettings settings,
     IServiceProvider serviceProvider)
     : GameVerificationStep(database, settings, serviceProvider)
 {

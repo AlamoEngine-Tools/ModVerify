@@ -1,3 +1,10 @@
-﻿namespace PG.StarWarsGame.Files.XML.Parsers;
+﻿using System;
 
-public abstract class PetroglyphXmlPrimitiveElementParser<T> : PetroglyphXmlParser<T>, IPetroglyphXmlElementParser<T>;
+namespace PG.StarWarsGame.Files.XML.Parsers;
+
+public abstract class PetroglyphXmlPrimitiveElementParser<T> : PetroglyphXmlParser<T>, IPetroglyphXmlElementParser<T>
+{
+    private protected PetroglyphXmlPrimitiveElementParser(IServiceProvider serviceProvider) : base(serviceProvider)
+    {
+    }
+}

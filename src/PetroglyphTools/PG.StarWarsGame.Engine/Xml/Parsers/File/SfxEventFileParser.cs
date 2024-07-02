@@ -13,12 +13,11 @@ internal class SfxEventFileParser(IServiceProvider serviceProvider)
 {
     protected override void Parse(XElement element, IValueListDictionary<Crc32, SfxEvent> parsedElements)
     {
-        var parser = new SfxEventParser(ServiceProvider);
-        var parsedObjects = new ValueListDictionary<Crc32, SfxEvent>();
+        var parser = new SfxEventParser(parsedElements, ServiceProvider);
         foreach (var xElement in element.Elements())
         {
-            var sfxEvent = parser.Parse(xElement, parsedObjects, out var nameCrc);
-            parsedObjects.Add(nameCrc, sfxEvent);
+            var sfxEvent = parser.Parse(xElement, out var nameCrc);
+            parsedElements.Add(nameCrc, sfxEvent);
         }
     }
 
