@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -26,6 +27,12 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveE
 
         if (trimmedValued.Length == 0)
             return Array.Empty<string>();
+
+        if (trimmedValued.Length > 0x2000)
+        {
+            Logger?.LogWarning($"Input value is too long '{trimmedValued.Length}' at {XmlLocationInfo.FromElement(element)}");
+            return Array.Empty<string>();
+        }
 
         var entries = trimmedValued.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
 

@@ -14,6 +14,8 @@ public interface IPrimitiveParserProvider
 
     PetroglyphXmlByteParser ByteParser { get; }
 
+    PetroglyphXmlMax100ByteParser Max100ByteParser { get; }
+
     PetroglyphXmlBooleanParser BooleanParser { get; }
 
     CommaSeparatedStringKeyValueListParser CommaSeparatedStringKeyValueListParser { get; }

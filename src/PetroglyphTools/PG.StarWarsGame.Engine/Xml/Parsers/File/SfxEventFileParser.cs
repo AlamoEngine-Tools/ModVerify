@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
@@ -17,6 +18,8 @@ internal class SfxEventFileParser(IServiceProvider serviceProvider)
         foreach (var xElement in element.Elements())
         {
             var sfxEvent = parser.Parse(xElement, out var nameCrc);
+            if (nameCrc == default)
+                Logger?.LogWarning($"SFXEvent has no name at location '{XmlLocationInfo.FromElement(xElement)}'");
             parsedElements.Add(nameCrc, sfxEvent);
         }
     }
