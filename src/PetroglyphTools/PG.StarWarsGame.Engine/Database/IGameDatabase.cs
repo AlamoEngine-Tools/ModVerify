@@ -1,15 +1,19 @@
-﻿using PG.StarWarsGame.Engine.DataTypes;
+﻿using System.Collections.Generic;
+using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.Language;
 using PG.StarWarsGame.Engine.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database;
 
 public interface IGameDatabase
 {
-    public IGameRepository GameRepository { get; }
+    IGameRepository GameRepository { get; }
 
-    public GameConstants GameConstants { get; }
+    GameConstants GameConstants { get; }
 
-    public IXmlDatabase<GameObject> GameObjects { get; }
+    IXmlDatabase<GameObject> GameObjects { get; }
 
-    public IXmlDatabase<SfxEvent> SfxEvents { get; }
+    IXmlDatabase<SfxEvent> SfxEvents { get; }
+
+    IEnumerable<LanguageType> InstalledLanguages { get; }
 }

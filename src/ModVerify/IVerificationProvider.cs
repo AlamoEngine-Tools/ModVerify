@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using AET.ModVerify.Steps;
+using AET.ModVerify.Settings;
+using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.Database;
 
 namespace AET.ModVerify;
 
 public interface IVerificationProvider
 {
-    IEnumerable<GameVerificationStep> GetAllDefaultVerifiers(IGameDatabase database, GameVerifySettings settings);
+    IEnumerable<GameVerifierBase> GetAllDefaultVerifiers(IGameDatabase database, GameVerifySettings settings);
 }

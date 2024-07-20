@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using AET.ModVerify.Reporting;
+using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Binary;
 using PG.Commons.Files;
@@ -13,30 +15,21 @@ using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
+using AnakinRaW.CommonUtilities.FileSystem;
 
-namespace AET.ModVerify.Steps;
+namespace AET.ModVerify.Verifiers;
 
-public sealed class VerifyReferencedModelsStep(
+public sealed class ReferencedModelsVerifier(
     IGameDatabase database,
     GameVerifySettings settings,
     IServiceProvider serviceProvider)
-    : GameVerificationStep(database, settings, serviceProvider)
+    : GameVerifierBase(database, settings, serviceProvider)
 {
-    public const string ModelNotFound = "ALO00";
-    public const string ModelBroken = "ALO01";
-    public const string ModelMissingTexture = "ALO02";
-    public const string ModelMissingProxy = "ALO03";
-    public const string ModelMissingShader = "ALO04";
-
     private const string ProxyAltIdentifier = "_ALT";
-
-    private static readonly string[] TextureExtensions = ["dds", "tga"];
 
     private readonly IAloFileService _modelFileService = serviceProvider.GetRequiredService<IAloFileService>();
 
-    protected override string LogFileName => "ModelRefs";
-
-    public override string Name => "Referenced Models";
+    public override string FriendlyName => "Referenced Models";
 
     protected override void RunVerification(CancellationToken token)
     {
@@ -58,7 +51,13 @@ public sealed class VerifyReferencedModelsStep(
 
             if (modelStream is null)
             {
-                var error = VerificationError<string>.Create(ModelNotFound, $"Unable to find .ALO data: {model}", model);
+                var error = VerificationError.Create(
+                    this,
+                    VerifierErrorCodes.ModelNotFound, 
+                    $"Unable to find .ALO file '{model}'", 
+                    VerificationSeverity.Error, 
+                    model);
+
                 AddError(error);
             }
             else
@@ -87,12 +86,42 @@ public sealed class VerifyReferencedModelsStep(
         {
             var aloFile = modelStream.GetFilePath();
             var message = $"{aloFile} is corrupted: {e.Message}";
-            AddError(VerificationError<string>.Create(ModelBroken, message, aloFile));
+            AddError(VerificationError.Create(this, VerifierErrorCodes.ModelBroken, message, VerificationSeverity.Critical, aloFile));
         }
     }
 
-    private void VerifyParticle(IAloParticleFile particle)
+    private void VerifyParticle(IAloParticleFile file)
     {
+        foreach (var texture in file.Content.Textures)
+        {
+            GuardedVerify(() => VerifyTextureExists(file, texture),
+                e => e is ArgumentException,
+                _ =>
+                {
+                    AddError(VerificationError.Create(
+                        this,
+                        VerifierErrorCodes.InvalidTexture,
+                        $"Invalid texture file name" +
+                        $" '{texture}' in particle '{file.FilePath}'",
+                        VerificationSeverity.Error,
+                        texture, 
+                        file.FilePath));
+                });
+        }
+
+        var fileName = FileSystem.Path.GetFileNameWithoutExtension(file.FilePath.AsSpan());
+        var name = file.Content.Name.AsSpan();
+
+        if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
+        {
+            AddError(VerificationError.Create(
+                this,
+                VerifierErrorCodes.InvalidParticleName,
+                $"The particle name '{file.Content.Name}' does not match file name '{fileName.ToString()}'", 
+                VerificationSeverity.Error, 
+                file.FilePath));
+        }
+
     }
 
     private void VerifyModel(IAloModelFile file, Queue<string> workingQueue)
@@ -101,14 +130,32 @@ public sealed class VerifyReferencedModelsStep(
         {
             GuardedVerify(() => VerifyTextureExists(file, texture),
                 e => e is ArgumentException,
-                $"texture '{texture}'");
+                _ =>
+                {
+                    AddError(VerificationError.Create(
+                        this,
+                        VerifierErrorCodes.InvalidTexture, 
+                        $"Invalid texture file name" +
+                        $" '{texture}' in model '{file.FilePath}'",
+                        VerificationSeverity.Error, 
+                        texture, file.FilePath));
+                });
         }
 
         foreach (var shader in file.Content.Shaders)
         {
             GuardedVerify(() => VerifyShaderExists(file, shader),
                 e => e is ArgumentException,
-                $"shader '{shader}'");
+                _ =>
+                {
+                    AddError(VerificationError.Create(
+                        this,
+                        VerifierErrorCodes.InvalidShader,
+                        $"Invalid texture file name" +
+                        $" '{shader}' in model '{file.FilePath}'",
+                        VerificationSeverity.Error,
+                        shader, file.FilePath));
+                });
         }
 
 
@@ -116,7 +163,16 @@ public sealed class VerifyReferencedModelsStep(
         {
             GuardedVerify(() => VerifyProxyExists(file, proxy, workingQueue),
                 e => e is ArgumentException,
-                $"proxy '{proxy}'");
+                _ =>
+                {
+                    AddError(VerificationError.Create(
+                        this,
+                        VerifierErrorCodes.InvalidProxy,
+                        $"Invalid proxy file name" +
+                        $" '{proxy}' in model '{file.FilePath}'",
+                        VerificationSeverity.Error,
+                        proxy, file.FilePath));
+                });
         }
     }
 
@@ -124,12 +180,11 @@ public sealed class VerifyReferencedModelsStep(
     {
         if (texture == "None")
             return;
-        var texturePath = FileSystem.Path.Combine("Data/Art/Textures", texture);
-        if (!Repository.FileExists(texturePath, TextureExtensions))
+        
+        if (!Repository.TextureRepository.FileExists(texture))
         {
             var message = $"{model.FilePath} references missing texture: {texture}";
-            var error = VerificationError<(string Model, string Texture)>
-                .Create(ModelMissingTexture, message, (model.FilePath, texture));
+            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, model.FilePath, texture);
             AddError(error);
         }
     }
@@ -141,8 +196,7 @@ public sealed class VerifyReferencedModelsStep(
         if (!Repository.FileExists(BuildModelPath(particle)))
         {
             var message = $"{model.FilePath} references missing proxy particle: {particle}";
-            var error = VerificationError<(string Model, string Proxy)>
-                .Create(ModelMissingProxy, message, (model.FilePath, particle));
+            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, model.FilePath, particle);
             AddError(error);
         }
         else
@@ -162,8 +216,7 @@ public sealed class VerifyReferencedModelsStep(
         if (!Repository.EffectsRepository.FileExists(shader))
         {
             var message = $"{data.FilePath} references missing shader effect: {shader}";
-            var error = VerificationError<(string, string)>
-                .Create(ModelMissingShader, message, (data.FilePath, shader));
+            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, data.FilePath, shader);
             AddError(error);
         }
     }

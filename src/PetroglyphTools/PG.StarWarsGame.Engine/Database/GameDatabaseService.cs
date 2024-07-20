@@ -11,7 +11,7 @@ internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameData
 {
     public async Task<IGameDatabase> CreateDatabaseAsync(
         GameEngineType targetEngineType, 
-        GameLocations locations, 
+        GameLocations locations,
         CancellationToken cancellationToken = default)
     {
         var repoFactory = serviceProvider.GetRequiredService<IGameRepositoryFactory>();

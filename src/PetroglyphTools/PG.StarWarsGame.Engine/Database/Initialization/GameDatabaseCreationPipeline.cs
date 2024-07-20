@@ -12,7 +12,7 @@ using PG.StarWarsGame.Engine.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider)
+internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider) 
     : Pipeline(serviceProvider)
 {
     private ParseSingletonXmlStep<GameConstants> _parseGameConstants = null!;
@@ -106,6 +106,9 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
             ThrowIfAnyStepsFailed(_parseXmlRunner.Steps);
 
             token.ThrowIfCancellationRequested();
+
+
+            var installedLanguages = repository.InitializeInstalledSfxMegFiles();
             
 
             repository.Seal();
@@ -116,6 +119,7 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
                 GameConstants = _parseGameConstants.Database,
                 GameObjects = _parseGameObjects.Database,
                 SfxEvents = _parseSfxEvents.Database,
+                InstalledLanguages = installedLanguages
             };
         }
         finally

@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
+using PG.StarWarsGame.Engine.Language;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
@@ -29,6 +30,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
     private readonly PetroglyphDataEntryPathNormalizer _megPathNormalizer;
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
+    private readonly IGameLanguageManagerProvider _languageManagerProvider;
     
     protected readonly string GameDirectory;
 
@@ -40,7 +42,10 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
     public abstract GameEngineType EngineType { get; }
 
     public IRepository EffectsRepository { get; }
-    
+    public IRepository TextureRepository { get; }
+
+
+    private readonly List<string> _loadedMegFiles = new();
     protected IVirtualMegArchive? MasterMegArchive { get; private set; }
 
     protected GameRepository(GameLocations gameLocations, IServiceProvider serviceProvider) : base(serviceProvider)
@@ -53,6 +58,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         _virtualMegBuilder = serviceProvider.GetRequiredService<IVirtualMegArchiveBuilder>();
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _megPathNormalizer = new PetroglyphDataEntryPathNormalizer(serviceProvider);
+        _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
 
         foreach (var mod in gameLocations.ModPaths)
         {
@@ -76,6 +82,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         }
 
         EffectsRepository = new EffectsRepository(this, serviceProvider);
+        TextureRepository = new TextureRepository(this, serviceProvider);
     }
 
     
@@ -92,6 +99,8 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
                     new MegDataEntryReference(new MegDataEntryLocationReference(megFile, entry))));
             MasterMegArchive = _virtualMegBuilder.BuildFrom(MasterMegArchive.ToList().Concat(newLocations), true);
         }
+
+        _loadedMegFiles.AddRange(megFiles.Select(x => x.FilePath));
     }
 
     public void AddMegFile(string megFile)
@@ -192,6 +201,67 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
             }, megFileOnly);
 
         return files;
+    }
+
+    public bool IsLanguageInstalled(LanguageType language)
+    {
+        // A language is considered to be installed if its Text, Speech and localized 2d file exists in the current game
+        var languageFiles = new LanguageFiles(language);
+
+        if (!FileExists(languageFiles.MasterTextDatFilePath))
+            return false;
+
+        if (!FileExists(languageFiles.Sfx2dMegFilePath))
+            return false;
+
+
+        foreach (var loadedMegFile in _loadedMegFiles)
+        {
+            var file = FileSystem.Path.GetFileName(loadedMegFile.AsSpan());
+            var speechFileName = languageFiles.SpeechMegFileName.AsSpan();
+
+            if (file.Equals(speechFileName, StringComparison.OrdinalIgnoreCase)) 
+                return true;
+        }
+
+        return false;
+    }
+
+    public IEnumerable<LanguageType> InitializeInstalledSfxMegFiles()
+    {
+        ThrowIfSealed();
+
+        var firstFallback = FallbackPaths.FirstOrDefault();
+        if (firstFallback is not null)
+        {
+            AddMegFile(FileSystem.Path.Combine(firstFallback, "DATA\\AUDIO\\SFX\\SFX2D_NON_LOCALIZED.MEG"));
+            AddMegFile(FileSystem.Path.Combine(firstFallback, "DATA\\AUDIO\\SFX\\SFX3D_NON_LOCALIZED.MEG"));
+        }
+
+        AddMegFile("DATA\\AUDIO\\SFX\\SFX2D_NON_LOCALIZED.MEG");
+        AddMegFile("DATA\\AUDIO\\SFX\\SFX3D_NON_LOCALIZED.MEG");
+
+
+        var languageManager = _languageManagerProvider.GetLanguageManager(EngineType);
+        var languages = new List<LanguageType>();
+        foreach (var language in languageManager.SupportedLanguages)
+        {
+            if (!IsLanguageInstalled(language))
+                continue;
+            languages.Add(language);
+
+            var languageFiles = new LanguageFiles(language);
+
+            if (firstFallback is not null) 
+                AddMegFile(FileSystem.Path.Combine(firstFallback, languageFiles.Sfx2dMegFilePath));
+
+            AddMegFile(languageFiles.Sfx2dMegFilePath);
+        }
+
+        if (languages.Count == 0) 
+            Logger.LogWarning("Unable to initialize any language.");
+
+        return languages;
     }
 
     protected IList<IMegFile> LoadMegArchivesFromXml(string lookupPath)
@@ -303,4 +373,24 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
 
     [StructLayout(LayoutKind.Explicit)]
     private readonly struct EmptyStruct;
+
+    private sealed class LanguageFiles
+    {
+        public LanguageType Language { get; }
+
+        public string MasterTextDatFilePath { get; }
+
+        public string Sfx2dMegFilePath { get; }
+
+        public string SpeechMegFileName { get; }
+
+        public LanguageFiles(LanguageType language)
+        {
+            Language = language;
+            var languageString = language.ToString().ToUpperInvariant();
+            MasterTextDatFilePath = $"DATA\\TEXT\\MasterTextFile_{languageString}.DAT";
+            Sfx2dMegFilePath = $"DATA\\AUDIO\\SFX\\SFX2D_{languageString}.MEG";
+            SpeechMegFileName = $"{languageString}SPEECH.MEG";
+        }
+    }
 }

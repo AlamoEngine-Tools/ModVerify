@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Services;
-using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.Language;
 
-// TODO: Manager for each game
-internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : ServiceBase(serviceProvider), IGameLanguageManager
+internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : ServiceBase(serviceProvider), IGameLanguageManager
 { 
     private static readonly IDictionary<LanguageType, string> LanguageToFileSuffixMapMp3 =
         new Dictionary<LanguageType, string>
@@ -41,23 +42,7 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
             { LanguageType.Thai, "_THA.WAV" },
         };
 
-    public IReadOnlyCollection<LanguageType> FocSupportedLanguages { get; } =
-        new HashSet<LanguageType>
-        {
-            LanguageType.English, LanguageType.German, LanguageType.French,
-            LanguageType.Spanish, LanguageType.Italian, LanguageType.Russian,
-            LanguageType.Polish
-        };
-
-    public IReadOnlyCollection<LanguageType> EawSupportedLanguages { get; } =
-        new HashSet<LanguageType>
-        {
-            LanguageType.English, LanguageType.German, LanguageType.French,
-            LanguageType.Spanish, LanguageType.Italian, LanguageType.Japanese,
-            LanguageType.Korean, LanguageType.Chinese, LanguageType.Russian,
-            LanguageType.Polish, LanguageType.Thai
-        };
-
+    public abstract IEnumerable<LanguageType> SupportedLanguages { get; }
 
     public bool TryGetLanguage(string languageName, out LanguageType language)
     {
@@ -65,21 +50,19 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         return Enum.TryParse(languageName, true, out language);
     }
     
-    public bool IsFileNameLocalizable(string fileName, bool requiredEnglishName)
+    public bool IsFileNameLocalizable(ReadOnlySpan<char> fileName, bool requiredEnglishName)
     {
-        var fileSpan = fileName.AsSpan();
-
         if (requiredEnglishName)
         {
-            if (fileSpan.EndsWith("_ENG.WAV".AsSpan(), StringComparison.OrdinalIgnoreCase))
+            if (fileName.EndsWith("_ENG.WAV".AsSpan(), StringComparison.OrdinalIgnoreCase))
                 return true;
-            if (fileSpan.EndsWith("_ENG.MP3".AsSpan(), StringComparison.OrdinalIgnoreCase))
+            if (fileName.EndsWith("_ENG.MP3".AsSpan(), StringComparison.OrdinalIgnoreCase))
                 return true;
             return false;
         }
 
-        var isWav = fileSpan.EndsWith(".WAV".AsSpan(), StringComparison.OrdinalIgnoreCase);
-        var isMp3 = fileSpan.EndsWith(".MP3".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        var isWav = fileName.EndsWith(".WAV".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        var isMp3 = fileName.EndsWith(".MP3".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         ICollection<string>? checkList = null;
         if (isWav)
@@ -92,11 +75,39 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
 
         foreach (var toCheck in checkList)
         {
-            if (fileSpan.EndsWith(toCheck.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            if (fileName.EndsWith(toCheck.AsSpan(), StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
         return false;
+    }
+
+    public virtual LanguageType GetLanguagesFromUser()
+    {
+        CultureInfo culture;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var langId = GetUserDefaultUILanguage();
+            culture = new CultureInfo(langId);
+        }
+        else
+            culture = CultureInfo.CurrentCulture;
+
+        var rootCulture = GetParentCultureRecursive(culture);
+
+        var cultureName = rootCulture.EnglishName;
+
+        if (TryGetLanguage(cultureName, out var language))
+            return language;
+        return LanguageType.English;
+    }
+
+    private CultureInfo GetParentCultureRecursive(CultureInfo culture)
+    {
+        var parent = culture.Parent;
+        if (parent.Equals(CultureInfo.InvariantCulture))
+            return culture;
+        return GetParentCultureRecursive(parent);
     }
 
 
@@ -105,14 +116,42 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         if (fileName.Length > PGConstants.MaxPathLength)
             throw new ArgumentOutOfRangeException(nameof(fileName), "fileName is too long");
 
+        // The game assumes that all localized audio files are referenced by using their english name.
+        // Thus, PG takes this shortcut
+        if (language == LanguageType.English)
+        {
+            localized = true;
+            return fileName;
+        }
+
+
+        Span<char> localizedName = stackalloc char[fileName.Length];
+        var length = LocalizeFileName(fileName.AsSpan(), language, localizedName, out localized);
+        if (!localized)
+            return fileName;
+
+        Debug.Assert(localizedName.Length == length);
+        return localizedName.ToString();
+    }
+
+
+    public int LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, Span<char> destination, out bool localized)
+    {
+        if (fileName.Length > PGConstants.MaxPathLength)
+            throw new ArgumentOutOfRangeException(nameof(fileName), "fileName is too long");
+
+        if (destination.Length < fileName.Length)
+            throw new ArgumentException("destination is too short", nameof(destination));
+
         localized = true;
 
         // The game assumes that all localized audio files are referenced by using their english name.
         // Thus, PG takes this shortcut
         if (language == LanguageType.English)
-            return fileName;
-
-        var fileSpan = fileName.AsSpan();
+        {
+            fileName.CopyTo(destination);
+            return fileName.Length;
+        }
 
         var isWav = false;
         var isMp3 = false;
@@ -120,14 +159,14 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         // The game only localizes file names iff they have the english suffix
         // NB: Also note that the engine does *not* check whether the filename actually ends with this suffix
         // but instead only take the first occurrence. This means that a file name like 'test_eng.wav_ger.wav' will trick the algorithm.
-        var engSuffixIndex = fileSpan.IndexOf("_ENG.WAV".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        var engSuffixIndex = fileName.IndexOf("_ENG.WAV".AsSpan(), StringComparison.OrdinalIgnoreCase);
         if (engSuffixIndex != -1)
             isWav = true;
 
         if (!isWav)
         {
-            engSuffixIndex = fileSpan.IndexOf("_ENG.MP3".AsSpan(), StringComparison.OrdinalIgnoreCase);
-            if (engSuffixIndex != -1) 
+            engSuffixIndex = fileName.IndexOf("_ENG.MP3".AsSpan(), StringComparison.OrdinalIgnoreCase);
+            if (engSuffixIndex != -1)
                 isMp3 = true;
         }
 
@@ -135,12 +174,13 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         if (engSuffixIndex == -1)
         {
             localized = false;
-            Logger.LogWarning($"Unable to localize '{fileName}'");
-            return fileName;
+            Logger.LogWarning($"Unable to localize '{fileName.ToString()}'");
+            fileName.CopyTo(destination);
+            return fileName.Length;
         }
 
-        var withoutSuffix = fileSpan.Slice(0, engSuffixIndex);
-        
+        var withoutSuffix = fileName.Slice(0, engSuffixIndex);
+
         ReadOnlySpan<char> newLocalizedSuffix;
         if (isWav)
             newLocalizedSuffix = LanguageToFileSuffixMapWav[language].AsSpan();
@@ -149,11 +189,13 @@ internal sealed class GameLanguageManager(IServiceProvider serviceProvider) : Se
         else
             throw new InvalidOperationException();
 
-        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
+        withoutSuffix.CopyTo(destination);
+        newLocalizedSuffix.CopyTo(destination.Slice(withoutSuffix.Length, newLocalizedSuffix.Length));
 
-        sb.Append(withoutSuffix);
-        sb.Append(newLocalizedSuffix);
-
-        return sb.ToString();
+        return fileName.Length;
     }
+
+
+    [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
+    static extern ushort GetUserDefaultUILanguage();
 }

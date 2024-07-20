@@ -6,7 +6,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AET.ModVerify;
-using AET.ModVerify.Steps;
+using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Reporters;
+using AET.ModVerify.Settings;
+using AET.ModVerify.Verifiers;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.Hashing;
@@ -23,6 +26,7 @@ using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.DAT.Services.Builder;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
+using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Clients;
 using PG.StarWarsGame.Infrastructure.Games;
@@ -125,9 +129,49 @@ internal class Program
             playableObject.Game.Directory.FullName,
             fallbackGame.Directory.FullName);
 
+        var settings = BuildSettings();
+        
 
-        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, GameVerifySettings.Default, _services);
+        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, settings, _services);
     }
+
+
+    private static GameVerifySettings BuildSettings()
+    {
+        var settings = GameVerifySettings.Default;
+
+        var reportSettings = settings.GlobalReportSettings;
+
+        if (_options.Baseline is not null)
+        {
+            using var fs = _services.GetRequiredService<IFileSystem>().FileStream
+                .New(_options.Baseline, FileMode.Open, FileAccess.Read);
+            var baseline = VerificationBaseline.FromJson(fs);
+
+            reportSettings = reportSettings with
+            {
+                Baseline = baseline
+            };
+        }
+
+        if (_options.Suppressions is not null)
+        {
+            using var fs = _services.GetRequiredService<IFileSystem>().FileStream
+                .New(_options.Suppressions, FileMode.Open, FileAccess.Read);
+            var baseline = SuppressionList.FromJson(fs);
+
+            reportSettings = reportSettings with
+            {
+                Suppressions = baseline
+            };
+        }
+
+        return settings with
+        {
+            GlobalReportSettings = reportSettings
+        };
+    }
+
 
     private static IServiceProvider CreateAppServices()
     {
@@ -148,9 +192,13 @@ internal class Program
         RuntimeHelpers.RunClassConstructor(typeof(IMegArchive).TypeHandle);
         AloServiceContribution.ContributeServices(serviceCollection);
         serviceCollection.CollectPgServiceContributions();
+        XmlServiceContribution.ContributeServices(serviceCollection);
 
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
         ModVerifyServiceContribution.ContributeServices(serviceCollection);
+        serviceCollection.RegisterConsoleReporter();
+        serviceCollection.RegisterJsonReporter();
+        serviceCollection.RegisterTextFileReporter();
 
         return serviceCollection.BuildServiceProvider();
     }
@@ -216,6 +264,12 @@ internal class Program
 
         [Option('p', "path", Required = false, HelpText = "The path to a mod directory to verify.")]
         public string Path { get; set; }
+
+        [Option("baseline", Required = false, HelpText = "Path to a JSON baseline file.")]
+        public string? Baseline { get; set; }
+
+        [Option("suppressions", Required = false, HelpText = "Path to a JSON suppression file.")]
+        public string? Suppressions { get; set; }
     }
 }
 
@@ -226,7 +280,7 @@ internal class ModVerifyPipeline(
     IServiceProvider serviceProvider)
     : VerifyGamePipeline(targetType, gameLocations, settings, serviceProvider)
 {
-    protected override IEnumerable<GameVerificationStep> CreateVerificationSteps(IGameDatabase database)
+    protected override IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database)
     {
         var verifyProvider = ServiceProvider.GetRequiredService<IVerificationProvider>();
         return verifyProvider.GetAllDefaultVerifiers(database, Settings);

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AET.ModVerify.Steps;
+using AET.ModVerify.Reporting;
+using AET.ModVerify.Settings;
+using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +17,7 @@ namespace AET.ModVerify;
 
 public abstract class VerifyGamePipeline : Pipeline
 {
-    private readonly List<GameVerificationStep> _verificationSteps = new();
+    private readonly List<GameVerifierBase> _verificationSteps = new();
     private readonly GameEngineType _targetType;
     private readonly GameLocations _gameLocations;
     private readonly ParallelRunner _verifyRunner;
@@ -29,10 +31,10 @@ public abstract class VerifyGamePipeline : Pipeline
         _gameLocations = gameLocations ?? throw new ArgumentNullException(nameof(gameLocations));
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-        if (settings.ParallelWorkers is < 0 or > 64)
+        if (settings.ParallelVerifiers is < 0 or > 64)
             throw new ArgumentException("Settings has invalid parallel worker number.", nameof(settings));
         
-        _verifyRunner = new ParallelRunner(settings.ParallelWorkers, serviceProvider);
+        _verifyRunner = new ParallelRunner(settings.ParallelVerifiers, serviceProvider);
     }
 
 
@@ -69,20 +71,14 @@ public abstract class VerifyGamePipeline : Pipeline
                 Logger?.LogInformation("Finished Verifying");
             }
 
-            var stepsWithVerificationErrors = _verificationSteps.Where(x => x.VerifyErrors.Any()).ToList();
 
-            var failedSteps = new List<GameVerificationStep>();
-            foreach (var verificationStep in _verificationSteps)
-            {
-                if (verificationStep.VerifyErrors.Any())
-                {
-                    failedSteps.Add(verificationStep);
-                    Logger?.LogWarning($"Verifier '{verificationStep.Name}' reported errors!");
-                }
-            }
+            Logger?.LogInformation("Reporting Errors...");
 
-            if (Settings.ThrowBehavior == VerifyThrowBehavior.FinalThrow && failedSteps.Count > 0)
-                throw new GameVerificationException(stepsWithVerificationErrors);
+            var reportBroker = new VerificationReportBroker(Settings.GlobalReportSettings, ServiceProvider);
+            var errors = reportBroker.Report(_verificationSteps);
+            if (Settings.AbortSettings.ThrowsGameVerificationException &&
+                errors.Any(x => x.Severity >= Settings.AbortSettings.MinimumAbortSeverity))
+                throw new GameVerificationException(errors);
         }
         finally
         {
@@ -90,5 +86,5 @@ public abstract class VerifyGamePipeline : Pipeline
         }
     }
 
-    protected abstract IEnumerable<GameVerificationStep> CreateVerificationSteps(IGameDatabase database);
+    protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);
 }

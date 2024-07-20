@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Services;
 
@@ -8,6 +9,6 @@ internal class ParticleReaderV2(AloLoadOptions loadOptions, Stream stream) : Alo
 {
     public override AlamoParticle Read()
     {
-        return new AlamoParticle();
+        throw new NotImplementedException();
     }
 }

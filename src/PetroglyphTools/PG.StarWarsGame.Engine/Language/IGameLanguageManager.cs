@@ -1,16 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PG.StarWarsGame.Engine.Language;
 
 public interface IGameLanguageManager
-{
-    IReadOnlyCollection<LanguageType> FocSupportedLanguages { get; }
-
-    IReadOnlyCollection<LanguageType> EawSupportedLanguages { get; }
+{ 
+    IEnumerable<LanguageType> SupportedLanguages { get; }
 
     bool TryGetLanguage(string languageName, out LanguageType language);
 
     string LocalizeFileName(string fileName, LanguageType language, out bool localized);
 
-    bool IsFileNameLocalizable(string fileName, bool requireEnglishName);
+    int LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, Span<char> destination, out bool localized);
+
+    bool IsFileNameLocalizable(ReadOnlySpan<char> fileName, bool requireEnglishName);
+
+    LanguageType GetLanguagesFromUser();
 }

@@ -11,7 +11,7 @@ public static class PetroglyphEngineServiceContribution
     public static void ContributeServices(IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<IGameRepositoryFactory>(sp => new GameRepositoryFactory(sp));
-        serviceCollection.AddSingleton<IGameLanguageManager>(sp => new GameLanguageManager(sp));
+        serviceCollection.AddSingleton<IGameLanguageManagerProvider>(sp => new GameLanguageManagerProvider(sp));
         serviceCollection.AddSingleton<IPetroglyphXmlFileParserFactory>(sp => new PetroglyphXmlFileParserFactory(sp));
         serviceCollection.AddSingleton<IGameDatabaseService>(sp => new GameDatabaseService(sp));
     }
