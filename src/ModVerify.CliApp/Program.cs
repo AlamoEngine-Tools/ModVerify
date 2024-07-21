@@ -9,27 +9,24 @@ using AET.ModVerify;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Settings;
-using AET.ModVerify.Verifiers;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
 using CommandLine;
-using EawModinfo.Spec;
+using CommandLine.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.DAT.Services.Builder;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Clients;
-using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 using Serilog;
@@ -41,111 +38,92 @@ namespace ModVerify.CliApp;
 internal class Program
 {
     private const string EngineParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
-    private const string ParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
+    private const string ParserNamespace = "PG.StarWarsGame.Files.XML.Parsers";
 
-    private static IServiceProvider _services = null!;
-    private static CliOptions _options;
-
-    private static async Task Main(string[] args)
+    private static async Task<int> Main(string[] args) 
     {
-        _options = Parser.Default.ParseArguments<CliOptions>(args).WithParsed(o => { }).Value;
-        _services = CreateAppServices();
+        var result = 0;
+        
+        var parseResult = Parser.Default.ParseArguments<ModVerifyOptions>(args);
 
-        GameFinderResult gameFinderResult;
-        IPlayableObject? selectedObject = null;
-
-        if (!string.IsNullOrEmpty(_options.Path))
+        ModVerifyOptions? verifyOptions = null!;
+        await parseResult.WithParsedAsync(o =>
         {
-            var fs = _services.GetService<IFileSystem>();
-            if (!fs!.Directory.Exists(_options.Path))
-                throw new DirectoryNotFoundException($"No directory found at {_options.Path}");
+            verifyOptions = o;
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
 
-            gameFinderResult = new ModFinderService(_services).FindAndAddModInDirectory(_options.Path);
-            var selectedPath = fs.Path.GetFullPath(_options.Path).ToUpper();
-            selectedObject =
-                (from mod1 in gameFinderResult.Game.Mods.OfType<IPhysicalMod>()
-                    let modPath = fs.Path.GetFullPath(mod1.Directory.FullName)
-                    where selectedPath.Equals(modPath)
-                    select mod1).FirstOrDefault();
-            if (selectedObject == null) throw new Exception($"The selected directory {_options.Path} is not a mod.");
-        }
-        else
+        await parseResult.WithNotParsedAsync(e =>
         {
-            gameFinderResult = new ModFinderService(_services).FindAndAddModInCurrentDirectory();
-            var game = gameFinderResult.Game;
-            Console.WriteLine($"0: {game.Name}");
+            Console.WriteLine(HelpText.AutoBuild(parseResult).ToString());
+            result = 0xA0;
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
 
-            var list = new List<IPlayableObject> { game };
-
-            var counter = 1;
-            foreach (var mod in game.Mods)
-            {
-                var isSteam = mod.Type == ModType.Workshops;
-                var line = $"{counter++}: {mod.Name}";
-                if (isSteam)
-                    line += "*";
-                Console.WriteLine(line);
-                list.Add(mod);
-            }
-
-            do
-            {
-                Console.Write("Select a game or mod to verify: ");
-                var numberString = Console.ReadLine();
-
-                if (!int.TryParse(numberString, out var number)) continue;
-                if (number < list.Count)
-                    selectedObject = list[number];
-            } while (selectedObject is null);
+        if (verifyOptions is null)
+        {
+            if (result != 0)
+                return result;
+            throw new InvalidOperationException("Mod verify was executed with the wrong arguments.");
         }
 
-        Console.WriteLine($"Verifying {selectedObject.Name}...");
-        var verifyPipeline = BuildPipeline(selectedObject, gameFinderResult.FallbackGame);
+        var services = CreateAppServices(verifyOptions.Verbose);
+        var settings = BuildSettings(verifyOptions, services);
+        var gameSetupData = CreateGameSetupData(verifyOptions, services);
 
-        try
-        {
-            await verifyPipeline.RunAsync();
-        }
-        catch (GameVerificationException e)
-        {
-            Console.WriteLine(e.Message);
-        }
+        var verifier = new ModVerifyApp(settings, services);
+        await verifier.RunVerification(gameSetupData).ConfigureAwait(false);
+
+        if (verifyOptions.NewBaselineFile is not null) 
+            await verifier.WriteBaseline(verifyOptions.NewBaselineFile).ConfigureAwait(false);
+
+        return 0;
     }
 
-    private static VerifyGamePipeline BuildPipeline(IPlayableObject playableObject, IGame fallbackGame)
+    private static VerifyGameSetupData CreateGameSetupData(ModVerifyOptions options, IServiceProvider services)
     {
+        var selectionResult = new ModOrGameSelector(services).SelectModOrGame(options.Path);
+        
         IList<string> mods = Array.Empty<string>();
-        if (playableObject is IMod mod)
+        if (selectionResult.ModOrGame is IMod mod)
         {
-            var traverser = _services.GetRequiredService<IModDependencyTraverser>();
+            var traverser = services.GetRequiredService<IModDependencyTraverser>();
             mods = traverser.Traverse(mod)
                 .Select(x => x.Mod)
                 .OfType<IPhysicalMod>().Select(x => x.Directory.FullName)
                 .ToList();
         }
 
-        var gameLocations = new GameLocations(
-            mods,
-            playableObject.Game.Directory.FullName,
-            fallbackGame.Directory.FullName);
+        var fallbackPaths = new List<string>();
+        if (selectionResult.FallbackGame is not null)
+            fallbackPaths.Add(selectionResult.FallbackGame.Directory.FullName);
 
-        var settings = BuildSettings();
+        if (!string.IsNullOrEmpty(options.AdditionalFallbackPath))
+            fallbackPaths.Add(options.AdditionalFallbackPath);
         
+        var gameLocations = new GameLocations(
+            mods, 
+            selectionResult.ModOrGame.Game.Directory.FullName,
+            fallbackPaths);
 
-        return new ModVerifyPipeline(GameEngineType.Foc, gameLocations, settings, _services);
+        return new VerifyGameSetupData
+        {
+            EngineType = GameEngineType.Foc,
+            GameLocations = gameLocations,
+            VerifyObject = selectionResult.ModOrGame,
+        };
     }
 
-
-    private static GameVerifySettings BuildSettings()
+    private static GameVerifySettings BuildSettings(ModVerifyOptions options, IServiceProvider services)
     {
         var settings = GameVerifySettings.Default;
 
         var reportSettings = settings.GlobalReportSettings;
 
-        if (_options.Baseline is not null)
+        if (options.Baseline is not null)
         {
-            using var fs = _services.GetRequiredService<IFileSystem>().FileStream
-                .New(_options.Baseline, FileMode.Open, FileAccess.Read);
+            using var fs = services.GetRequiredService<IFileSystem>().FileStream
+                .New(options.Baseline, FileMode.Open, FileAccess.Read);
             var baseline = VerificationBaseline.FromJson(fs);
 
             reportSettings = reportSettings with
@@ -154,10 +132,10 @@ internal class Program
             };
         }
 
-        if (_options.Suppressions is not null)
+        if (options.Suppressions is not null)
         {
-            using var fs = _services.GetRequiredService<IFileSystem>().FileStream
-                .New(_options.Suppressions, FileMode.Open, FileAccess.Read);
+            using var fs = services.GetRequiredService<IFileSystem>().FileStream
+                .New(options.Suppressions, FileMode.Open, FileAccess.Read);
             var baseline = SuppressionList.FromJson(fs);
 
             reportSettings = reportSettings with
@@ -173,7 +151,7 @@ internal class Program
     }
 
 
-    private static IServiceProvider CreateAppServices()
+    private static IServiceProvider CreateAppServices(bool verbose)
     {
         var fileSystem = new FileSystem();
         var serviceCollection = new ServiceCollection();
@@ -182,7 +160,7 @@ internal class Program
         serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
         serviceCollection.AddSingleton<IFileSystem>(fileSystem);
 
-        serviceCollection.AddLogging(builder => ConfigureLogging(builder, fileSystem));
+        serviceCollection.AddLogging(builder => ConfigureLogging(builder, fileSystem, verbose));
 
         SteamAbstractionLayer.InitializeServices(serviceCollection);
         PetroglyphGameClients.InitializeServices(serviceCollection);
@@ -203,7 +181,7 @@ internal class Program
         return serviceCollection.BuildServiceProvider();
     }
 
-    private static void ConfigureLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
+    private static void ConfigureLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem, bool verbose)
     {
         loggingBuilder.ClearProviders();
 
@@ -213,16 +191,26 @@ internal class Program
         logLevel = LogLevel.Debug;
         loggingBuilder.AddDebug();
 #else
-        if (_options.Verbose)
+        if (verbose)
         {
             logLevel = LogLevel.Debug;
             loggingBuilder.AddDebug();
         }
 #endif
-        loggingBuilder.AddConsole();
         loggingBuilder.SetMinimumLevel(logLevel);
 
         SetupXmlParseLogging(loggingBuilder, fileSystem);
+
+        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, level) =>
+        {
+            if (level < logLevel)
+                return false;
+            if (string.IsNullOrEmpty(category))
+                return false;
+            if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
+                return false;
+            return true;
+        }).AddConsole();
     }
 
     private static void SetupXmlParseLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
@@ -239,50 +227,10 @@ internal class Program
             .CreateLogger();
 
         loggingBuilder.AddSerilog(logger);
-
-        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, _) =>
-        {
-            if (string.IsNullOrEmpty(category))
-                return false;
-            if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
-                return false;
-
-            return true;
-        });
     }
 
     private static bool IsXmlParserLogging(LogEvent logEvent)
     {
         return Matching.FromSource(ParserNamespace)(logEvent) || Matching.FromSource(EngineParserNamespace)(logEvent);
-    }
-
-
-    internal class CliOptions
-    {
-        [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
-        public bool Verbose { get; set; }
-
-        [Option('p', "path", Required = false, HelpText = "The path to a mod directory to verify.")]
-        public string Path { get; set; }
-
-        [Option("baseline", Required = false, HelpText = "Path to a JSON baseline file.")]
-        public string? Baseline { get; set; }
-
-        [Option("suppressions", Required = false, HelpText = "Path to a JSON suppression file.")]
-        public string? Suppressions { get; set; }
-    }
-}
-
-internal class ModVerifyPipeline(
-    GameEngineType targetType,
-    GameLocations gameLocations,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider)
-    : VerifyGamePipeline(targetType, gameLocations, settings, serviceProvider)
-{
-    protected override IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database)
-    {
-        var verifyProvider = ServiceProvider.GetRequiredService<IVerificationProvider>();
-        return verifyProvider.GetAllDefaultVerifiers(database, Settings);
     }
 }

@@ -30,7 +30,6 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
         foreach (var xmlParserStep in CreateXmlParserSteps())
             _parseXmlRunner.AddStep(xmlParserStep);
 
-
         return Task.FromResult(true);
     }
 

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "No-Arguments": {
+      "commandName": "Project"
+    },
+    "From-path": {
+      "commandName": "Project",
+      "commandLineArgs": "-p \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\corruption\\Mods\\Republic_at_War\""
+    }
+  }
+}

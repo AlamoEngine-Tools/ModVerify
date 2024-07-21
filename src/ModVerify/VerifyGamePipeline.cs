@@ -24,6 +24,8 @@ public abstract class VerifyGamePipeline : Pipeline
 
     protected GameVerifySettings Settings { get; }
 
+    public IReadOnlyCollection<VerificationError> Errors { get; private set; } = Array.Empty<VerificationError>();
+
     protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, GameVerifySettings settings, IServiceProvider serviceProvider) 
         : base(serviceProvider)
     {
@@ -46,12 +48,21 @@ public abstract class VerifyGamePipeline : Pipeline
 
     protected sealed override async Task RunCoreAsync(CancellationToken token)
     {
-        Logger?.LogInformation("Verifying game...");
+        Logger?.LogInformation("Verifying...");
         try
         {
             var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
-            var database = await databaseService.CreateDatabaseAsync(_targetType, _gameLocations, token);
+            IGameDatabase database;
+            try
+            {
+                //databaseService.XmlParseError += OnXmlParseError;
+                database = await databaseService.CreateDatabaseAsync(_targetType, _gameLocations, token);
+            }
+            finally
+            {
+                //databaseService.XmlParseError -= OnXmlParseError;
+            }
 
             foreach (var gameVerificationStep in CreateVerificationSteps(database))
             {
@@ -76,6 +87,9 @@ public abstract class VerifyGamePipeline : Pipeline
 
             var reportBroker = new VerificationReportBroker(Settings.GlobalReportSettings, ServiceProvider);
             var errors = reportBroker.Report(_verificationSteps);
+
+            Errors = errors;
+            
             if (Settings.AbortSettings.ThrowsGameVerificationException &&
                 errors.Any(x => x.Severity >= Settings.AbortSettings.MinimumAbortSeverity))
                 throw new GameVerificationException(errors);
@@ -84,6 +98,11 @@ public abstract class VerifyGamePipeline : Pipeline
         {
             Logger?.LogInformation("Finished game verification");
         }
+    }
+
+    private void OnXmlParseError(object sender, EventArgs e)
+    {
+
     }
 
     protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);

@@ -36,11 +36,19 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+		<PackageReference Include="Required" Version="1.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\PetroglyphTools\PG.StarWarsGame.Files.DAT\PG.StarWarsGame.Files.DAT\PG.StarWarsGame.Files.DAT.csproj" />
 	  <ProjectReference Include="..\ModVerify\ModVerify.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -50,5 +58,7 @@
 			</Weavers>
 		</WeaverConfiguration>
 	</PropertyGroup>
+
+	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
