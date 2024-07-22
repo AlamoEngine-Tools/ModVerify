@@ -7,6 +7,7 @@ namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 // Used e.g, by <Land_Terrain_Model_Mapping>
 // Format: Key, Value, Key, Value
 // There might be arbitrary spaces, tabs and newlines
+// TODO: This class is not yet implemented, compliant to the engine
 public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphXmlPrimitiveElementParser<IList<(string key, string value)>>
 {
     internal CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider) : base(serviceProvider)

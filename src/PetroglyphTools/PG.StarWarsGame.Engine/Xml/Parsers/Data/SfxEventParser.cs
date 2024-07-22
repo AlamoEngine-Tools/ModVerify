@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.Xml.Tags;
@@ -74,7 +73,7 @@ public sealed class SfxEventParser(
         return new SfxEvent(name, nameCrc, properties, XmlLocationInfo.FromElement(element));
     }
 
-    protected override bool OnParsed(string tag, object value, ValueListDictionary<string, object?> properties, string? elementName)
+    protected override bool OnParsed(XElement element, string tag, object value, ValueListDictionary<string, object?> properties, string? outerElementName)
     {
         if (tag == SfxEventXmlTags.UsePreset)
         {
@@ -83,7 +82,11 @@ public sealed class SfxEventParser(
             if (presetNameCrc != default && ParsedElements.TryGetFirstValue(presetNameCrc, out var preset))
                 CopySfxPreset(properties, preset);
             else
-                Logger?.LogWarning($"Cannot to find preset '{presetName}' for SFXEvent '{elementName ?? "NONE"}'");
+            {
+                var location = XmlLocationInfo.FromElement(element);
+                OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MissingReference,
+                    $"Cannot to find preset '{presetName}' for SFXEvent '{outerElementName ?? "NONE"}'"));
+            }
         }
         return true;
     }

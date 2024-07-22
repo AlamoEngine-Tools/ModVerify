@@ -38,13 +38,13 @@ public abstract class XmlObjectParser<T>(IReadOnlyValueListDictionary<Crc32, T> 
             
             var value = parser.Parse(elm);
             
-            if (OnParsed(tagName, value, xmlProperties, name))
+            if (OnParsed(elm, tagName, value, xmlProperties, name))
                 xmlProperties.Add(tagName, value);
         }
         return xmlProperties;
     }
 
-    protected virtual bool OnParsed(string tag, object value, ValueListDictionary<string, object?> properties, string? elementName)
+    protected virtual bool OnParsed(XElement element, string tag, object value, ValueListDictionary<string, object?> properties, string? outerElementName)
     {
         return true;
     }

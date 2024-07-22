@@ -29,6 +29,9 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
     private XElement? GetRootElement(Stream xmlStream)
     {
         var fileName = xmlStream.GetFilePath();
+        if (string.IsNullOrEmpty(fileName))
+            throw new InvalidOperationException("Unable to parse XML from unnamed stream. Either parse from a file or MEG stream.");
+
         var xmlReader = XmlReader.Create(xmlStream, new XmlReaderSettings(), fileName);
 
         var options = LoadOptions.SetBaseUri;

@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -17,9 +17,16 @@ public sealed class PetroglyphXmlFloatParser : PetroglyphXmlPrimitiveElementPars
         if (!double.TryParse(element.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
         {
             var location = XmlLocationInfo.FromElement(element);
-            Logger?.LogWarning($"Expected double but got value '{element.Value}' at {location}");
+            OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MalformedValue,
+                $"Expected double but got value '{element.Value}' at {location}"));
             return 0.0f;
         }
         return (float)doubleValue;
+    }
+
+    protected override void OnParseError(ParseErrorEventArgs e)
+    {
+        Logger?.LogWarning(e.Message);
+        base.OnParseError(e);
     }
 }

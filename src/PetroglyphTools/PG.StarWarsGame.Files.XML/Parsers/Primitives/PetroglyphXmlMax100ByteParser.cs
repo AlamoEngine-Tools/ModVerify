@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -22,16 +22,25 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphXmlPrimitiveElemen
         if (intValue != asByte)
         {
             var location = XmlLocationInfo.FromElement(element);
-            Logger?.LogWarning($"Expected a byte value (0 - 255) but got value '{intValue}' at {location}");
+
+            OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.InvalidValue,
+                $"Expected a byte value (0 - 255) but got value '{intValue}' at {location}"));
         }
 
         // Add additional check, cause the PG implementation is broken, but we need to stay "bug-compatible".
         if (asByte > 100)
         {
             var location = XmlLocationInfo.FromElement(element);
-            Logger?.LogWarning($"Expected a byte value (0 - 100) but got value '{asByte}' at {location}");
+            OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.InvalidValue,
+                $"Expected a byte value (0 - 100) but got value '{asByte}' at {location}"));
         }
 
         return asByte;
+    }
+
+    protected override void OnParseError(ParseErrorEventArgs e)
+    {
+        Logger?.LogWarning(e.Message);
+        base.OnParseError(e);
     }
 }

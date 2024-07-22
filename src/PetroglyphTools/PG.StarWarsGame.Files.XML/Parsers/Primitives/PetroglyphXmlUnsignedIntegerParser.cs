@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -18,9 +18,17 @@ public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphXmlPrimitiveE
         if (intValue != asUint)
         {
             var location = XmlLocationInfo.FromElement(element);
-            Logger?.LogWarning($"Expected unsigned integer but got '{intValue}' at {location}");
+
+            OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.InvalidValue,
+                $"Expected unsigned integer but got '{intValue}' at {location}"));
         }
 
         return asUint;
+    }
+
+    protected override void OnParseError(ParseErrorEventArgs e)
+    {
+        Logger?.LogWarning(e.Message);
+        base.OnParseError(e);
     }
 }

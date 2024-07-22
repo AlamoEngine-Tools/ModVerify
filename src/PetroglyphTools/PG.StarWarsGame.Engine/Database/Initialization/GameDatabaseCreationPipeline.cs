@@ -19,14 +19,15 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
     private ParseXmlDatabaseFromContainerStep<GameObject> _parseGameObjects = null!;
     private ParseXmlDatabaseFromContainerStep<SfxEvent> _parseSfxEvents = null!;
 
-    private ParallelRunner _parseXmlRunner = null!;
+    // We cannot use parallel processing here, in order to avoid races of the error event
+    private StepRunner _parseXmlRunner = null!;
 
     public GameDatabase GameDatabase { get; private set; } = null!;
 
 
     protected override Task<bool> PrepareCoreAsync()
     {
-        _parseXmlRunner = new ParallelRunner(4, ServiceProvider);
+        _parseXmlRunner = new StepRunner(ServiceProvider);
         foreach (var xmlParserStep in CreateXmlParserSteps())
             _parseXmlRunner.AddStep(xmlParserStep);
 
@@ -35,6 +36,8 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
 
     private IEnumerable<PipelineStep> CreateXmlParserSteps()
     {
+        // TODO: Use same load order as the engine!
+
         yield return _parseGameConstants = new ParseSingletonXmlStep<GameConstants>("GameConstants",
             "DATA\\XML\\GAMECONSTANTS.XML", repository, ServiceProvider);
 
