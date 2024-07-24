@@ -5,7 +5,7 @@ namespace PG.StarWarsGame.Engine.Utilities;
 // From https://github.com/dotnet/runtime/blob/main/src/libraries/Common/src/System/Text/ValueStringBuilder.cs
 internal ref struct ValueStringBuilder(Span<char> initialBuffer)
 {
-    private Span<char> _chars = initialBuffer;
+    private readonly Span<char> _chars = initialBuffer;
     private int _pos = 0;
 
     public override string ToString()

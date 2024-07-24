@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 // Used e.g, by <Land_Terrain_Model_Mapping>
 // Format: Key, Value, Key, Value
 // There might be arbitrary spaces, tabs and newlines
-public sealed class CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider)
-    : PetroglyphXmlElementParser<IList<(string key, string value)>>(serviceProvider)
+// TODO: This class is not yet implemented, compliant to the engine
+public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphXmlPrimitiveElementParser<IList<(string key, string value)>>
 {
+    internal CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+    {
+    }
+
     public override IList<(string key, string value)> Parse(XElement element)
     {
         var values = element.Value.Split(',');
@@ -20,7 +25,7 @@ public sealed class CommaSeparatedStringKeyValueListParser(IServiceProvider serv
 
         var keyValueList = new List<(string key, string value)>(values.Length + 1 / 2);
 
-        for (int i = 0; i < values.Length; i += 2)
+        for (var i = 0; i < values.Length; i += 2)
         {
             // Case: Incomplete key-value pair
             if (values.Length - 1 < i + 1)

@@ -1,24 +1,32 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Xml.Linq;
+using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public class XmlFileContainerParser(IServiceProvider serviceProvider) : PetroglyphXmlFileParser<XmlFileContainer>(serviceProvider)
+public class XmlFileContainerParser(IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null) : 
+    PetroglyphXmlFileParser<XmlFileContainer>(serviceProvider, listener)
 {
-    protected override IPetroglyphXmlElementParser? GetParser(string tag)
+    protected override bool LoadLineInfo => false;
+
+    protected override void Parse(XElement element, IValueListDictionary<Crc32, XmlFileContainer> parsedElements)
     {
-        if (tag == "File")
-            return PetroglyphXmlStringParser.Instance;
-        return null;
+        throw new NotSupportedException();
     }
 
     public override XmlFileContainer Parse(XElement element)
     {
-        var xmlValues = ToKeyValuePairList(element);
-
-        return xmlValues.TryGetValues("File", out var files)
-            ? new XmlFileContainer(files.OfType<string>().ToList())
-            : new XmlFileContainer([]);
+        var files = new List<string>();
+        foreach (var child in element.Elements())
+        {
+            if (child.Name == "File")
+            {
+                var file = PrimitiveParserProvider.StringParser.Parse(child);
+                files.Add(file);
+            }
+        }
+        return new XmlFileContainer(files);
     }
 }

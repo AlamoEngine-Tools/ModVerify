@@ -1,41 +1,22 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphXmlElementParser<T>(IServiceProvider serviceProvider) : IPetroglyphXmlElementParser<T>
+public abstract class PetroglyphXmlElementParser<T>(IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null) 
+    : PetroglyphXmlParser<T>(serviceProvider, listener)
 {
-    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
-
-    protected virtual IPetroglyphXmlElementParser? GetParser(string tag)
+    protected string GetTagName(XElement element)
     {
-        return PetroglyphXmlStringParser.Instance;
+        return element.Name.LocalName;
     }
 
-    public abstract T Parse(XElement element);
-
-    public ValueListDictionary<string, object> ToKeyValuePairList(XElement element)
+    protected string GetNameAttributeValue(XElement element)
     {
-        var keyValuePairList = new ValueListDictionary<string, object>();
-        foreach (var elm in element.Elements())
-        {
-            var tagName = elm.Name.LocalName;
-
-            var parser = GetParser(tagName);
-
-            if (parser is not null)
-            {
-                var value = parser.Parse(elm);
-                keyValuePairList.Add(tagName, value);
-            }
-        }
-
-        return keyValuePairList;
-    }
-
-    object? IPetroglyphXmlElementParser.Parse(XElement element)
-    {
-        return Parse(element);
+        var nameAttribute = element.Attributes()
+            .FirstOrDefault(a => a.Name.LocalName == "Name");
+        return nameAttribute is null ? string.Empty : nameAttribute.Value;
     }
 }

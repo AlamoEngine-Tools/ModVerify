@@ -1,117 +1,104 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AET.ModVerify;
+using AET.ModVerify.Reporting.Reporters;
+using AET.ModVerify.Reporting.Reporters.JSON;
+using AET.ModVerify.Reporting.Reporters.Text;
 using AET.SteamAbstraction;
+using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
-using EawModinfo.Spec;
+using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.FileSystem;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.DAT.Services.Builder;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
+using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Clients;
-using PG.StarWarsGame.Infrastructure.Games;
-using PG.StarWarsGame.Infrastructure.Mods;
-using PG.StarWarsGame.Infrastructure.Services.Dependencies;
+using Serilog;
+using Serilog.Events;
+using Serilog.Filters;
 
 namespace ModVerify.CliApp;
 
 internal class Program
 {
-    private static IServiceProvider _services = null!;
+    private const string EngineParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
+    private const string ParserNamespace = "PG.StarWarsGame.Files.XML.Parsers";
 
-    static async Task Main(string[] args)
+    private static async Task<int> Main(string[] args) 
     {
-        _services = CreateAppServices();
-
-        var gameFinderResult = new ModFinderService(_services).FindAndAddModInCurrentDirectory();
+        var result = 0;
         
-        var game = gameFinderResult.Game;
-        Console.WriteLine($"0: {game.Name}");
+        var parseResult = Parser.Default.ParseArguments<ModVerifyOptions>(args);
 
-        var list = new List<IPlayableObject> { game };
-
-        var counter = 1;
-        foreach (var mod in game.Mods)
+        ModVerifyOptions? verifyOptions = null!;
+        await parseResult.WithParsedAsync(o =>
         {
-            var isSteam = mod.Type == ModType.Workshops;
-            var line = $"{counter++}: {mod.Name}";
-            if (isSteam)
-                line += "*";
-            Console.WriteLine(line);
-            list.Add(mod);
+            verifyOptions = o;
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
+
+        await parseResult.WithNotParsedAsync(e =>
+        {
+            result = 0xA0;
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
+
+        if (verifyOptions is null)
+        {
+            if (result != 0)
+                return result;
+            throw new InvalidOperationException("Mod verify was executed with the wrong arguments.");
         }
 
-        IPlayableObject? selectedObject = null;
-
-        do
-        {
-            Console.Write("Select a game or mod to verify: ");
-            var numberString = Console.ReadLine();
-
-            if (int.TryParse(numberString, out var number))
-            {
-                if (number < list.Count)
-                    selectedObject = list[number];
-            }
-        } while (selectedObject is null);
-
-        Console.WriteLine($"Verifying {selectedObject.Name}...");
-
-        var verifyPipeline = BuildPipeline(selectedObject, gameFinderResult.FallbackGame);
-
+        var coreServiceCollection = CreateCoreServices(verifyOptions.Verbose);
+        var coreServices = coreServiceCollection.BuildServiceProvider();
+        var logger = coreServices.GetService<ILoggerFactory>()?.CreateLogger(typeof(Program));
         try
         {
-            await verifyPipeline.RunAsync();
+            var settings = new SettingsBuilder(coreServices)
+                .BuildSettings(verifyOptions);
+
+            var services = CreateAppServices(coreServiceCollection, settings);
+
+            var verifier = new ModVerifyApp(settings, services);
+
+            return await verifier.RunApplication().ConfigureAwait(false);
         }
-        catch (GameVerificationException e)
+        catch (Exception e)
         {
+            logger?.LogCritical(e, e.Message);
             Console.WriteLine(e.Message);
+            return e.HResult;
         }
     }
-
-    private static VerifyGamePipeline BuildPipeline(IPlayableObject playableObject, IGame fallbackGame)
-    {
-        IList<string> mods = Array.Empty<string>();
-        if (playableObject is IMod mod)
-        {
-            var traverser = _services.GetRequiredService<IModDependencyTraverser>();
-            mods = traverser.Traverse(mod)
-                .Select(x => x.Mod)
-                .OfType<IPhysicalMod>().Select(x => x.Directory.FullName)
-                .ToList();
-        }
-
-        var gameLocations = new GameLocations(
-            mods,
-            playableObject.Game.Directory.FullName,
-            fallbackGame.Directory.FullName);
-
-        var repo = _services.GetRequiredService<IGameRepositoryFactory>().Create(GameEngineType.Foc, gameLocations);
-
-        return new VerifyGamePipeline(repo, VerificationSettings.Default, _services);
-    }
-
-    private static IServiceProvider CreateAppServices()
+    
+    private static IServiceCollection CreateCoreServices(bool verboseLogging)
     {
         var fileSystem = new FileSystem();
         var serviceCollection = new ServiceCollection();
 
-        serviceCollection.AddLogging(ConfigureLogging);
-
         serviceCollection.AddSingleton<IRegistry>(new WindowsRegistry());
-        serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
         serviceCollection.AddSingleton<IFileSystem>(fileSystem);
+
+        serviceCollection.AddLogging(builder => ConfigureLogging(builder, fileSystem, verboseLogging));
+
+        return serviceCollection;
+    }
+
+
+    private static IServiceProvider CreateAppServices(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
+    {
+        serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
 
         SteamAbstractionLayer.InitializeServices(serviceCollection);
         PetroglyphGameClients.InitializeServices(serviceCollection);
@@ -121,13 +108,35 @@ internal class Program
         RuntimeHelpers.RunClassConstructor(typeof(IMegArchive).TypeHandle);
         AloServiceContribution.ContributeServices(serviceCollection);
         serviceCollection.CollectPgServiceContributions();
+        XmlServiceContribution.ContributeServices(serviceCollection);
 
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
 
+        ModVerifyServiceContribution.ContributeServices(serviceCollection);
+
+        SetupReporting(serviceCollection, settings);
+        
         return serviceCollection.BuildServiceProvider();
     }
 
-    private static void ConfigureLogging(ILoggingBuilder loggingBuilder)
+    private static void SetupReporting(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
+    {
+        serviceCollection.RegisterConsoleReporter();
+
+        serviceCollection.RegisterJsonReporter(new JsonReporterSettings
+        {
+            OutputDirectory = settings.Output,
+            MinimumReportSeverity = settings.GameVerifySettigns.GlobalReportSettings.MinimumReportSeverity
+        });
+
+        serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
+        {
+            OutputDirectory = settings.Output,
+            MinimumReportSeverity = settings.GameVerifySettigns.GlobalReportSettings.MinimumReportSeverity
+        });
+    }
+
+    private static void ConfigureLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem, bool verbose)
     {
         loggingBuilder.ClearProviders();
 
@@ -136,8 +145,48 @@ internal class Program
 #if DEBUG
         logLevel = LogLevel.Debug;
         loggingBuilder.AddDebug();
+#else
+        if (verbose)
+        {
+            logLevel = LogLevel.Debug;
+            loggingBuilder.AddDebug();
+        }
 #endif
-        loggingBuilder.AddConsole();
+        loggingBuilder.SetMinimumLevel(logLevel);
+        
+        SetupFileLogging(loggingBuilder, fileSystem);
+
+        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, level) =>
+        {
+            if (level < logLevel)
+                return false;
+            if (string.IsNullOrEmpty(category))
+                return false;
+            if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
+                return false;
+            return true;
+        }).AddConsole();
+    }
+    
+    private static void SetupFileLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
+    {
+        var logPath = fileSystem.Path.Combine(fileSystem.Path.GetTempPath(), "ModVerify_log.txt");
+
+
+        var logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .MinimumLevel.Verbose()
+            .Filter.ByExcluding(IsXmlParserLogging)
+            .WriteTo.RollingFile(
+                logPath,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message}{NewLine}{Exception}")
+            .CreateLogger();
+
+        loggingBuilder.AddSerilog(logger);
     }
 
+    private static bool IsXmlParserLogging(LogEvent logEvent)
+    {
+        return Matching.FromSource(ParserNamespace)(logEvent) || Matching.FromSource(EngineParserNamespace)(logEvent);
+    }
 }

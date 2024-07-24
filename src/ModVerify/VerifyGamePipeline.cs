@@ -1,72 +1,121 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AET.ModVerify.Steps;
+using AET.ModVerify.Reporting;
+using AET.ModVerify.Settings;
+using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
+using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.FileSystem;
-using PG.StarWarsGame.Engine.Pipeline;
+using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace AET.ModVerify;
 
-public class VerifyGamePipeline : ParallelPipeline
+public abstract class VerifyGamePipeline : Pipeline
 {
-    private IList<GameVerificationStep> _verificationSteps = null!;
-    private readonly IGameRepository _repository;
-    private readonly VerificationSettings _settings;
+    private readonly List<GameVerifierBase> _verificationSteps = new();
+    private readonly GameEngineType _targetType;
+    private readonly GameLocations _gameLocations;
+    private readonly ParallelRunner _verifyRunner;
+    
+    protected GameVerifySettings Settings { get; }
 
-    public VerifyGamePipeline(IGameRepository gameRepository, VerificationSettings settings, IServiceProvider serviceProvider)
-        : base(serviceProvider, 4, false)
+    public IReadOnlyCollection<VerificationError> Errors { get; private set; } = Array.Empty<VerificationError>();
+
+    private readonly ConcurrentBag<XmlParseErrorEventArgs> _xmlParseErrors = new();
+
+    protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, GameVerifySettings settings, IServiceProvider serviceProvider) 
+        : base(serviceProvider)
     {
-        _repository = gameRepository;
-        _settings = settings;
+        _targetType = targetType;
+        _gameLocations = gameLocations ?? throw new ArgumentNullException(nameof(gameLocations));
+        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
+        if (settings.ParallelVerifiers is < 0 or > 64)
+            throw new ArgumentException("Settings has invalid parallel worker number.", nameof(settings));
+        
+        _verifyRunner = new ParallelRunner(settings.ParallelVerifiers, serviceProvider);
     }
 
-    protected override Task<IList<IStep>> BuildSteps()
+
+    protected sealed override Task<bool> PrepareCoreAsync()
     {
-        var buildIndexStep = new CreateGameDatabaseStep(_repository, ServiceProvider);
-
-        _verificationSteps = new List<GameVerificationStep>
-        {
-            new VerifyReferencedModelsStep(buildIndexStep, _repository, _settings, ServiceProvider),
-        };
-
-        var allSteps = new List<IStep>
-        {
-            buildIndexStep
-        };
-        allSteps.AddRange(_verificationSteps);
-
-        return Task.FromResult<IList<IStep>>(allSteps);
+        _verificationSteps.Clear();
+        return Task.FromResult(true);
     }
 
-    public override async Task RunAsync(CancellationToken token = default)
+    protected sealed override async Task RunCoreAsync(CancellationToken token)
     {
-        Logger?.LogInformation("Verifying game...");
+        Logger?.LogInformation("Verifying...");
         try
         {
-            await base.RunAsync(token).ConfigureAwait(false);
+            var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
-            var stepsWithVerificationErrors = _verificationSteps.Where(x => x.VerifyErrors.Any()).ToList();
-
-            var failedSteps = new List<GameVerificationStep>();
-            foreach (var verificationStep in _verificationSteps)
+            IGameDatabase database;
+            try
             {
-                if (verificationStep.VerifyErrors.Any())
-                {
-                    failedSteps.Add(verificationStep);
-                    Logger?.LogWarning($"Verifier '{verificationStep.Name}' reported errors!");
-                }
+                databaseService.XmlParseError += OnXmlParseError;
+                database = await databaseService.CreateDatabaseAsync(_targetType, _gameLocations, token);
+            }
+            finally
+            {
+                databaseService.XmlParseError -= OnXmlParseError;
+                databaseService.Dispose();
             }
 
-            if (_settings.ThrowBehavior == VerifyThrowBehavior.FinalThrow && failedSteps.Count > 0)
-                throw new GameVerificationException(stepsWithVerificationErrors);
+            
+            AddStep(new XmlParseErrorCollector(_xmlParseErrors, database, Settings, ServiceProvider));
+            
+            foreach (var gameVerificationStep in CreateVerificationSteps(database)) 
+                AddStep(gameVerificationStep);
+
+            try
+            {
+                Logger?.LogInformation("Verifying...");
+                _verifyRunner.Error += OnError;
+                await _verifyRunner.RunAsync(token);
+            }
+            finally
+            {
+                _verifyRunner.Error -= OnError;
+                Logger?.LogInformation("Finished Verifying");
+            }
+
+
+            Logger?.LogInformation("Reporting Errors");
+
+            var reportBroker = new VerificationReportBroker(Settings.GlobalReportSettings, ServiceProvider);
+            var errors = reportBroker.Report(_verificationSteps);
+
+            Errors = errors;
+            
+            if (Settings.AbortSettings.ThrowsGameVerificationException &&
+                errors.Any(x => x.Severity >= Settings.AbortSettings.MinimumAbortSeverity))
+                throw new GameVerificationException(errors);
         }
         finally
         {
             Logger?.LogInformation("Finished game verification");
         }
+    }
+
+    protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);
+
+    private void AddStep(GameVerifierBase verifier)
+    {
+        _verifyRunner.AddStep(verifier);
+        _verificationSteps.Add(verifier);
+    }
+
+    private void OnXmlParseError(IPetroglyphXmlParser sender, XmlParseErrorEventArgs e)
+    {
+        _xmlParseErrors.Add(e);
     }
 }

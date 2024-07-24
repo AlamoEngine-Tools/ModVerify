@@ -2,4 +2,4 @@
 
 namespace ModVerify.CliApp;
 
-public readonly record struct GameFinderResult(IGame Game, IGame FallbackGame);
+internal record GameFinderResult(IGame Game, IGame? FallbackGame);

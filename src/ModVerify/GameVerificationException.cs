@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using AET.ModVerify.Steps;
-using AnakinRaW.CommonUtilities.SimplePipeline;
+using AET.ModVerify.Reporting;
 
 namespace AET.ModVerify;
 
-public sealed class GameVerificationException(IEnumerable<GameVerificationStep> failedSteps) : Exception
+public sealed class GameVerificationException(IEnumerable<VerificationError> errors) : Exception
 {
     private readonly string? _error = null;
-    private readonly IEnumerable<IStep> _failedSteps = failedSteps ?? throw new ArgumentNullException(nameof(failedSteps));
+    private readonly IEnumerable<VerificationError> _errors = errors ?? throw new ArgumentNullException(nameof(errors));
 
-    public GameVerificationException(GameVerificationStep step) : this([step])
+    public GameVerificationException(VerificationError error) : this([error])
     {
     }
 
@@ -26,8 +25,8 @@ public sealed class GameVerificationException(IEnumerable<GameVerificationStep> 
                 return _error;
             var stringBuilder = new StringBuilder();
 
-            foreach (var step in _failedSteps)
-                stringBuilder.Append($"Verification step '{step}' has errors;");
+            foreach (var error in _errors)
+                stringBuilder.AppendLine($"Verification error: {error.Id}:{error.Message};");
             return stringBuilder.ToString().TrimEnd(';');
         }
     }

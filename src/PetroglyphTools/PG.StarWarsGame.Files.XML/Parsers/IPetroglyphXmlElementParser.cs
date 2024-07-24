@@ -1,13 +1,5 @@
-﻿using System.Xml.Linq;
+﻿namespace PG.StarWarsGame.Files.XML.Parsers;
 
-namespace PG.StarWarsGame.Files.XML.Parsers;
+public interface IPetroglyphXmlElementParser : IPetroglyphXmlParser;
 
-public interface IPetroglyphXmlElementParser
-{
-    public object? Parse(XElement element);
-}
-
-public interface IPetroglyphXmlElementParser<out T> : IPetroglyphXmlElementParser
-{
-    public new T Parse(XElement element);
-}
+public interface IPetroglyphXmlElementParser<T> : IPetroglyphXmlElementParser, IPetroglyphXmlParser<T>;

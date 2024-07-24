@@ -17,7 +17,12 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.2-beta" />
+	  <Compile Remove="Audio\**" />
+	  <EmbeddedResource Remove="Audio\**" />
+	  <None Remove="Audio\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.19-beta" />
 		<PackageReference Include="IsExternalInit" Version="1.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,13 +31,14 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Nullable" Version="1.3.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\PetroglyphTools\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Audio\" />
 	</ItemGroup>
 </Project>

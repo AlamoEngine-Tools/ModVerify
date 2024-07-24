@@ -4,6 +4,7 @@
 		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 		<Title>AET.ModVerify</Title>
 		<Product>AET.ModVerify</Product>
+		<Description>Provides interfaces and classes to verify Empire at War / Forces of Corruption game modifications.</Description>
 		<PackageId>AlamoEngineTools.ModVerify</PackageId>
 		<RootNamespace>AET.ModVerify</RootNamespace>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
@@ -20,7 +21,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.2-beta" />
+	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.19-beta" />
 	  <PackageReference Include="IsExternalInit" Version="1.0.3">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,6 +30,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
+	  <PackageReference Include="System.Text.Json" Version="8.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

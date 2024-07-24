@@ -61,6 +61,11 @@ public class ChunkReader : DisposableObject
         return value;
     }
 
+    public uint ReadDword()
+    { 
+        return _binaryReader.ReadUInt32();
+    }
+
     public void Skip(int bytesToSkip, ref int readBytes)
     {
         _binaryReader.BaseStream.Seek(bytesToSkip, SeekOrigin.Current);
@@ -79,13 +84,27 @@ public class ChunkReader : DisposableObject
         return value;
     }
 
+    public string ReadString(int size, Encoding encoding, bool zeroTerminated)
+    {
+        var value = _binaryReader.ReadString(size, encoding, zeroTerminated);
+        return value;
+    }
+
     public ChunkMetadata? TryReadChunk()
+    {
+        var _ = 0;
+        return TryReadChunk(ref _);
+    }
+
+    public ChunkMetadata? TryReadChunk(ref int size)
     {
         if (_binaryReader.BaseStream.Position == _binaryReader.BaseStream.Length)
             return null;
         try
         {
-            return ReadChunk();
+            var chunk = ReadChunk();
+            size += 8;
+            return chunk;
         }
         catch (EndOfStreamException e)
         {
