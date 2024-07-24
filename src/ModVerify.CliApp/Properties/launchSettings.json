@@ -1,12 +1,8 @@
 {
   "profiles": {
-    "No-Arguments": {
+    "Interactive": {
       "commandName": "Project",
-      "commandLineArgs": "-o verifyResults --minFailSeverity Information --baseline test.json"
-    },
-    "From-path": {
-      "commandName": "Project",
-      "commandLineArgs": "-p \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\corruption\\Mods\\Republic_at_War\" --baseline test.json"
+      "commandLineArgs": "-o verifyResults --minFailSeverity Information --baseline focBaseline.json"
     }
   }
 }

@@ -46,6 +46,11 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
         return new VerificationBaseline(baselineJson);
     }
 
+    public VerificationBaseline MergeWith(IEnumerable<VerificationError> errors)
+    {
+        return new VerificationBaseline(this.Concat(errors));
+    }
+
     /// <inheritdoc />
     public IEnumerator<VerificationError> GetEnumerator()
     {
