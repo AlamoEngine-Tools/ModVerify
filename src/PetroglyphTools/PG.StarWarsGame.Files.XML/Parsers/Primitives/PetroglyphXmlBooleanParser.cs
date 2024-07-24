@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 public sealed class PetroglyphXmlBooleanParser : PetroglyphXmlPrimitiveElementParser<bool>
 {
-    internal PetroglyphXmlBooleanParser(IServiceProvider serviceProvider) : base(serviceProvider)
+    internal PetroglyphXmlBooleanParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
     {
     }
 

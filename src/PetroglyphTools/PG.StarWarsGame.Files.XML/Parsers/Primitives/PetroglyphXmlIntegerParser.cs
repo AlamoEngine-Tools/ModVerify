@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementParser<int>
 { 
-    internal PetroglyphXmlIntegerParser(IServiceProvider serviceProvider) : base(serviceProvider)
+    internal PetroglyphXmlIntegerParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
     {
     }
 
@@ -19,7 +20,7 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
         if (!int.TryParse(element.Value, out var i))
         {
             var location = XmlLocationInfo.FromElement(element);
-            OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MalformedValue,
+            OnParseError(new XmlParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MalformedValue,
                 $"Expected integer but got '{element.Value}' at {location}"));
             return 0;
         }
@@ -27,7 +28,7 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
         return i;
     }
 
-    protected override void OnParseError(ParseErrorEventArgs e)
+    protected override void OnParseError(XmlParseErrorEventArgs e)
     {
         Logger?.LogWarning(e.Message);
         base.OnParseError(e);

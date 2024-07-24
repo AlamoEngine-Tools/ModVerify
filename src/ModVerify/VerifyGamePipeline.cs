@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -12,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace AET.ModVerify;
 
@@ -21,10 +24,12 @@ public abstract class VerifyGamePipeline : Pipeline
     private readonly GameEngineType _targetType;
     private readonly GameLocations _gameLocations;
     private readonly ParallelRunner _verifyRunner;
-
+    
     protected GameVerifySettings Settings { get; }
 
     public IReadOnlyCollection<VerificationError> Errors { get; private set; } = Array.Empty<VerificationError>();
+
+    private readonly ConcurrentBag<XmlParseErrorEventArgs> _xmlParseErrors = new();
 
     protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, GameVerifySettings settings, IServiceProvider serviceProvider) 
         : base(serviceProvider)
@@ -56,19 +61,20 @@ public abstract class VerifyGamePipeline : Pipeline
             IGameDatabase database;
             try
             {
-                //databaseService.XmlParseError += OnXmlParseError;
+                databaseService.XmlParseError += OnXmlParseError;
                 database = await databaseService.CreateDatabaseAsync(_targetType, _gameLocations, token);
             }
             finally
             {
-                //databaseService.XmlParseError -= OnXmlParseError;
+                databaseService.XmlParseError -= OnXmlParseError;
+                databaseService.Dispose();
             }
 
-            foreach (var gameVerificationStep in CreateVerificationSteps(database))
-            {
-                _verifyRunner.AddStep(gameVerificationStep);
-                _verificationSteps.Add(gameVerificationStep);
-            }
+            
+            AddStep(new XmlParseErrorCollector(_xmlParseErrors, database, Settings, ServiceProvider));
+            
+            foreach (var gameVerificationStep in CreateVerificationSteps(database)) 
+                AddStep(gameVerificationStep);
 
             try
             {
@@ -83,7 +89,7 @@ public abstract class VerifyGamePipeline : Pipeline
             }
 
 
-            Logger?.LogInformation("Reporting Errors...");
+            Logger?.LogInformation("Reporting Errors");
 
             var reportBroker = new VerificationReportBroker(Settings.GlobalReportSettings, ServiceProvider);
             var errors = reportBroker.Report(_verificationSteps);
@@ -100,10 +106,16 @@ public abstract class VerifyGamePipeline : Pipeline
         }
     }
 
-    private void OnXmlParseError(object sender, EventArgs e)
-    {
+    protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);
 
+    private void AddStep(GameVerifierBase verifier)
+    {
+        _verifyRunner.AddStep(verifier);
+        _verificationSteps.Add(verifier);
     }
 
-    protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);
+    private void OnXmlParseError(IPetroglyphXmlParser sender, XmlParseErrorEventArgs e)
+    {
+        _xmlParseErrors.Add(e);
+    }
 }

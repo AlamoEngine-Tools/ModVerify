@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -17,7 +18,7 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveE
         '\r'
     ];
     
-    internal PetroglyphXmlLooseStringListParser(IServiceProvider serviceProvider) : base(serviceProvider)
+    internal PetroglyphXmlLooseStringListParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
     {
     }
 
@@ -31,7 +32,7 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveE
         if (trimmedValued.Length > 0x2000)
         {
             var location = XmlLocationInfo.FromElement(element);
-            OnParseError(new ParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.TooLongData,
+            OnParseError(new XmlParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.TooLongData,
                 $"Input value is too long '{trimmedValued.Length}' at {XmlLocationInfo.FromElement(element)}"));
 
             return Array.Empty<string>();
@@ -42,7 +43,7 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveE
         return entries;
     }
 
-    protected override void OnParseError(ParseErrorEventArgs e)
+    protected override void OnParseError(XmlParseErrorEventArgs e)
     {
         Logger?.LogWarning(e.Message);
         base.OnParseError(e);

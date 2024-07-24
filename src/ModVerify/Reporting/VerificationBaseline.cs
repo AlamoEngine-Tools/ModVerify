@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
 
 namespace AET.ModVerify.Reporting;
@@ -30,6 +31,11 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
     public void ToJson(Stream stream)
     {
         JsonSerializer.Serialize(stream, new JsonVerificationBaseline(this), ModVerifyJsonSettings.JsonSettings);
+    }
+
+    public Task ToJsonAsync(Stream stream)
+    {
+        return JsonSerializer.SerializeAsync(stream, new JsonVerificationBaseline(this), ModVerifyJsonSettings.JsonSettings);
     }
 
     public static VerificationBaseline FromJson(Stream stream)

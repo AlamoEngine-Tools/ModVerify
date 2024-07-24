@@ -4,12 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-public abstract class XmlObjectParser<T>(IReadOnlyValueListDictionary<Crc32, T> parsedElements, IServiceProvider serviceProvider)
-    : PetroglyphXmlElementParser<T>(serviceProvider) where T : XmlObject
+public abstract class XmlObjectParser<T>(IReadOnlyValueListDictionary<Crc32, T> parsedElements, IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null)
+    : PetroglyphXmlElementParser<T>(serviceProvider, listener) where T : XmlObject
 { 
     protected IReadOnlyValueListDictionary<Crc32, T> ParsedElements { get; } = parsedElements ?? throw new ArgumentNullException(nameof(parsedElements));
 

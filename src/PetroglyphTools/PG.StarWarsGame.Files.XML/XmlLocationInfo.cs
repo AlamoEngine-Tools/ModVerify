@@ -23,7 +23,7 @@ public readonly struct XmlLocationInfo(string xmlFile, int? line)
     public override string ToString()
     {
         if (string.IsNullOrEmpty(XmlFile))
-            return "No File information";
-        return Line is null ? XmlFile! : $"{XmlFile} at line: {Line}";
+            return "(n/a)";
+        return Line is null ? XmlFile : $"{XmlFile} at line: {Line}";
     }
 }

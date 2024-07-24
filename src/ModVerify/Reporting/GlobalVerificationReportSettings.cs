@@ -1,4 +1,6 @@
-﻿namespace AET.ModVerify.Reporting;
+﻿using System;
+
+namespace AET.ModVerify.Reporting;
 
 public record GlobalVerificationReportSettings : VerificationReportSettings
 {

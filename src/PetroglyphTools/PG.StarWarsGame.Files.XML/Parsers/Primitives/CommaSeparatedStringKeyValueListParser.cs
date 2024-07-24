@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -10,7 +11,7 @@ namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 // TODO: This class is not yet implemented, compliant to the engine
 public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphXmlPrimitiveElementParser<IList<(string key, string value)>>
 {
-    internal CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider) : base(serviceProvider)
+    internal CommaSeparatedStringKeyValueListParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
     {
     }
 

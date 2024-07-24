@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public class XmlFileContainerParser(IServiceProvider serviceProvider) : PetroglyphXmlFileParser<XmlFileContainer>(serviceProvider)
+public class XmlFileContainerParser(IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null) : 
+    PetroglyphXmlFileParser<XmlFileContainer>(serviceProvider, listener)
 {
     protected override bool LoadLineInfo => false;
 

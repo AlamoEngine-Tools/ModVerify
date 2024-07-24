@@ -13,6 +13,7 @@ public class EffectsRepository(IGameRepository baseRepository, IServiceProvider 
         "Data\\Art\\Shaders\\Engine",
     ];
 
+    // The engine does not support ".fxh" as a shader lookup, but as there might be som pre-compiling going on, this should be OK. 
     private static readonly string[] ShaderExtensions = [".fx", ".fxo", ".fxh"];
 
     [return:MaybeNull]

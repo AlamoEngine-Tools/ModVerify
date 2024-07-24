@@ -22,4 +22,14 @@ public static class VerifierErrorCodes
     public const string InvalidShader = "ALO06";
     public const string InvalidProxy = "ALO07";
     public const string InvalidParticleName = "ALO08";
+
+    public const string GenericXmlError = "XML00";
+    public const string EmptyXmlRoot = "XML01";
+    public const string MissingXmlFile = "XML02";
+    public const string InvalidXmlValue = "XML03";
+    public const string MalformedXmlValue = "XML04";
+    public const string MissingXmlAttribute = "XML05";
+    public const string MissingXmlReference = "XML06";
+    public const string XmlValueTooLong = "XML07";
+    public const string XmlDataBeforeHeader = "XML08";
 }

@@ -1,26 +1,48 @@
 ﻿using System;
+using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 internal class PrimitiveParserProvider(IServiceProvider serviceProvider) : IPrimitiveParserProvider
 {
-    private readonly Lazy<PetroglyphXmlStringParser> _lazyStringParser = new(() => new PetroglyphXmlStringParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlUnsignedIntegerParser> _lazyUintParser = new(() => new PetroglyphXmlUnsignedIntegerParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlLooseStringListParser> _lazyLooseStringListParser = new(() => new PetroglyphXmlLooseStringListParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlIntegerParser> _lazyIntParser = new(() => new PetroglyphXmlIntegerParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlFloatParser> _lazyFloatParser = new(() => new PetroglyphXmlFloatParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlByteParser> _lazyByteParser = new(() => new PetroglyphXmlByteParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlMax100ByteParser> _lazyMax100ByteParser = new(() => new PetroglyphXmlMax100ByteParser(serviceProvider));
-    private readonly Lazy<PetroglyphXmlBooleanParser> _lazyBoolParser = new(() => new PetroglyphXmlBooleanParser(serviceProvider));
-    private readonly Lazy<CommaSeparatedStringKeyValueListParser> _lazyCommaStringKeyListParser = new(() => new CommaSeparatedStringKeyValueListParser(serviceProvider));
+    private readonly IPrimitiveXmlParserErrorListener _primitiveParserErrorListener = serviceProvider.GetRequiredService<IPrimitiveXmlParserErrorListener>();
 
-    public PetroglyphXmlStringParser StringParser => _lazyStringParser.Value;
-    public PetroglyphXmlUnsignedIntegerParser UIntParser => _lazyUintParser.Value;
-    public PetroglyphXmlLooseStringListParser LooseStringListParser => _lazyLooseStringListParser.Value;
-    public PetroglyphXmlIntegerParser IntParser => _lazyIntParser.Value;
-    public PetroglyphXmlFloatParser FloatParser => _lazyFloatParser.Value;
-    public PetroglyphXmlByteParser ByteParser => _lazyByteParser.Value;
-    public PetroglyphXmlMax100ByteParser Max100ByteParser => _lazyMax100ByteParser.Value;
-    public PetroglyphXmlBooleanParser BooleanParser => _lazyBoolParser.Value;
-    public CommaSeparatedStringKeyValueListParser CommaSeparatedStringKeyValueListParser => _lazyCommaStringKeyListParser.Value;
+    private PetroglyphXmlStringParser _stringParser = null!;
+    private PetroglyphXmlUnsignedIntegerParser _uintParser = null!;
+    private PetroglyphXmlLooseStringListParser _looseStringListParser = null!;
+    private PetroglyphXmlIntegerParser _intParser = null!;
+    private PetroglyphXmlFloatParser _floatParser = null!;
+    private PetroglyphXmlByteParser _byteParser = null!;
+    private PetroglyphXmlMax100ByteParser _max100ByteParser = null!;
+    private PetroglyphXmlBooleanParser _booleanParser = null!;
+    private CommaSeparatedStringKeyValueListParser _commaSeparatedStringKeyValueListParser = null!;
+
+    public PetroglyphXmlStringParser StringParser => 
+        LazyInitializer.EnsureInitialized(ref _stringParser, () => new PetroglyphXmlStringParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlUnsignedIntegerParser UIntParser => 
+        LazyInitializer.EnsureInitialized(ref _uintParser, () => new PetroglyphXmlUnsignedIntegerParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlLooseStringListParser LooseStringListParser => 
+        LazyInitializer.EnsureInitialized(ref _looseStringListParser, () => new PetroglyphXmlLooseStringListParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlIntegerParser IntParser => 
+        LazyInitializer.EnsureInitialized(ref _intParser, () => new PetroglyphXmlIntegerParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlFloatParser FloatParser => 
+        LazyInitializer.EnsureInitialized(ref _floatParser, () => new PetroglyphXmlFloatParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlByteParser ByteParser => 
+        LazyInitializer.EnsureInitialized(ref _byteParser, () => new PetroglyphXmlByteParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlMax100ByteParser Max100ByteParser => 
+        LazyInitializer.EnsureInitialized(ref _max100ByteParser, () => new PetroglyphXmlMax100ByteParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlBooleanParser BooleanParser => 
+        LazyInitializer.EnsureInitialized(ref _booleanParser, () => new PetroglyphXmlBooleanParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public CommaSeparatedStringKeyValueListParser CommaSeparatedStringKeyValueListParser => 
+        LazyInitializer.EnsureInitialized(ref _commaSeparatedStringKeyValueListParser, () => new CommaSeparatedStringKeyValueListParser(serviceProvider, _primitiveParserErrorListener));
 }

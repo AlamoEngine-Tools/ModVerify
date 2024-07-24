@@ -3,14 +3,16 @@ using System.Xml.Linq;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class GameObjectParser(
     IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements,
-    IServiceProvider serviceProvider)
-    : XmlObjectParser<GameObject>(parsedElements, serviceProvider)
+    IServiceProvider serviceProvider,
+    IXmlParserErrorListener? listener = null)
+    : XmlObjectParser<GameObject>(parsedElements, serviceProvider, listener)
 {
     protected override IPetroglyphXmlElementParser? GetParser(string tag)
     {

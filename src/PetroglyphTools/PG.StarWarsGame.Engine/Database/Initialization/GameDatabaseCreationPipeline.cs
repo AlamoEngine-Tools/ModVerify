@@ -9,25 +9,24 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceProvider serviceProvider) 
+internal class GameDatabaseCreationPipeline(GameRepository repository, IXmlParserErrorListener xmlParserErrorListener, IServiceProvider serviceProvider) 
     : Pipeline(serviceProvider)
 {
     private ParseSingletonXmlStep<GameConstants> _parseGameConstants = null!;
     private ParseXmlDatabaseFromContainerStep<GameObject> _parseGameObjects = null!;
     private ParseXmlDatabaseFromContainerStep<SfxEvent> _parseSfxEvents = null!;
 
-    // We cannot use parallel processing here, in order to avoid races of the error event
     private StepRunner _parseXmlRunner = null!;
 
     public GameDatabase GameDatabase { get; private set; } = null!;
 
-
     protected override Task<bool> PrepareCoreAsync()
     {
-        _parseXmlRunner = new StepRunner(ServiceProvider);
+        _parseXmlRunner = new ParallelRunner(4, ServiceProvider);
         foreach (var xmlParserStep in CreateXmlParserSteps())
             _parseXmlRunner.AddStep(xmlParserStep);
 
@@ -39,13 +38,13 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
         // TODO: Use same load order as the engine!
 
         yield return _parseGameConstants = new ParseSingletonXmlStep<GameConstants>("GameConstants",
-            "DATA\\XML\\GAMECONSTANTS.XML", repository, ServiceProvider);
+            "DATA\\XML\\GAMECONSTANTS.XML", repository, xmlParserErrorListener, ServiceProvider);
 
         yield return _parseGameObjects = new ParseXmlDatabaseFromContainerStep<GameObject>("GameObjects",
-            "DATA\\XML\\GAMEOBJECTFILES.XML", repository, ServiceProvider);
+            "DATA\\XML\\GAMEOBJECTFILES.XML", repository, xmlParserErrorListener, ServiceProvider);
 
         yield return _parseSfxEvents = new ParseXmlDatabaseFromContainerStep<SfxEvent>("SFXEvents",
-            "DATA\\XML\\SFXEventFiles.XML", repository, ServiceProvider);
+            "DATA\\XML\\SFXEventFiles.XML", repository, xmlParserErrorListener, ServiceProvider);
 
         // GUIDialogs.xml
         // LensFlares.xml
@@ -130,8 +129,8 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IServiceP
         }
     }
 
-    private sealed class ParseSingletonXmlStep<T>(string name, string xmlFile, IGameRepository repository, IServiceProvider serviceProvider)
-        : ParseXmlDatabaseStep<T>(xmlFile, repository, serviceProvider) where T : class
+    private sealed class ParseSingletonXmlStep<T>(string name, string xmlFile, IGameRepository repository, IXmlParserErrorListener? listener, IServiceProvider serviceProvider)
+        : ParseXmlDatabaseStep<T>(xmlFile, repository, listener, serviceProvider) where T : class
     {
         protected override string Name => name;
 

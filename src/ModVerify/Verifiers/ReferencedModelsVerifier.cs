@@ -16,6 +16,7 @@ using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
 using AnakinRaW.CommonUtilities.FileSystem;
+using System.Reflection;
 
 namespace AET.ModVerify.Verifiers;
 
@@ -84,7 +85,7 @@ public sealed class ReferencedModelsVerifier(
         }
         catch (BinaryCorruptedException e)
         {
-            var aloFile = modelStream.GetFilePath();
+            var aloFile = GetGameStrippedPath(modelStream.GetFilePath());
             var message = $"{aloFile} is corrupted: {e.Message}";
             AddError(VerificationError.Create(this, VerifierErrorCodes.ModelBroken, message, VerificationSeverity.Critical, aloFile));
         }
@@ -98,14 +99,15 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
+                    var modelFilePath = GetGameStrippedPath(file.FilePath);
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidTexture,
                         $"Invalid texture file name" +
-                        $" '{texture}' in particle '{file.FilePath}'",
+                        $" '{texture}' in particle 'modelFilePath'",
                         VerificationSeverity.Error,
-                        texture, 
-                        file.FilePath));
+                        texture,
+                        modelFilePath));
                 });
         }
 
@@ -114,12 +116,13 @@ public sealed class ReferencedModelsVerifier(
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
         {
+            var modelFilePath = GetGameStrippedPath(file.FilePath);
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.InvalidParticleName,
-                $"The particle name '{file.Content.Name}' does not match file name '{fileName.ToString()}'", 
-                VerificationSeverity.Error, 
-                file.FilePath));
+                $"The particle name '{file.Content.Name}' does not match file name '{modelFilePath}'", 
+                VerificationSeverity.Error,
+                modelFilePath));
         }
 
     }
@@ -132,13 +135,13 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
+                    var modelFilePath = GetGameStrippedPath(file.FilePath);
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidTexture, 
-                        $"Invalid texture file name" +
-                        $" '{texture}' in model '{file.FilePath}'",
+                        $"Invalid texture file name '{texture}' in model '{modelFilePath}'",
                         VerificationSeverity.Error, 
-                        texture, file.FilePath));
+                        texture, modelFilePath));
                 });
         }
 
@@ -148,13 +151,13 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
+                    var modelFilePath = GetGameStrippedPath(file.FilePath);
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidShader,
-                        $"Invalid texture file name" +
-                        $" '{shader}' in model '{file.FilePath}'",
+                        $"Invalid texture file name '{shader}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
-                        shader, file.FilePath));
+                        shader, modelFilePath));
                 });
         }
 
@@ -165,13 +168,13 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
+                    var modelFilePath = GetGameStrippedPath(file.FilePath);
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidProxy,
-                        $"Invalid proxy file name" +
-                        $" '{proxy}' in model '{file.FilePath}'",
+                        $"Invalid proxy file name '{proxy}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
-                        proxy, file.FilePath));
+                        proxy, modelFilePath));
                 });
         }
     }
@@ -183,8 +186,9 @@ public sealed class ReferencedModelsVerifier(
         
         if (!Repository.TextureRepository.FileExists(texture))
         {
-            var message = $"{model.FilePath} references missing texture: {texture}";
-            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, model.FilePath, texture);
+            var modelFilePath = GetGameStrippedPath(model.FilePath);
+            var message = $"{modelFilePath} references missing texture: {texture}";
+            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, modelFilePath, texture);
             AddError(error);
         }
     }
@@ -195,8 +199,9 @@ public sealed class ReferencedModelsVerifier(
         var particle = FileSystem.Path.ChangeExtension(proxyName, "alo");
         if (!Repository.FileExists(BuildModelPath(particle)))
         {
-            var message = $"{model.FilePath} references missing proxy particle: {particle}";
-            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, model.FilePath, particle);
+            var modelFilePath = GetGameStrippedPath(model.FilePath);
+            var message = $"{modelFilePath} references missing proxy particle: {particle}";
+            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, modelFilePath, particle);
             AddError(error);
         }
         else
@@ -205,7 +210,7 @@ public sealed class ReferencedModelsVerifier(
 
     private string BuildModelPath(string fileName)
     {
-        return FileSystem.Path.Combine("Data/Art/Models", fileName);
+        return FileSystem.Path.Combine("DATA/ART/MODELS", fileName);
     }
 
     private void VerifyShaderExists(IPetroglyphFileHolder data, string shader)
@@ -215,8 +220,9 @@ public sealed class ReferencedModelsVerifier(
 
         if (!Repository.EffectsRepository.FileExists(shader))
         {
-            var message = $"{data.FilePath} references missing shader effect: {shader}";
-            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, data.FilePath, shader);
+            var modelFilePath = GetGameStrippedPath(data.FilePath);
+            var message = $"{modelFilePath} references missing shader effect: {shader}";
+            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, modelFilePath, shader);
             AddError(error);
         }
     }

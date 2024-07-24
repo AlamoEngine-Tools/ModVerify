@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -67,5 +69,19 @@ public abstract class GameVerifierBase(
         {
             exceptionHandler(e);
         }
+    }
+
+    protected string GetGameStrippedPath(string path)
+    {
+        if (!FileSystem.Path.IsPathFullyQualified(path))
+            return path;
+
+        if (path.Length <= Repository.Path.Length)
+            return path;
+
+        if (path.StartsWith(Repository.Path, StringComparison.OrdinalIgnoreCase))
+            return path.Substring(Repository.Path.Length);
+
+        return path;
     }
 }

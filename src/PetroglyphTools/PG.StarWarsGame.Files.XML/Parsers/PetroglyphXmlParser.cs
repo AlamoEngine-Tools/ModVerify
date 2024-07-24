@@ -2,13 +2,14 @@
 using System;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public abstract class PetroglyphXmlParser<T> : IPetroglyphXmlParser<T>
 {
-    public event EventHandler<ParseErrorEventArgs>? ParseError;
+    private readonly IXmlParserErrorListener? _errorListener;
 
     protected IServiceProvider ServiceProvider { get; }
 
@@ -16,18 +17,19 @@ public abstract class PetroglyphXmlParser<T> : IPetroglyphXmlParser<T>
 
     protected IPrimitiveParserProvider PrimitiveParserProvider { get; }
 
-    protected PetroglyphXmlParser(IServiceProvider serviceProvider)
+    protected PetroglyphXmlParser(IServiceProvider serviceProvider, IXmlParserErrorListener? errorListener = null)
     {
         ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
         PrimitiveParserProvider = serviceProvider.GetRequiredService<IPrimitiveParserProvider>();
+        _errorListener = errorListener;
     }
 
     public abstract T Parse(XElement element);
 
-    protected virtual void OnParseError(ParseErrorEventArgs e)
+    protected virtual void OnParseError(XmlParseErrorEventArgs e)
     {
-        ParseError?.Invoke(this, e);
+        _errorListener?.OnXmlParseError(this, e);
     }
 
     object IPetroglyphXmlParser.Parse(XElement element)
