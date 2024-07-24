@@ -45,13 +45,16 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 
     private async Task WriteBaseline(IEnumerable<VerificationError> errors, string baselineFile)
     {
+        var currentBaseline = settings.GameVerifySettigns.GlobalReportSettings.Baseline;
+
+        var newBaseline = currentBaseline.MergeWith(errors);
+
         var fullPath = _fileSystem.Path.GetFullPath(baselineFile);
 #if NET
         await 
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        var baseline = new VerificationBaseline(errors);
-        await baseline.ToJsonAsync(fs);
+        await newBaseline.ToJsonAsync(fs);
     }
 
     private static VerifyGameSetupData CreateGameSetupData(ModVerifyAppSettings options, IServiceProvider services)
