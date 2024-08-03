@@ -3,6 +3,11 @@
     "Interactive": {
       "commandName": "Project",
       "commandLineArgs": "-o verifyResults --minFailSeverity Information --baseline focBaseline.json"
+    },
+
+    "FromModPath": {
+      "commandName": "Project",
+      "commandLineArgs": "-o verifyResults --baseline focBaseline.json --path C:/test --type Foc"
     }
   }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
+using ModVerify.CliApp.Options;
 
 namespace ModVerify.CliApp;
 
@@ -20,10 +22,9 @@ internal class SettingsBuilder(IServiceProvider services)
         
         return new ModVerifyAppSettings
         {
-            GameVerifySettigns = BuildGameVerifySettings(options),
-            PathToVerify = options.Path,
+            GameVerifySettings = BuildGameVerifySettings(options),
+            GameInstallationsSettings = BuildInstallationSettings(options),
             Output = output,
-            AdditionalFallbackPath = options.AdditionalFallbackPath,
             NewBaselinePath = options.NewBaselineFile
         };
     }
@@ -71,6 +72,52 @@ internal class SettingsBuilder(IServiceProvider services)
             Baseline = baseline,
             Suppressions = suppressions,
             MinimumReportSeverity = VerificationSeverity.Information,
+        };
+    }
+
+    private GameInstallationsSettings BuildInstallationSettings(ModVerifyOptions options)
+    {
+        var modPaths = new List<string>();
+        if (options.ModPaths is not null)
+        {
+            foreach (var mod in options.ModPaths)
+            {
+                if (!string.IsNullOrEmpty(mod))
+                    modPaths.Add(_fileSystem.Path.GetFullPath(mod));
+            }
+        }
+
+        var fallbackPaths = new List<string>();
+        if (options.AdditionalFallbackPath is not null)
+        {
+            foreach (var fallback in options.AdditionalFallbackPath)
+            {
+                if (!string.IsNullOrEmpty(fallback))
+                    fallbackPaths.Add(_fileSystem.Path.GetFullPath(fallback));
+            }
+        }
+
+        var gamePath = options.GamePath;
+        if (!string.IsNullOrEmpty(gamePath))
+            gamePath = _fileSystem.Path.GetFullPath(gamePath);
+
+
+        string? fallbackGamePath = null;
+        if (!string.IsNullOrEmpty(gamePath) && !string.IsNullOrEmpty(options.FallbackGamePath))
+            fallbackGamePath = _fileSystem.Path.GetFullPath(options.FallbackGamePath);
+
+        var autoPath = options.AutoPath;
+        if (!string.IsNullOrEmpty(autoPath))
+            autoPath = _fileSystem.Path.GetFullPath(autoPath);
+
+        return new GameInstallationsSettings
+        {
+            AutoPath = autoPath,
+            ModPaths = modPaths,
+            GamePath = gamePath,
+            FallbackGamePath = fallbackGamePath,
+            AdditionalFallbackPaths = fallbackPaths,
+            EngineType = options.GameType
         };
     }
 }

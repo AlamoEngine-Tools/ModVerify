@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Threading.Tasks;
 using AET.ModVerify;
 using AET.ModVerify.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Infrastructure.Mods;
-using PG.StarWarsGame.Infrastructure.Services.Dependencies;
+using ModVerify.CliApp.ModSelectors;
+using ModVerify.CliApp.Options;
 
 namespace ModVerify.CliApp;
 
@@ -23,12 +21,15 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
     {
         var returnCode = 0;
 
-        var gameSetupData = CreateGameSetupData(settings, services);
-        var verifyPipeline = new ModVerifyPipeline(gameSetupData.EngineType, gameSetupData.GameLocations, settings.GameVerifySettigns, services);
+        var installData = new SettingsBasedModSelector(services).CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
+
+        _logger?.LogInformation($"Verify install data: {installData}");
+
+        var verifyPipeline = new ModVerifyPipeline(installData.EngineType, installData.GameLocations, settings.GameVerifySettings, services);
 
         try
         {
-            _logger?.LogInformation($"Verifying {gameSetupData.VerifyObject.Name}...");
+            _logger?.LogInformation($"Verifying '{installData.Name}'...");
             await verifyPipeline.RunAsync().ConfigureAwait(false);
             _logger?.LogInformation("Finished Verifying");
         }
@@ -45,7 +46,7 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 
     private async Task WriteBaseline(IEnumerable<VerificationError> errors, string baselineFile)
     {
-        var currentBaseline = settings.GameVerifySettigns.GlobalReportSettings.Baseline;
+        var currentBaseline = settings.GameVerifySettings.GlobalReportSettings.Baseline;
 
         var newBaseline = currentBaseline.MergeWith(errors);
 
@@ -55,39 +56,5 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
         await newBaseline.ToJsonAsync(fs);
-    }
-
-    private static VerifyGameSetupData CreateGameSetupData(ModVerifyAppSettings options, IServiceProvider services)
-    {
-        var selectionResult = new ModOrGameSelector(services).SelectModOrGame(options.PathToVerify);
-
-        IList<string> mods = Array.Empty<string>();
-        if (selectionResult.ModOrGame is IMod mod)
-        {
-            var traverser = services.GetRequiredService<IModDependencyTraverser>();
-            mods = traverser.Traverse(mod)
-                .Select(x => x.Mod)
-                .OfType<IPhysicalMod>().Select(x => x.Directory.FullName)
-                .ToList();
-        }
-
-        var fallbackPaths = new List<string>();
-        if (selectionResult.FallbackGame is not null)
-            fallbackPaths.Add(selectionResult.FallbackGame.Directory.FullName);
-
-        if (!string.IsNullOrEmpty(options.AdditionalFallbackPath))
-            fallbackPaths.Add(options.AdditionalFallbackPath);
-
-        var gameLocations = new GameLocations(
-            mods,
-            selectionResult.ModOrGame.Game.Directory.FullName,
-            fallbackPaths);
-
-        return new VerifyGameSetupData
-        {
-            EngineType = GameEngineType.Foc,
-            GameLocations = gameLocations,
-            VerifyObject = selectionResult.ModOrGame,
-        };
     }
 }

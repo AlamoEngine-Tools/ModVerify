@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,20 +13,17 @@ internal class VerificationReportBroker(GlobalVerificationReportSettings reportS
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(VerificationReportBroker));
 
 
-    public IReadOnlyCollection<VerificationError> Report(IEnumerable<GameVerifierBase> steps)
+    public async Task<IReadOnlyCollection<VerificationError>> ReportAsync(IEnumerable<GameVerifierBase> steps)
     {
         var suppressions = new SuppressionList(reportSettings.Suppressions);
-       
         var errors = GetReportableErrors(steps, suppressions);
-
         var reporters = serviceProvider.GetServices<IVerificationReporter>();
-
 
         foreach (var reporter in reporters)
         {
             try
             {
-                reporter.Report(errors);
+                await reporter.ReportAsync(errors);
             }
             catch (Exception e)
             {

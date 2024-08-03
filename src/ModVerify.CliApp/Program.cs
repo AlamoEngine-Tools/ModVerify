@@ -7,7 +7,6 @@ using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
 using AET.SteamAbstraction;
-using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
@@ -15,6 +14,7 @@ using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using ModVerify.CliApp.Options;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files.ALO;
@@ -63,6 +63,9 @@ internal class Program
         var coreServiceCollection = CreateCoreServices(verifyOptions.Verbose);
         var coreServices = coreServiceCollection.BuildServiceProvider();
         var logger = coreServices.GetService<ILoggerFactory>()?.CreateLogger(typeof(Program));
+
+        logger?.LogDebug($"Raw command line: {Environment.CommandLine}");
+
         try
         {
             var settings = new SettingsBuilder(coreServices)
@@ -76,8 +79,8 @@ internal class Program
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Error: {e.Message}");
             logger?.LogCritical(e, e.Message);
-            Console.WriteLine(e.Message);
             return e.HResult;
         }
     }
@@ -126,13 +129,13 @@ internal class Program
         serviceCollection.RegisterJsonReporter(new JsonReporterSettings
         {
             OutputDirectory = settings.Output,
-            MinimumReportSeverity = settings.GameVerifySettigns.GlobalReportSettings.MinimumReportSeverity
+            MinimumReportSeverity = settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity
         });
 
         serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
         {
             OutputDirectory = settings.Output,
-            MinimumReportSeverity = settings.GameVerifySettigns.GlobalReportSettings.MinimumReportSeverity
+            MinimumReportSeverity = settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity
         });
     }
 

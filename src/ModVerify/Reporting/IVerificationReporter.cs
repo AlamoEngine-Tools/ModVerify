@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AET.ModVerify.Reporting;
 
 public interface IVerificationReporter 
 {
-    public void Report(IReadOnlyCollection<VerificationError> errors);
+    public Task ReportAsync(IReadOnlyCollection<VerificationError> errors);
 }
