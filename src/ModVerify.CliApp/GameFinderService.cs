@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -67,7 +68,7 @@ internal class GameFinderService
 
     private bool TryDetectGame(GameType gameType, IList<IGameDetector> detectors, out GameDetectionResult result)
     {
-        var gd = new CompositeGameDetector(detectors, _serviceProvider, true);
+        var gd = new CompositeGameDetector(detectors, _serviceProvider);
         result = gd.Detect(new GameDetectorOptions(gameType));
 
         if (result.Error is not null)
@@ -87,7 +88,7 @@ internal class GameFinderService
         if (!TryDetectGame(GameType.Foc, detectors, out var result))
         {
             _logger?.LogTrace("Unable to find FoC installation. Trying again with EaW...");
-            if (!TryDetectGame(GameType.EaW, detectors, out result))
+            if (!TryDetectGame(GameType.Eaw, detectors, out result))
                 throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
         }
 
@@ -96,7 +97,7 @@ internal class GameFinderService
 
         _logger?.LogTrace($"Found game installation: {result.GameIdentity} at {result.GameLocation.FullName}");
 
-        var game = _gameFactory.CreateGame(result);
+        var game = _gameFactory.CreateGame(result, CultureInfo.InvariantCulture);
 
         SetupMods(game);
 
@@ -112,12 +113,12 @@ internal class GameFinderService
             else
                 throw new NotImplementedException("Searching fallback game for non-Steam games is currently is not yet implemented.");
 
-            if (!TryDetectGame(GameType.EaW, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
+            if (!TryDetectGame(GameType.Eaw, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
                 throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
 
             _logger?.LogTrace($"Found fallback game installation: {fallbackResult.GameIdentity} at {fallbackResult.GameLocation.FullName}");
 
-            fallbackGame = _gameFactory.CreateGame(fallbackResult);
+            fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
 
             SetupMods(fallbackGame);
         }
@@ -134,7 +135,7 @@ internal class GameFinderService
 
         foreach (var modReference in modRefs)
         {
-            var mod = _modFactory.FromReference(game, modReference);
+            var mod = _modFactory.FromReference(game, modReference, CultureInfo.InvariantCulture);
             mods.AddRange(mod);
         }
 

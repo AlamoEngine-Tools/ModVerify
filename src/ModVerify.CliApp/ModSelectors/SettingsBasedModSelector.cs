@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO.Abstractions;
 using System.Linq;
 using EawModinfo.Model;
@@ -40,20 +41,24 @@ internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
             return targetObject.Name;
 
         var mod = gameLocations.ModPaths.FirstOrDefault();
-        if (mod is not null)
-            return GetNameFromMod(mod);
-        return GetNameFromGame(engineType);
+
+        var name = mod is not null ? GetNameFromMod(mod) : GetNameFromGame(engineType);
+
+        if (string.IsNullOrEmpty(name))
+            throw new InvalidOperationException("Mod or game name cannot be null or empty.");
+
+        return name;
     }
 
-    private string GetNameFromGame(GameEngineType type)
+    private string? GetNameFromGame(GameEngineType type)
     {
         var nameResolver = serviceProvider.GetRequiredService<IGameNameResolver>();
-        return nameResolver.ResolveName(new GameIdentity(type.FromEngineType(), GamePlatform.Undefined));
+        return nameResolver.ResolveName(new GameIdentity(type.FromEngineType(), GamePlatform.Undefined), CultureInfo.InvariantCulture);
     }
 
-    private string GetNameFromMod(string mod)
+    private string? GetNameFromMod(string mod)
     {
         var nameResolver = serviceProvider.GetRequiredService<IModNameResolver>();
-        return nameResolver.ResolveName(new ModReference(_fileSystem.Path.GetFullPath(mod), ModType.Default));
+        return nameResolver.ResolveName(new ModReference(_fileSystem.Path.GetFullPath(mod), ModType.Default), CultureInfo.InvariantCulture);
     }
 }

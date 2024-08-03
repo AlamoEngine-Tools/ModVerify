@@ -1,7 +1,7 @@
 ﻿using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure.Games;
 
-namespace ModVerify.CliApp.ModSelectors;
+namespace ModVerify.CliApp;
 
 internal static class ExtensionMethods
 {
@@ -12,6 +12,6 @@ internal static class ExtensionMethods
 
     public static GameType FromEngineType(this GameEngineType type)
     {
-        return type == GameEngineType.Foc ? GameType.Foc : GameType.EaW;
+        return type == GameEngineType.Foc ? GameType.Foc : GameType.Eaw;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Abstractions;
 using EawModinfo.Model;
 using EawModinfo.Spec;
@@ -99,7 +100,7 @@ internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelec
             throw new GameNotFoundException($"Unable to find game of type '{settings.EngineType}'");
 
         var modFactory = ServiceProvider.GetRequiredService<IModFactory>();
-        mod = modFactory.FromReference(game, new ModReference(modPath, ModType.Default), true);
+        mod = modFactory.FromReference(game, new ModReference(modPath, ModType.Default), true, CultureInfo.InvariantCulture);
 
         game.AddMod(mod);
 

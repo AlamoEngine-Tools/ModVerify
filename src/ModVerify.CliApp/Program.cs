@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -23,6 +24,8 @@ using PG.StarWarsGame.Files.MEG.Data.Archives;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Clients;
+using PG.StarWarsGame.Infrastructure.Services.Detection;
+using PG.StarWarsGame.Infrastructure.Services.Name;
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
@@ -118,6 +121,16 @@ internal class Program
         ModVerifyServiceContribution.ContributeServices(serviceCollection);
 
         SetupReporting(serviceCollection, settings);
+
+        serviceCollection.AddSingleton<IModNameResolver>(sp => new CompositeModNameResolver(sp, s =>
+            new List<IModNameResolver>
+            {
+                new OfflineWorkshopNameResolver(s),
+                new OnlineWorkshopNameResolver(s),
+                new DirectoryModNameResolver(s)
+            }));
+
+        serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
         
         return serviceCollection.BuildServiceProvider();
     }
