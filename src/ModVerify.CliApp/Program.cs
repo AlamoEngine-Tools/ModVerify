@@ -7,6 +7,7 @@ using AET.ModVerify;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
+using AET.ModVerifyTool.Options;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
@@ -15,7 +16,6 @@ using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using ModVerify.CliApp.Options;
 using PG.Commons.Extensibility;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files.ALO;
@@ -30,7 +30,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal class Program
 {

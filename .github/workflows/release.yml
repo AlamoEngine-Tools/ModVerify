@@ -55,8 +55,6 @@ jobs:
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
         working-directory: ./releases/net8.0
         run: zip -r ../ModVerify-Net8.zip .
-      - name: Rename .NET Framework executable
-        run: mv ./releases/net48/ModVerify.CliApp.exe ./releases/net48/ModVerify.exe
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       - name: Create GitHub release

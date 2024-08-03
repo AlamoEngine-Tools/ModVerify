@@ -2,11 +2,12 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO.Abstractions;
+using AET.ModVerifyTool.GameFinder;
+using AET.ModVerifyTool.Options;
 using EawModinfo.Model;
 using EawModinfo.Spec;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ModVerify.CliApp.Options;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
@@ -14,7 +15,7 @@ using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 
-namespace ModVerify.CliApp.ModSelectors;
+namespace AET.ModVerifyTool.ModSelectors;
 
 internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {

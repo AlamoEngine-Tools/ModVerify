@@ -1,8 +1,8 @@
-﻿using ModVerify.CliApp.Options;
+﻿using AET.ModVerifyTool.Options;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 
-namespace ModVerify.CliApp.ModSelectors;
+namespace AET.ModVerifyTool.ModSelectors;
 
 internal interface IModSelector
 {

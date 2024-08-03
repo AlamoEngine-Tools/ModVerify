@@ -1,5 +1,5 @@
 ﻿using PG.StarWarsGame.Infrastructure.Games;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal class GameNotFoundException(string message) : GameException(message);

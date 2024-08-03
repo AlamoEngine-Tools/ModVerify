@@ -5,12 +5,12 @@ using System.IO.Abstractions;
 using System.Threading.Tasks;
 using AET.ModVerify;
 using AET.ModVerify.Reporting;
+using AET.ModVerifyTool.ModSelectors;
+using AET.ModVerifyTool.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ModVerify.CliApp.ModSelectors;
-using ModVerify.CliApp.Options;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider services)
 {

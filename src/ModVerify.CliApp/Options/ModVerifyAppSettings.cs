@@ -1,8 +1,8 @@
 ﻿using System;
-using AET.ModVerify.Settings;
 using System.Diagnostics.CodeAnalysis;
+using AET.ModVerify.Settings;
 
-namespace ModVerify.CliApp.Options;
+namespace AET.ModVerifyTool.Options;
 
 internal record ModVerifyAppSettings
 {

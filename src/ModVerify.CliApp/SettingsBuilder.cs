@@ -4,10 +4,10 @@ using System.IO;
 using System.IO.Abstractions;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AET.ModVerifyTool.Options;
 using Microsoft.Extensions.DependencyInjection;
-using ModVerify.CliApp.Options;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal class SettingsBuilder(IServiceProvider services)
 {

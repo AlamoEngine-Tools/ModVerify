@@ -1,7 +1,7 @@
 ﻿using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure.Games;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal static class ExtensionMethods
 {

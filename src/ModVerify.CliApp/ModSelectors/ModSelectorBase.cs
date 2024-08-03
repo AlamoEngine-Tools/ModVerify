@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AET.ModVerifyTool.GameFinder;
+using AET.ModVerifyTool.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ModVerify.CliApp.Options;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 
-namespace ModVerify.CliApp.ModSelectors;
+namespace AET.ModVerifyTool.ModSelectors;
 
 internal abstract class ModSelectorBase : IModSelector
 {

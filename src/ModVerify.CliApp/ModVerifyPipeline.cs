@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal class ModVerifyPipeline(
     GameEngineType targetType,

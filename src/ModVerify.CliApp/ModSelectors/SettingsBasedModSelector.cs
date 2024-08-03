@@ -2,16 +2,16 @@
 using System.Globalization;
 using System.IO.Abstractions;
 using System.Linq;
+using AET.ModVerifyTool.Options;
 using EawModinfo.Model;
 using EawModinfo.Spec;
 using Microsoft.Extensions.DependencyInjection;
-using ModVerify.CliApp.Options;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Services.Name;
 
-namespace ModVerify.CliApp.ModSelectors;
+namespace AET.ModVerifyTool.ModSelectors;
 
 internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
 {

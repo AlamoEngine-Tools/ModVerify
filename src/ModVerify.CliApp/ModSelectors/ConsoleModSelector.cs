@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using AET.ModVerifyTool.GameFinder;
+using AET.ModVerifyTool.Options;
 using EawModinfo.Spec;
-using ModVerify.CliApp.Options;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Mods;
 
-namespace ModVerify.CliApp.ModSelectors;
+namespace AET.ModVerifyTool.ModSelectors;
 
 internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {

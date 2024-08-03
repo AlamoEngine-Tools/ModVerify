@@ -4,6 +4,8 @@
 		<IsPackable>false</IsPackable>
 		<TargetFrameworks>net8.0;net48</TargetFrameworks>
 		<OutputType>Exe</OutputType>
+		<RootNamespace>AET.ModVerifyTool</RootNamespace>
+		<AssemblyName>ModVerify</AssemblyName>
 		<ApplicationIcon>$(RepoRootPath)aet.ico</ApplicationIcon>
 		<Title>AET.ModVerify.CommandLine</Title>
 		<Product>AET.ModVerify</Product>

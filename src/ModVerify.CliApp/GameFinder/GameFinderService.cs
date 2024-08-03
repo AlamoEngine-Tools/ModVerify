@@ -11,7 +11,7 @@ using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool.GameFinder;
 
 internal class GameFinderService
 {

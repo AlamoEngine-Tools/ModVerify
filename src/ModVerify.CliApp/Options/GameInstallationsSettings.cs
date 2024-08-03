@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using PG.StarWarsGame.Engine;
 
-namespace ModVerify.CliApp.Options;
+namespace AET.ModVerifyTool.Options;
 
 internal record GameInstallationsSettings
 {
