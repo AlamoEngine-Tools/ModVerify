@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
 internal class ConsoleReporter(VerificationReportSettings settings, IServiceProvider serviceProvider) : ReporterBase<VerificationReportSettings>(settings, serviceProvider)
 {
-    public override void Report(IReadOnlyCollection<VerificationError> errors)
+    public override Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {
         var filteredErrors = FilteredErrors(errors).ToList();
 
@@ -22,5 +23,7 @@ internal class ConsoleReporter(VerificationReportSettings settings, IServiceProv
             Console.WriteLine(error);
 
         Console.WriteLine();
+
+        return Task.CompletedTask;
     }
 }

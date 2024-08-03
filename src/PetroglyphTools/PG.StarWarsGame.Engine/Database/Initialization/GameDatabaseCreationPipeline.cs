@@ -100,7 +100,7 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IXmlParse
             }
             finally
             {
-                Logger?.LogInformation("Finished parsing XML Files...");
+                Logger?.LogInformation("Finished parsing XML Files");
                 _parseXmlRunner.Error -= OnError;
             }
 
@@ -109,8 +109,10 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IXmlParse
             token.ThrowIfCancellationRequested();
 
 
+            Logger?.LogInformation("Initializing Language files...");
             var installedLanguages = repository.InitializeInstalledSfxMegFiles();
-            
+            Logger?.LogInformation("Finished initializing Language files");
+
 
             repository.Seal();
 

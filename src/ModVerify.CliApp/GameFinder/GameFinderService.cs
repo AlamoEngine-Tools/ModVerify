@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool.GameFinder;
 
 internal class GameFinderService
 {
@@ -40,33 +41,34 @@ internal class GameFinderService
         return FindGames(detectors);
     }
 
-    public GameFinderResult FindGamesFromPath(string path)
+    public GameFinderResult FindGamesFromPathOrGlobal(string path)
     {
-        // There are three common situations: 
+        // There are four common situations: 
         // 1. path points to the actual game directory
         // 2. path points to a local mod in game/Mods/ModDir
         // 3. path points to a workshop mod
+        // 4. path points to a "detached mod" at a completely different location
         var givenDirectory = _fileSystem.DirectoryInfo.New(path);
         var possibleGameDir = givenDirectory.Parent?.Parent;
-        var possibleSteamAppsFolder = givenDirectory.Parent?.Parent?.Parent?.Parent?.Parent;
         
         var detectors = new List<IGameDetector>
         {
+            // Case 1
             new DirectoryGameDetector(givenDirectory, _serviceProvider)
         };
 
+        // Case 2
         if (possibleGameDir is not null)
             detectors.Add(new DirectoryGameDetector(possibleGameDir, _serviceProvider));
 
-        if (possibleSteamAppsFolder is not null && possibleSteamAppsFolder.Name == "steamapps" && uint.TryParse(givenDirectory.Name, out _)) 
-            detectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
-
+        // Cases 3 & 4
+        detectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
         return FindGames(detectors);
     }
 
     private bool TryDetectGame(GameType gameType, IList<IGameDetector> detectors, out GameDetectionResult result)
     {
-        var gd = new CompositeGameDetector(detectors, _serviceProvider, true);
+        var gd = new CompositeGameDetector(detectors, _serviceProvider);
         result = gd.Detect(new GameDetectorOptions(gameType));
 
         if (result.Error is not null)
@@ -80,48 +82,22 @@ internal class GameFinderService
         return true;
     }
 
-
-    private void SetupMods(IGame game)
-    {
-        var modFinder = _serviceProvider.GetRequiredService<IModReferenceFinder>();
-        var modRefs = modFinder.FindMods(game);
-
-        var mods = new List<IMod>();
-
-        foreach (var modReference in modRefs)
-        {
-            var mod = _modFactory.FromReference(game, modReference);
-            mods.AddRange(mod);
-        }
-
-        foreach (var mod in mods)
-            game.AddMod(mod);
-
-        // Mods need to be added to the game first, before resolving their dependencies.
-        foreach (var mod in mods)
-        {
-            var resolver = _serviceProvider.GetRequiredService<IDependencyResolver>();
-            mod.ResolveDependencies(resolver,
-                new DependencyResolverOptions { CheckForCycle = true, ResolveCompleteChain = true });
-        }
-    }
-
     private GameFinderResult FindGames(IList<IGameDetector> detectors)
     {
         // FoC needs to be tried first
         if (!TryDetectGame(GameType.Foc, detectors, out var result))
         {
             _logger?.LogTrace("Unable to find FoC installation. Trying again with EaW...");
-            if (!TryDetectGame(GameType.EaW, detectors, out result))
-                throw new GameException("Unable to find game installation: Wrong install path?");
+            if (!TryDetectGame(GameType.Eaw, detectors, out result))
+                throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
         }
 
         if (result.GameLocation is null)
-            throw new GameException("Unable to find game installation: Wrong install path?");
+            throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
 
         _logger?.LogTrace($"Found game installation: {result.GameIdentity} at {result.GameLocation.FullName}");
 
-        var game = _gameFactory.CreateGame(result);
+        var game = _gameFactory.CreateGame(result, CultureInfo.InvariantCulture);
 
         SetupMods(game);
 
@@ -137,16 +113,41 @@ internal class GameFinderService
             else
                 throw new NotImplementedException("Searching fallback game for non-Steam games is currently is not yet implemented.");
 
-            if (!TryDetectGame(GameType.EaW, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
-                throw new GameException("Unable to find fallback game installation: Wrong install path?");
+            if (!TryDetectGame(GameType.Eaw, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
+                throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
 
             _logger?.LogTrace($"Found fallback game installation: {fallbackResult.GameIdentity} at {fallbackResult.GameLocation.FullName}");
 
-            fallbackGame = _gameFactory.CreateGame(fallbackResult);
+            fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
 
             SetupMods(fallbackGame);
         }
 
         return new GameFinderResult(game, fallbackGame);
+    }
+
+    private void SetupMods(IGame game)
+    {
+        var modFinder = _serviceProvider.GetRequiredService<IModReferenceFinder>();
+        var modRefs = modFinder.FindMods(game);
+
+        var mods = new List<IMod>();
+
+        foreach (var modReference in modRefs)
+        {
+            var mod = _modFactory.FromReference(game, modReference, CultureInfo.InvariantCulture);
+            mods.AddRange(mod);
+        }
+
+        foreach (var mod in mods)
+            game.AddMod(mod);
+
+        // Mods need to be added to the game first, before resolving their dependencies.
+        foreach (var mod in mods)
+        {
+            var resolver = _serviceProvider.GetRequiredService<IDependencyResolver>();
+            mod.ResolveDependencies(resolver,
+                new DependencyResolverOptions { CheckForCycle = true, ResolveCompleteChain = true });
+        }
     }
 }

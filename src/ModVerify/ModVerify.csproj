@@ -7,6 +7,7 @@
 		<Description>Provides interfaces and classes to verify Empire at War / Forces of Corruption game modifications.</Description>
 		<PackageId>AlamoEngineTools.ModVerify</PackageId>
 		<RootNamespace>AET.ModVerify</RootNamespace>
+		<AssemblyName>AET.ModVerify</AssemblyName>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 

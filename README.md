@@ -32,7 +32,7 @@ A `.JSON` file lists all found issues. Into seperate `.txt` files the same error
 
 You can also run the tool with command line arguments to adjust the tool to your needs. 
 
-To see all available options, open the command line and type:
+To see all available options, especially if you have custom folder setups, open the command line and type:
 
 ```bash
 ModVerify.exe --help

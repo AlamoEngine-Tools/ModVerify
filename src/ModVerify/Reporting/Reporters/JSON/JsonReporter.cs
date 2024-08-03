@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
 
 namespace AET.ModVerify.Reporting.Reporters.JSON;
@@ -11,10 +12,13 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
     public const string FileName = "VerificationResult.json";
 
 
-    public override void Report(IReadOnlyCollection<VerificationError> errors)
+    public override async Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {
         var report = new JsonVerificationReport(errors.Select(x => new JsonVerificationError(x)));
+#if NET || NETSTANDARD2_1
+        await 
+#endif
         using var fs = CreateFile(FileName);
-        JsonSerializer.Serialize(fs, report, ModVerifyJsonSettings.JsonSettings);
+        await JsonSerializer.SerializeAsync(fs, report, ModVerifyJsonSettings.JsonSettings);
     }
 }

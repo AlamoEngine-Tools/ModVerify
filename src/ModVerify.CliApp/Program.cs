@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -6,8 +7,8 @@ using AET.ModVerify;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
+using AET.ModVerifyTool.Options;
 using AET.SteamAbstraction;
-using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
@@ -23,11 +24,13 @@ using PG.StarWarsGame.Files.MEG.Data.Archives;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Clients;
+using PG.StarWarsGame.Infrastructure.Services.Detection;
+using PG.StarWarsGame.Infrastructure.Services.Name;
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool;
 
 internal class Program
 {
@@ -63,6 +66,9 @@ internal class Program
         var coreServiceCollection = CreateCoreServices(verifyOptions.Verbose);
         var coreServices = coreServiceCollection.BuildServiceProvider();
         var logger = coreServices.GetService<ILoggerFactory>()?.CreateLogger(typeof(Program));
+
+        logger?.LogDebug($"Raw command line: {Environment.CommandLine}");
+
         try
         {
             var settings = new SettingsBuilder(coreServices)
@@ -76,8 +82,8 @@ internal class Program
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Error: {e.Message}");
             logger?.LogCritical(e, e.Message);
-            Console.WriteLine(e.Message);
             return e.HResult;
         }
     }
@@ -115,6 +121,16 @@ internal class Program
         ModVerifyServiceContribution.ContributeServices(serviceCollection);
 
         SetupReporting(serviceCollection, settings);
+
+        serviceCollection.AddSingleton<IModNameResolver>(sp => new CompositeModNameResolver(sp, s =>
+            new List<IModNameResolver>
+            {
+                new OfflineWorkshopNameResolver(s),
+                new OnlineWorkshopNameResolver(s),
+                new DirectoryModNameResolver(s)
+            }));
+
+        serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
         
         return serviceCollection.BuildServiceProvider();
     }
@@ -126,13 +142,13 @@ internal class Program
         serviceCollection.RegisterJsonReporter(new JsonReporterSettings
         {
             OutputDirectory = settings.Output,
-            MinimumReportSeverity = settings.GameVerifySettigns.GlobalReportSettings.MinimumReportSeverity
+            MinimumReportSeverity = settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity
         });
 
         serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
         {
             OutputDirectory = settings.Output,
-            MinimumReportSeverity = settings.GameVerifySettigns.GlobalReportSettings.MinimumReportSeverity
+            MinimumReportSeverity = settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity
         });
     }
 

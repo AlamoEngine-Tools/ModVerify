@@ -1,18 +1,16 @@
 ﻿using System;
-using AET.ModVerify.Settings;
 using System.Diagnostics.CodeAnalysis;
+using AET.ModVerify.Settings;
 
-namespace ModVerify.CliApp;
+namespace AET.ModVerifyTool.Options;
 
-public record ModVerifyAppSettings
+internal record ModVerifyAppSettings
 {
-    public GameVerifySettings GameVerifySettigns { get; init; }
+    public required GameVerifySettings GameVerifySettings { get; init; }
 
-    public string? PathToVerify { get; init; } = null;
+    public required GameInstallationsSettings GameInstallationsSettings { get; init; }
 
     public string Output { get; init; } = Environment.CurrentDirectory;
-
-    public string? AdditionalFallbackPath { get; init; } = null;
 
     [MemberNotNullWhen(true, nameof(NewBaselinePath))]
     public bool CreateNewBaseline => !string.IsNullOrEmpty(NewBaselinePath);

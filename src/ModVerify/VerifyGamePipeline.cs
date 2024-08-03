@@ -92,7 +92,7 @@ public abstract class VerifyGamePipeline : Pipeline
             Logger?.LogInformation("Reporting Errors");
 
             var reportBroker = new VerificationReportBroker(Settings.GlobalReportSettings, ServiceProvider);
-            var errors = reportBroker.Report(_verificationSteps);
+            var errors = await reportBroker.ReportAsync(_verificationSteps);
 
             Errors = errors;
             

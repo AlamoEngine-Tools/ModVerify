@@ -1,48 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 namespace AET.ModVerify.Reporting.Reporters.Text;
 
 internal class TextFileReporter(TextFileReporterSettings settings, IServiceProvider serviceProvider) : FileBasedReporter<TextFileReporterSettings>(settings, serviceProvider)
 {
     internal const string SingleReportFileName = "VerificationResult.txt";
-
-    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
-
-    public override void Report(IReadOnlyCollection<VerificationError> errors)
+    
+    public override async Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {
         if (Settings.SplitIntoFiles)
-            ReportByVerifier(errors);
+            await ReportByVerifier(errors);
         else
-            ReportWhole(errors);
+            await ReportWhole(errors);
     }
 
-    private void ReportWhole(IReadOnlyCollection<VerificationError> errors)
+    private async Task ReportWhole(IReadOnlyCollection<VerificationError> errors)
     {
+#if NET || NETSTANDARD2_1
+        await
+#endif
         using var streamWriter = new StreamWriter(CreateFile(SingleReportFileName));
-        
-        foreach (var error in errors.OrderBy(x => x.Id)) 
-            WriteError(error, streamWriter);
-            
+
+        foreach (var error in errors.OrderBy(x => x.Id))
+            await WriteError(error, streamWriter);
+
     }
 
-    private void ReportByVerifier(IReadOnlyCollection<VerificationError> errors)
+    private async Task ReportByVerifier(IReadOnlyCollection<VerificationError> errors)
     {
         var grouped = errors.GroupBy(x => x.Verifier);
         foreach (var group in grouped) 
-            ReportToSingleFile(group);
+            await ReportToSingleFile(group);
     }
 
-    private void ReportToSingleFile(IGrouping<string, VerificationError> group)
+    private async Task ReportToSingleFile(IGrouping<string, VerificationError> group)
     {
         var fileName = $"{GetVerifierName(group.Key)}Results.txt";
+#if NET || NETSTANDARD2_1
+        await
+#endif
         using var streamWriter = new StreamWriter(CreateFile(fileName));
         foreach (var error in group.OrderBy(x => x.Id)) 
-            WriteError(error, streamWriter);
+            await WriteError(error, streamWriter);
     }
 
     private static string GetVerifierName(string verifierTypeName)
@@ -66,8 +69,8 @@ internal class TextFileReporter(TextFileReporterSettings settings, IServiceProvi
         return name.ToString();
     }
 
-    private static void WriteError(VerificationError error, StreamWriter writer)
+    private static async Task WriteError(VerificationError error, StreamWriter writer)
     {
-        writer.WriteLine($"[{error.Id}] {error.Message}");
+        await writer.WriteLineAsync($"[{error.Id}] {error.Message}");
     }
 }
