@@ -15,13 +15,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModVerify", "src\ModVerify\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModVerify.CliApp", "src\ModVerify.CliApp\ModVerify.CliApp.csproj", "{84479931-A329-4113-9BE5-90B71E5486E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PG.StarWarsGame.Files.ChunkFiles", "src\PetroglyphTools\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj", "{92F2A0C8-61B6-424B-99D5-7898CDBA7CA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PG.StarWarsGame.Files.ChunkFiles", "src\PetroglyphTools\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj", "{92F2A0C8-61B6-424B-99D5-7898CDBA7CA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PG.StarWarsGame.Files.ALO", "src\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj", "{DF76A383-C94E-4D03-A07C-22D61ED37059}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PG.StarWarsGame.Files.ALO", "src\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj", "{DF76A383-C94E-4D03-A07C-22D61ED37059}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PG.StarWarsGame.Files.XML", "src\PetroglyphTools\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj", "{418C68FA-531B-432E-8459-6433181C8AD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PG.StarWarsGame.Files.XML", "src\PetroglyphTools\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj", "{418C68FA-531B-432E-8459-6433181C8AD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PG.StarWarsGame.Engine", "src\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj", "{DFD62F61-3455-44BE-BB7C-E954FF48534B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PG.StarWarsGame.Engine", "src\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj", "{DFD62F61-3455-44BE-BB7C-E954FF48534B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PG.StarWarsGame.Files.MTD", "PetroglyphTools\PG.StarWarsGame.Files.MTD\PG.StarWarsGame.Files.MTD\PG.StarWarsGame.Files.MTD.csproj", "{1CFFFF4D-464E-4191-A6B8-F5C858C46C56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CFFFF4D-464E-4191-A6B8-F5C858C46C56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CFFFF4D-464E-4191-A6B8-F5C858C46C56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CFFFF4D-464E-4191-A6B8-F5C858C46C56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CFFFF4D-464E-4191-A6B8-F5C858C46C56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +83,7 @@ Global
 		{DF76A383-C94E-4D03-A07C-22D61ED37059} = {15F8B753-814A-406E-9147-EB048DADAC96}
 		{418C68FA-531B-432E-8459-6433181C8AD3} = {15F8B753-814A-406E-9147-EB048DADAC96}
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B} = {15F8B753-814A-406E-9147-EB048DADAC96}
+		{1CFFFF4D-464E-4191-A6B8-F5C858C46C56} = {15F8B753-814A-406E-9147-EB048DADAC96}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D74A22E2-91F1-4BC7-9630-3CF930B45408}
