@@ -16,7 +16,6 @@ using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
 using AnakinRaW.CommonUtilities.FileSystem;
-using System.Reflection;
 
 namespace AET.ModVerify.Verifiers;
 
