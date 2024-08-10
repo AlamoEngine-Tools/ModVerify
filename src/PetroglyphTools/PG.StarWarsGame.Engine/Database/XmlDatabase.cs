@@ -10,7 +10,6 @@ namespace PG.StarWarsGame.Engine.Database;
 internal class XmlDatabase<T>(IReadOnlyValueListDictionary<Crc32, T> parsedObjects, IServiceProvider serviceProvider) : IXmlDatabase<T>
     where T : XmlObject
 {
-
     private readonly IServiceProvider _serviceProvider =
         serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 

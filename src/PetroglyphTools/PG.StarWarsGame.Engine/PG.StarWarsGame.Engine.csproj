@@ -38,10 +38,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\PetroglyphTools\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG.csproj" />
+		<ProjectReference Include="..\..\..\PetroglyphTools\PG.StarWarsGame.Files.MTD\PG.StarWarsGame.Files.MTD\PG.StarWarsGame.Files.MTD.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Database\GameManagers\" />
 	</ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-internal class GameDatabaseCreationPipeline(
+internal class GameInitializationPipeline(
     GameRepository repository,
     DatabaseErrorListenerWrapper errorListener,
     IServiceProvider serviceProvider)
@@ -24,7 +24,7 @@ internal class GameDatabaseCreationPipeline(
     private ParseXmlDatabaseFromContainerStep<GameObject> _parseGameObjects = null!;
     private ParseXmlDatabaseFromContainerStep<SfxEvent> _parseSfxEvents = null!;
     
-    private StepRunner _parseXmlRunner = null!;
+    private StepRunner _parseXmlRunner = new(serviceProvider);
 
     public GameDatabase GameDatabase { get; private set; } = null!;
 
@@ -92,7 +92,7 @@ internal class GameDatabaseCreationPipeline(
 
     protected override async Task RunCoreAsync(CancellationToken token)
     {
-        Logger?.LogInformation("Creating Game Database...");
+        Logger?.LogInformation("Initializing Game Database...");
 
         try
         {

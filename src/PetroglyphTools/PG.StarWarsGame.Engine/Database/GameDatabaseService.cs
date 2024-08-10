@@ -21,7 +21,7 @@ internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameData
         using var errorListenerWrapper = new DatabaseErrorListenerWrapper(errorListener, serviceProvider);
         var repository = repoFactory.Create(targetEngineType, locations, errorListenerWrapper);
 
-        var pipeline = new GameDatabaseCreationPipeline(repository, errorListenerWrapper, serviceProvider);
+        var pipeline = new GameInitializationPipeline(repository, errorListenerWrapper, serviceProvider);
         await pipeline.RunAsync(cancellationToken);
         return pipeline.GameDatabase;
     }
