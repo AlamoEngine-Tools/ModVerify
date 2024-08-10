@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Language;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Engine.Xml;
@@ -20,7 +21,6 @@ using PG.StarWarsGame.Files.MEG.Files;
 using PG.StarWarsGame.Files.MEG.Services;
 using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
 using PG.StarWarsGame.Files.XML;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Repositories;
 
@@ -32,7 +32,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
-    private readonly IXmlParserErrorListener? _xmlParserErrorListener;
+    private readonly DatabaseErrorListenerWrapper _errorListener;
     
     protected readonly string GameDirectory;
 
@@ -51,7 +51,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
     private readonly List<string> _loadedMegFiles = new();
     protected IVirtualMegArchive? MasterMegArchive { get; private set; }
 
-    protected GameRepository(GameLocations gameLocations, IXmlParserErrorListener? errorListener, IServiceProvider serviceProvider) : base(serviceProvider)
+    protected GameRepository(GameLocations gameLocations, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider) : base(serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));
@@ -62,7 +62,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _megPathNormalizer = new PetroglyphDataEntryPathNormalizer(serviceProvider);
         _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
-        _xmlParserErrorListener = errorListener;
+        _errorListener = errorListener;
 
         foreach (var mod in gameLocations.ModPaths)
         {
@@ -311,7 +311,7 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
             return Array.Empty<IMegFile>();
         }
 
-        var parser = fileParserFactory.GetFileParser<XmlFileContainer>(_xmlParserErrorListener);
+        var parser = fileParserFactory.GetFileParser<XmlFileContainer>(_errorListener);
         var megaFilesXml = parser.ParseFile(xmlStream);
 
 

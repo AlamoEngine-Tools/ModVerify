@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files.MEG.Files;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Repositories;
 
@@ -12,7 +11,8 @@ internal class FocGameRepository : GameRepository
 {
     public override GameEngineType EngineType => GameEngineType.Foc;
 
-    public FocGameRepository(GameLocations gameLocations, IXmlParserErrorListener? listener, IServiceProvider serviceProvider) : base(gameLocations, listener, serviceProvider)
+    public FocGameRepository(GameLocations gameLocations, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
+        : base(gameLocations, errorListener, serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));

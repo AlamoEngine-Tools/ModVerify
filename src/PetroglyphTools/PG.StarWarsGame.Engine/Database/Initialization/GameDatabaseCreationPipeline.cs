@@ -13,13 +13,16 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Database.Initialization;
 
-internal class GameDatabaseCreationPipeline(GameRepository repository, IXmlParserErrorListener xmlParserErrorListener, IServiceProvider serviceProvider) 
+internal class GameDatabaseCreationPipeline(
+    GameRepository repository,
+    DatabaseErrorListenerWrapper errorListener,
+    IServiceProvider serviceProvider)
     : Pipeline(serviceProvider)
 {
     private ParseSingletonXmlStep<GameConstants> _parseGameConstants = null!;
     private ParseXmlDatabaseFromContainerStep<GameObject> _parseGameObjects = null!;
     private ParseXmlDatabaseFromContainerStep<SfxEvent> _parseSfxEvents = null!;
-
+    
     private StepRunner _parseXmlRunner = null!;
 
     public GameDatabase GameDatabase { get; private set; } = null!;
@@ -38,13 +41,13 @@ internal class GameDatabaseCreationPipeline(GameRepository repository, IXmlParse
         // TODO: Use same load order as the engine!
 
         yield return _parseGameConstants = new ParseSingletonXmlStep<GameConstants>("GameConstants",
-            "DATA\\XML\\GAMECONSTANTS.XML", repository, xmlParserErrorListener, ServiceProvider);
+            "DATA\\XML\\GAMECONSTANTS.XML", repository, errorListener, ServiceProvider);
 
         yield return _parseGameObjects = new ParseXmlDatabaseFromContainerStep<GameObject>("GameObjects",
-            "DATA\\XML\\GAMEOBJECTFILES.XML", repository, xmlParserErrorListener, ServiceProvider);
+            "DATA\\XML\\GAMEOBJECTFILES.XML", repository, errorListener, ServiceProvider);
 
         yield return _parseSfxEvents = new ParseXmlDatabaseFromContainerStep<SfxEvent>("SFXEvents",
-            "DATA\\XML\\SFXEventFiles.XML", repository, xmlParserErrorListener, ServiceProvider);
+            "DATA\\XML\\SFXEventFiles.XML", repository, errorListener, ServiceProvider);
 
         // GUIDialogs.xml
         // LensFlares.xml
