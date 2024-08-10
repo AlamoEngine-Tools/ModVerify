@@ -1,4 +1,4 @@
-﻿namespace AET.ModVerify.Reporting;
+﻿namespace AET.ModVerify.Reporting.Settings;
 
 public record VerificationReportSettings
 {

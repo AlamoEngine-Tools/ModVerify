@@ -7,6 +7,7 @@ using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
+using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Files.XML.ErrorHandling;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Settings;
 
 public record FileBasedReporterSettings : VerificationReportSettings
 {

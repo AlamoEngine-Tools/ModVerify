@@ -1,0 +1,51 @@
+﻿using System;
+using AnakinRaW.CommonUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers;
+
+namespace PG.StarWarsGame.Engine.Database.ErrorReporting;
+
+internal class DatabaseErrorListenerWrapper : DisposableObject, IDatabaseErrorListener, IXmlParserErrorListener
+{
+    private readonly IDatabaseErrorListener? _errorListener;
+    private IPrimitiveXmlErrorParserProvider? _primitiveXmlParserErrorProvider;
+
+    public DatabaseErrorListenerWrapper(IDatabaseErrorListener? errorListener, IServiceProvider serviceProvider)
+    {
+        _errorListener = errorListener;
+        if (_errorListener is null)
+            return;
+        _primitiveXmlParserErrorProvider = serviceProvider.GetRequiredService<IPrimitiveXmlErrorParserProvider>();
+        _primitiveXmlParserErrorProvider.XmlParseError += ((IXmlParserErrorListener)this).OnXmlParseError;
+    }
+
+    public void OnXmlError(XmlError error)
+    {
+        _errorListener?.OnXmlError(error);
+    }
+
+    protected override void DisposeManagedResources()
+    {
+        base.DisposeManagedResources();
+        if (_primitiveXmlParserErrorProvider is null)
+            return;
+        _primitiveXmlParserErrorProvider.XmlParseError -= ((IXmlParserErrorListener)this).OnXmlParseError;
+        _primitiveXmlParserErrorProvider = null!;
+    }
+
+    void IXmlParserErrorListener.OnXmlParseError(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
+    {
+        if (_errorListener is null)
+            return;
+
+        OnXmlError(new XmlError
+        {
+            File = error.File,
+            Parser = parser.ToString(),
+            Message = error.Message,
+            ErrorKind = error.ErrorKind,
+            Element = error.Element
+        });
+    }
+}

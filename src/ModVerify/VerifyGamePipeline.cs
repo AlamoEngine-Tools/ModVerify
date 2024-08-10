@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace AET.ModVerify;
 
@@ -41,7 +39,6 @@ public abstract class VerifyGamePipeline : Pipeline
         _verifyRunner = new ParallelRunner(settings.ParallelVerifiers, serviceProvider);
     }
 
-
     protected sealed override Task<bool> PrepareCoreAsync()
     {
         _verificationSteps.Clear();
@@ -55,21 +52,11 @@ public abstract class VerifyGamePipeline : Pipeline
         {
             var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
-            var errorListener = new ModVerifyDatabaseErrorListener();
-            IGameDatabase database;
-           
-            try
-            {
-                database = await databaseService.InitializeGameAsync(_targetType, _gameLocations, errorListener, token);
-            }
-            finally
-            {
-               errorListener.Dispose(); 
-            }
+            var initializationErrorListener = new ConcurrentGameDatabaseErrorListener();
+            var database = await databaseService.InitializeGameAsync(_targetType, _gameLocations, initializationErrorListener, token);
 
+            AddStep(new GameDatabaseInitializationErrorCollector(initializationErrorListener, database, Settings, ServiceProvider));
 
-            CreateErrorReportSteps(errorListener, database);
-            
             foreach (var gameVerificationStep in CreateVerificationSteps(database)) 
                 AddStep(gameVerificationStep);
 
@@ -103,11 +90,6 @@ public abstract class VerifyGamePipeline : Pipeline
         }
     }
 
-    private void CreateErrorReportSteps(IDatabaseErrorProvider errors, IGameDatabase database)
-    {
-        AddStep(new XmlParseErrorCollector(errors.XmlErrors, database, Settings, ServiceProvider));
-    }
-
     protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);
 
     private void AddStep(GameVerifierBase verifier)
@@ -115,22 +97,4 @@ public abstract class VerifyGamePipeline : Pipeline
         _verifyRunner.AddStep(verifier);
         _verificationSteps.Add(verifier);
     }
-}
-
-
-public class ModVerifyDatabaseErrorListener : DatabaseErrorListener, IDatabaseErrorProvider
-{
-    private readonly ConcurrentBag<XmlError> _xmlErrors = new();
-
-    public IEnumerable<XmlParseErrorEventArgs> XmlErrors => [];
-
-    public override void OnXmlError(XmlError error)
-    {
-        _xmlErrors.Add(error);
-    }
-}
-
-public interface IDatabaseErrorProvider
-{
-    public IEnumerable<XmlParseErrorEventArgs> XmlErrors { get; }
 }

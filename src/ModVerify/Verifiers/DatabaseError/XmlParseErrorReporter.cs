@@ -1,39 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.IO.Abstractions;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Settings;
-using PG.StarWarsGame.Engine.Database;
+using AET.ModVerify.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace AET.ModVerify.Verifiers;
 
-public sealed class XmlParseErrorCollector(
-    IEnumerable<XmlParseErrorEventArgs> xmlErrors,
-    IGameDatabase gameDatabase,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider) :
-    GameVerifierBase(gameDatabase, settings, serviceProvider)
+internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider) :
+    InitializationErrorReporterBase<XmlError>(gameRepository, serviceProvider)
 {
-    public override string FriendlyName => "XML Parsing Errors";
+    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    protected override void RunVerification(CancellationToken token)
+    public override string Name => "XMLError";
+    
+    protected override void CreateError(XmlError error, out ErrorData errorData)
     {
-        foreach (var xmlError in xmlErrors)
-            AddError(ConvertXmlToVerificationError(xmlError));
-    }
-
-    private VerificationError ConvertXmlToVerificationError(XmlParseErrorEventArgs xmlError)
-    {
-        var id = GetIdFromError(xmlError.ErrorKind);
-        var severity = GetSeverityFromError(xmlError.ErrorKind);
+        var id = GetIdFromError(error.ErrorKind);
+        var severity = GetSeverityFromError(error.ErrorKind);
 
         var assets = new List<string>
         {
-            GetGameStrippedPath(xmlError.File.ToUpperInvariant())
+            _fileSystem.Path.GetGameStrippedPath(GameRepository.Path.AsSpan(), error.File.ToUpperInvariant().AsSpan()).ToString()
         };
 
-        var xmlElement = xmlError.Element;
+        var xmlElement = error.Element;
 
         if (xmlElement is not null)
         {
@@ -49,11 +43,10 @@ public sealed class XmlParseErrorCollector(
 
         }
 
-        return VerificationError.Create(this, id, xmlError.Message, severity, assets);
-
+        errorData = new ErrorData(id, error.Message, assets, severity);
     }
 
-    private VerificationSeverity GetSeverityFromError(XmlParseErrorKind xmlErrorErrorKind)
+    private static VerificationSeverity GetSeverityFromError(XmlParseErrorKind xmlErrorErrorKind)
     {
         return xmlErrorErrorKind switch
         {
@@ -69,7 +62,7 @@ public sealed class XmlParseErrorCollector(
         };
     }
 
-    private string GetIdFromError(XmlParseErrorKind xmlErrorErrorKind)
+    private static string GetIdFromError(XmlParseErrorKind xmlErrorErrorKind)
     {
         return xmlErrorErrorKind switch
         {

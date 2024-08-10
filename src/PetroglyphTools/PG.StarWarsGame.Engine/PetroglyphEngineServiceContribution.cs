@@ -14,6 +14,6 @@ public static class PetroglyphEngineServiceContribution
         serviceCollection.AddSingleton<IGameLanguageManagerProvider>(sp => new GameLanguageManagerProvider(sp));
         serviceCollection.AddSingleton<IPetroglyphXmlFileParserFactory>(sp => new PetroglyphXmlFileParserFactory(sp));
         
-        serviceCollection.AddTransient<IGameDatabaseService>(sp => new GameDatabaseService(sp));
+        serviceCollection.AddSingleton<IGameDatabaseService>(sp => new GameDatabaseService(sp));
     }
 }

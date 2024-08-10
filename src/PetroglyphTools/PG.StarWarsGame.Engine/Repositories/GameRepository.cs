@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.Language;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Engine.Xml;
@@ -340,7 +341,10 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
     {
         using var megFileStream = TryOpenFile(megPath);
         if (megFileStream is not FileSystemStream fileSystemStream)
+        {
+            Logger.LogWarning($"Unable to find MEG file '{megPath}'");
             return null;
+        }
 
         var megFile = _megFileService.Load(fileSystemStream);
 

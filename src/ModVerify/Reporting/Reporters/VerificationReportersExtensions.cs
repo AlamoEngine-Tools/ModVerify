@@ -1,5 +1,6 @@
 ﻿using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
+using AET.ModVerify.Reporting.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify.Reporting.Reporters;
