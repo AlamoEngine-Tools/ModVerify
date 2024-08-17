@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.GameManagers;
 using PG.StarWarsGame.Engine.Language;
 using PG.StarWarsGame.Engine.Repositories;
 
@@ -9,11 +9,11 @@ public interface IGameDatabase
 {
     IGameRepository GameRepository { get; }
 
-    GameConstants GameConstants { get; }
+    IGameConstants GameConstants { get; }
 
-    IXmlDatabase<GameObject> GameObjects { get; }
+    IGameObjectGameManager GameObjectManager { get; }
 
-    IXmlDatabase<SfxEvent> SfxEvents { get; }
+    ISfxEventGameManager SfxGameManager { get; }
 
     IEnumerable<LanguageType> InstalledLanguages { get; }
 }

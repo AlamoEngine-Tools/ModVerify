@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.DataTypes;
 
-namespace PG.StarWarsGame.Engine.Database;
+namespace PG.StarWarsGame.Engine.GameManagers;
 
-public interface IXmlDatabase<T> where T : XmlObject
+public interface IGameManager<T>
 {
     ICollection<T> Entries { get; }
 

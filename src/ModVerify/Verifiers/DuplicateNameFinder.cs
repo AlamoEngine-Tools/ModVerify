@@ -6,6 +6,7 @@ using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.GameManagers;
 
 namespace AET.ModVerify.Verifiers;
 
@@ -19,15 +20,15 @@ public sealed class DuplicateNameFinder(
 
     protected override void RunVerification(CancellationToken token)
     {
-        CheckDatabaseForDuplicates(Database.GameObjects, "GameObject");
-        CheckDatabaseForDuplicates(Database.SfxEvents, "SFXEvent");
+        CheckDatabaseForDuplicates(Database.GameObjectManager, "GameObject");
+        CheckDatabaseForDuplicates(Database.SfxGameManager, "SFXEvent");
     }
 
-    private void CheckDatabaseForDuplicates<T>(IXmlDatabase<T> database, string databaseName) where T : XmlObject
+    private void CheckDatabaseForDuplicates<T>(IGameManager<T> gameManager, string databaseName) where T : XmlObject
     {
-        foreach (var key in database.EntryKeys)
+        foreach (var key in gameManager.EntryKeys)
         {
-            var entries = database.GetEntries(key);
+            var entries = gameManager.GetEntries(key);
             if (entries.Count > 1)
             {
                 var entryNames = entries.Select(x => x.Name);

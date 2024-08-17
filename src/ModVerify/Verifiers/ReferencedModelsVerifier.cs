@@ -34,7 +34,7 @@ public sealed class ReferencedModelsVerifier(
 
     protected override void RunVerification(CancellationToken token)
     {
-        var aloQueue = new Queue<string>(Database.GameObjects.Entries
+        var aloQueue = new Queue<string>(Database.GameObjectManager.Entries
             .SelectMany(x => x.Models)
             .Concat(FocHardcodedConstants.HardcodedModels));
         

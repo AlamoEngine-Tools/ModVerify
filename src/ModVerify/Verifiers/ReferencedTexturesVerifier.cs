@@ -35,7 +35,7 @@ public sealed class ReferencedTexturesVerifier(
 
     private IEnumerable<TextureFinderInfo> GetReferencesTexturesFromDatabase()
     {
-        return Database.GameObjects.Entries
+        return Database.GameObjectManager.Entries
             .SelectMany(x => x.Models)
             .Select(x => new TextureFinderInfo
             {

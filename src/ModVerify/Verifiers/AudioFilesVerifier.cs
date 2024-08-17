@@ -41,7 +41,7 @@ public class AudioFilesVerifier : GameVerifierBase
     {
         var visitedSamples = new HashSet<Crc32>();
         var languagesToVerify = GetLanguagesToVerify().ToList();
-        foreach (var sfxEvent in Database.SfxEvents.Entries)
+        foreach (var sfxEvent in Database.SfxGameManager.Entries)
         {
             foreach (var codedSample in sfxEvent.AllSamples)
             {
