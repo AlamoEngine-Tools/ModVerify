@@ -9,14 +9,14 @@ using PG.StarWarsGame.Files.XML.Parsers;
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 internal class GameConstantsParser(IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null) :
-    PetroglyphXmlFileParser<GameConstants>(serviceProvider, listener)
+    PetroglyphXmlFileParser<GameConstantsXml>(serviceProvider, listener)
 {
-    public override GameConstants Parse(XElement element)
+    protected override GameConstantsXml Parse(XElement element, string fileName)
     {
-        return new GameConstants();
+        return new GameConstantsXml();
     }
 
-    protected override void Parse(XElement element, IValueListDictionary<Crc32, GameConstants> parsedElements)
+    protected override void Parse(XElement element, IValueListDictionary<Crc32, GameConstantsXml> parsedElements, string fileName)
     {
         throw new NotSupportedException();
     }

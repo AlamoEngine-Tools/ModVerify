@@ -9,19 +9,21 @@ using PG.StarWarsGame.Engine.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database;
 
-internal class GameInitializer(
-    GameRepository repository,
-    IServiceProvider serviceProvider)
+internal class GameInitializer(GameRepository repository, bool cancelOnError, IServiceProvider serviceProvider)
 {
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(GameInitializer));
+
+    private CancellationTokenSource? _cancellationTokenSource;
 
     public async Task<IGameDatabase> InitializeAsync(DatabaseErrorListenerWrapper errorListener, CancellationToken token)
     {
         _logger?.LogInformation("Initializing Game Database...");
+        errorListener.InitializationError += OnInitializationError;
 
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+        
         try
         { 
-            // GUIDialogs.xml
             // LensFlares.xml
             // SurfaceFX.xml
             // TerrainDecalFX.xml
@@ -33,7 +35,7 @@ internal class GameInitializer(
             // StarWars3DTextCrawl.xml
             // MusicEvents.xml
             // SpeechEvents.xml
-            // GameConstants.xml
+            // GameConstantsXml.xml
             // Audio.xml
             // WeatherAudio.xml
             // HeroClash.xml
@@ -59,22 +61,26 @@ internal class GameInitializer(
             // FactionFiles.xml
             // TargetingPrioritySetFiles.xml
             // MousePointerFiles.xml
+            
+            var gameConstants = new GameConstants(repository, errorListener, serviceProvider);
+            await gameConstants.InitializeAsync( _cancellationTokenSource.Token);
 
-            var gameConstants = new GameConstants(repository, serviceProvider);
-            await gameConstants.InitializeAsync(errorListener, token);
+            var guiDialogs = new GuiDialogGameManager(repository, errorListener, serviceProvider);
+            await guiDialogs.InitializeAsync(_cancellationTokenSource.Token);
 
-            var sfxGameManager = new SfxEventGameManager(repository, serviceProvider);
-            await sfxGameManager.InitializeAsync(errorListener, token);
+            var sfxGameManager = new SfxEventGameManager(repository, errorListener, serviceProvider);
+            await sfxGameManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var gameObjetManager = new GameObjectGameManager(repository, serviceProvider);
-            await gameObjetManager.InitializeAsync(errorListener, token);
+            var gameObjetManager = new GameObjectGameManager(repository, errorListener, serviceProvider);
+            await gameObjetManager.InitializeAsync( _cancellationTokenSource.Token);
 
             repository.Seal();
 
             return new GameDatabase
             {
                 GameRepository = repository,
-                GameConstants = gameConstants,//_parseGameConstants.Database,
+                GameConstants = gameConstants,
+                GuiDialogManager = guiDialogs,
                 GameObjectManager = gameObjetManager,
                 SfxGameManager = sfxGameManager,
                 InstalledLanguages = sfxGameManager.InstalledLanguages
@@ -82,7 +88,16 @@ internal class GameInitializer(
         }
         finally
         {
+            errorListener.InitializationError -= OnInitializationError;
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
             _logger?.LogInformation("Finished initializing game database");
         }
+    }
+
+    private void OnInitializationError(object sender, InitializationError e)
+    {
+        if(cancelOnError) 
+            _cancellationTokenSource?.Cancel();
     }
 }

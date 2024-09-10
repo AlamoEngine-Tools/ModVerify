@@ -11,9 +11,11 @@ internal class GameDatabase : IGameDatabase
 
     public required IGameConstants GameConstants { get; init; }
 
+    public required IGuiDialogManager GuiDialogManager { get; init; }
+
     public required IGameObjectGameManager GameObjectManager { get; init; }
 
     public required ISfxEventGameManager SfxGameManager { get; init; }
 
-    public IEnumerable<LanguageType> InstalledLanguages { get; init; }
+    public required IEnumerable<LanguageType> InstalledLanguages { get; init; }
 }

@@ -10,7 +10,7 @@ public interface IPetroglyphXmlFileParser : IPetroglyphXmlParser
 
 public interface IPetroglyphXmlFileParser<T> : IPetroglyphXmlParser<T>, IPetroglyphXmlFileParser
 {
-    public new T ParseFile(Stream stream);
+    public new T? ParseFile(Stream stream);
 
     public void ParseFile(Stream stream, IValueListDictionary<Crc32, T> parsedEntries);
 }

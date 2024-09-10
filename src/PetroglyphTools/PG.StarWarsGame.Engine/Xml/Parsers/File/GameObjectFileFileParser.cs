@@ -14,7 +14,7 @@ internal class GameObjectFileFileParser(IServiceProvider serviceProvider, IXmlPa
 {
     private readonly IXmlParserErrorListener? _listener = listener;
 
-    protected override void Parse(XElement element, IValueListDictionary<Crc32, GameObject> parsedElements)
+    protected override void Parse(XElement element, IValueListDictionary<Crc32, GameObject> parsedElements, string fileName)
     {
         var parser = new GameObjectParser(parsedElements, ServiceProvider, _listener);
 
@@ -25,7 +25,7 @@ internal class GameObjectFileFileParser(IServiceProvider serviceProvider, IXmlPa
         }
     }
 
-    public override GameObject Parse(XElement element)
+    protected override GameObject Parse(XElement element, string fileName)
     {
         throw new NotSupportedException();
     }

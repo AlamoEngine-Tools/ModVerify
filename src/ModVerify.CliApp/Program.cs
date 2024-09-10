@@ -21,6 +21,7 @@ using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.DAT.Services.Builder;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
+using PG.StarWarsGame.Files.MTD;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Clients;
@@ -112,6 +113,7 @@ internal class Program
 
         RuntimeHelpers.RunClassConstructor(typeof(IDatBuilder).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(IMegArchive).TypeHandle);
+        serviceCollection.AddMtdServices();
         AloServiceContribution.ContributeServices(serviceCollection);
         serviceCollection.CollectPgServiceContributions();
         XmlServiceContribution.ContributeServices(serviceCollection);

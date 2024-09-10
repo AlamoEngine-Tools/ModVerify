@@ -41,7 +41,7 @@ public sealed class GameObjectParser(
     public override GameObject Parse(XElement element, out Crc32 nameCrc)
     {
         var properties = ParseXmlElement(element);
-        var name = GetNameAttributeValue(element);
+        GetNameAttributeValue(element, out var name);
         nameCrc = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
         var type = GetTagName(element);
         var objectType = EstimateType(type);

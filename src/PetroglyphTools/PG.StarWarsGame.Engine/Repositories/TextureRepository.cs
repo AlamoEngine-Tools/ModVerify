@@ -20,7 +20,7 @@ public class TextureRepository(IGameRepository baseRepository, IServiceProvider 
     private bool FindTexture<T>(string inputPath, Func<string, (bool success, T result)> fileAction, out T? result)
     {
         result = default;
-
+        
         var actionResult = fileAction(inputPath);
         if (actionResult.success)
         {
@@ -44,8 +44,7 @@ public class TextureRepository(IGameRepository baseRepository, IServiceProvider 
             result = actionResult.result;
             return true;
         }
-
-
+        
         return false;
     }
 
@@ -56,8 +55,8 @@ public class TextureRepository(IGameRepository baseRepository, IServiceProvider 
         // like that a string "c:\\file.tga\\" ending with a directory separator. The PG result will be 
         // "c:\\file.dds" while Path.ChangeExtension would return "c:\\file.tga\\.dds"
 
-        // Also, while there are many cases, where method breaks (such as "c:/test.abc/path.dds"),
-        // it's the way how the engine works...
+        // Also, while there are many cases, where this method breaks (such as "c:/test.abc/path.dds"),
+        // it's the way how the engine works 🤷‍
         var firstPart = input.Split('.')[0];
         return firstPart + extension;
     }

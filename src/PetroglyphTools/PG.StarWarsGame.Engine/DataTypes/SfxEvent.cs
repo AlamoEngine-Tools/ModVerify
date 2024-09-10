@@ -7,7 +7,7 @@ using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.DataTypes;
 
-public sealed class SfxEvent : XmlObject
+public sealed class SfxEvent : NamedXmlObject
 {
     public const byte MaxVolumeValue = 100;
     public const byte MaxPitchValue = 200;

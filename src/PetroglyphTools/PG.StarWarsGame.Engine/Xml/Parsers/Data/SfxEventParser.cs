@@ -67,7 +67,7 @@ public sealed class SfxEventParser(
 
     public override SfxEvent Parse(XElement element, out Crc32 nameCrc)
     {
-        var name = GetNameAttributeValue(element);
+        GetNameAttributeValue(element, out var name);
         nameCrc = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
 
         var properties = ParseXmlElement(element);

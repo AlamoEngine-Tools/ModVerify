@@ -26,7 +26,9 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
         Logger.LogDebug($"Parsing container data '{xmlFile}'");
         var container = containerParser.ParseFile(containerStream);
 
-        var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine("DATA\\XML", x)).ToList();
+        var xmlFiles = container?.Files.Select(x => FileSystem.Path.Combine("DATA\\XML", x)).ToList();
+        if (xmlFiles is null)
+            return;
 
         var parser = _fileParserFactory.GetFileParser<T>(listener);
 

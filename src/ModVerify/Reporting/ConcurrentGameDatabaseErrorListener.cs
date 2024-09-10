@@ -9,10 +9,18 @@ internal class ConcurrentGameDatabaseErrorListener : DatabaseErrorListener, IDat
 {
     private readonly ConcurrentBag<XmlError> _xmlErrors = new();
 
+    private readonly ConcurrentBag<InitializationError> _initializationErrors = new();
+
     public IEnumerable<XmlError> XmlErrors => _xmlErrors.ToList();
+    public IEnumerable<InitializationError> InitializationErrors => _initializationErrors.ToList();
 
     public override void OnXmlError(XmlError error)
     {
         _xmlErrors.Add(error);
+    }
+
+    public override void OnInitializationError(InitializationError error)
+    {
+        _initializationErrors.Add(error);
     }
 }

@@ -32,4 +32,5 @@ public static class VerifierErrorCodes
     public const string MissingXmlReference = "XML06";
     public const string XmlValueTooLong = "XML07";
     public const string XmlDataBeforeHeader = "XML08";
+    public const string XmlMissingNode = "XML09";
 }

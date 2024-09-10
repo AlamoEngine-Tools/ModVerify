@@ -5,5 +5,6 @@ namespace AET.ModVerify.Reporting;
 
 internal interface IDatabaseErrorCollection
 {
-    public IEnumerable<XmlError> XmlErrors { get; }
+    IEnumerable<XmlError> XmlErrors { get; }
+    IEnumerable<InitializationError> InitializationErrors { get; }
 }

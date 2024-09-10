@@ -17,6 +17,7 @@ internal sealed class GameDatabaseInitializationErrorCollector(
 
     protected override void RunVerification(CancellationToken token)
     { 
+        AddErrors(new InitializationErrorReporter(Repository, Services).GetErrors(errorCollection.InitializationErrors));
         AddErrors(new XmlParseErrorReporter(Repository, Services).GetErrors(errorCollection.XmlErrors));
     }
 

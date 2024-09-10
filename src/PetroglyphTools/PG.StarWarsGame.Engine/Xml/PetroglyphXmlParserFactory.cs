@@ -1,5 +1,7 @@
 ﻿using System;
 using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.GameManagers;
+using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
 using PG.StarWarsGame.Engine.Xml.Parsers.File;
 using PG.StarWarsGame.Files.XML;
@@ -21,8 +23,11 @@ internal sealed class PetroglyphXmlFileParserFactory(IServiceProvider servicePro
         if (type == typeof(XmlFileContainer))
             return new XmlFileContainerParser(serviceProvider, listener);
 
-        if (type == typeof(GameConstants))
+        if (type == typeof(GameConstantsXml))
             return new GameConstantsParser(serviceProvider, listener);
+
+        if (type == typeof(GuiDialogsXml))
+            return new GuiDialogParser(serviceProvider, listener);
 
         if (type == typeof(GameObject))
             return new GameObjectFileFileParser(serviceProvider, listener);

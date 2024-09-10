@@ -53,7 +53,14 @@ public abstract class VerifyGamePipeline : Pipeline
             var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
             var initializationErrorListener = new ConcurrentGameDatabaseErrorListener();
-            var database = await databaseService.InitializeGameAsync(_targetType, _gameLocations, initializationErrorListener, token);
+            var initOptions = new GameInitializationOptions
+            {
+                Locations = _gameLocations,
+                TargetEngineType = _targetType,
+                ErrorListener = initializationErrorListener
+
+            };
+            var database = await databaseService.InitializeGameAsync(initOptions, token);
 
             AddStep(new GameDatabaseInitializationErrorCollector(initializationErrorListener, database, Settings, ServiceProvider));
 

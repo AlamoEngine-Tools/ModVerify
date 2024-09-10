@@ -10,17 +10,15 @@ namespace PG.StarWarsGame.Engine.Database;
 internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameDatabaseService
 {
     public Task<IGameDatabase> InitializeGameAsync(
-        GameEngineType targetEngineType, 
-        GameLocations locations,
-        IDatabaseErrorListener? errorListener = null,
+        GameInitializationOptions gameInitializationOptions,
         CancellationToken cancellationToken = default)
     {
         var repoFactory = serviceProvider.GetRequiredService<IGameRepositoryFactory>();
 
-        using var errorListenerWrapper = new DatabaseErrorListenerWrapper(errorListener, serviceProvider);
-        var repository = repoFactory.Create(targetEngineType, locations, errorListenerWrapper);
+        using var errorListenerWrapper = new DatabaseErrorListenerWrapper(gameInitializationOptions.ErrorListener, serviceProvider);
+        var repository = repoFactory.Create(gameInitializationOptions.TargetEngineType, gameInitializationOptions.Locations, errorListenerWrapper);
 
-        var gameInitializer = new GameInitializer(repository, serviceProvider);
+        var gameInitializer = new GameInitializer(repository, gameInitializationOptions.CancelOnError, serviceProvider);
         return gameInitializer.InitializeAsync(errorListenerWrapper, cancellationToken);
     }
 }

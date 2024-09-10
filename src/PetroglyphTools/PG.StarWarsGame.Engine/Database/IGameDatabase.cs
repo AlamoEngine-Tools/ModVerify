@@ -11,7 +11,9 @@ public interface IGameDatabase
 
     IGameConstants GameConstants { get; }
 
-    IGameObjectGameManager GameObjectManager { get; }
+    IGuiDialogManager GuiDialogManager { get; }
+
+    IGameObjectGameManager GameObjectManager { get; } 
 
     ISfxEventGameManager SfxGameManager { get; }
 

@@ -24,7 +24,7 @@ public sealed class DuplicateNameFinder(
         CheckDatabaseForDuplicates(Database.SfxGameManager, "SFXEvent");
     }
 
-    private void CheckDatabaseForDuplicates<T>(IGameManager<T> gameManager, string databaseName) where T : XmlObject
+    private void CheckDatabaseForDuplicates<T>(IGameManager<T> gameManager, string databaseName) where T : NamedXmlObject
     {
         foreach (var key in gameManager.EntryKeys)
         {
@@ -42,7 +42,7 @@ public sealed class DuplicateNameFinder(
         }
     }
 
-    private string CreateDuplicateErrorMessage<T>(string databaseName, ReadOnlyFrugalList<T> entries) where T : XmlObject
+    private string CreateDuplicateErrorMessage<T>(string databaseName, ReadOnlyFrugalList<T> entries) where T : NamedXmlObject
     {
         var firstEntry = entries.First();
 

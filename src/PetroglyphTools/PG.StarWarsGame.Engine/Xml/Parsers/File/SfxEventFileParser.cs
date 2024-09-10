@@ -15,7 +15,7 @@ internal class SfxEventFileParser(IServiceProvider serviceProvider, IXmlParserEr
 {
     private readonly IXmlParserErrorListener? _listener = listener;
 
-    protected override void Parse(XElement element, IValueListDictionary<Crc32, SfxEvent> parsedElements)
+    protected override void Parse(XElement element, IValueListDictionary<Crc32, SfxEvent> parsedElements, string fileName)
     {
         var parser = new SfxEventParser(parsedElements, ServiceProvider, _listener);
 
@@ -31,7 +31,7 @@ internal class SfxEventFileParser(IServiceProvider serviceProvider, IXmlParserEr
             if (nameCrc == default)
             {
                 var location = XmlLocationInfo.FromElement(xElement);
-                OnParseError(new XmlParseErrorEventArgs(location.XmlFile, xElement, XmlParseErrorKind.MissingAttribute,
+                OnParseError(new XmlParseErrorEventArgs(fileName, xElement, XmlParseErrorKind.MissingAttribute,
                     $"SFXEvent has no name at location '{location}'"));
             }
 
@@ -46,7 +46,7 @@ internal class SfxEventFileParser(IServiceProvider serviceProvider, IXmlParserEr
         base.OnParseError(e);
     }
 
-    public override SfxEvent Parse(XElement element)
+    protected override SfxEvent Parse(XElement element, string fileName)
     {
         throw new NotSupportedException();
     }

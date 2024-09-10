@@ -5,4 +5,8 @@ public abstract class DatabaseErrorListener : IDatabaseErrorListener
     public virtual void OnXmlError(XmlError error)
     {
     }
+
+    public virtual void OnInitializationError(InitializationError error)
+    {
+    }
 }

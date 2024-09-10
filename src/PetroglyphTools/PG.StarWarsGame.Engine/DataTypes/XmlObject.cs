@@ -5,20 +5,11 @@ using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.DataTypes;
 
-public abstract class XmlObject(
-    string name,
-    Crc32 nameCrc,
-    IReadOnlyValueListDictionary<string, object?> properties,
-    XmlLocationInfo location)
-    : IHasCrc32
+public abstract class XmlObject(IReadOnlyValueListDictionary<string, object?> properties, XmlLocationInfo location)
 {
     public XmlLocationInfo Location { get; } = location;
 
-    public Crc32 Crc32 { get; } = nameCrc;
-
     public IReadOnlyValueListDictionary<string, object?> XmlProperties { get; } = properties ?? throw new ArgumentNullException(nameof(properties));
-
-    public string Name { get; } = name ?? throw new ArgumentNullException(nameof(name));
 
     public T? GetLastPropertyOrDefault<T>(string tagName, T? defaultValue = default)
     {
@@ -44,4 +35,16 @@ public abstract class XmlObject(
 
         return field;
     }
+}
+
+public abstract class NamedXmlObject(
+    string name,
+    Crc32 nameCrc,
+    IReadOnlyValueListDictionary<string, object?> properties,
+    XmlLocationInfo location)
+    : XmlObject(properties, location), IHasCrc32
+{ 
+    public Crc32 Crc32 { get; } = nameCrc; 
+
+    public string Name { get; } = name ?? throw new ArgumentNullException(nameof(name));
 }

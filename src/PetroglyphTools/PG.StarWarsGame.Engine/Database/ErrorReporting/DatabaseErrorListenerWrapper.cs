@@ -8,6 +8,8 @@ namespace PG.StarWarsGame.Engine.Database.ErrorReporting;
 
 internal class DatabaseErrorListenerWrapper : DisposableObject, IDatabaseErrorListener, IXmlParserErrorListener
 {
+    internal event EventHandler<InitializationError>? InitializationError; 
+
     private readonly IDatabaseErrorListener? _errorListener;
     private IPrimitiveXmlErrorParserProvider? _primitiveXmlParserErrorProvider;
 
@@ -23,6 +25,14 @@ internal class DatabaseErrorListenerWrapper : DisposableObject, IDatabaseErrorLi
     public void OnXmlError(XmlError error)
     {
         _errorListener?.OnXmlError(error);
+    }
+
+    public void OnInitializationError(InitializationError error)
+    {
+        InitializationError?.Invoke(this, error);
+        if (_errorListener is null)
+            return;
+        _errorListener.OnInitializationError(error);
     }
 
     protected override void DisposeManagedResources()

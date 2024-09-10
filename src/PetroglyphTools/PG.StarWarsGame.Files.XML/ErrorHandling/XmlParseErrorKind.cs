@@ -39,4 +39,8 @@ public enum XmlParseErrorKind
     /// The XML file does not start with the XML header.
     /// </summary>
     DataBeforeHeader = 8,
+    /// <summary>
+    /// The XML file is missing an expected node.
+    /// </summary>
+    MissingNode = 9
 }

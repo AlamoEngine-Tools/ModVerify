@@ -45,10 +45,10 @@ public interface IValueListDictionary<TKey, TValue> : IReadOnlyValueListDictiona
 public class ValueListDictionary<TKey, TValue> : IValueListDictionary<TKey, TValue> where TKey : notnull
 {
     private readonly List<TKey> _insertionTrackingList = new();
-    private readonly Dictionary<TKey, TValue> _singleValueDictionary = new ();
-    private readonly Dictionary<TKey, List<TValue>> _multiValueDictionary = new();
+    private readonly Dictionary<TKey, TValue> _singleValueDictionary;
+    private readonly Dictionary<TKey, List<TValue>> _multiValueDictionary;
 
-    private readonly EqualityComparer<TKey> _equalityComparer = EqualityComparer<TKey>.Default;
+    private readonly IEqualityComparer<TKey> _equalityComparer;
 
     public int Count => _insertionTrackingList.Count;
 
@@ -57,6 +57,17 @@ public class ValueListDictionary<TKey, TValue> : IValueListDictionary<TKey, TVal
     public ICollection<TKey> Keys => _singleValueDictionary.Keys.Concat(_multiValueDictionary.Keys).ToList();
 
     public ICollection<TValue> Values => this.Select(x => x.Value).ToList();
+
+    public ValueListDictionary() : this(null)
+    {
+    }
+
+    public ValueListDictionary(IEqualityComparer<TKey>? comparer)
+    {
+        _equalityComparer = comparer ?? EqualityComparer<TKey>.Default;
+        _singleValueDictionary = new Dictionary<TKey, TValue>(_equalityComparer);
+        _multiValueDictionary = new Dictionary<TKey, List<TValue>>(_equalityComparer);
+    }
 
     public TValue GetValueAtIndex(int index)
     {
@@ -264,10 +275,22 @@ public class ValueListDictionary<TKey, TValue> : IValueListDictionary<TKey, TVal
 
 public static class ValueListDictionaryExtensions
 {
+    public static IEnumerable<T> 
+        AggregateValues<TKey, TValue, T>(
+        this IReadOnlyValueListDictionary<TKey, TValue> valueListDictionary,
+        AggregateStrategy aggregateStrategy,
+        Predicate<T>? filter = null)
+        where TKey : notnull
+        where T : TValue
+    {
+        return valueListDictionary.AggregateValues(valueListDictionary.Keys, aggregateStrategy, filter);
+    }
+
     public static IEnumerable<T> AggregateValues<TKey, TValue, T>(
         this IReadOnlyValueListDictionary<TKey, TValue> valueListDictionary,
-        ISet<TKey> keys, Predicate<T> filter,
-        AggregateStrategy aggregateStrategy)
+        ICollection<TKey> keys,
+        AggregateStrategy aggregateStrategy,
+        Predicate<T>? filter = null)
         where TKey : notnull 
         where T : TValue
     {
@@ -282,7 +305,7 @@ public static class ValueListDictionaryExtensions
                     if (value is not null)
                     {
                         var typedValue = (T)value;
-                        if (filter(typedValue))
+                        if (filter is not null && filter(typedValue))
                             yield return typedValue;
                     }
 
@@ -296,8 +319,50 @@ public static class ValueListDictionaryExtensions
                 if (value is not null)
                 {
                     var typedValue = (T)value;
-                    if (filter(typedValue))
+                    if (filter is not null && filter(typedValue))
                         yield return typedValue;
+                }
+            }
+        }
+    }
+
+    public static IEnumerable<T> AggregateValues<TKey, TValue, T>(
+        this IReadOnlyValueListDictionary<TKey, TValue> valueListDictionary,
+        Func<KeyValuePair<TKey, TValue>, T> selector,
+        AggregateStrategy aggregateStrategy)
+        where TKey : notnull
+    {
+        return valueListDictionary.AggregateValues(valueListDictionary.Keys, selector, aggregateStrategy);
+    }
+
+    public static IEnumerable<T> AggregateValues<TKey, TValue, T>(
+        this IReadOnlyValueListDictionary<TKey, TValue> valueListDictionary,
+        ICollection<TKey> keys,
+        Func<KeyValuePair<TKey, TValue>, T> selector,
+        AggregateStrategy aggregateStrategy)
+        where TKey : notnull
+    {
+        foreach (var key in keys)
+        {
+            if (!valueListDictionary.ContainsKey(key))
+                continue;
+            if (aggregateStrategy == AggregateStrategy.MultipleValuesPerKey)
+            {
+                foreach (var value in valueListDictionary.GetValues(key))
+                {
+                    if (value is not null)
+                        yield return selector(new KeyValuePair<TKey, TValue>(key, value));
+
+                }
+            }
+            else
+            {
+                var value = aggregateStrategy == AggregateStrategy.FirstValuePerKey
+                    ? valueListDictionary.GetFirstValue(key)
+                    : valueListDictionary.GetLastValue(key);
+                if (value is not null)
+                {
+                    yield return selector(new KeyValuePair<TKey, TValue>(key, value));
                 }
             }
         }

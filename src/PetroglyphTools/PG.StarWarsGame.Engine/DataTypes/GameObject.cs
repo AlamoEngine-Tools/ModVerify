@@ -6,7 +6,7 @@ using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.DataTypes;
 
-public sealed class GameObject : XmlObject
+public sealed class GameObject : NamedXmlObject
 {
     internal GameObject(
         string type, 
@@ -49,8 +49,9 @@ public sealed class GameObject : XmlObject
                     "Land_Model_Anim_Override_Name",
                     "xxxSpace_Model_Name",
                     "Damaged_Smoke_Asset_Name"
-                }, v => v.EndsWith(".alo", StringComparison.OrdinalIgnoreCase),
-                ValueListDictionaryExtensions.AggregateStrategy.LastValuePerKey);
+                }, 
+                ValueListDictionaryExtensions.AggregateStrategy.LastValuePerKey, 
+                v => v.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
 
             var terrainMappedModels = LandTerrainModelMapping?.Select(x => x.Model);
             if (terrainMappedModels is null)

@@ -6,5 +6,6 @@ public static class PGConstants
 {
     public static readonly Encoding PGCrc32Encoding = Encoding.ASCII;
 
-    public const int MaxPathLength = 260;
+    // Reserved one character for the null-terminator
+    public const int MaxPathLength = 259;
 }

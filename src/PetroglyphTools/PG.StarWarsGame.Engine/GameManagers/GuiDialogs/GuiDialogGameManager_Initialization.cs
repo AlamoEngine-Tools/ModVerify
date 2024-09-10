@@ -1,0 +1,169 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AnakinRaW.CommonUtilities.Collections;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.GuiDialog;
+using PG.StarWarsGame.Engine.GuiDialog.Xml;
+using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Engine.Xml.Tags;
+
+namespace PG.StarWarsGame.Engine.GameManagers;
+
+partial class GuiDialogGameManager
+{
+    protected override Task InitializeCoreAsync(CancellationToken token)
+    {
+        return Task.Run(() =>
+        {
+            var parserFactory = ServiceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
+            var guiDialogParser = parserFactory.GetFileParser<GuiDialogsXml>();
+
+            Logger?.LogInformation("Parsing GuiDialogs...");
+            using var fileStream = GameRepository.TryOpenFile("DATA\\XML\\GUIDIALOGS.XML");
+
+            if (fileStream is null)
+            {
+                ErrorListener.OnInitializationError(new InitializationError
+                {
+                    GameManager = ToString(),
+                    Message = "Unable to find GuiDialogs.xml"
+                });
+                return;
+            }
+
+            var guiDialogs = guiDialogParser.ParseFile(fileStream);
+            if (guiDialogs is null)
+            {
+                ErrorListener.OnInitializationError(new InitializationError
+                {
+                    GameManager = ToString(),
+                    Message = "Unable to parse GuiDialogs.xml"
+                });
+                return;
+            }
+
+            GuiDialogsXml = guiDialogs;
+
+            InitializeTextures(guiDialogs.TextureData, ErrorListener);
+
+        }, token);
+    }
+
+    private void InitializeTextures(GuiDialogsXmlTextureData textureData, DatabaseErrorListenerWrapper errorListener)
+    {
+        InitializeMegaTextures(textureData, ErrorListener);
+
+        var textures = textureData.Textures;
+
+        if (textures.Count == 0)
+        {
+            errorListener.OnInitializationError(new InitializationError
+            {
+                GameManager = ToString(),
+                Message = "No Textures defined in GuiDialogs.xml"
+            });
+        }
+        else
+        {
+            var defaultCandidate = textures.First();
+
+            // Regardless of its name, the game treats the first entry as default.
+            var defaultTextures = InitializeComponentTextures(defaultCandidate, true, out var invalidKeys);
+            foreach (var entry in defaultTextures)
+                _defaultTextures.Add(entry.Key, entry.Value);
+
+            _defaultTexturesRo = new ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>(_defaultTextures);
+            ReportInvalidComponent(in invalidKeys);
+        }
+
+
+        foreach (var componentTextureData in textures.Skip(1))
+        {
+            // The game only uses the *first* entry.
+            if (_perComponentTextures.ContainsKey(componentTextureData.Component))
+                continue;
+
+            _perComponentTextures.Add(componentTextureData.Component, InitializeComponentTextures(componentTextureData, false, out var invalidKeys));
+            ReportInvalidComponent(in invalidKeys);
+        }
+    }
+
+    private Dictionary<GuiComponentType, ComponentTextureEntry> InitializeComponentTextures(XmlComponentTextureData textureData, bool isDefaultComponent, out FrugalList<string> invalidKeys)
+    {
+        invalidKeys = new FrugalList<string>();
+
+        var result = new Dictionary<GuiComponentType, ComponentTextureEntry>();
+
+        if (!isDefaultComponent)
+        {
+            // This assumes that _defaultTextures is already filled
+            foreach (var key in _defaultTextures.Keys)
+                result.Add(key, _defaultTextures[key]);
+        }
+
+
+        foreach (var keyText in textureData.Textures.Keys)
+        {
+            if (!ComponentTextureKeyExtensions.TryConvertToKey(keyText.AsSpan(), out var key))
+            {
+                invalidKeys.Add(keyText);
+                continue;
+            }
+
+            var textureValue = textureData.Textures.GetLastValue(keyText);
+            result[key] = new ComponentTextureEntry(key, textureValue, !isDefaultComponent);
+        }
+
+        return result;
+    }
+
+    private void InitializeMegaTextures(GuiDialogsXmlTextureData guiDialogs, DatabaseErrorListenerWrapper errorListener)
+    {
+        if (guiDialogs.MegaTexture is null)
+        {
+            errorListener.OnInitializationError(new InitializationError
+            {
+                GameManager = ToString(),
+                Message = "MtdFile is not defined in GuiDialogs.xml"
+            });
+        }
+        else
+        {
+            var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{guiDialogs.MegaTexture}.mtd");
+            using var megaTexture = GameRepository.TryOpenFile(mtdPath);
+            MtdFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+        }
+
+        if (guiDialogs.CompressedMegaTexture is null)
+        {
+            errorListener.OnInitializationError(new InitializationError
+            {
+                GameManager = ToString(),
+                Message = "CompressedMegaTexture is not defined in GuiDialogs.xml"
+            });
+        }
+
+
+        // TODO: Support using the correct texture based on desired low-RAM flag
+        _megaTextureFileName = guiDialogs.MegaTexture;
+        _megaTextureExists = GameRepository.TextureRepository.FileExists($"{guiDialogs.MegaTexture}.tga");
+    }
+
+    private void ReportInvalidComponent(in FrugalList<string> invalidKeys)
+    {
+        if (invalidKeys.Count == 0)
+            return;
+
+        ErrorListener.OnInitializationError(new InitializationError
+        {
+            GameManager = ToString(),
+            Message = $"The following XML keys are not valid to describe a GUI component: {string.Join(",", invalidKeys)}"
+        });
+    }
+}
