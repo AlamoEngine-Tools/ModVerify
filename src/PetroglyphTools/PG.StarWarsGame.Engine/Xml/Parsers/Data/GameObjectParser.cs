@@ -45,8 +45,12 @@ public sealed class GameObjectParser(
         {
             case GameObjectXmlTags.LandTerrainModelMapping:
                 var mappingValue = PrimitiveParserProvider.CommaSeparatedStringKeyValueListParser.Parse(tag);
+                var dict = xmlObject.InternalLandTerrainModelMapping;
                 foreach (var keyValuePair in mappingValue)
-                    xmlObject.InternalLandTerrainModelMapping[keyValuePair.value] = keyValuePair.value;
+                {
+                    if (!dict.ContainsKey(keyValuePair.key))
+                        dict.Add(keyValuePair.key, keyValuePair.value);
+                }
                 return true;
             case GameObjectXmlTags.GalacticModelName:
                 xmlObject.GalacticModel = PrimitiveParserProvider.StringParser.Parse(tag);
