@@ -26,7 +26,7 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
     {
         var root = GetRootElement(xmlStream, out var fileName);
         if (root is null) 
-            OnParseError(new XmlParseErrorEventArgs(fileName, null, XmlParseErrorKind.EmptyRoot, "Unable to get root node from XML file."));
+            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0), XmlParseErrorKind.EmptyRoot, $"Unable to get root node from XML file."));
         return root is null ? default! : Parse(root, fileName);
     }
 
@@ -99,8 +99,8 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
         }
 
         if (count != 0)
-            _listener?.OnXmlParseError(this, new XmlParseErrorEventArgs(fileName, null, 
-                XmlParseErrorKind.DataBeforeHeader, $"XML header is not the first entry of the file '{fileName}'"));
+            _listener?.OnXmlParseError(this, new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0), 
+                XmlParseErrorKind.DataBeforeHeader, $"XML header is not the first entry of the XML file."));
 
         stream.Position = count;
     }

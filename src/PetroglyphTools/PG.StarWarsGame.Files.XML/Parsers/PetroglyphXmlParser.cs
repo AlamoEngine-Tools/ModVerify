@@ -4,7 +4,6 @@ using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers.Primitives;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
@@ -52,8 +51,7 @@ public abstract class PetroglyphXmlParser<T> : IPetroglyphXmlParser<T>
         if (nameAttribute is null)
         {
             value = defaultValue;
-            var location = XmlLocationInfo.FromElement(element);
-            OnParseError(new XmlParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MissingAttribute, $"Missing attribute '{attribute}'"));
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MissingAttribute, $"Missing attribute '{attribute}'"));
             return false;
         }
 

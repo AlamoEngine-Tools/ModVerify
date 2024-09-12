@@ -6,7 +6,7 @@ namespace PG.StarWarsGame.Files.XML.ErrorHandling;
 
 public class XmlParseErrorEventArgs : EventArgs
 {
-    public string File { get; }
+    public XmlLocationInfo Location { get; }
 
     public XElement? Element { get; }
 
@@ -14,24 +14,29 @@ public class XmlParseErrorEventArgs : EventArgs
 
     public string Message { get; }
 
-    public XmlParseErrorEventArgs(string file, XElement? element, XmlParseErrorKind errorKind, string message)
+    public XmlParseErrorEventArgs(XElement element, XmlParseErrorKind errorKind, string message)
     {
-        ThrowHelper.ThrowIfNullOrEmpty(file);
-        File = file;
-        Element = element;
+        Element = element ?? throw new ArgumentNullException(nameof(element));
+        Location = XmlLocationInfo.FromElement(element);
         ErrorKind = errorKind;
         Message = message;
+    }
+
+    public XmlParseErrorEventArgs(XmlLocationInfo location, XmlParseErrorKind errorKind, string message)
+    {
+        Location = location;
+        Message = message;
+        ErrorKind = errorKind;
     }
 
     public static XmlParseErrorEventArgs FromMissingFile(string file)
     {
         ThrowHelper.ThrowIfNullOrEmpty(file);
-        return new XmlParseErrorEventArgs(file, null, XmlParseErrorKind.MissingFile, $"XML file '{file}' not found.");
+        return new XmlParseErrorEventArgs(new XmlLocationInfo(file, null), XmlParseErrorKind.MissingFile, "XML file not found.");
     }
 
-    public static XmlParseErrorEventArgs FromEmptyRoot(string file, XElement element)
+    public static XmlParseErrorEventArgs FromEmptyRoot(XElement element)
     {
-        ThrowHelper.ThrowIfNullOrEmpty(file);
-        return new XmlParseErrorEventArgs(file, element, XmlParseErrorKind.EmptyRoot, $"XML file '{file}' has an empty root node.");
+        return new XmlParseErrorEventArgs(element, XmlParseErrorKind.EmptyRoot, "XML file has an empty root node.");
     }
 }

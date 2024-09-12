@@ -1,5 +1,4 @@
-﻿using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+﻿using PG.StarWarsGame.Engine.Database.ErrorReporting;
 
 namespace PG.StarWarsGame.Engine.Repositories;
 

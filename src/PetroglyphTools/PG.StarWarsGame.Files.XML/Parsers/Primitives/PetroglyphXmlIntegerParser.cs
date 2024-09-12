@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Xml.Linq;
+using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
@@ -19,13 +20,24 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
 
         if (!int.TryParse(element.Value, out var i))
         {
-            var location = XmlLocationInfo.FromElement(element);
-            OnParseError(new XmlParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MalformedValue,
-                $"Expected integer but got '{element.Value}' at {location}"));
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
+                $"Expected integer but got '{element.Value}'."));
             return 0;
         }
 
         return i;
+    }
+
+    public int ParseWithRange(XElement element, int minValue, int maxValue)
+    {
+        var value = Parse(element);
+        var clamped =  PGMath.Clamp(value, minValue, maxValue);
+        if (value != clamped)
+        {
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+                $"Expected integer between {minValue} and {maxValue} but got value '{value}'."));
+        }
+        return clamped;
     }
 
     protected override void OnParseError(XmlParseErrorEventArgs e)

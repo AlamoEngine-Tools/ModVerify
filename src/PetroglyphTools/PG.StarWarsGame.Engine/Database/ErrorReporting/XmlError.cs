@@ -1,11 +1,12 @@
 ﻿using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Database.ErrorReporting;
 
 public sealed class XmlError
 {
-    public required string File { get; init; }
+    public required XmlLocationInfo FileLocation { get; init; }
 
     public required string Parser { get; init; }
 

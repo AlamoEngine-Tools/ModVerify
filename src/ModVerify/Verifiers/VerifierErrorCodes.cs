@@ -33,4 +33,5 @@ public static class VerifierErrorCodes
     public const string XmlValueTooLong = "XML07";
     public const string XmlDataBeforeHeader = "XML08";
     public const string XmlMissingNode = "XML09";
+    public const string XmlUnsupportedTag = "XML10";
 }

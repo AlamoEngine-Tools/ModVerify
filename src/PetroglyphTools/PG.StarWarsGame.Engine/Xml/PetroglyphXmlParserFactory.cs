@@ -1,6 +1,6 @@
 ﻿using System;
 using PG.StarWarsGame.Engine.DataTypes;
-using PG.StarWarsGame.Engine.GameManagers;
+using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
 using PG.StarWarsGame.Engine.Xml.Parsers.File;

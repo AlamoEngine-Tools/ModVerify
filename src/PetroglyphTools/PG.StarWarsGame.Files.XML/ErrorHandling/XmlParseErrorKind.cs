@@ -42,5 +42,9 @@ public enum XmlParseErrorKind
     /// <summary>
     /// The XML file is missing an expected node.
     /// </summary>
-    MissingNode = 9
+    MissingNode = 9,
+    /// <summary>
+    /// The XML element contains an unsupported tag.
+    /// </summary>
+    UnknownNode,
 }

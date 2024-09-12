@@ -10,7 +10,6 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.Language;
 using PG.StarWarsGame.Engine.Utilities;

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Engine.Xml;
 

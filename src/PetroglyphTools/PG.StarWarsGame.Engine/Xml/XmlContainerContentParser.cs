@@ -51,7 +51,7 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
             }
             catch (XmlException e)
             {
-                listener.OnXmlParseError(parser, new XmlParseErrorEventArgs(file, null, XmlParseErrorKind.Unknown, e.Message));
+                listener.OnXmlParseError(parser, new XmlParseErrorEventArgs(new XmlLocationInfo(file, 0), XmlParseErrorKind.Unknown, e.Message));
             }
         }
     }

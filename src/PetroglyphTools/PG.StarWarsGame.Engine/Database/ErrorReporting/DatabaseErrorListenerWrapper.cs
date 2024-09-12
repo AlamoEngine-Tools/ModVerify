@@ -51,7 +51,7 @@ internal class DatabaseErrorListenerWrapper : DisposableObject, IDatabaseErrorLi
 
         OnXmlError(new XmlError
         {
-            File = error.File,
+            FileLocation = error.Location,
             Parser = parser.ToString(),
             Message = error.Message,
             ErrorKind = error.ErrorKind,

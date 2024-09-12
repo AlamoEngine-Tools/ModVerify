@@ -1,4 +1,4 @@
-﻿namespace PG.StarWarsGame.Engine.DataTypes;
+﻿namespace PG.StarWarsGame.Engine.GameObjects;
 
 public enum GameObjectType
 {

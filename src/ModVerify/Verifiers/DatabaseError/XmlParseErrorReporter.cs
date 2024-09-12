@@ -22,9 +22,12 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
         var id = GetIdFromError(error.ErrorKind);
         var severity = GetSeverityFromError(error.ErrorKind);
 
+
+        var strippedFileName = _fileSystem.Path
+            .GetGameStrippedPath(GameRepository.Path.AsSpan(), error.FileLocation.XmlFile.ToUpperInvariant().AsSpan()).ToString();
         var assets = new List<string>
         {
-            _fileSystem.Path.GetGameStrippedPath(GameRepository.Path.AsSpan(), error.File.ToUpperInvariant().AsSpan()).ToString()
+            strippedFileName
         };
 
         var xmlElement = error.Element;
@@ -43,7 +46,16 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
 
         }
 
-        errorData = new ErrorData(id, error.Message, assets, severity);
+        var errorMessage = CreateErrorMessage(error, strippedFileName);
+
+        errorData = new ErrorData(id, errorMessage, assets, severity);
+    }
+
+    private static string CreateErrorMessage(XmlError error, string strippedFileName)
+    {
+        if (error.FileLocation.Line.HasValue)
+            return $"{error.Message} File='{strippedFileName} #{error.FileLocation.Line.Value}'";
+        return $"{error.Message} File='{strippedFileName}'";
     }
 
     private static VerificationSeverity GetSeverityFromError(XmlParseErrorKind xmlErrorErrorKind)
@@ -59,6 +71,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
             XmlParseErrorKind.TooLongData => VerificationSeverity.Warning,
             XmlParseErrorKind.DataBeforeHeader => VerificationSeverity.Information,
             XmlParseErrorKind.MissingNode => VerificationSeverity.Critical,
+            XmlParseErrorKind.UnknownNode => VerificationSeverity.Information,
             _ => VerificationSeverity.Warning
         };
     }
@@ -77,6 +90,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
             XmlParseErrorKind.Unknown => VerifierErrorCodes.GenericXmlError,
             XmlParseErrorKind.DataBeforeHeader => VerifierErrorCodes.XmlDataBeforeHeader,
             XmlParseErrorKind.MissingNode => VerifierErrorCodes.XmlMissingNode,
+            XmlParseErrorKind.UnknownNode => VerifierErrorCodes.XmlUnsupportedTag,
             _ => throw new ArgumentOutOfRangeException(nameof(xmlErrorErrorKind), xmlErrorErrorKind, null)
         };
     }
