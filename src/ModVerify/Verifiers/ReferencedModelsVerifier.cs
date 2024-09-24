@@ -214,7 +214,7 @@ public sealed class ReferencedModelsVerifier(
 
     private string BuildModelPath(string fileName)
     {
-        return FileSystem.Path.Combine("DATA/ART/MODELS", fileName);
+        return FileSystem.Path.Combine("DATA\\ART\\MODELS", fileName);
     }
 
     private void VerifyShaderExists(IPetroglyphFileHolder data, string shader)

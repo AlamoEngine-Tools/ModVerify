@@ -10,7 +10,7 @@ internal class ConsoleReporter(VerificationReportSettings settings, IServiceProv
 {
     public override Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {
-        var filteredErrors = FilteredErrors(errors).ToList();
+        var filteredErrors = FilteredErrors(errors).OrderByDescending(x => x.Severity).ToList();
 
         Console.WriteLine();
         Console.WriteLine("GAME VERIFICATION RESULT");
@@ -21,7 +21,7 @@ internal class ConsoleReporter(VerificationReportSettings settings, IServiceProv
             Console.WriteLine("No errors!");
 
         foreach (var error in filteredErrors) 
-            Console.WriteLine(error);
+            Console.WriteLine($"[{error.Severity}] [{error.Id}] Message={error.Message}");
 
         Console.WriteLine();
 

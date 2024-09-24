@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AET.ModVerify.Reporting;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.GameManagers;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Files.MTD.Binary;
 
