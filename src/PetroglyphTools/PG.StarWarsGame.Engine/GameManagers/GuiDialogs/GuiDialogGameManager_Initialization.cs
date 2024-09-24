@@ -17,12 +17,16 @@ namespace PG.StarWarsGame.Engine.GameManagers;
 
 partial class GuiDialogGameManager
 {
+    public const int MegaTextureMaxFilePathLength = 255;
+
     protected override Task InitializeCoreAsync(CancellationToken token)
     {
         return Task.Run(() =>
         {
             var parserFactory = ServiceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
             var guiDialogParser = parserFactory.GetFileParser<GuiDialogsXml>();
+
+            _defaultTexturesRo = new ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>(_defaultTextures);
 
             Logger?.LogInformation("Parsing GuiDialogs...");
             using var fileStream = GameRepository.TryOpenFile("DATA\\XML\\GUIDIALOGS.XML");
@@ -78,10 +82,8 @@ partial class GuiDialogGameManager
             foreach (var entry in defaultTextures)
                 _defaultTextures.Add(entry.Key, entry.Value);
 
-            _defaultTexturesRo = new ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>(_defaultTextures);
             ReportInvalidComponent(in invalidKeys);
         }
-
 
         foreach (var componentTextureData in textures.Skip(1))
         {
@@ -136,6 +138,16 @@ partial class GuiDialogGameManager
         else
         {
             var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{guiDialogs.MegaTexture}.mtd");
+
+            if (mtdPath.Length > MegaTextureMaxFilePathLength)
+            {
+                errorListener.OnInitializationError(new InitializationError
+                {
+                    GameManager = ToString(),
+                    Message = $"Mtd file path is longer than {MegaTextureMaxFilePathLength}."
+                });
+            }
+
             using var megaTexture = GameRepository.TryOpenFile(mtdPath);
             MtdFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
         }
@@ -152,7 +164,17 @@ partial class GuiDialogGameManager
 
         // TODO: Support using the correct texture based on desired low-RAM flag
         _megaTextureFileName = guiDialogs.MegaTexture;
-        _megaTextureExists = GameRepository.TextureRepository.FileExists($"{guiDialogs.MegaTexture}.tga");
+        var textureFileNameWithExtension = $"{guiDialogs.MegaTexture}.tga";
+        _megaTextureExists = GameRepository.TextureRepository.FileExists(textureFileNameWithExtension);
+
+        if (textureFileNameWithExtension.Length > MegaTextureMaxFilePathLength)
+        {
+            errorListener.OnInitializationError(new InitializationError
+            {
+                GameManager = ToString(),
+                Message = $"MegaTexture file path is longer than {MegaTextureMaxFilePathLength}."
+            });
+        }
     }
 
     private void ReportInvalidComponent(in FrugalList<string> invalidKeys)
