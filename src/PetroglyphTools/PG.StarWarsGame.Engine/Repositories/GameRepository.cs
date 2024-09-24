@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Runtime.InteropServices;
 using AnakinRaW.CommonUtilities.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.Language;
-using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
 using PG.StarWarsGame.Files.MEG.Data.Entries;
@@ -24,7 +20,7 @@ using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.Repositories;
 
-internal abstract class GameRepository : ServiceBase, IGameRepository
+internal abstract partial class GameRepository : ServiceBase, IGameRepository
 {
     private readonly IMegFileService _megFileService;
     private readonly IMegFileExtractor _megExtractor;
@@ -126,93 +122,6 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         AddMegFiles([megArchive]);
     }
 
-    public bool FileExists(string filePath, bool megFileOnly = false)
-    {
-        return RepositoryFileLookup(filePath, fp =>
-            {
-                if (FileSystem.File.Exists(fp))
-                    return new ActionResult<bool>(true, true);
-                return ActionResult<bool>.DoNotReturn;
-            },
-            fp =>
-            {
-                var entry = FindFileInMasterMeg(fp);
-                if (entry is not null)
-                    return new ActionResult<bool>(true, true);
-                return ActionResult<bool>.DoNotReturn;
-            }, megFileOnly);
-    }
-
-    public Stream? TryOpenFile(string filePath, bool megFileOnly = false)
-    {
-        return RepositoryFileLookup(filePath, fp =>
-            {
-                if (FileSystem.File.Exists(fp))
-                    return new ActionResult<Stream>(true, OpenFileRead(fp));
-                return ActionResult<Stream>.DoNotReturn;
-            },
-            fp =>
-            {
-                var entry = FindFileInMasterMeg(fp);
-                if (entry is not null)
-                    return new ActionResult<Stream>(true, _megExtractor.GetFileData(entry.Location));
-                return ActionResult<Stream>.DoNotReturn;
-            }, megFileOnly);
-    }
-
-
-    public Stream OpenFile(string filePath, bool megFileOnly = false)
-    {
-        var stream = TryOpenFile(filePath, megFileOnly);
-        if (stream is null)
-            throw new FileNotFoundException($"Unable to find game data: {filePath}");
-        return stream;
-    }
-
-    public bool FileExists(string filePath, string[] extensions, bool megFileOnly = false)
-    {
-        foreach (var extension in extensions)
-        {
-            var newPath = FileSystem.Path.ChangeExtension(filePath, extension);
-            if (FileExists(newPath, megFileOnly))
-                return true;
-        }
-        return false;
-    }
-
-    public IEnumerable<string> FindFiles(string searchPattern, bool megFileOnly = false)
-    {
-        var files = new HashSet<string>();
-
-        var matcher = new Matcher();
-        matcher.AddInclude(searchPattern);
-
-        RepositoryFileLookup(searchPattern,
-            pattern =>
-            {
-                var path = pattern.AsSpan().TrimEnd(searchPattern.AsSpan());
-
-                var matcherResult = matcher.Execute(FileSystem, path.ToString());
-
-                foreach (var matchedFile in matcherResult.Files)
-                {
-                    var normalizedFile = _megPathNormalizer.Normalize(matchedFile.Path);
-                    files.Add(normalizedFile);
-                }
-
-                return ActionResult<EmptyStruct>.DoNotReturn;
-            },
-            _ =>
-            {
-                var foundFiles = MasterMegArchive!.FindAllEntries(searchPattern, true);
-                foreach (var x in foundFiles)
-                    files.Add(x.FilePath);
-
-                return ActionResult<EmptyStruct>.DoNotReturn;
-            }, megFileOnly);
-
-        return files;
-    }
 
     public bool IsLanguageInstalled(LanguageType language)
     {
@@ -314,6 +223,8 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         var parser = fileParserFactory.GetFileParser<XmlFileContainer>(_errorListener);
         var megaFilesXml = parser.ParseFile(xmlStream);
 
+        if (megaFilesXml is null)
+            return [];
 
         var megs = new List<IMegFile>(megaFilesXml.Files.Count);
 
@@ -333,9 +244,6 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         _sealed = true;
     }
 
-    protected abstract T? RepositoryFileLookup<T>(string filePath, Func<string, ActionResult<T>> pathAction,
-        Func<string, ActionResult<T>> megAction, bool megFileOnly, T? defaultValue = default);
-
     protected IMegFile? LoadMegArchive(string megPath)
     {
         using var megFileStream = TryOpenFile(megPath);
@@ -353,63 +261,12 @@ internal abstract class GameRepository : ServiceBase, IGameRepository
         return megFile;
     }
 
-    protected MegDataEntryReference? FindFileInMasterMeg(string filePath)
-    {
-        Span<char> fileNameBuffer = stackalloc char[PGConstants.MaxPathLength];
-
-        // TODO: Is the engine really "to-uppering" the input???
-        var length = _megPathNormalizer.Normalize(filePath.AsSpan(), fileNameBuffer);
-        var fileName = fileNameBuffer.Slice(0, length);
-        var crc = _crc32HashingService.GetCrc32(fileName, PGConstants.PGCrc32Encoding);
-
-        return MasterMegArchive?.FirstEntryWithCrc(crc);
-    }
-
-    protected FileSystemStream OpenFileRead(string filePath)
-    {
-        if (!AllowOpenFile(filePath))
-            throw new UnauthorizedAccessException("The data is not part of the Games!");
-        return FileSystem.FileStream.New(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-    }
-
-    private bool AllowOpenFile(string filePath)
-    {
-        foreach (var modPath in ModPaths)
-        {
-            if (FileSystem.Path.IsChildOf(modPath, filePath))
-                return true;
-        }
-
-        if (FileSystem.Path.IsChildOf(GameDirectory, filePath))
-            return true;
-
-        foreach (var fallbackPath in FallbackPaths)
-        {
-            if (FileSystem.Path.IsChildOf(fallbackPath, filePath))
-                return true;
-        }
-
-        return false;
-    }
-
     private void ThrowIfSealed()
     {
         if (_sealed)
             throw new InvalidOperationException("The object is sealed for modifications");
     }
-
-    protected readonly struct ActionResult<T>(bool shallReturn, T? result)
-    {
-        public T? Result { get; } = result;
-
-        public bool ShallReturn { get; } = shallReturn;
-
-        public static ActionResult<T> DoNotReturn => default;
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    private readonly struct EmptyStruct;
-
+    
     private sealed class LanguageFiles
     {
         public LanguageType Language { get; }

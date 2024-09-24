@@ -1,55 +1,57 @@
 ﻿using System;
+using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.Repositories;
 
-public class TextureRepository(IGameRepository baseRepository, IServiceProvider serviceProvider) : MultiPassRepository(baseRepository, serviceProvider)
+internal class TextureRepository(GameRepository baseRepository, IServiceProvider serviceProvider) : MultiPassRepository(baseRepository, serviceProvider)
 {
-    protected override T? MultiPassAction<T>(string inputPath, Func<string, (bool success, T result)> fileAction) where T : default
+    private static readonly string DdsExtension = ".dds";
+    private static readonly string TexturePath = "DATA\\ART\\TEXTURES\\";
+
+
+    private protected override FileFoundInfo MultiPassAction(
+        ReadOnlySpan<char> filePath, 
+        ref ValueStringBuilder multiPassStringBuilder, 
+        ref ValueStringBuilder filePathStringBuilder, 
+        bool megFileOnly)
     {
-        if (FindTexture(inputPath, fileAction, out var result))
-            return result;
+        if (filePath.Length > PGConstants.MaxPathLength)
+            return default;
 
-        var ddsFilePath = ChangeExtensionTo(inputPath, ".dds");
+        multiPassStringBuilder.Append(filePath);
 
-        if (FindTexture(ddsFilePath, fileAction, out result))
-            return result;
+        var foundInfo = FindTexture(ref multiPassStringBuilder, ref filePathStringBuilder);
 
-        return default;
+        if (foundInfo.FileFound)
+            return foundInfo;
+
+        multiPassStringBuilder.Length = 0;
+        multiPassStringBuilder.Append(filePath);
+
+        ChangeExtensionTo(ref multiPassStringBuilder, DdsExtension.AsSpan());
+
+        return FindTexture(ref multiPassStringBuilder, ref filePathStringBuilder);
     }
 
-    private bool FindTexture<T>(string inputPath, Func<string, (bool success, T result)> fileAction, out T? result)
+    private FileFoundInfo FindTexture(ref ValueStringBuilder multiPassStringBuilder, ref ValueStringBuilder pathStringBuilder)
     {
-        result = default;
-        
-        var actionResult = fileAction(inputPath);
-        if (actionResult.success)
-        {
-            result = actionResult.result;
-            return true;
-        }
+        var fileInfo = BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref pathStringBuilder);
+        if (fileInfo.FileFound)
+            return fileInfo;
 
-        var newInput = inputPath;
 
         // Only PG knows why they only search for backslash and not also forward slash,
         // when in fact in other methods, they handle both. 
-        var separatorIndex = inputPath.LastIndexOf('\\');
-        if (separatorIndex != -1 && separatorIndex + 1 < inputPath.Length)
-            newInput = inputPath.Substring(separatorIndex + 1);
+        var separatorIndex = multiPassStringBuilder.AsSpan().LastIndexOf('\\');
+        if (separatorIndex != -1)
+            multiPassStringBuilder.Remove(0 , separatorIndex + 1);
 
-        var pathWithFolders = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", newInput);
-        actionResult = fileAction(pathWithFolders);
-        
-        if (actionResult.success)
-        {
-            result = actionResult.result;
-            return true;
-        }
-        
-        return false;
+        multiPassStringBuilder.Insert(0, TexturePath);
+
+        return BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref pathStringBuilder);
     }
 
-
-    private static string ChangeExtensionTo(string input, string extension)
+    private static void ChangeExtensionTo(ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> extension)
     {
         // We cannot use Path.ChangeExtension as the PG implementation supports some strange things
         // like that a string "c:\\file.tga\\" ending with a directory separator. The PG result will be 
@@ -57,7 +59,11 @@ public class TextureRepository(IGameRepository baseRepository, IServiceProvider 
 
         // Also, while there are many cases, where this method breaks (such as "c:/test.abc/path.dds"),
         // it's the way how the engine works 🤷‍
-        var firstPart = input.Split('.')[0];
-        return firstPart + extension;
+        var firstPeriod = stringBuilder.AsSpan().IndexOf('.');
+        if (firstPeriod == -1)
+            return;
+
+        stringBuilder.Length = firstPeriod;
+        stringBuilder.Append(extension);
     }
 }

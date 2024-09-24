@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Files.MEG.Files;
 
 namespace PG.StarWarsGame.Engine.Repositories;
@@ -52,49 +53,31 @@ internal class FocGameRepository : GameRepository
 
         AddMegFiles(megsToConsider);
     }
-
-
-    protected override T? RepositoryFileLookup<T>(string filePath, Func<string, ActionResult<T>> pathAction, Func<string, ActionResult<T>> megAction, bool megFileOnly, T? defaultValue = default) where T: default
+    
+    protected internal override FileFoundInfo FindFile(ReadOnlySpan<char> filePath, ref ValueStringBuilder pathStringBuilder, bool megFileOnly = false)
     {
         if (!megFileOnly)
         {
-            foreach (var modPath in ModPaths)
-            {
-                var modFilePath = FileSystem.Path.Combine(modPath, filePath);
+            var fileFoundInfo = FileFromAltExists(filePath, ModPaths, ref pathStringBuilder);
+            if (fileFoundInfo.FileFound)
+                return fileFoundInfo;
 
-                var result = pathAction(modFilePath);
-                if (result.ShallReturn)
-                    return result.Result;
-            }
-
-            {
-                var normalFilePath = FileSystem.Path.Combine(GameDirectory, filePath);
-                var result = pathAction(normalFilePath);
-                if (result.ShallReturn)
-                    return result.Result;
-            }
-            
+            fileFoundInfo = FindFileCore(filePath, ref pathStringBuilder);
+            if (fileFoundInfo.FileFound)
+                return fileFoundInfo;
         }
+
 
         if (MasterMegArchive is not null)
         {
-            var result = megAction(filePath);
-            if (result.ShallReturn)
-                return result.Result;
+            var fileFoundInfo = GetFileInfoFromMasterMeg(filePath);
+            if (fileFoundInfo.InMeg)
+                return fileFoundInfo;
         }
 
         if (!megFileOnly)
-        {
-            foreach (var fallbackPath in FallbackPaths)
-            {
-                var fallbackFilePath = FileSystem.Path.Combine(fallbackPath, filePath);
+            return FileFromAltExists(filePath, FallbackPaths, ref pathStringBuilder);
 
-                var result = pathAction(fallbackFilePath);
-                if (result.ShallReturn)
-                    return result.Result;
-            }
-        }
-
-        return defaultValue;
+        return default;
     }
 }

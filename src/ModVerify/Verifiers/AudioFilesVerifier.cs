@@ -60,7 +60,7 @@ public class AudioFilesVerifier : GameVerifierBase
         if (!visitedSamples.Add(crc))
             return;
 
-        
+        // TODO: Is this really true??? I could not find it in the engine?!?
         if (normalizedSampleName.Length > PGConstants.MaxPathLength)
         {
             AddError(VerificationError.Create(
@@ -72,36 +72,36 @@ public class AudioFilesVerifier : GameVerifierBase
             return;
         }
 
-        var normalizedSampleNameString = normalizedSampleName.ToString();
-
         if (sfxEvent.IsLocalized)
         {
+            Span<char> localizedNameBuffer = stackalloc char[PGConstants.MaxPathLength];
             foreach (var language in languagesToVerify)
             {
-                var localizedSampleName = _languageManager.LocalizeFileName(normalizedSampleNameString, language, out var localized);
-                VerifySample(localizedSampleName, sfxEvent);
+                var length = _languageManager.LocalizeFileName(normalizedSampleName, language, localizedNameBuffer, out var localized); 
+                VerifySample(localizedNameBuffer.Slice(0, length), sfxEvent);
                 
                 if (!localized)
                     return;
             }
         }
         else
-        {
-            VerifySample(normalizedSampleNameString, sfxEvent);
+        { 
+            VerifySample(normalizedSampleName, sfxEvent);
         }
     }
 
-    private void VerifySample(string sample, SfxEvent sfxEvent)
+    private void VerifySample(ReadOnlySpan<char> sample, SfxEvent sfxEvent)
     {
         using var sampleStream = Repository.TryOpenFile(sample);
         if (sampleStream is null)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
-                VerifierErrorCodes.SampleNotFound, 
-                $"Audio file '{sample}' could not be found.", 
+                VerifierErrorCodes.SampleNotFound,
+                $"Audio file '{sampleString}' could not be found.",
                 VerificationSeverity.Error,
-                sample));
+                sampleString));
             return;
         }
         using var binaryReader = new BinaryReader(sampleStream);
@@ -121,42 +121,46 @@ public class AudioFilesVerifier : GameVerifierBase
 
         if (format != WaveFormats.PCM)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.SampleNotPCM,
-                $"Audio file '{sample}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
+                $"Audio file '{sampleString}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
                 VerificationSeverity.Error,
-                sample));
+                sampleString));
         }
 
         if (channels > 1 && !IsAmbient2D(sfxEvent))
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.SampleNotMono, 
-                $"Audio file '{sample}' is not mono audio.", 
-                VerificationSeverity.Information, 
-                sample));
+                $"Audio file '{sampleString}' is not mono audio.", 
+                VerificationSeverity.Information,
+                sampleString));
         }
 
         if (sampleRate > 48_000)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes. InvalidSampleRate, 
-                $"Audio file '{sample}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
+                $"Audio file '{sampleString}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
                 VerificationSeverity.Error,
-                sample));
+                sampleString));
         }
 
         if (bitPerSecondPerChannel > 16)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.InvalidBitsPerSeconds, 
-                $"Audio file '{sample}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
-                VerificationSeverity.Error, 
-                sample));
+                $"Audio file '{sampleString}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
+                VerificationSeverity.Error,
+                sampleString));
         }
     }
 
