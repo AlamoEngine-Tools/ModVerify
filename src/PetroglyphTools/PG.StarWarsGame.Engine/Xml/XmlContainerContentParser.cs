@@ -21,14 +21,22 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
         IGameRepository gameRepository,
         ValueListDictionary<Crc32, T> entries)
     {
-        using var containerStream = gameRepository.OpenFile(xmlFile);
-        var containerParser = _fileParserFactory.GetFileParser<XmlFileContainer>(listener);
+        var containerParser = _fileParserFactory.GetFileParser<XmlFileContainer?>(listener);
         Logger.LogDebug($"Parsing container data '{xmlFile}'");
-        var container = containerParser.ParseFile(containerStream);
 
-        var xmlFiles = container?.Files.Select(x => FileSystem.Path.Combine("DATA\\XML", x)).ToList();
-        if (xmlFiles is null)
+        using var containerStream = gameRepository.TryOpenFile(xmlFile);
+        if (containerStream == null)
+        {
+            listener.OnXmlParseError(containerParser, XmlParseErrorEventArgs.FromMissingFile(xmlFile));
+            Logger.LogWarning($"Could not find XML file '{xmlFile}'");
             return;
+        }
+
+        var container = containerParser.ParseFile(containerStream);
+        if (container is null)
+            return;
+
+        var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine("DATA\\XML", x)).ToList();
 
         var parser = _fileParserFactory.GetFileParser<T>(listener);
 
