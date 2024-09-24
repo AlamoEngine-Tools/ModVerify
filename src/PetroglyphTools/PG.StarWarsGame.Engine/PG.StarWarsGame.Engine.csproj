@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
 		<Title>PG.StarWarsGame.Engine</Title>
 		<Product>PG.StarWarsGame.Engine</Product>
 		<PackageId>AlamoEngineTools.PG.StarWarsGame.Engine</PackageId>
@@ -22,7 +22,7 @@
 	  <None Remove="Audio\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.23-beta" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.25-beta" />
 		<PackageReference Include="IsExternalInit" Version="1.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
