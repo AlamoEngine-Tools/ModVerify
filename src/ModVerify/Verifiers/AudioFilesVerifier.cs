@@ -6,8 +6,10 @@ using System.Linq;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
+using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.DataTypes;
@@ -21,7 +23,7 @@ namespace AET.ModVerify.Verifiers;
 
 public class AudioFilesVerifier : GameVerifierBase
 {
-    private readonly PetroglyphDataEntryPathNormalizer _pathNormalizer;
+    private readonly EmpireAtWarMegDataEntryPathNormalizer _pathNormalizer;
     private readonly ICrc32HashingService _hashingService;
     private readonly IFileSystem _fileSystem;
     private readonly IGameLanguageManager _languageManager;
@@ -50,28 +52,24 @@ public class AudioFilesVerifier : GameVerifierBase
         }
     }
 
+    private static readonly PathNormalizeOptions SampleNormalizerOptions = new()
+    {
+        UnifyCase = UnifyCasingKind.UpperCaseForce,
+        UnifySeparatorKind = DirectorySeparatorKind.Windows,
+        UnifyDirectorySeparators = true
+    };
+
     private void VerifySample(string sample, SfxEvent sfxEvent, IEnumerable<LanguageType> languagesToVerify, HashSet<Crc32> visitedSamples)
     {
-        Span<char> sampleNameBuffer = stackalloc char[PGConstants.MaxPathLength];
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
+        var sampleNameBuffer = sb.AppendSpan(sample.Length);
 
-        var i = _pathNormalizer.Normalize(sample.AsSpan(), sampleNameBuffer);
+        var i = PathNormalizer.Normalize(sample.AsSpan(), sampleNameBuffer, SampleNormalizerOptions);
         var normalizedSampleName = sampleNameBuffer.Slice(0, i);
         var crc = _hashingService.GetCrc32(normalizedSampleName, PGConstants.PGCrc32Encoding);
         if (!visitedSamples.Add(crc))
             return;
-
-        // TODO: Is this really true??? I could not find it in the engine?!?
-        if (normalizedSampleName.Length > PGConstants.MaxPathLength)
-        {
-            AddError(VerificationError.Create(
-                this,
-                VerifierErrorCodes.FilePathTooLong,
-                $"Sample name '{sample}' is too long.",
-                VerificationSeverity.Error,
-                sample));
-            return;
-        }
-
+        
         if (sfxEvent.IsLocalized)
         {
             Span<char> localizedNameBuffer = stackalloc char[PGConstants.MaxPathLength];

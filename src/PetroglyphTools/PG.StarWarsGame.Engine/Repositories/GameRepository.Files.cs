@@ -79,8 +79,14 @@ internal partial class GameRepository
 
         Span<char> fileNameSpan = stackalloc char[PGConstants.MaxPathLength];
 
-        var length = _megPathNormalizer.Normalize(filePath, fileNameSpan);
+        if (!_megPathNormalizer.TryNormalize(filePath, fileNameSpan, out var length))
+            return default;
+
         var fileName = fileNameSpan.Slice(0, length);
+
+        if (fileName.Length > PGConstants.MaxPathLength) 
+            Logger.LogWarning($"Trying to open a MEG entry which is longer than 259 characters: '{fileName.ToString()}'");
+
         var crc = _crc32HashingService.GetCrc32(fileName, PGConstants.PGCrc32Encoding);
 
         var entry = MasterMegArchive!.FirstEntryWithCrc(crc);
