@@ -19,7 +19,9 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
         string xmlFile,
         IXmlParserErrorListener listener,
         IGameRepository gameRepository,
-        ValueListDictionary<Crc32, T> entries)
+        string lookupPath,
+        ValueListDictionary<Crc32, T> entries,
+        Action<string>? onFileParseAction = null)
     {
         var containerParser = _fileParserFactory.GetFileParser<XmlFileContainer?>(listener);
         Logger.LogDebug($"Parsing container data '{xmlFile}'");
@@ -36,12 +38,15 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
         if (container is null)
             return;
 
-        var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine("DATA\\XML", x)).ToList();
+        var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
         var parser = _fileParserFactory.GetFileParser<T>(listener);
 
         foreach (var file in xmlFiles)
         {
+            if (onFileParseAction is not null)
+                onFileParseAction(file);
+
             using var fileStream = gameRepository.TryOpenFile(file);
 
             if (fileStream is null)

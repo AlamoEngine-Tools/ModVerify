@@ -2,6 +2,7 @@
 using PG.StarWarsGame.Engine.Repositories;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using System;
 
 namespace PG.StarWarsGame.Engine.Xml;
 
@@ -11,5 +12,7 @@ internal interface IXmlContainerContentParser
         string xmlFile,
         IXmlParserErrorListener listener,
         IGameRepository gameRepository,
-        ValueListDictionary<Crc32, T> entries);
+        string lookupPath,
+        ValueListDictionary<Crc32, T> entries,
+        Action<string>? onFileParseAction = null);
 }

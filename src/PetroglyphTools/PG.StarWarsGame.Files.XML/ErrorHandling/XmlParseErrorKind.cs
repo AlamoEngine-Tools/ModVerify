@@ -46,5 +46,5 @@ public enum XmlParseErrorKind
     /// <summary>
     /// The XML element contains an unsupported tag.
     /// </summary>
-    UnknownNode,
+    UnknownNode = 10
 }
