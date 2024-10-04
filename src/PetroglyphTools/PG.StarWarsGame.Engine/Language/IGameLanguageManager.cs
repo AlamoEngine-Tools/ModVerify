@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PG.Commons.Utilities;
 
 namespace PG.StarWarsGame.Engine.Language;
 
@@ -11,7 +12,7 @@ public interface IGameLanguageManager
 
     string LocalizeFileName(string fileName, LanguageType language, out bool localized);
 
-    int LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, Span<char> destination, out bool localized);
+    void LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, ref ValueStringBuilder stringBuilder, out bool localized);
 
     bool IsFileNameLocalizable(ReadOnlySpan<char> fileName, bool requireEnglishName);
 

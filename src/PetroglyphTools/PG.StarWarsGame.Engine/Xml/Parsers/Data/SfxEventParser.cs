@@ -27,6 +27,12 @@ public sealed class SfxEventParser(
 
     private void ValidateValues(SfxEvent sfxEvent, XElement element)
     {
+        if (sfxEvent.Name.Length > PGConstants.MaxSFXEventName)
+        {
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
+                $"SFXEvent name '{sfxEvent.Name}' is too long."));
+        }
+
         if (sfxEvent is { Is2D: true, Is3D: true })
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
@@ -77,7 +83,7 @@ public sealed class SfxEventParser(
             case SfxEventXmlTags.UsePreset:
             {
                 var presetName = PrimitiveParserProvider.StringParser.Parse(tag);
-                var presetNameCrc = HashingService.GetCrc32Upper(presetName.AsSpan(), PGConstants.PGCrc32Encoding);
+                var presetNameCrc = HashingService.GetCrc32Upper(presetName.AsSpan(), PGConstants.DefaultPGEncoding);
                 if (presetNameCrc != default && ParsedElements.TryGetFirstValue(presetNameCrc, out var preset))
                     sfxEvent.ApplyPreset(preset);
                 else

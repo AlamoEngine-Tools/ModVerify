@@ -11,26 +11,26 @@ internal class TextureRepository(GameRepository baseRepository, IServiceProvider
 
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 
-        ref ValueStringBuilder multiPassStringBuilder, 
-        ref ValueStringBuilder filePathStringBuilder, 
+        ref ValueStringBuilder reusableStringBuilder, 
+        ref ValueStringBuilder destination, 
         bool megFileOnly)
     {
-        if (filePath.Length > PGConstants.MaxPathLength)
+        if (filePath.Length > PGConstants.MaxTextureFileName)
             return default;
 
-        multiPassStringBuilder.Append(filePath);
+        reusableStringBuilder.Append(filePath);
 
-        var foundInfo = FindTexture(ref multiPassStringBuilder, ref filePathStringBuilder);
+        var foundInfo = FindTexture(ref reusableStringBuilder, ref destination);
 
         if (foundInfo.FileFound)
             return foundInfo;
 
-        multiPassStringBuilder.Length = 0;
-        multiPassStringBuilder.Append(filePath);
+        reusableStringBuilder.Length = 0;
+        reusableStringBuilder.Append(filePath);
 
-        ChangeExtensionTo(ref multiPassStringBuilder, DdsExtension.AsSpan());
+        ChangeExtensionTo(ref reusableStringBuilder, DdsExtension.AsSpan());
 
-        return FindTexture(ref multiPassStringBuilder, ref filePathStringBuilder);
+        return FindTexture(ref reusableStringBuilder, ref destination);
     }
 
     private FileFoundInfo FindTexture(ref ValueStringBuilder multiPassStringBuilder, ref ValueStringBuilder pathStringBuilder)

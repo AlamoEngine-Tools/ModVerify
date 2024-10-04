@@ -102,20 +102,19 @@ sealed partial class ReferencedTexturesVerifier
 
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
-                        AddError(VerificationError.Create(this, MtdIndexNameTooLong,
+                        AddError(VerificationError.Create(this, FileNameTooLong,
                             $"The filename is too long. Max length is {MtdFileConstants.MaxFileNameSize} characters.",
-                            VerificationSeverity.Error, texture.Texture));
-                    }
-                    else if (origin == GuiTextureOrigin.Repository && texture.Texture.Length > PGConstants.MaxPathLength)
-                    {
-                        AddError(VerificationError.Create(this, MtdIndexNameTooLong,
-                            $"The filename is too long. Max length is {PGConstants.MaxPathLength} characters.",
                             VerificationSeverity.Error, texture.Texture));
                     }
                     else
                     {
+                        var message = $"Could not find GUI texture '{texture.Texture}' at location '{origin}'.";
+                        
+                        if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
+                            message += " The file name is too long.";
+
                         AddError(VerificationError.Create(this, TexutreNotFound,
-                            $"Could not find GUI texture '{texture.Texture}' at location: {origin}", VerificationSeverity.Error,
+                            message, VerificationSeverity.Error,
                             texture.Texture, component, origin.ToString()));
                     }
                 }

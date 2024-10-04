@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Services;
+using PG.Commons.Utilities;
 
 namespace PG.StarWarsGame.Engine.Language;
 
@@ -113,9 +114,6 @@ internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : 
 
     public string LocalizeFileName(string fileName, LanguageType language, out bool localized)
     {
-        if (fileName.Length > PGConstants.MaxPathLength)
-            throw new ArgumentOutOfRangeException(nameof(fileName), "fileName is too long");
-
         // The game assumes that all localized audio files are referenced by using their english name.
         // Thus, PG takes this shortcut
         if (language == LanguageType.English)
@@ -124,33 +122,29 @@ internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : 
             return fileName;
         }
 
-
-        Span<char> localizedName = stackalloc char[fileName.Length];
-        var length = LocalizeFileName(fileName.AsSpan(), language, localizedName, out localized);
+        var stringBuilder = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        LocalizeFileName(fileName.AsSpan(), language, ref stringBuilder, out localized);
         if (!localized)
+        {
+            stringBuilder.Dispose();
             return fileName;
+        }
 
-        Debug.Assert(localizedName.Length == length);
-        return localizedName.ToString();
+        Debug.Assert(stringBuilder.Length == fileName.Length);
+        return stringBuilder.ToString();
     }
 
 
-    public int LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, Span<char> destination, out bool localized)
+    public void LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, ref ValueStringBuilder stringBuilder, out bool localized)
     {
-        if (fileName.Length > PGConstants.MaxPathLength)
-            throw new ArgumentOutOfRangeException(nameof(fileName), "fileName is too long");
-
-        if (destination.Length < fileName.Length)
-            throw new ArgumentException("destination is too short", nameof(destination));
-
         localized = true;
 
         // The game assumes that all localized audio files are referenced by using their english name.
         // Thus, PG takes this shortcut
         if (language == LanguageType.English)
         {
-            fileName.CopyTo(destination);
-            return fileName.Length;
+            stringBuilder.Append(fileName);
+            return;
         }
 
         var isWav = false;
@@ -175,8 +169,8 @@ internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : 
         {
             localized = false;
             Logger.LogWarning($"Unable to localize '{fileName.ToString()}'");
-            fileName.CopyTo(destination);
-            return fileName.Length;
+            stringBuilder.Append(fileName);
+            return;
         }
 
         var withoutSuffix = fileName.Slice(0, engSuffixIndex);
@@ -189,10 +183,8 @@ internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : 
         else
             throw new InvalidOperationException();
 
-        withoutSuffix.CopyTo(destination);
-        newLocalizedSuffix.CopyTo(destination.Slice(withoutSuffix.Length, newLocalizedSuffix.Length));
-
-        return fileName.Length;
+        stringBuilder.Append(withoutSuffix);
+        stringBuilder.Append(newLocalizedSuffix);
     }
 
 

@@ -64,7 +64,7 @@ public abstract class XmlObjectParser<TObject, TParseState>(
     protected string GetXmlObjectName(XElement element, out Crc32 nameCrc32)
     {
         GetNameAttributeValue(element, out var name);
-        nameCrc32 = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.PGCrc32Encoding);
+        nameCrc32 = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.DefaultPGEncoding);
         if (nameCrc32 == default)
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,

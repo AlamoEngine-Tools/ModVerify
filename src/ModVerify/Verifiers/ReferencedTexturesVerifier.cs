@@ -17,7 +17,7 @@ public sealed partial class ReferencedTexturesVerifier(
 {
     public const string MtdNotFound = "TEX00";
     public const string TexutreNotFound = "TEX01";
-    public const string MtdIndexNameTooLong = "TEX02";
+    public const string FileNameTooLong = "PAT00";
 
     protected override void RunVerification(CancellationToken token)
     {

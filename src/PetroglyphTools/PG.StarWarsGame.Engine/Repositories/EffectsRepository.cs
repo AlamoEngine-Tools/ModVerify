@@ -19,13 +19,13 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
 
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 
-        ref ValueStringBuilder multiPassStringBuilder,
-        ref ValueStringBuilder filePathStringBuilder,
+        ref ValueStringBuilder reusableStringBuilder,
+        ref ValueStringBuilder destination,
         bool megFileOnly)
     {
         var strippedName = StripFileName(filePath);
 
-        if (strippedName.Length > PGConstants.MaxPathLength)
+        if (strippedName.Length > PGConstants.MaxEffectFileName)
             return default;
 
         foreach (var ext in ShaderExtensions)
@@ -37,8 +37,8 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
                 strippedName, 
                 extSpan, 
                 ReadOnlySpan<char>.Empty,
-                ref multiPassStringBuilder,
-                ref filePathStringBuilder);
+                ref reusableStringBuilder,
+                ref destination);
 
             if (fileFoundInfo.FileFound)
                 return fileFoundInfo;
@@ -50,8 +50,8 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
                     strippedName,
                     extSpan,
                     directory.AsSpan(),
-                    ref multiPassStringBuilder,
-                    ref filePathStringBuilder);
+                    ref reusableStringBuilder,
+                    ref destination);
 
                 if (fileFoundInfo.FileFound)
                     return fileFoundInfo;
@@ -71,7 +71,6 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
     {
         multiPassStringBuilder.Length = 0;
 
-
         if (directory != ReadOnlySpan<char>.Empty) 
             FileSystem.Path.Join(directory, strippedName, ref multiPassStringBuilder);
         else
@@ -79,7 +78,7 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
 
         multiPassStringBuilder.Append(extension);
 
-        if (multiPassStringBuilder.Length > PGConstants.MaxPathLength)
+        if (multiPassStringBuilder.Length > PGConstants.MaxEffectFileName)
             return default;
 
         return BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref filePathStringBuilder);

@@ -31,19 +31,19 @@ internal abstract class MultiPassRepository(GameRepository baseRepository, IServ
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
-        var mpSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
-        var fsp = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
-        var fileFound = MultiPassAction(filePath, ref mpSb, ref fsp, megFileOnly);
+        var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
         var result = fileFound.FileFound;
-        mpSb.Dispose();
-        fsp.Dispose();
+        multiPassSb.Dispose();
+        destinationSb.Dispose();
         return result;
     }
 
     private protected abstract FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 
-        ref ValueStringBuilder multiPassStringBuilder,
-        ref ValueStringBuilder filePathStringBuilder,
+        ref ValueStringBuilder reusableStringBuilder,
+        ref ValueStringBuilder destination,
         bool megFileOnly);
 
     public Stream? TryOpenFile(string filePath, bool megFileOnly = false)
@@ -53,12 +53,12 @@ internal abstract class MultiPassRepository(GameRepository baseRepository, IServ
 
     public Stream? TryOpenFile(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
-        var mpSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
-        var fsb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
-        var fileFound = MultiPassAction(filePath, ref mpSb, ref fsb, megFileOnly);
+        var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
         var result = BaseRepository.OpenFileCore(fileFound);
-        mpSb.Dispose();
-        fsb.Dispose();
+        multiPassSb.Dispose();
+        destinationSb.Dispose();
         return result;
     }
 }

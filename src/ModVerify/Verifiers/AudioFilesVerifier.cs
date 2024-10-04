@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
@@ -23,6 +24,13 @@ namespace AET.ModVerify.Verifiers;
 
 public class AudioFilesVerifier : GameVerifierBase
 {
+    private static readonly PathNormalizeOptions SampleNormalizerOptions = new()
+    {
+        UnifyCase = UnifyCasingKind.UpperCaseForce,
+        UnifySeparatorKind = DirectorySeparatorKind.Windows,
+        UnifyDirectorySeparators = true
+    };
+
     private readonly EmpireAtWarMegDataEntryPathNormalizer _pathNormalizer;
     private readonly ICrc32HashingService _hashingService;
     private readonly IFileSystem _fileSystem;
@@ -52,40 +60,40 @@ public class AudioFilesVerifier : GameVerifierBase
         }
     }
 
-    private static readonly PathNormalizeOptions SampleNormalizerOptions = new()
-    {
-        UnifyCase = UnifyCasingKind.UpperCaseForce,
-        UnifySeparatorKind = DirectorySeparatorKind.Windows,
-        UnifyDirectorySeparators = true
-    };
-
     private void VerifySample(string sample, SfxEvent sfxEvent, IEnumerable<LanguageType> languagesToVerify, HashSet<Crc32> visitedSamples)
     {
-        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var sampleNameBuffer = sb.AppendSpan(sample.Length);
 
         var i = PathNormalizer.Normalize(sample.AsSpan(), sampleNameBuffer, SampleNormalizerOptions);
-        var normalizedSampleName = sampleNameBuffer.Slice(0, i);
-        var crc = _hashingService.GetCrc32(normalizedSampleName, PGConstants.PGCrc32Encoding);
+        sb.Length = i;
+
+        var crc = _hashingService.GetCrc32(sb.AsSpan(), Encoding.ASCII);
         if (!visitedSamples.Add(crc))
             return;
         
         if (sfxEvent.IsLocalized)
         {
-            Span<char> localizedNameBuffer = stackalloc char[PGConstants.MaxPathLength];
             foreach (var language in languagesToVerify)
             {
-                var length = _languageManager.LocalizeFileName(normalizedSampleName, language, localizedNameBuffer, out var localized); 
-                VerifySample(localizedNameBuffer.Slice(0, length), sfxEvent);
-                
+                VerifySampleLocalized(sfxEvent, sb.AsSpan(), language, out var localized);
                 if (!localized)
                     return;
             }
         }
         else
         { 
-            VerifySample(normalizedSampleName, sfxEvent);
+            VerifySample(sb.AsSpan(), sfxEvent);
         }
+        sb.Dispose();
+    }
+
+    private void VerifySampleLocalized(SfxEvent sfxEvent, ReadOnlySpan<char> sample, LanguageType language, out bool localized)
+    {
+        var localizedSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        _languageManager.LocalizeFileName(sample, language, ref localizedSb, out localized);
+        VerifySample(localizedSb.AsSpan(), sfxEvent);
+        localizedSb.Dispose();
     }
 
     private void VerifySample(ReadOnlySpan<char> sample, SfxEvent sfxEvent)

@@ -8,6 +8,7 @@ using AnakinRaW.CommonUtilities.FileSystem;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
+using PG.StarWarsGame.Files.MEG.Binary;
 
 namespace PG.StarWarsGame.Engine.Repositories;
 
@@ -33,7 +34,7 @@ internal partial class GameRepository
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
-        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var fileFound = FindFile(filePath, ref sb, megFileOnly);
         var fileExists = fileFound.FileFound;
         sb.Dispose();
@@ -61,7 +62,7 @@ internal partial class GameRepository
 
     public Stream? TryOpenFile(ReadOnlySpan<char> filePath, bool megFileOnly)
     {
-        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var fileFoundInfo = FindFile(filePath, ref sb, megFileOnly);
         var fileStream = OpenFileCore(fileFoundInfo);
         sb.Dispose();
@@ -74,21 +75,27 @@ internal partial class GameRepository
     protected FileFoundInfo GetFileInfoFromMasterMeg(ReadOnlySpan<char> filePath)
     {
         Debug.Assert(MasterMegArchive is not null);
-        
-        if (filePath.Length > PGConstants.MaxPathLength)
-            return default;
 
-        Span<char> fileNameSpan = stackalloc char[PGConstants.MaxPathLength];
+        if (filePath.Length > PGConstants.MaxMegEntryPathLength)
+        {
+            Logger.LogWarning($"Trying to open a MEG entry which is longer than 259 characters: '{filePath.ToString()}'");
+            return default;
+        }
+
+        Span<char> fileNameSpan = stackalloc char[PGConstants.MaxMegEntryPathLength];
 
         if (!_megPathNormalizer.TryNormalize(filePath, fileNameSpan, out var length))
             return default;
 
         var fileName = fileNameSpan.Slice(0, length);
 
-        if (fileName.Length > PGConstants.MaxPathLength) 
-            Logger.LogWarning($"Trying to open a MEG entry which is longer than 259 characters: '{fileName.ToString()}'");
+        if (fileName.Length > PGConstants.MaxMegEntryPathLength)
+        {
+            Logger.LogWarning($"Trying to open a MEG entry which is longer than 259 characters after normalization: '{fileName.ToString()}'");
+            return default;
+        }
 
-        var crc = _crc32HashingService.GetCrc32(fileName, PGConstants.PGCrc32Encoding);
+        var crc = _crc32HashingService.GetCrc32(fileName, MegFileConstants.MegDataEntryPathEncoding);
 
         var entry = MasterMegArchive!.FirstEntryWithCrc(crc);
 

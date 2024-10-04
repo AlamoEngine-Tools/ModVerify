@@ -14,9 +14,7 @@ internal class GameObjectTypeTypeGameManager(GameRepository repository, Database
     : GameManagerBase<GameObject>(repository, errorListener, serviceProvider), IGameObjectTypeGameManager
 {
     private readonly IXmlContainerContentParser _contentParser = serviceProvider.GetRequiredService<IXmlContainerContentParser>();
-
-    private const int MaxPathLength = 127;
-
+    
     protected override async Task InitializeCoreAsync(CancellationToken token)
     {
         Logger?.LogInformation("Parsing GameObjects...");
@@ -32,12 +30,12 @@ internal class GameObjectTypeTypeGameManager(GameRepository repository, Database
 
     private void VerifyFilePathLength(string filePath)
     {
-        if (filePath.Length > MaxPathLength)
+        if (filePath.Length > PGConstants.MaxGameObjectDatabaseFileName)
         {
             ErrorListener.OnInitializationError(new InitializationError
             {
                 GameManager = ToString(),
-                Message = $"Game object file '{filePath}' is longer than {MaxPathLength} characters."
+                Message = $"Game object file '{filePath}' is longer than {PGConstants.MaxGameObjectDatabaseFileName} characters."
             });
         }
     }

@@ -40,12 +40,12 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorListe
 
     private void VerifyFilePathLength(string filePath)
     {
-        if (filePath.Length > PGConstants.MaxPathLength)
+        if (filePath.Length > PGConstants.MaxSFXEventDatabaseFileName)
         {
             ErrorListener.OnInitializationError(new InitializationError
             {
                 GameManager = ToString(),
-                Message = $"SFXEvent file '{filePath}' is longer than {PGConstants.MaxPathLength} characters."
+                Message = $"SFXEvent file '{filePath}' is longer than {PGConstants.MaxSFXEventDatabaseFileName} characters."
             });
         }
     }
