@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AnakinRaW.CommonUtilities.FileSystem;
+using Microsoft.Extensions.Logging;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
 
@@ -117,8 +118,9 @@ internal partial class GameRepository
             // However, CreateFileA and GetFileAttributesA are implemented complete independent.
             // The game uses CreateFileA.
             // Thus, we should stick to what the game uses in order to be as close to the engine as possible
+            // NB: It's also important that the string builder is zero-terminated, as otherwise CreateFileA might get invalid data.
             var fileHandle = CreateFile(
-                in actualFilePath.GetPinnableReference(),
+                in stringBuilder.GetPinnableReference(true),
                 FileAccess.Read,
                 FileShare.Read,
                 IntPtr.Zero,
