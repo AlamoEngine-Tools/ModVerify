@@ -13,7 +13,7 @@ internal class GameDatabase : IGameDatabase
 
     public required IGuiDialogManager GuiDialogManager { get; init; }
 
-    public required IGameObjectGameManager GameObjectManager { get; init; }
+    public required IGameObjectTypeGameManager GameObjectTypeManager { get; init; }
 
     public required ISfxEventGameManager SfxGameManager { get; init; }
 

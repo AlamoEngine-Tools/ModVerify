@@ -13,7 +13,7 @@ public interface IGameDatabase
 
     IGuiDialogManager GuiDialogManager { get; }
 
-    IGameObjectGameManager GameObjectManager { get; } 
+    IGameObjectTypeGameManager GameObjectTypeManager { get; } 
 
     ISfxEventGameManager SfxGameManager { get; }
 

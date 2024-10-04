@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AnakinRaW.CommonUtilities.FileSystem;
+using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.Repositories;
@@ -31,7 +33,8 @@ internal partial class GameRepository
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxPathLength]);
-        var fileExists = FindFile(filePath, ref sb, megFileOnly).FileFound;
+        var fileFound = FindFile(filePath, ref sb, megFileOnly);
+        var fileExists = fileFound.FileFound;
         sb.Dispose();
         return fileExists;
     }
@@ -70,11 +73,14 @@ internal partial class GameRepository
     protected FileFoundInfo GetFileInfoFromMasterMeg(ReadOnlySpan<char> filePath)
     {
         Debug.Assert(MasterMegArchive is not null);
+        
+        if (filePath.Length > PGConstants.MaxPathLength)
+            return default;
 
-        Span<char> fileNameBuffer = stackalloc char[PGConstants.MaxPathLength];
+        Span<char> fileNameSpan = stackalloc char[PGConstants.MaxPathLength];
 
-        var length = _megPathNormalizer.Normalize(filePath, fileNameBuffer);
-        var fileName = fileNameBuffer.Slice(0, length);
+        var length = _megPathNormalizer.Normalize(filePath, fileNameSpan);
+        var fileName = fileNameSpan.Slice(0, length);
         var crc = _crc32HashingService.GetCrc32(fileName, PGConstants.PGCrc32Encoding);
 
         var entry = MasterMegArchive!.FirstEntryWithCrc(crc);
@@ -86,7 +92,6 @@ internal partial class GameRepository
     {
         bool exists;
 
-
         stringBuilder.Length = 0;
 
         if (FileSystem.Path.IsPathFullyQualified(filePath))
@@ -96,13 +101,25 @@ internal partial class GameRepository
 
         var actualFilePath = stringBuilder.AsSpan();
 
-
+        // We accept a *possible* difference here between platforms,
+        // unless it's proven the differences are too significant.
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             exists = FileSystem.File.Exists(actualFilePath.ToString());
         else
         {
-            // The game uses CreateFileA which we can also use directly with the string span.
-            exists = FileSystem.File.Exists(actualFilePath.ToString());
+            // We *could* also use the slightly faster GetFileAttributesA.
+            // However, CreateFileA and GetFileAttributesA are implemented complete independent.
+            // The game uses CreateFileA.
+            // Thus, we should stick to what the game uses in order to be as close to the engine as possible
+            var fileHandle = CreateFile(
+                in actualFilePath.GetPinnableReference(),
+                FileAccess.Read,
+                FileShare.Read,
+                IntPtr.Zero,
+                FileMode.Open,
+                FileAttributes.Normal, IntPtr.Zero);
+
+            exists = IsValidAndClose(fileHandle);
         }
         return !exists ? new FileFoundInfo() : new FileFoundInfo(actualFilePath);
     }
@@ -158,4 +175,27 @@ internal partial class GameRepository
 
         return FileSystem.FileStream.New(fileFoundInfo.FilePath.ToString(), FileMode.Open, FileAccess.Read, FileShare.Read);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsValidAndClose(IntPtr handle)
+    {
+        var isValid = handle != IntPtr.Zero && handle != new IntPtr(-1);
+        if (isValid)
+            CloseHandle(handle);
+        return isValid;
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern IntPtr CreateFile(
+        in char lpFileName,
+        [MarshalAs(UnmanagedType.U4)] FileAccess access,
+        [MarshalAs(UnmanagedType.U4)] FileShare share,
+        IntPtr securityAttributes,
+        [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
+        [MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
+        IntPtr templateFile);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CloseHandle(IntPtr hObject);
 }

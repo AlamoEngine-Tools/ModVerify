@@ -2,4 +2,4 @@
 
 namespace PG.StarWarsGame.Engine.GameManagers;
 
-public interface IGameObjectGameManager : IGameManager<GameObject>;
+public interface IGameObjectTypeGameManager : IGameManager<GameObject>;

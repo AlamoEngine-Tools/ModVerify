@@ -21,7 +21,7 @@ public sealed class DuplicateNameFinder(
 
     protected override void RunVerification(CancellationToken token)
     {
-        CheckDatabaseForDuplicates(Database.GameObjectManager, "GameObject");
+        CheckDatabaseForDuplicates(Database.GameObjectTypeManager, "GameObject");
         CheckDatabaseForDuplicates(Database.SfxGameManager, "SFXEvent");
     }
 

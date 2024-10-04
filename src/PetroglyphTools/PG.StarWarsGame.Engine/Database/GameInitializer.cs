@@ -71,8 +71,8 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             var sfxGameManager = new SfxEventGameManager(repository, errorListener, serviceProvider);
             await sfxGameManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var gameObjetManager = new GameObjectGameManager(repository, errorListener, serviceProvider);
-            await gameObjetManager.InitializeAsync( _cancellationTokenSource.Token);
+            var gameObjetTypeManager = new GameObjectTypeTypeGameManager(repository, errorListener, serviceProvider);
+            await gameObjetTypeManager.InitializeAsync( _cancellationTokenSource.Token);
 
             repository.Seal();
 
@@ -81,7 +81,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
                 GameRepository = repository,
                 GameConstants = gameConstants,
                 GuiDialogManager = guiDialogs,
-                GameObjectManager = gameObjetManager,
+                GameObjectTypeManager = gameObjetTypeManager,
                 SfxGameManager = sfxGameManager,
                 InstalledLanguages = sfxGameManager.InstalledLanguages
             };

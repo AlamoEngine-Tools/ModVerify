@@ -28,6 +28,25 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorListe
         Logger?.LogInformation("Finished initializing Language files");
 
         Logger?.LogInformation("Parsing SFXEvents...");
-        await Task.Run(() => _contentParser.ParseEntriesFromContainerXml("DATA\\XML\\SFXEventFiles.XML", ErrorListener, GameRepository, NamedEntries), token);
+        await Task.Run(() => _contentParser.ParseEntriesFromContainerXml(
+            "DATA\\XML\\SFXEventFiles.XML", 
+            ErrorListener,
+            GameRepository, 
+            "DATA\\XML",
+            NamedEntries,
+            VerifyFilePathLength),
+            token);
+    }
+
+    private void VerifyFilePathLength(string filePath)
+    {
+        if (filePath.Length > PGConstants.MaxPathLength)
+        {
+            ErrorListener.OnInitializationError(new InitializationError
+            {
+                GameManager = ToString(),
+                Message = $"SFXEvent file '{filePath}' is longer than {PGConstants.MaxPathLength} characters."
+            });
+        }
     }
 }
