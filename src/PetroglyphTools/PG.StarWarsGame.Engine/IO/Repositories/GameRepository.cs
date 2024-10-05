@@ -220,7 +220,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
             return Array.Empty<IMegFile>();
         }
 
-        var parser = fileParserFactory.GetFileParser<XmlFileContainer>(_errorListener);
+        var parser = fileParserFactory.CreateFileParser<XmlFileContainer>(_errorListener);
         var megaFilesXml = parser.ParseFile(xmlStream);
 
         if (megaFilesXml is null)

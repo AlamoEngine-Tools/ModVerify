@@ -8,7 +8,7 @@ using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
-using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.CommandBar;

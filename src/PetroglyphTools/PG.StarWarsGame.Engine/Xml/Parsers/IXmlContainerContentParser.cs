@@ -4,7 +4,7 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 using System;
 using PG.StarWarsGame.Engine.IO.Repositories;
 
-namespace PG.StarWarsGame.Engine.Xml;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal interface IXmlContainerContentParser
 {

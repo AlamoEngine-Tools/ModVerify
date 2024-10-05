@@ -5,5 +5,5 @@ namespace PG.StarWarsGame.Engine.Xml;
 
 public interface IPetroglyphXmlFileParserFactory
 {
-    IPetroglyphXmlFileParser<T> GetFileParser<T>(IXmlParserErrorListener? listener = null);
+    IPetroglyphXmlFileParser<T> CreateFileParser<T>(IXmlParserErrorListener? listener = null);
 }

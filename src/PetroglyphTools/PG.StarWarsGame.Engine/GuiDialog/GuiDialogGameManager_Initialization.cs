@@ -23,7 +23,7 @@ partial class GuiDialogGameManager
         return Task.Run(() =>
         {
             var parserFactory = ServiceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
-            var guiDialogParser = parserFactory.GetFileParser<GuiDialogsXml>();
+            var guiDialogParser = parserFactory.CreateFileParser<GuiDialogsXml>();
 
             _defaultTexturesRo = new ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>(_defaultTextures);
 

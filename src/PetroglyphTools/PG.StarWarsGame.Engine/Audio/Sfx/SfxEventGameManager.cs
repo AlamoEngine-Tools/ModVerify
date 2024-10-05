@@ -9,7 +9,7 @@ using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Localization;
-using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 

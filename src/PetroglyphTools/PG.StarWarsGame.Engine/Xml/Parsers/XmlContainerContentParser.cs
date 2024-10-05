@@ -9,14 +9,14 @@ using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
-namespace PG.StarWarsGame.Engine.Xml;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider) : ServiceBase(serviceProvider), IXmlContainerContentParser
 {
     public event EventHandler<XmlContainerParserErrorEventArgs>? XmlParseError;
 
     private readonly IPetroglyphXmlFileParserFactory _fileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
-    
+
     public void ParseEntriesFromContainerXml<T>(
         string xmlFile,
         IXmlParserErrorListener listener,
@@ -25,7 +25,7 @@ internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider
         ValueListDictionary<Crc32, T> entries,
         Action<string>? onFileParseAction = null)
     {
-        var containerParser = _fileParserFactory.GetFileParser<XmlFileContainer?>(listener);
+        var containerParser = _fileParserFactory.CreateFileParser<XmlFileContainer?>(listener);
         Logger.LogDebug($"Parsing container data '{xmlFile}'");
 
         using var containerStream = gameRepository.TryOpenFile(xmlFile);
@@ -65,7 +65,7 @@ internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider
 
         var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
-        var parser = _fileParserFactory.GetFileParser<T>(listener);
+        var parser = _fileParserFactory.CreateFileParser<T>(listener);
 
         foreach (var file in xmlFiles)
         {
@@ -81,7 +81,7 @@ internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider
 
                 var args = new XmlContainerParserErrorEventArgs(file);
                 XmlParseError?.Invoke(this, args);
-                
+
                 if (args.Continue)
                     continue;
                 return;

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
-namespace PG.StarWarsGame.Engine.Xml;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal class XmlContainerParserErrorEventArgs
 {

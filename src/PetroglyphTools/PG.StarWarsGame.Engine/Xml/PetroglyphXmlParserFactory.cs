@@ -15,7 +15,7 @@ namespace PG.StarWarsGame.Engine.Xml;
 
 internal sealed class PetroglyphXmlFileParserFactory(IServiceProvider serviceProvider) : IPetroglyphXmlFileParserFactory
 {
-    public IPetroglyphXmlFileParser<T> GetFileParser<T>(IXmlParserErrorListener? listener = null)
+    public IPetroglyphXmlFileParser<T> CreateFileParser<T>(IXmlParserErrorListener? listener = null)
     {
         return (IPetroglyphXmlFileParser<T>)GetFileParser(typeof(T), listener);
     }
