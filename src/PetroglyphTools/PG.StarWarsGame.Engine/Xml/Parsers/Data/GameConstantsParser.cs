@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;

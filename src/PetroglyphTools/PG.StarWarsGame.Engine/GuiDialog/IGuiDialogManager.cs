@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Files.MTD.Files;
 
-namespace PG.StarWarsGame.Engine.GameManagers;
+namespace PG.StarWarsGame.Engine.GuiDialog;
 
 public interface IGuiDialogManager
 {
     IMtdFile? MtdFile { get; }
-    
+
     GuiDialogsXml? GuiDialogsXml { get; }
 
     IReadOnlyCollection<string> Components { get; }

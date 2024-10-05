@@ -11,7 +11,7 @@ using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.XML;
 
-namespace PG.StarWarsGame.Engine.GameManagers;
+namespace PG.StarWarsGame.Engine.Database;
 
 internal abstract class GameManagerBase<T>(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorListener, serviceProvider), IGameManager<T>

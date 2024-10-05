@@ -4,7 +4,7 @@ using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
 
-namespace PG.StarWarsGame.Engine.Audio;
+namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
 public sealed class SfxEvent : NamedXmlObject
 {
@@ -44,11 +44,11 @@ public sealed class SfxEvent : NamedXmlObject
     public const byte DefaultMinPan2d = 50;
     public const byte DefaultMaxPan2d = 50;
     public const float DefaultVolumeSaturationDistance = 300.0f;
-    
+
     public bool IsPreset { get; internal set; }
 
     public bool Is3D { get; internal set; } = DefaultIs3d;
-    
+
     public bool Is2D { get; internal set; }
 
     public bool IsGui { get; internal set; }
@@ -220,7 +220,7 @@ public sealed class SfxEvent : NamedXmlObject
         MinPan2D = preset.MinPan2D;
         MaxPan2D = preset.MaxPan2D;
     }
-    
+
     private static void AdjustMinMaxValues(ref byte minValue, ref byte maxValue)
     {
         if (minValue > maxValue)

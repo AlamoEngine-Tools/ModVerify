@@ -4,15 +4,15 @@ using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.MTD.Binary;
 using PG.StarWarsGame.Files.MTD.Files;
 using PG.StarWarsGame.Files.MTD.Services;
 
-namespace PG.StarWarsGame.Engine.GameManagers;
+namespace PG.StarWarsGame.Engine.GuiDialog;
 
 internal partial class GuiDialogGameManager(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorListener, serviceProvider), IGuiDialogManager

@@ -8,12 +8,11 @@ using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Engine.Xml.Tags;
 
-namespace PG.StarWarsGame.Engine.GameManagers;
+namespace PG.StarWarsGame.Engine.GuiDialog;
 
 partial class GuiDialogGameManager
 {

@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
 
-namespace PG.StarWarsGame.Engine.GameManagers;
+namespace PG.StarWarsGame.Engine.CommandBar;
 
 public interface ICommandBarGameManager : IGameManager<CommandBarComponentData>
 {
@@ -31,7 +31,7 @@ internal class CommandBarGameManager(
         contentParser.XmlParseError += OnParseError;
 
         var parsedCommandBarComponents = new ValueListDictionary<Crc32, CommandBarComponentData>();
-        
+
         try
         {
             await Task.Run(() => contentParser.ParseEntriesFromContainerXml(

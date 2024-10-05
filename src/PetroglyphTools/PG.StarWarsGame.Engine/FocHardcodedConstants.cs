@@ -5,7 +5,7 @@ namespace PG.StarWarsGame.Engine;
 public static class FocHardcodedConstants
 {
     /// <summary>
-    /// These models are hardcoded into StarWarsG.exe.
+    /// These models / particles are hardcoded into StarWarsG.exe.
     /// </summary>
     public static IList<string> HardcodedModels { get; } = new List<string>
     {

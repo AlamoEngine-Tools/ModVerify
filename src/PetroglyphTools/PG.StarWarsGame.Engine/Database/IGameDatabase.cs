@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
-using PG.StarWarsGame.Engine.GameManagers;
+using PG.StarWarsGame.Engine.Audio.Sfx;
+using PG.StarWarsGame.Engine.GameConstants;
+using PG.StarWarsGame.Engine.GameObjects;
+using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Localization;
 

@@ -1,7 +1,7 @@
 ﻿using System;
-using PG.StarWarsGame.Engine.Audio;
+using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
-using PG.StarWarsGame.Engine.DataTypes;
+using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;

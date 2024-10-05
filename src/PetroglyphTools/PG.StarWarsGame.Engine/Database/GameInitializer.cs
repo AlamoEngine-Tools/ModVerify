@@ -3,8 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PG.StarWarsGame.Engine.Audio.Sfx;
+using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.GameManagers;
+using PG.StarWarsGame.Engine.GameObjects;
+using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database;
@@ -54,7 +57,6 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
 
             // CONTAINER FILES:
             // GameObjectFiles.xml
-            // CommandBarComponentFiles.xml
             // TradeRouteFiles.xml
             // HardPointDataFiles.xml
             // CampaignFiles.xml
@@ -62,7 +64,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             // TargetingPrioritySetFiles.xml
             // MousePointerFiles.xml
             
-            var gameConstants = new GameConstants(repository, errorListener, serviceProvider);
+            var gameConstants = new GameConstants.GameConstants(repository, errorListener, serviceProvider);
             await gameConstants.InitializeAsync( _cancellationTokenSource.Token);
 
             var guiDialogs = new GuiDialogGameManager(repository, errorListener, serviceProvider);
