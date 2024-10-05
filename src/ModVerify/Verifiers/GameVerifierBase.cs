@@ -8,7 +8,7 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace AET.ModVerify.Verifiers;
 

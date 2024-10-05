@@ -5,7 +5,6 @@ using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.GameManagers;
 using PG.StarWarsGame.Engine.Xml;
 

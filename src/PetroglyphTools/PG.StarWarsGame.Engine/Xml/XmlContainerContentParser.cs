@@ -5,16 +5,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Xml;
 
-internal class XmlContainerContentParser(IServiceProvider serviceProvider) : ServiceBase(serviceProvider), IXmlContainerContentParser
+internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider) : ServiceBase(serviceProvider), IXmlContainerContentParser
 {
-    private readonly IPetroglyphXmlFileParserFactory _fileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
+    public event EventHandler<XmlContainerParserErrorEventArgs>? XmlParseError;
 
+    private readonly IPetroglyphXmlFileParserFactory _fileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
+    
     public void ParseEntriesFromContainerXml<T>(
         string xmlFile,
         IXmlParserErrorListener listener,
@@ -31,12 +33,35 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
         {
             listener.OnXmlParseError(containerParser, XmlParseErrorEventArgs.FromMissingFile(xmlFile));
             Logger.LogWarning($"Could not find XML file '{xmlFile}'");
+
+            var args = new XmlContainerParserErrorEventArgs(xmlFile, true)
+            {
+                // No reason to continue
+                Continue = false
+            };
+            XmlParseError?.Invoke(this, args);
             return;
         }
 
-        var container = containerParser.ParseFile(containerStream);
-        if (container is null)
+        XmlFileContainer? container;
+        try
+        {
+            container = containerParser.ParseFile(containerStream);
+            if (container is null)
+                throw new XmlException($"Unable to parse XML container file '{xmlFile}'.");
+        }
+        catch (XmlException e)
+        {
+            var args = new XmlContainerParserErrorEventArgs(e, xmlFile, true)
+            {
+                // No reason to continue
+                Continue = false
+            };
+            XmlParseError?.Invoke(this, args);
             return;
+        }
+
+
 
         var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
@@ -53,7 +78,13 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
             {
                 listener.OnXmlParseError(parser, XmlParseErrorEventArgs.FromMissingFile(file));
                 Logger.LogWarning($"Could not find XML file '{file}'");
-                continue;
+
+                var args = new XmlContainerParserErrorEventArgs(file);
+                XmlParseError?.Invoke(this, args);
+                
+                if (args.Continue)
+                    continue;
+                return;
             }
 
             Logger.LogDebug($"Parsing File '{file}'");
@@ -65,6 +96,12 @@ internal class XmlContainerContentParser(IServiceProvider serviceProvider) : Ser
             catch (XmlException e)
             {
                 listener.OnXmlParseError(parser, new XmlParseErrorEventArgs(new XmlLocationInfo(file, 0), XmlParseErrorKind.Unknown, e.Message));
+
+                var args = new XmlContainerParserErrorEventArgs(e, file);
+                XmlParseError?.Invoke(this, args);
+
+                if (!args.Continue)
+                    return;
             }
         }
     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using AET.ModVerify.Reporting;
 using AnakinRaW.CommonUtilities;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace AET.ModVerify.Verifiers;
 

@@ -15,7 +15,7 @@ internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserError
     protected override GuiDialogsXml Parse(XElement element, string fileName)
     {
         var textures = ParseTextures(element.Element("Textures"), fileName);
-        return new GuiDialogsXml(textures);
+        return new GuiDialogsXml(textures, XmlLocationInfo.FromElement(element));
     }
 
     private GuiDialogsXmlTextureData ParseTextures(XElement? element, string fileName)
@@ -24,7 +24,7 @@ internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserError
         {
             OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, null), XmlParseErrorKind.MissingNode,
                 "Expected node <Textures> is missing."));
-            return new GuiDialogsXmlTextureData([]);
+            return new GuiDialogsXmlTextureData([], new XmlLocationInfo(fileName, null));
         }
 
         var textures = new List<XmlComponentTextureData>();
@@ -39,7 +39,7 @@ internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserError
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MissingNode,
                 "Textures must contain at least one child node."));
         
-        return new GuiDialogsXmlTextureData(textures)
+        return new GuiDialogsXmlTextureData(textures, XmlLocationInfo.FromElement(element))
         {
             MegaTexture = megaTexture,
             CompressedMegaTexture = compressedMegaTexture

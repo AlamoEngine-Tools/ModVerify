@@ -12,16 +12,22 @@ public sealed class PetroglyphXmlFloatParser : PetroglyphXmlPrimitiveElementPars
     {
     }
 
-    public override float Parse(XElement element)
+    public float Parse(string value, XElement element)
     {
         // The engine always loads FP numbers a long double and then converts that result to float
-        if (!double.TryParse(element.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
+        if (!double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
-                $"Expected double but got value '{element.Value}'."));
+                $"Expected double but got value '{value}'."));
             return 0.0f;
         }
+
         return (float)doubleValue;
+    }
+
+    public override float Parse(XElement element)
+    { 
+        return Parse(element.Value, element);
     }
 
     public float ParseAtLeast(XElement element, float minValue)

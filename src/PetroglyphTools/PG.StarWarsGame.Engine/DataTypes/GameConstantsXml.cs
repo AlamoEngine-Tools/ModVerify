@@ -1,6 +1,3 @@
 ﻿namespace PG.StarWarsGame.Engine.DataTypes;
 
-public class GameConstantsXml
-{
-
-}
+public class GameConstantsXml;

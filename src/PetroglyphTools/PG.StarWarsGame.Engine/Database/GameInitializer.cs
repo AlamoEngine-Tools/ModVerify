@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.GameManagers;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database;
 
@@ -71,6 +71,9 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             var sfxGameManager = new SfxEventGameManager(repository, errorListener, serviceProvider);
             await sfxGameManager.InitializeAsync( _cancellationTokenSource.Token);
 
+            var commandBarManager = new CommandBarGameManager(repository, errorListener, serviceProvider);
+            await commandBarManager.InitializeAsync( _cancellationTokenSource.Token);
+
             var gameObjetTypeManager = new GameObjectTypeTypeGameManager(repository, errorListener, serviceProvider);
             await gameObjetTypeManager.InitializeAsync( _cancellationTokenSource.Token);
 
@@ -81,6 +84,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
                 GameRepository = repository,
                 GameConstants = gameConstants,
                 GuiDialogManager = guiDialogs,
+                CommandBarManager = commandBarManager,
                 GameObjectTypeManager = gameObjetTypeManager,
                 SfxGameManager = sfxGameManager,
                 InstalledLanguages = sfxGameManager.InstalledLanguages

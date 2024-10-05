@@ -25,8 +25,9 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
     public T ParseFile(Stream xmlStream)
     {
         var root = GetRootElement(xmlStream, out var fileName);
-        if (root is null) 
-            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0), XmlParseErrorKind.EmptyRoot, $"Unable to get root node from XML file."));
+        if (root is null)
+            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0), XmlParseErrorKind.EmptyRoot,
+                "Unable to get root node from XML file."));
         return root is null ? default! : Parse(root, fileName);
     }
 
@@ -71,7 +72,7 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
         return doc.Root;
     }
 
-    private string GetStrippedFileName(string filePath)
+    protected string GetStrippedFileName(string filePath)
     {
         if (!_fileSystem.Path.IsPathFullyQualified(filePath))
             return filePath;

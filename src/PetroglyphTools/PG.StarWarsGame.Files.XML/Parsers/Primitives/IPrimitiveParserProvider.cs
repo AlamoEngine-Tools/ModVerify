@@ -18,5 +18,7 @@ public interface IPrimitiveParserProvider
 
     PetroglyphXmlBooleanParser BooleanParser { get; }
 
+    PetroglyphXmlVector2FParser Vector2FParser { get; }
+
     CommaSeparatedStringKeyValueListParser CommaSeparatedStringKeyValueListParser { get; }
 }

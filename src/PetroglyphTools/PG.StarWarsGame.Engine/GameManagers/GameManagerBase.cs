@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.GameManagers;
@@ -30,7 +30,7 @@ internal abstract class GameManagerBase<T>(GameRepository repository, DatabaseEr
 
 internal abstract class GameManagerBase
 {
-    public event EventHandler Initialized;
+    public event EventHandler? Initialized;
 
     private bool _initialized;
     private protected readonly GameRepository GameRepository;

@@ -1,7 +1,7 @@
 ﻿using System;
 using AET.ModVerify.Reporting;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace AET.ModVerify.Verifiers;
 

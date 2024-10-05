@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PG.StarWarsGame.Engine.GameManagers;
-using PG.StarWarsGame.Engine.Language;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Localization;
 
 namespace PG.StarWarsGame.Engine.Database;
 

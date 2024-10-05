@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using PG.StarWarsGame.Engine.GameManagers;
-using PG.StarWarsGame.Engine.Language;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Localization;
 
 namespace PG.StarWarsGame.Engine.Database;
 
 internal class GameDatabase : IGameDatabase
 {
+    public required ICommandBarGameManager CommandBarManager { get; init; }
+
     public required IGameRepository GameRepository { get; init; }
 
     public required IGameConstants GameConstants { get; init; }

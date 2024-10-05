@@ -7,7 +7,7 @@ using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.MTD.Binary;
 using PG.StarWarsGame.Files.MTD.Files;
 using PG.StarWarsGame.Files.MTD.Services;

@@ -1,4 +1,6 @@
 ﻿using System;
+using PG.StarWarsGame.Engine.Audio;
+using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.DataTypes;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
@@ -34,6 +36,9 @@ internal sealed class PetroglyphXmlFileParserFactory(IServiceProvider servicePro
 
         if (type == typeof(SfxEvent))
             return new SfxEventFileParser(serviceProvider, listener);
+
+        if (type == typeof(CommandBarComponentData))
+            return new CommandBarComponentFileParser(serviceProvider, listener);
 
         throw new ParserNotFoundException(type);
     }

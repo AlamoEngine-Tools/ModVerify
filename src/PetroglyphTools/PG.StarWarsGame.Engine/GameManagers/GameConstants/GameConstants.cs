@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.GameManagers;
 
