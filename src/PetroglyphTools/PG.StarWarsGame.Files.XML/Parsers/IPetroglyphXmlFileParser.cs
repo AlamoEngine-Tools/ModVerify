@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;

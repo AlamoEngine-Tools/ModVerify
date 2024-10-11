@@ -1,7 +1,7 @@
 ﻿using PG.Commons.Hashing;
-using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using System;
+using PG.Commons.Collections;
 using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;

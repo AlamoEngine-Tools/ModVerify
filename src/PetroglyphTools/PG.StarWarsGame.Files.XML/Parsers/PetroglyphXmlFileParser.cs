@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.Commons.Collections;
+
 #if NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
 #endif

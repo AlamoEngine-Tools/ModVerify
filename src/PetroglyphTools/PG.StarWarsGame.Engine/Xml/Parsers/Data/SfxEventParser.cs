@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Xml.Tags;

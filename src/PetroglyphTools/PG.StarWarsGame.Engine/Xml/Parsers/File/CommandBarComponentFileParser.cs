@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Xml.Linq;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
-using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 

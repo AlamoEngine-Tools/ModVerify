@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.IO.Repositories;

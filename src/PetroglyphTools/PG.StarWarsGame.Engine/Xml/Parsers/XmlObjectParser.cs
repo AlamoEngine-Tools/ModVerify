@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 

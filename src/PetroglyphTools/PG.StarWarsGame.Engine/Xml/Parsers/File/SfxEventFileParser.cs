@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
-using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 

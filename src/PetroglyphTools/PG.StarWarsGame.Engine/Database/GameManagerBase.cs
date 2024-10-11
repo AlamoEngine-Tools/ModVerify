@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
-using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.Database;
 

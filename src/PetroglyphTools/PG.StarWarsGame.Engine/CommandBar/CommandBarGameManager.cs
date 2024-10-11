@@ -3,13 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Xml.Parsers;
-using PG.StarWarsGame.Files.XML;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 

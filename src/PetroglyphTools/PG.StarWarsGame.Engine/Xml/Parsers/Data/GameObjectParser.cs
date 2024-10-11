@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;

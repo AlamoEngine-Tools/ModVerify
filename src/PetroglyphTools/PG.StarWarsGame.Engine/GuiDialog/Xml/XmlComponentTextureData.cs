@@ -1,4 +1,5 @@
 ﻿using System;
+using PG.Commons.Collections;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
 
