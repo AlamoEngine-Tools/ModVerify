@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Globalization;
-using System.IO.Abstractions;
 using System.Linq;
 using AET.ModVerifyTool.Options;
-using EawModinfo.Model;
-using EawModinfo.Spec;
-using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
-using PG.StarWarsGame.Infrastructure.Games;
-using PG.StarWarsGame.Infrastructure.Services.Name;
 
 namespace AET.ModVerifyTool.ModSelectors;
 
 internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
 {
-    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
     public VerifyGameInstallationData CreateInstallationDataFromSettings(GameInstallationsSettings settings)
     {
         var gameLocations = new ModSelectorFactory(serviceProvider).CreateSelector(settings)
@@ -35,30 +27,12 @@ internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
         };
     }
 
-    private string GetNameFromGameLocations(IPlayableObject? targetObject, GameLocations gameLocations, GameEngineType engineType)
+    private static string GetNameFromGameLocations(IPlayableObject? targetObject, GameLocations gameLocations, GameEngineType engineType)
     {
         if (targetObject is not null)
             return targetObject.Name;
 
         var mod = gameLocations.ModPaths.FirstOrDefault();
-
-        var name = mod is not null ? GetNameFromMod(mod) : GetNameFromGame(engineType);
-
-        if (string.IsNullOrEmpty(name))
-            throw new InvalidOperationException("Mod or game name cannot be null or empty.");
-
-        return name;
-    }
-
-    private string? GetNameFromGame(GameEngineType type)
-    {
-        var nameResolver = serviceProvider.GetRequiredService<IGameNameResolver>();
-        return nameResolver.ResolveName(new GameIdentity(type.FromEngineType(), GamePlatform.Undefined), CultureInfo.InvariantCulture);
-    }
-
-    private string? GetNameFromMod(string mod)
-    {
-        var nameResolver = serviceProvider.GetRequiredService<IModNameResolver>();
-        return nameResolver.ResolveName(new ModReference(_fileSystem.Path.GetFullPath(mod), ModType.Default), CultureInfo.InvariantCulture);
+        return mod ?? gameLocations.GamePath;
     }
 }

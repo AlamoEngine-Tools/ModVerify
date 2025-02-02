@@ -56,7 +56,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         _megFileService = serviceProvider.GetRequiredService<IMegFileService>();
         _virtualMegBuilder = serviceProvider.GetRequiredService<IVirtualMegArchiveBuilder>();
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-        _megPathNormalizer = new EmpireAtWarMegDataEntryPathNormalizer(serviceProvider);
+        _megPathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
         _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
         _errorListener = errorListener;
 

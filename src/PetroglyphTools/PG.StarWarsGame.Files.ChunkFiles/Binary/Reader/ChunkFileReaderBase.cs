@@ -15,9 +15,9 @@ public abstract class ChunkFileReaderBase<T>(Stream stream) : DisposableObject, 
         return Read();
     }
 
-    protected override void DisposeManagedResources()
+    protected override void DisposeResources()
     {
-        base.DisposeManagedResources();
+        base.DisposeResources();
         ChunkReader.Dispose();
     }
 }

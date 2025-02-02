@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO.Abstractions;
+using System.Linq;
 using AET.ModVerifyTool.GameFinder;
 using AET.ModVerifyTool.Options;
-using EawModinfo.Model;
-using EawModinfo.Spec;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
@@ -13,7 +11,7 @@ using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services;
-using PG.StarWarsGame.Infrastructure.Services.Dependencies;
+using PG.StarWarsGame.Infrastructure.Services.Detection;
 
 namespace AET.ModVerifyTool.ModSelectors;
 
@@ -21,10 +19,14 @@ internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelec
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public override GameLocations? Select(GameInstallationsSettings settings, out IPhysicalPlayableObject? targetObject, out GameEngineType? actualEngineType)
+    public override GameLocations? Select(
+        GameInstallationsSettings settings, 
+        out IPhysicalPlayableObject? targetObject, 
+        out GameEngineType? actualEngineType)
     {
         var pathToVerify = settings.AutoPath;
-        Debug.Assert(pathToVerify is not null);
+        if (pathToVerify is null)
+            throw new InvalidOperationException("path to verify cannot be null.");
 
         actualEngineType = settings.EngineType;
 
@@ -100,14 +102,18 @@ internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelec
         if (game is null)
             throw new GameNotFoundException($"Unable to find game of type '{settings.EngineType}'");
 
+        var modFinder = ServiceProvider.GetRequiredService<IModFinder>();
+        var modRef = modFinder.FindMods(game, _fileSystem.DirectoryInfo.New(modPath)).FirstOrDefault();
+
+        if (modRef is null)
+            throw new NotSupportedException($"The mod at '{modPath}' is not compatible to the found game '{game}'.");
+
         var modFactory = ServiceProvider.GetRequiredService<IModFactory>();
-        mod = modFactory.FromReference(game, new ModReference(modPath, ModType.Default), true, CultureInfo.InvariantCulture);
+        mod = modFactory.CreatePhysicalMod(game, modRef, CultureInfo.InvariantCulture);
 
         game.AddMod(mod);
 
-        var resolver = ServiceProvider.GetRequiredService<IDependencyResolver>();
-        mod.ResolveDependencies(resolver,
-            new DependencyResolverOptions { CheckForCycle = true, ResolveCompleteChain = true });
+        mod.ResolveDependencies();
 
         return GetLocations(mod, gameResult, settings.AdditionalFallbackPaths);
     }

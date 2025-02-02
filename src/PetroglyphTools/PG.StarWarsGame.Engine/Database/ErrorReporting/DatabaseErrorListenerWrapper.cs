@@ -35,9 +35,9 @@ internal class DatabaseErrorListenerWrapper : DisposableObject, IDatabaseErrorLi
         _errorListener.OnInitializationError(error);
     }
 
-    protected override void DisposeManagedResources()
+    protected override void DisposeResources()
     {
-        base.DisposeManagedResources();
+        base.DisposeResources();
         if (_primitiveXmlParserErrorProvider is null)
             return;
         _primitiveXmlParserErrorProvider.XmlParseError -= ((IXmlParserErrorListener)this).OnXmlParseError;

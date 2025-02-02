@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Xml.Linq;
-using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;

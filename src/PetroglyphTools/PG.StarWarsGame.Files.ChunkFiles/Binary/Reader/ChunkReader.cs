@@ -2,14 +2,14 @@
 using System.IO;
 using System.Text;
 using AnakinRaW.CommonUtilities;
-using PG.Commons.Utilities;
+using PG.StarWarsGame.Files.Binary;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
 
 namespace PG.StarWarsGame.Files.ChunkFiles.Binary.Reader;
 
 public class ChunkReader : DisposableObject
 {
-    private readonly BinaryReader _binaryReader;
+    private readonly PetroglyphBinaryReader _binaryReader;
 
     public ChunkReader(Stream stream, bool leaveOpen = false)
     {
@@ -17,12 +17,12 @@ public class ChunkReader : DisposableObject
             throw new ArgumentNullException(nameof(stream));
 
         // Using default encoding here is OK as we don't read strings using the .NET methods.
-        _binaryReader = new BinaryReader(stream, Encoding.Default, leaveOpen);
+        _binaryReader = new PetroglyphBinaryReader(stream, leaveOpen);
     }
 
-    protected override void DisposeManagedResources()
+    protected override void DisposeResources()
     {
-        base.DisposeManagedResources();
+        base.DisposeResources();
         _binaryReader.Dispose();
     }
 
@@ -79,14 +79,14 @@ public class ChunkReader : DisposableObject
 
     public string ReadString(int size, Encoding encoding, bool zeroTerminated, ref int readSize)
     {
-        var value = _binaryReader.ReadString(size, encoding, zeroTerminated);
+        var value = _binaryReader.ReadString(encoding, size, zeroTerminated);
         readSize += size;
         return value;
     }
 
     public string ReadString(int size, Encoding encoding, bool zeroTerminated)
     {
-        var value = _binaryReader.ReadString(size, encoding, zeroTerminated);
+        var value = _binaryReader.ReadString(encoding, size, zeroTerminated);
         return value;
     }
 

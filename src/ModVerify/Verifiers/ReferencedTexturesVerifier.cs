@@ -5,9 +5,6 @@ using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine.Database;
 
 namespace AET.ModVerify.Verifiers;
-
-
-
 public sealed partial class ReferencedTexturesVerifier(
     IGameDatabase gameDatabase,
     GameVerifySettings settings,

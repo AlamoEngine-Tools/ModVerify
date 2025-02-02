@@ -7,8 +7,6 @@ using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using PG.Commons.Binary;
-using PG.Commons.Files;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
@@ -17,6 +15,8 @@ using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
 using AnakinRaW.CommonUtilities.FileSystem;
+using PG.StarWarsGame.Files;
+using PG.StarWarsGame.Files.Binary;
 
 namespace AET.ModVerify.Verifiers;
 

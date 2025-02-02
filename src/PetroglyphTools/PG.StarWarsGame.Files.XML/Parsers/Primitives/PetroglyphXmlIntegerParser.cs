@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Xml.Linq;
-using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using System.Runtime.CompilerServices;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -46,3 +46,27 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
         base.OnParseError(e);
     }
 }
+
+internal static class PGMath
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Clamp(int value, int min, int max)
+    {
+        if (min > max)
+            throw new ArgumentException("min cannot be larger than max.");
+        if (value < min)
+            return min;
+        return value > max ? max : value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte Clamp(byte value, byte min, byte max)
+    {
+        if (min > max)
+            throw new ArgumentException("min cannot be larger than max.");
+        if (value < min)
+            return min;
+        return value > max ? max : value;
+    }
+}
+

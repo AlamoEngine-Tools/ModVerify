@@ -36,6 +36,9 @@ public sealed class GameObjectParser(
         var type = GetTagName(element);
         var objectType = EstimateType(type);
         var gameObject = new GameObject(type, name, nameCrc, objectType, XmlLocationInfo.FromElement(element));
+
+        Parse(gameObject, element, default);
+
         return gameObject;
     }
 

@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Services;
-using PG.Commons.Utilities;
+using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.Localization;
 
@@ -134,6 +134,14 @@ internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : 
         return stringBuilder.ToString();
     }
 
+    public int LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, Span<char> destination, out bool localized)
+    {
+        var sb = new ValueStringBuilder(destination.Length);
+        LocalizeFileName(fileName, language, ref sb, out localized);
+        sb.TryCopyTo(destination, out var written);
+        sb.Dispose();
+        return written;
+    }
 
     public void LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, ref ValueStringBuilder stringBuilder, out bool localized)
     {

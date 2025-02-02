@@ -20,7 +20,7 @@ public abstract class VerifyGamePipeline : Pipeline
     private readonly List<GameVerifierBase> _verificationSteps = new();
     private readonly GameEngineType _targetType;
     private readonly GameLocations _gameLocations;
-    private readonly ParallelRunner _verifyRunner;
+    private readonly ParallelStepRunner _verifyRunner;
     
     protected GameVerifySettings Settings { get; }
 
@@ -36,7 +36,7 @@ public abstract class VerifyGamePipeline : Pipeline
         if (settings.ParallelVerifiers is < 0 or > 64)
             throw new ArgumentException("Settings has invalid parallel worker number.", nameof(settings));
         
-        _verifyRunner = new ParallelRunner(settings.ParallelVerifiers, serviceProvider);
+        _verifyRunner = new ParallelStepRunner(settings.ParallelVerifiers, serviceProvider);
     }
 
     protected sealed override Task<bool> PrepareCoreAsync()

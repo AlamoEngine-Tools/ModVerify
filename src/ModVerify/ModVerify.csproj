@@ -22,8 +22,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.25-beta" />
-	  <PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.0.25-beta" />
+	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.91" />
+	  <PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.0.91" />
 	  <PackageReference Include="IsExternalInit" Version="1.0.3">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,12 +32,16 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="System.Text.Json" Version="8.0.4" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj" />
 	  <ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
 	</ItemGroup>
 
 </Project>

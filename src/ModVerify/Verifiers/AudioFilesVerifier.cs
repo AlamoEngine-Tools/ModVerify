@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -10,7 +11,6 @@ using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
-using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Database;
@@ -32,14 +32,14 @@ public class AudioFilesVerifier : GameVerifierBase
         UnifyDirectorySeparators = true
     };
 
-    private readonly EmpireAtWarMegDataEntryPathNormalizer _pathNormalizer;
+    private readonly EmpireAtWarMegDataEntryPathNormalizer _pathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
     private readonly ICrc32HashingService _hashingService;
     private readonly IFileSystem _fileSystem;
     private readonly IGameLanguageManager _languageManager;
 
-    public AudioFilesVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider) : base(gameDatabase, settings, serviceProvider)
+    public AudioFilesVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider) 
+        : base(gameDatabase, settings, serviceProvider)
     {
-        _pathNormalizer = new(serviceProvider);
         _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         _languageManager = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>()
@@ -56,45 +56,68 @@ public class AudioFilesVerifier : GameVerifierBase
         {
             foreach (var codedSample in sfxEvent.AllSamples)
             {
-                VerifySample(codedSample, sfxEvent, languagesToVerify, visitedSamples);
+                VerifySample(codedSample.AsSpan(), sfxEvent, languagesToVerify, visitedSamples);
             }
         }
     }
 
-    private void VerifySample(string sample, SfxEvent sfxEvent, IEnumerable<LanguageType> languagesToVerify, HashSet<Crc32> visitedSamples)
+    private void VerifySample(ReadOnlySpan<char> sample, SfxEvent sfxEvent, IEnumerable<LanguageType> languagesToVerify, HashSet<Crc32> visitedSamples)
     {
-        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var sampleNameBuffer = sb.AppendSpan(sample.Length);
+        char[]? pooledBuffer = null;
 
-        var i = PathNormalizer.Normalize(sample.AsSpan(), sampleNameBuffer, SampleNormalizerOptions);
-        sb.Length = i;
+        var buffer = sample.Length < PGConstants.MaxMegEntryPathLength
+            ? stackalloc char[PGConstants.MaxMegEntryPathLength]
+            : pooledBuffer = ArrayPool<char>.Shared.Rent(sample.Length);
 
-        var crc = _hashingService.GetCrc32(sb.AsSpan(), Encoding.ASCII);
-        if (!visitedSamples.Add(crc))
-            return;
-        
-        if (sfxEvent.IsLocalized)
+        try
         {
-            foreach (var language in languagesToVerify)
+            var length = PathNormalizer.Normalize(sample, buffer, SampleNormalizerOptions);
+            var sampleNameBuffer = buffer.Slice(0, length);
+
+            var crc = _hashingService.GetCrc32(sampleNameBuffer, Encoding.ASCII);
+            if (!visitedSamples.Add(crc))
+                return;
+
+            if (sfxEvent.IsLocalized)
             {
-                VerifySampleLocalized(sfxEvent, sb.AsSpan(), language, out var localized);
-                if (!localized)
-                    return;
+                foreach (var language in languagesToVerify)
+                {
+                    VerifySampleLocalized(sfxEvent, sampleNameBuffer, language, out var localized);
+                    if (!localized)
+                        return;
+                }
+            }
+            else
+            {
+                VerifySample(sampleNameBuffer, sfxEvent);
             }
         }
-        else
-        { 
-            VerifySample(sb.AsSpan(), sfxEvent);
+        finally
+        {
+            if (pooledBuffer is not null)
+                ArrayPool<char>.Shared.Return(pooledBuffer);
         }
-        sb.Dispose();
+
     }
 
     private void VerifySampleLocalized(SfxEvent sfxEvent, ReadOnlySpan<char> sample, LanguageType language, out bool localized)
     {
-        var localizedSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        _languageManager.LocalizeFileName(sample, language, ref localizedSb, out localized);
-        VerifySample(localizedSb.AsSpan(), sfxEvent);
-        localizedSb.Dispose();
+        char[]? pooledBuffer = null;
+
+        var buffer = sample.Length < PGConstants.MaxMegEntryPathLength
+            ? stackalloc char[PGConstants.MaxMegEntryPathLength]
+            : pooledBuffer = ArrayPool<char>.Shared.Rent(sample.Length);
+        try
+        {
+            var l = _languageManager.LocalizeFileName(sample, language, buffer, out localized);
+            var localizedName = buffer.Slice(0, l);
+            VerifySample(localizedName, sfxEvent);
+        }
+        finally
+        {
+            if (pooledBuffer is not null)
+                ArrayPool<char>.Shared.Return(pooledBuffer);
+        }
     }
 
     private void VerifySample(ReadOnlySpan<char> sample, SfxEvent sfxEvent)
