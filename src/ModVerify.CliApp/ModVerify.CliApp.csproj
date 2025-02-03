@@ -20,14 +20,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.0.24" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Clients" Version="4.0.24" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.0.26" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.0.26" />
 		<PackageReference Include="Nullable" Version="1.3.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
-		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="4.0.24" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="4.0.26" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 		<PackageReference Include="Costura.Fody" Version="6.0.0">
 		  <PrivateAssets>all</PrivateAssets>
@@ -69,7 +69,5 @@
 			</Weavers>
 		</WeaverConfiguration>
 	</PropertyGroup>
-
-	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
