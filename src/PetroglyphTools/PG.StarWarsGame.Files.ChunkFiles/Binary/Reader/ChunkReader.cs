@@ -15,15 +15,7 @@ public class ChunkReader : DisposableObject
     {
         if (stream == null)
             throw new ArgumentNullException(nameof(stream));
-
-        // Using default encoding here is OK as we don't read strings using the .NET methods.
         _binaryReader = new PetroglyphBinaryReader(stream, leaveOpen);
-    }
-
-    protected override void DisposeResources()
-    {
-        base.DisposeResources();
-        _binaryReader.Dispose();
     }
 
     public ChunkMetadata ReadChunk()
@@ -79,15 +71,27 @@ public class ChunkReader : DisposableObject
 
     public string ReadString(int size, Encoding encoding, bool zeroTerminated, ref int readSize)
     {
-        var value = _binaryReader.ReadString(encoding, size, zeroTerminated);
+        var value = ReadString(encoding, size, zeroTerminated);
         readSize += size;
         return value;
     }
 
     public string ReadString(int size, Encoding encoding, bool zeroTerminated)
     {
-        var value = _binaryReader.ReadString(encoding, size, zeroTerminated);
+        var value = ReadString(encoding, size, zeroTerminated);
         return value;
+    }
+
+    private string ReadString(Encoding encoding, int size, bool zeroTerminated)
+    {
+        try
+        {
+            return _binaryReader.ReadString(encoding, size, zeroTerminated);
+        }
+        catch (Exception e)
+        {
+            throw new BinaryCorruptedException($"Unable to read string: {e.Message}", e);
+        }
     }
 
     public ChunkMetadata? TryReadChunk()
@@ -100,16 +104,15 @@ public class ChunkReader : DisposableObject
     {
         if (_binaryReader.BaseStream.Position == _binaryReader.BaseStream.Length)
             return null;
-        try
-        {
-            var chunk = ReadChunk();
-            size += 8;
-            return chunk;
-        }
-        catch (EndOfStreamException e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        
+        var chunk = ReadChunk();
+        size += 8;
+        return chunk;
+    }
+
+    protected override void DisposeResources()
+    {
+        base.DisposeResources();
+        _binaryReader.Dispose();
     }
 }
