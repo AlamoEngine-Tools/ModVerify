@@ -16,6 +16,9 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\PetroglyphTools\PG.Commons\PG.Commons\PG.Commons.csproj" />
+	  <PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files" Version="2.0.187" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
 	</ItemGroup>
 </Project>

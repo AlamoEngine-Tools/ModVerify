@@ -8,7 +8,6 @@ using PG.StarWarsGame.Infrastructure.Clients.Steam;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services;
-using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
 namespace AET.ModVerifyTool.GameFinder;
@@ -69,17 +68,20 @@ internal class GameFinderService
     private bool TryDetectGame(GameType gameType, IList<IGameDetector> detectors, out GameDetectionResult result)
     {
         var gd = new CompositeGameDetector(detectors, _serviceProvider);
-        result = gd.Detect(new GameDetectorOptions(gameType));
 
-        if (result.Error is not null)
+        try
         {
-            _logger?.LogTrace($"Unable to find game installation: {result.Error.Message}", result.Error);
+            result = gd.Detect(gameType);
+            if (result.GameLocation is null)
+                return false;
+            return true;
+        }
+        catch (Exception e)
+        {
+            result = GameDetectionResult.NotInstalled(gameType);
+            _logger?.LogTrace($"Unable to find game installation: {e.Message}");
             return false;
         }
-        if (result.GameLocation is null)
-            return false;
-
-        return true;
     }
 
     private GameFinderResult FindGames(IList<IGameDetector> detectors)
@@ -128,15 +130,15 @@ internal class GameFinderService
 
     private void SetupMods(IGame game)
     {
-        var modFinder = _serviceProvider.GetRequiredService<IModReferenceFinder>();
+        var modFinder = _serviceProvider.GetRequiredService<IModFinder>();
         var modRefs = modFinder.FindMods(game);
 
         var mods = new List<IMod>();
 
         foreach (var modReference in modRefs)
         {
-            var mod = _modFactory.FromReference(game, modReference, CultureInfo.InvariantCulture);
-            mods.AddRange(mod);
+            var mod = _modFactory.CreatePhysicalMod(game, modReference, CultureInfo.InvariantCulture);
+            mods.Add(mod);
         }
 
         foreach (var mod in mods)
@@ -145,9 +147,7 @@ internal class GameFinderService
         // Mods need to be added to the game first, before resolving their dependencies.
         foreach (var mod in mods)
         {
-            var resolver = _serviceProvider.GetRequiredService<IDependencyResolver>();
-            mod.ResolveDependencies(resolver,
-                new DependencyResolverOptions { CheckForCycle = true, ResolveCompleteChain = true });
+            mod.ResolveDependencies();
         }
     }
 }

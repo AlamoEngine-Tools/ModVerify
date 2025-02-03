@@ -1,52 +1,76 @@
 ﻿using System;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.DataTypes;
-using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-public abstract class XmlObjectParser<T>(IReadOnlyValueListDictionary<Crc32, T> parsedElements, IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null)
-    : PetroglyphXmlElementParser<T>(serviceProvider, listener) where T : XmlObject
-{ 
-    protected IReadOnlyValueListDictionary<Crc32, T> ParsedElements { get; } = parsedElements ?? throw new ArgumentNullException(nameof(parsedElements));
+public abstract class XmlObjectParser<TObject>(
+    IReadOnlyValueListDictionary<Crc32, TObject> parsedElements,
+    IServiceProvider serviceProvider,
+    IXmlParserErrorListener? listener = null)
+    : XmlObjectParser<TObject, EmptyParseState>(parsedElements, serviceProvider, listener) where TObject : XmlObject
+{
+    protected void Parse(TObject xmlObject, XElement element)
+    {
+        Parse(xmlObject, element, EmptyParseState.Instance);
+    }
+
+    protected sealed override bool ParseTag(XElement tag, TObject xmlObject, in EmptyParseState parseState)
+    {
+        return ParseTag(tag, xmlObject);
+    }
+
+    protected abstract bool ParseTag(XElement tag, TObject xmlObject);
+}
+
+public readonly struct EmptyParseState
+{
+    public static readonly EmptyParseState Instance = new();
+}
+
+
+public abstract class XmlObjectParser<TObject, TParseState>(
+    IReadOnlyValueListDictionary<Crc32, TObject> parsedElements,
+    IServiceProvider serviceProvider,
+    IXmlParserErrorListener? listener = null)
+    : PetroglyphXmlElementParser<TObject>(serviceProvider, listener) where TObject : XmlObject
+{
+    protected IReadOnlyValueListDictionary<Crc32, TObject> ParsedElements { get; } =
+        parsedElements ?? throw new ArgumentNullException(nameof(parsedElements));
 
     protected ICrc32HashingService HashingService { get; } = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    public abstract T Parse(XElement element, out Crc32 nameCrc);
+    public abstract TObject Parse(XElement element, out Crc32 nameCrc);
 
-    protected abstract IPetroglyphXmlElementParser? GetParser(string tag);
-
-    protected ValueListDictionary<string, object?> ParseXmlElement(XElement element, string? name = null)
+    protected void Parse(TObject xmlObject, XElement element, in TParseState state)
     {
-        var xmlProperties = new ValueListDictionary<string, object?>();
-        foreach (var elm in element.Elements())
+        foreach (var tag in element.Elements())
         {
-            var tagName = elm.Name.LocalName;
-
-            var parser = GetParser(tagName);
-
-            if (parser is null)
+            if (!ParseTag(tag, xmlObject, state))
             {
-                // TODO
-                //var nameOrPosition = name ?? XmlLocationInfo.FromElement(element).ToString();
-                //Logger?.LogWarning($"Unable to find parser for tag '{tagName}' in element '{nameOrPosition}'");
-                continue;
+                OnParseError(new XmlParseErrorEventArgs(tag, XmlParseErrorKind.UnknownNode,
+                    $"The node '{tag.Name}' is not supported."));
+                break;
             }
-            
-            var value = parser.Parse(elm);
-            
-            if (OnParsed(elm, tagName, value, xmlProperties, name))
-                xmlProperties.Add(tagName, value);
         }
-        return xmlProperties;
     }
 
-    protected virtual bool OnParsed(XElement element, string tag, object value, ValueListDictionary<string, object?> properties, string? outerElementName)
+    protected abstract bool ParseTag(XElement tag, TObject xmlObject, in TParseState parseState);
+
+    protected string GetXmlObjectName(XElement element, out Crc32 nameCrc32)
     {
-        return true;
+        GetNameAttributeValue(element, out var name);
+        nameCrc32 = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.DefaultPGEncoding);
+        if (nameCrc32 == default)
+        {
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+                $"Name for XmlObject cannot be empty."));
+        }
+
+        return name;
     }
 }

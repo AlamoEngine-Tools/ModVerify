@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
-using PG.StarWarsGame.Engine.DataTypes;
-using PG.StarWarsGame.Engine.Language;
-using PG.StarWarsGame.Engine.Repositories;
+using PG.StarWarsGame.Engine.Audio.Sfx;
+using PG.StarWarsGame.Engine.GameConstants;
+using PG.StarWarsGame.Engine.GameObjects;
+using PG.StarWarsGame.Engine.GuiDialog;
+using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Localization;
 
 namespace PG.StarWarsGame.Engine.Database;
 
@@ -9,11 +12,13 @@ public interface IGameDatabase
 {
     IGameRepository GameRepository { get; }
 
-    GameConstants GameConstants { get; }
+    IGameConstants GameConstants { get; }
 
-    IXmlDatabase<GameObject> GameObjects { get; }
+    IGuiDialogManager GuiDialogManager { get; }
 
-    IXmlDatabase<SfxEvent> SfxEvents { get; }
+    IGameObjectTypeGameManager GameObjectTypeManager { get; } 
+
+    ISfxEventGameManager SfxGameManager { get; }
 
     IEnumerable<LanguageType> InstalledLanguages { get; }
 }

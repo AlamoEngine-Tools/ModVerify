@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,8 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace AET.ModVerify;
 
@@ -23,14 +20,12 @@ public abstract class VerifyGamePipeline : Pipeline
     private readonly List<GameVerifierBase> _verificationSteps = new();
     private readonly GameEngineType _targetType;
     private readonly GameLocations _gameLocations;
-    private readonly ParallelRunner _verifyRunner;
+    private readonly ParallelStepRunner _verifyRunner;
     
     protected GameVerifySettings Settings { get; }
 
     public IReadOnlyCollection<VerificationError> Errors { get; private set; } = Array.Empty<VerificationError>();
-
-    private readonly ConcurrentBag<XmlParseErrorEventArgs> _xmlParseErrors = new();
-
+    
     protected VerifyGamePipeline(GameEngineType targetType, GameLocations gameLocations, GameVerifySettings settings, IServiceProvider serviceProvider) 
         : base(serviceProvider)
     {
@@ -41,9 +36,8 @@ public abstract class VerifyGamePipeline : Pipeline
         if (settings.ParallelVerifiers is < 0 or > 64)
             throw new ArgumentException("Settings has invalid parallel worker number.", nameof(settings));
         
-        _verifyRunner = new ParallelRunner(settings.ParallelVerifiers, serviceProvider);
+        _verifyRunner = new ParallelStepRunner(settings.ParallelVerifiers, serviceProvider);
     }
-
 
     protected sealed override Task<bool> PrepareCoreAsync()
     {
@@ -58,21 +52,18 @@ public abstract class VerifyGamePipeline : Pipeline
         {
             var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
-            IGameDatabase database;
-            try
+            var initializationErrorListener = new ConcurrentGameDatabaseErrorListener();
+            var initOptions = new GameInitializationOptions
             {
-                databaseService.XmlParseError += OnXmlParseError;
-                database = await databaseService.CreateDatabaseAsync(_targetType, _gameLocations, token);
-            }
-            finally
-            {
-                databaseService.XmlParseError -= OnXmlParseError;
-                databaseService.Dispose();
-            }
+                Locations = _gameLocations,
+                TargetEngineType = _targetType,
+                ErrorListener = initializationErrorListener
 
-            
-            AddStep(new XmlParseErrorCollector(_xmlParseErrors, database, Settings, ServiceProvider));
-            
+            };
+            var database = await databaseService.InitializeGameAsync(initOptions, token);
+
+            AddStep(new GameDatabaseInitializationErrorCollector(initializationErrorListener, database, Settings, ServiceProvider));
+
             foreach (var gameVerificationStep in CreateVerificationSteps(database)) 
                 AddStep(gameVerificationStep);
 
@@ -112,10 +103,5 @@ public abstract class VerifyGamePipeline : Pipeline
     {
         _verifyRunner.AddStep(verifier);
         _verificationSteps.Add(verifier);
-    }
-
-    private void OnXmlParseError(IPetroglyphXmlParser sender, XmlParseErrorEventArgs e)
-    {
-        _xmlParseErrors.Add(e);
     }
 }

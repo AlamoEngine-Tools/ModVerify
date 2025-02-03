@@ -25,7 +25,9 @@ internal abstract class ModSelectorBase : IModSelector
         GameFinderService = new GameFinderService(serviceProvider);
     }
 
-    public abstract GameLocations? Select(GameInstallationsSettings settings, out IPhysicalPlayableObject? targetObject,
+    public abstract GameLocations? Select(
+        GameInstallationsSettings settings, 
+        out IPhysicalPlayableObject? targetObject,
         out GameEngineType? actualEngineType);
 
     protected GameLocations GetLocations(IPhysicalPlayableObject playableObject, GameFinderResult finderResult, IList<string> additionalFallbackPaths)
@@ -66,7 +68,6 @@ internal abstract class ModSelectorBase : IModSelector
 
         var traverser = ServiceProvider.GetRequiredService<IModDependencyTraverser>();
         return traverser.Traverse(mod)
-            .Select(x => x.Mod)
             .OfType<IPhysicalMod>().Select(x => x.Directory.FullName)
             .ToList();
     }

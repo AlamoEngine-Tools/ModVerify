@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AET.ModVerify;
 using AET.ModVerify.Reporting.Reporters;
@@ -16,19 +14,19 @@ using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using PG.Commons.Extensibility;
+using PG.Commons;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files.ALO;
-using PG.StarWarsGame.Files.DAT.Services.Builder;
-using PG.StarWarsGame.Files.MEG.Data.Archives;
+using PG.StarWarsGame.Files.MEG;
+using PG.StarWarsGame.Files.MTD;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Infrastructure;
-using PG.StarWarsGame.Infrastructure.Clients;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 using PG.StarWarsGame.Infrastructure.Services.Name;
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
+using Testably.Abstractions;
 
 namespace AET.ModVerifyTool;
 
@@ -90,7 +88,7 @@ internal class Program
     
     private static IServiceCollection CreateCoreServices(bool verboseLogging)
     {
-        var fileSystem = new FileSystem();
+        var fileSystem = new RealFileSystem();
         var serviceCollection = new ServiceCollection();
 
         serviceCollection.AddSingleton<IRegistry>(new WindowsRegistry());
@@ -107,13 +105,12 @@ internal class Program
         serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
 
         SteamAbstractionLayer.InitializeServices(serviceCollection);
-        PetroglyphGameClients.InitializeServices(serviceCollection);
         PetroglyphGameInfrastructure.InitializeServices(serviceCollection);
 
-        RuntimeHelpers.RunClassConstructor(typeof(IDatBuilder).TypeHandle);
-        RuntimeHelpers.RunClassConstructor(typeof(IMegArchive).TypeHandle);
+        serviceCollection.SupportMTD();
+        serviceCollection.SupportMEG();
         AloServiceContribution.ContributeServices(serviceCollection);
-        serviceCollection.CollectPgServiceContributions();
+        PetroglyphCommons.ContributeServices(serviceCollection);
         XmlServiceContribution.ContributeServices(serviceCollection);
 
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
@@ -122,15 +119,8 @@ internal class Program
 
         SetupReporting(serviceCollection, settings);
 
-        serviceCollection.AddSingleton<IModNameResolver>(sp => new CompositeModNameResolver(sp, s =>
-            new List<IModNameResolver>
-            {
-                new OfflineWorkshopNameResolver(s),
-                new OnlineWorkshopNameResolver(s),
-                new DirectoryModNameResolver(s)
-            }));
-
-        serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
+        serviceCollection.AddSingleton<IModNameResolver>(sp => new OnlineModNameResolver(sp));
+        serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OnlineModGameTypeResolver(sp));
         
         return serviceCollection.BuildServiceProvider();
     }

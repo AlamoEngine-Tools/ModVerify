@@ -1,4 +1,4 @@
-﻿using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting.Settings;
 
 namespace AET.ModVerify.Settings;
 
