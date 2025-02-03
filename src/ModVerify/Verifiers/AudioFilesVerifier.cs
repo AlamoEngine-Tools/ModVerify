@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.DataTypes;
-using PG.StarWarsGame.Engine.Language;
+using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
+
 #if NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
 #endif
@@ -21,14 +25,21 @@ namespace AET.ModVerify.Verifiers;
 
 public class AudioFilesVerifier : GameVerifierBase
 {
-    private readonly PetroglyphDataEntryPathNormalizer _pathNormalizer;
+    private static readonly PathNormalizeOptions SampleNormalizerOptions = new()
+    {
+        UnifyCase = UnifyCasingKind.UpperCaseForce,
+        UnifySeparatorKind = DirectorySeparatorKind.Windows,
+        UnifyDirectorySeparators = true
+    };
+
+    private readonly EmpireAtWarMegDataEntryPathNormalizer _pathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
     private readonly ICrc32HashingService _hashingService;
     private readonly IFileSystem _fileSystem;
     private readonly IGameLanguageManager _languageManager;
 
-    public AudioFilesVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider) : base(gameDatabase, settings, serviceProvider)
+    public AudioFilesVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider) 
+        : base(gameDatabase, settings, serviceProvider)
     {
-        _pathNormalizer = new(serviceProvider);
         _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         _languageManager = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>()
@@ -41,67 +52,86 @@ public class AudioFilesVerifier : GameVerifierBase
     {
         var visitedSamples = new HashSet<Crc32>();
         var languagesToVerify = GetLanguagesToVerify().ToList();
-        foreach (var sfxEvent in Database.SfxEvents.Entries)
+        foreach (var sfxEvent in Database.SfxGameManager.Entries)
         {
             foreach (var codedSample in sfxEvent.AllSamples)
             {
-                VerifySample(codedSample, sfxEvent, languagesToVerify, visitedSamples);
+                VerifySample(codedSample.AsSpan(), sfxEvent, languagesToVerify, visitedSamples);
             }
         }
     }
 
-    private void VerifySample(string sample, SfxEvent sfxEvent, IEnumerable<LanguageType> languagesToVerify, HashSet<Crc32> visitedSamples)
+    private void VerifySample(ReadOnlySpan<char> sample, SfxEvent sfxEvent, IEnumerable<LanguageType> languagesToVerify, HashSet<Crc32> visitedSamples)
     {
-        Span<char> sampleNameBuffer = stackalloc char[PGConstants.MaxPathLength];
+        char[]? pooledBuffer = null;
 
-        var i = _pathNormalizer.Normalize(sample.AsSpan(), sampleNameBuffer);
-        var normalizedSampleName = sampleNameBuffer.Slice(0, i);
-        var crc = _hashingService.GetCrc32(normalizedSampleName, PGConstants.PGCrc32Encoding);
-        if (!visitedSamples.Add(crc))
-            return;
+        var buffer = sample.Length < PGConstants.MaxMegEntryPathLength
+            ? stackalloc char[PGConstants.MaxMegEntryPathLength]
+            : pooledBuffer = ArrayPool<char>.Shared.Rent(sample.Length);
 
-        
-        if (normalizedSampleName.Length > PGConstants.MaxPathLength)
+        try
         {
-            AddError(VerificationError.Create(
-                this,
-                VerifierErrorCodes.FilePathTooLong,
-                $"Sample name '{sample}' is too long.",
-                VerificationSeverity.Error,
-                sample));
-            return;
-        }
+            var length = PathNormalizer.Normalize(sample, buffer, SampleNormalizerOptions);
+            var sampleNameBuffer = buffer.Slice(0, length);
 
-        var normalizedSampleNameString = normalizedSampleName.ToString();
+            var crc = _hashingService.GetCrc32(sampleNameBuffer, Encoding.ASCII);
+            if (!visitedSamples.Add(crc))
+                return;
 
-        if (sfxEvent.IsLocalized)
-        {
-            foreach (var language in languagesToVerify)
+            if (sfxEvent.IsLocalized)
             {
-                var localizedSampleName = _languageManager.LocalizeFileName(normalizedSampleNameString, language, out var localized);
-                VerifySample(localizedSampleName, sfxEvent);
-                
-                if (!localized)
-                    return;
+                foreach (var language in languagesToVerify)
+                {
+                    VerifySampleLocalized(sfxEvent, sampleNameBuffer, language, out var localized);
+                    if (!localized)
+                        return;
+                }
+            }
+            else
+            {
+                VerifySample(sampleNameBuffer, sfxEvent);
             }
         }
-        else
+        finally
         {
-            VerifySample(normalizedSampleNameString, sfxEvent);
+            if (pooledBuffer is not null)
+                ArrayPool<char>.Shared.Return(pooledBuffer);
+        }
+
+    }
+
+    private void VerifySampleLocalized(SfxEvent sfxEvent, ReadOnlySpan<char> sample, LanguageType language, out bool localized)
+    {
+        char[]? pooledBuffer = null;
+
+        var buffer = sample.Length < PGConstants.MaxMegEntryPathLength
+            ? stackalloc char[PGConstants.MaxMegEntryPathLength]
+            : pooledBuffer = ArrayPool<char>.Shared.Rent(sample.Length);
+        try
+        {
+            var l = _languageManager.LocalizeFileName(sample, language, buffer, out localized);
+            var localizedName = buffer.Slice(0, l);
+            VerifySample(localizedName, sfxEvent);
+        }
+        finally
+        {
+            if (pooledBuffer is not null)
+                ArrayPool<char>.Shared.Return(pooledBuffer);
         }
     }
 
-    private void VerifySample(string sample, SfxEvent sfxEvent)
+    private void VerifySample(ReadOnlySpan<char> sample, SfxEvent sfxEvent)
     {
         using var sampleStream = Repository.TryOpenFile(sample);
         if (sampleStream is null)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
-                VerifierErrorCodes.SampleNotFound, 
-                $"Audio file '{sample}' could not be found.", 
+                VerifierErrorCodes.SampleNotFound,
+                $"Audio file '{sampleString}' could not be found.",
                 VerificationSeverity.Error,
-                sample));
+                sampleString));
             return;
         }
         using var binaryReader = new BinaryReader(sampleStream);
@@ -121,42 +151,46 @@ public class AudioFilesVerifier : GameVerifierBase
 
         if (format != WaveFormats.PCM)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.SampleNotPCM,
-                $"Audio file '{sample}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
+                $"Audio file '{sampleString}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
                 VerificationSeverity.Error,
-                sample));
+                sampleString));
         }
 
         if (channels > 1 && !IsAmbient2D(sfxEvent))
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.SampleNotMono, 
-                $"Audio file '{sample}' is not mono audio.", 
-                VerificationSeverity.Information, 
-                sample));
+                $"Audio file '{sampleString}' is not mono audio.", 
+                VerificationSeverity.Information,
+                sampleString));
         }
 
         if (sampleRate > 48_000)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes. InvalidSampleRate, 
-                $"Audio file '{sample}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
+                $"Audio file '{sampleString}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
                 VerificationSeverity.Error,
-                sample));
+                sampleString));
         }
 
         if (bitPerSecondPerChannel > 16)
         {
+            var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.InvalidBitsPerSeconds, 
-                $"Audio file '{sample}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
-                VerificationSeverity.Error, 
-                sample));
+                $"Audio file '{sampleString}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
+                VerificationSeverity.Error,
+                sampleString));
         }
     }
 

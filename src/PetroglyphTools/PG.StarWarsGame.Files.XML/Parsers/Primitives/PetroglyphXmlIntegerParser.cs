@@ -2,6 +2,7 @@
 using System;
 using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using System.Runtime.CompilerServices;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
@@ -19,13 +20,24 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
 
         if (!int.TryParse(element.Value, out var i))
         {
-            var location = XmlLocationInfo.FromElement(element);
-            OnParseError(new XmlParseErrorEventArgs(location.XmlFile, element, XmlParseErrorKind.MalformedValue,
-                $"Expected integer but got '{element.Value}' at {location}"));
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
+                $"Expected integer but got '{element.Value}'."));
             return 0;
         }
 
         return i;
+    }
+
+    public int ParseWithRange(XElement element, int minValue, int maxValue)
+    {
+        var value = Parse(element);
+        var clamped =  PGMath.Clamp(value, minValue, maxValue);
+        if (value != clamped)
+        {
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+                $"Expected integer between {minValue} and {maxValue} but got value '{value}'."));
+        }
+        return clamped;
     }
 
     protected override void OnParseError(XmlParseErrorEventArgs e)
@@ -34,3 +46,27 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
         base.OnParseError(e);
     }
 }
+
+internal static class PGMath
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Clamp(int value, int min, int max)
+    {
+        if (min > max)
+            throw new ArgumentException("min cannot be larger than max.");
+        if (value < min)
+            return min;
+        return value > max ? max : value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte Clamp(byte value, byte min, byte max)
+    {
+        if (min > max)
+            throw new ArgumentException("min cannot be larger than max.");
+        if (value < min)
+            return min;
+        return value > max ? max : value;
+    }
+}
+

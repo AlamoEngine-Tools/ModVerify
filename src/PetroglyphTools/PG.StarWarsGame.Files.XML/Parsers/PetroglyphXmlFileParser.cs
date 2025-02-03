@@ -4,11 +4,15 @@ using System.IO.Abstractions;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using AnakinRaW.CommonUtilities.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.Commons.Collections;
+
+#if NETSTANDARD2_0
+using AnakinRaW.CommonUtilities.FileSystem;
+#endif
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -22,22 +26,33 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
 
     public T ParseFile(Stream xmlStream)
     {
-        var root = GetRootElement(xmlStream);
-        return root is null ? default! : Parse(root);
+        var root = GetRootElement(xmlStream, out var fileName);
+        if (root is null)
+            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0), XmlParseErrorKind.EmptyRoot,
+                "Unable to get root node from XML file."));
+        return root is null ? default! : Parse(root, fileName);
     }
 
     public void ParseFile(Stream xmlStream, IValueListDictionary<Crc32, T> parsedEntries)
     {
-        var root = GetRootElement(xmlStream);
+        var root = GetRootElement(xmlStream, out var fileName);
         if (root is not null) 
-            Parse(root, parsedEntries);
+            Parse(root, parsedEntries, fileName);
     }
 
-    protected abstract void Parse(XElement element, IValueListDictionary<Crc32, T> parsedElements);
-
-    private XElement? GetRootElement(Stream xmlStream)
+    public sealed override T Parse(XElement element)
     {
-        var fileName = GetStrippedFileName(xmlStream.GetFilePath());
+        var fileName = GetStrippedFileName(XmlLocationInfo.FromElement(element).XmlFile);
+        return Parse(element, fileName);
+    }
+
+    protected abstract T Parse(XElement element, string fileName);
+
+    protected abstract void Parse(XElement element, IValueListDictionary<Crc32, T> parsedElements, string fileName);
+
+    private XElement? GetRootElement(Stream xmlStream, out string fileName)
+    {
+        fileName = GetStrippedFileName(xmlStream.GetFilePath());
         
         if (string.IsNullOrEmpty(fileName))
             throw new InvalidOperationException("Unable to parse XML from unnamed stream. Either parse from a file or MEG stream.");
@@ -59,7 +74,7 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
         return doc.Root;
     }
 
-    private string GetStrippedFileName(string filePath)
+    protected string GetStrippedFileName(string filePath)
     {
         if (!_fileSystem.Path.IsPathFullyQualified(filePath))
             return filePath;
@@ -87,8 +102,8 @@ public abstract class PetroglyphXmlFileParser<T>(IServiceProvider serviceProvide
         }
 
         if (count != 0)
-            _listener?.OnXmlParseError(this, new XmlParseErrorEventArgs(fileName, null, 
-                XmlParseErrorKind.DataBeforeHeader, $"XML header is not the first entry of the file '{fileName}'"));
+            _listener?.OnXmlParseError(this, new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0), 
+                XmlParseErrorKind.DataBeforeHeader, $"XML header is not the first entry of the XML file."));
 
         stream.Position = count;
     }

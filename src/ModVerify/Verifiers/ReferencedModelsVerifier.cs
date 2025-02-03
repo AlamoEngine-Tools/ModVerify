@@ -5,9 +5,8 @@ using System.Linq;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AET.ModVerify.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using PG.Commons.Binary;
-using PG.Commons.Files;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
@@ -16,7 +15,8 @@ using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
 using AnakinRaW.CommonUtilities.FileSystem;
-using System.Reflection;
+using PG.StarWarsGame.Files;
+using PG.StarWarsGame.Files.Binary;
 
 namespace AET.ModVerify.Verifiers;
 
@@ -34,7 +34,7 @@ public sealed class ReferencedModelsVerifier(
 
     protected override void RunVerification(CancellationToken token)
     {
-        var aloQueue = new Queue<string>(Database.GameObjects.Entries
+        var aloQueue = new Queue<string>(Database.GameObjectTypeManager.Entries
             .SelectMany(x => x.Models)
             .Concat(FocHardcodedConstants.HardcodedModels));
         
@@ -85,7 +85,7 @@ public sealed class ReferencedModelsVerifier(
         }
         catch (BinaryCorruptedException e)
         {
-            var aloFile = GetGameStrippedPath(modelStream.GetFilePath());
+            var aloFile = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), modelStream.GetFilePath().AsSpan()).ToString();
             var message = $"{aloFile} is corrupted: {e.Message}";
             AddError(VerificationError.Create(this, VerifierErrorCodes.ModelBroken, message, VerificationSeverity.Critical, aloFile));
         }
@@ -99,7 +99,7 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var modelFilePath = GetGameStrippedPath(file.FilePath);
+                    var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidTexture,
@@ -116,7 +116,7 @@ public sealed class ReferencedModelsVerifier(
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
         {
-            var modelFilePath = GetGameStrippedPath(file.FilePath);
+            var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
             AddError(VerificationError.Create(
                 this,
                 VerifierErrorCodes.InvalidParticleName,
@@ -135,7 +135,8 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var modelFilePath = GetGameStrippedPath(file.FilePath);
+                    var modelFilePath =
+                        FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidTexture, 
@@ -151,13 +152,14 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var modelFilePath = GetGameStrippedPath(file.FilePath);
+                    var shaderPath =
+                        FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidShader,
-                        $"Invalid texture file name '{shader}' in model '{modelFilePath}'",
+                        $"Invalid texture file name '{shader}' in model '{shaderPath}'",
                         VerificationSeverity.Error,
-                        shader, modelFilePath));
+                        shader, shaderPath));
                 });
         }
 
@@ -168,13 +170,14 @@ public sealed class ReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var modelFilePath = GetGameStrippedPath(file.FilePath);
+                    var proxyPath = FileSystem.Path
+                        .GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.InvalidProxy,
-                        $"Invalid proxy file name '{proxy}' in model '{modelFilePath}'",
+                        $"Invalid proxy file name '{proxy}' in model '{proxyPath}'",
                         VerificationSeverity.Error,
-                        proxy, modelFilePath));
+                        proxy, proxyPath));
                 });
         }
     }
@@ -186,7 +189,8 @@ public sealed class ReferencedModelsVerifier(
         
         if (!Repository.TextureRepository.FileExists(texture))
         {
-            var modelFilePath = GetGameStrippedPath(model.FilePath);
+            var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan())
+                .ToString();
             var message = $"{modelFilePath} references missing texture: {texture}";
             var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, modelFilePath, texture);
             AddError(error);
@@ -199,7 +203,7 @@ public sealed class ReferencedModelsVerifier(
         var particle = FileSystem.Path.ChangeExtension(proxyName, "alo");
         if (!Repository.FileExists(BuildModelPath(particle)))
         {
-            var modelFilePath = GetGameStrippedPath(model.FilePath);
+            var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan()).ToString();
             var message = $"{modelFilePath} references missing proxy particle: {particle}";
             var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, modelFilePath, particle);
             AddError(error);
@@ -210,7 +214,7 @@ public sealed class ReferencedModelsVerifier(
 
     private string BuildModelPath(string fileName)
     {
-        return FileSystem.Path.Combine("DATA/ART/MODELS", fileName);
+        return FileSystem.Path.Combine("DATA\\ART\\MODELS", fileName);
     }
 
     private void VerifyShaderExists(IPetroglyphFileHolder data, string shader)
@@ -220,7 +224,7 @@ public sealed class ReferencedModelsVerifier(
 
         if (!Repository.EffectsRepository.FileExists(shader))
         {
-            var modelFilePath = GetGameStrippedPath(data.FilePath);
+            var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), data.FilePath.AsSpan()).ToString();
             var message = $"{modelFilePath} references missing shader effect: {shader}";
             var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, modelFilePath, shader);
             AddError(error);

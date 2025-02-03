@@ -1,14 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Database;
 
-public interface IGameDatabaseService : IXmlParserErrorProvider, IDisposable
+public interface IGameDatabaseService
 {
-    Task<IGameDatabase> CreateDatabaseAsync(
-        GameEngineType targetEngineType, 
-        GameLocations locations,
-        CancellationToken cancellationToken = default);
+    Task<IGameDatabase> InitializeGameAsync(GameInitializationOptions gameInitializationOptions, CancellationToken cancellationToken = default);
 }

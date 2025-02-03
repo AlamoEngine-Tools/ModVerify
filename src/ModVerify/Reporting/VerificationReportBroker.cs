@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

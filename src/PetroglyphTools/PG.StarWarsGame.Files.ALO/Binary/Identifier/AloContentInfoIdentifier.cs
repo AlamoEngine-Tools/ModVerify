@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using PG.Commons.Binary;
 using PG.StarWarsGame.Files.ALO.Files;
+using PG.StarWarsGame.Files.Binary;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Reader;
 

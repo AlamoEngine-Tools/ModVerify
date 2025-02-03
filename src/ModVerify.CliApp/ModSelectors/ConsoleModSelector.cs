@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using AET.Modinfo.Spec;
 using AET.ModVerifyTool.GameFinder;
 using AET.ModVerifyTool.Options;
-using EawModinfo.Spec;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Mods;
@@ -11,7 +11,7 @@ namespace AET.ModVerifyTool.ModSelectors;
 
 internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {
-    public override GameLocations? Select(GameInstallationsSettings settings, out IPhysicalPlayableObject? targetObject,
+    public override GameLocations Select(GameInstallationsSettings settings, out IPhysicalPlayableObject targetObject,
         out GameEngineType? actualEngineType)
     {
         var gameResult = GameFinderService.FindGames();

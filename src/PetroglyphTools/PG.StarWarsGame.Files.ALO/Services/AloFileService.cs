@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using PG.Commons.Files;
 using PG.Commons.Services;
 using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.ALO.Binary;
@@ -56,7 +54,7 @@ public class AloFileService(IServiceProvider serviceProvider) : ServiceBase(serv
 
         var alo = reader.Read();
 
-        var filePath = GetFilePath(stream, out var isInMeg);
+        var filePath = stream.GetFilePath(out var isInMeg);
         var fileInfo = new AloFileInformation(filePath, isInMeg, contentInfo);
 
         if (alo is AlamoModel model)
@@ -67,23 +65,7 @@ public class AloFileService(IServiceProvider serviceProvider) : ServiceBase(serv
 
         throw new InvalidOperationException();
     }
-
-    private static string GetFilePath(Stream stream, out bool isInMeg)
-    {
-        isInMeg = false;
-        if (stream is FileStream fileStream)
-            return fileStream.Name;
-        if (stream is FileSystemStream fileSystemStream)
-            return fileSystemStream.Name;
-        if (stream is IMegFileDataStream megFileDataStream)
-        {
-            isInMeg = true;
-            return megFileDataStream.EntryPath;
-        }
-
-        throw new InvalidOperationException();
-    }
-
+    
     public AloContentInfo GetAloContentInfo(Stream stream)
     {
         return _aloContentIdentifier.GetContentInfo(stream);

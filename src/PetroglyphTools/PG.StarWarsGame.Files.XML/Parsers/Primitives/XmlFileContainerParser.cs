@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
@@ -11,12 +12,12 @@ public class XmlFileContainerParser(IServiceProvider serviceProvider, IXmlParser
 {
     protected override bool LoadLineInfo => false;
 
-    protected override void Parse(XElement element, IValueListDictionary<Crc32, XmlFileContainer> parsedElements)
+    protected override void Parse(XElement element, IValueListDictionary<Crc32, XmlFileContainer> parsedElements, string fileName)
     {
         throw new NotSupportedException();
     }
 
-    public override XmlFileContainer Parse(XElement element)
+    protected override XmlFileContainer Parse(XElement element, string fileNaem)
     {
         var files = new List<string>();
         foreach (var child in element.Elements())

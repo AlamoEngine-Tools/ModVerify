@@ -17,6 +17,8 @@ internal class PrimitiveParserProvider(IServiceProvider serviceProvider) : IPrim
     private PetroglyphXmlByteParser _byteParser = null!;
     private PetroglyphXmlMax100ByteParser _max100ByteParser = null!;
     private PetroglyphXmlBooleanParser _booleanParser = null!;
+    private PetroglyphXmlVector2FParser _vector2FParser = null!;
+
     private CommaSeparatedStringKeyValueListParser _commaSeparatedStringKeyValueListParser = null!;
 
     public PetroglyphXmlStringParser StringParser => 
@@ -42,6 +44,9 @@ internal class PrimitiveParserProvider(IServiceProvider serviceProvider) : IPrim
     
     public PetroglyphXmlBooleanParser BooleanParser => 
         LazyInitializer.EnsureInitialized(ref _booleanParser, () => new PetroglyphXmlBooleanParser(serviceProvider, _primitiveParserErrorListener));
+    
+    public PetroglyphXmlVector2FParser Vector2FParser => 
+        LazyInitializer.EnsureInitialized(ref _vector2FParser, () => new PetroglyphXmlVector2FParser(serviceProvider, _primitiveParserErrorListener));
     
     public CommaSeparatedStringKeyValueListParser CommaSeparatedStringKeyValueListParser => 
         LazyInitializer.EnsureInitialized(ref _commaSeparatedStringKeyValueListParser, () => new CommaSeparatedStringKeyValueListParser(serviceProvider, _primitiveParserErrorListener));

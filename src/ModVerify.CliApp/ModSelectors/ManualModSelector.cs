@@ -7,7 +7,9 @@ namespace AET.ModVerifyTool.ModSelectors;
 
 internal class ManualModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {
-    public override GameLocations Select(GameInstallationsSettings settings, out IPhysicalPlayableObject? targetObject,
+    public override GameLocations Select(
+        GameInstallationsSettings settings, 
+        out IPhysicalPlayableObject? targetObject,
         out GameEngineType? actualEngineType)
     {
         actualEngineType = settings.EngineType;
@@ -21,7 +23,7 @@ internal class ManualModSelector(IServiceProvider serviceProvider) : ModSelector
 
         return new GameLocations(
             settings.ModPaths,
-            settings.GamePath,
+            settings.GamePath!,
             GetFallbackPaths(settings.FallbackGamePath, settings.AdditionalFallbackPaths));
     }
 }

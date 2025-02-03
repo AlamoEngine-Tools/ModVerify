@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 using AET.ModVerifyTool.Options;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using PG.Commons.Binary;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Services;
+using PG.StarWarsGame.Files.Binary;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
 
 namespace PG.StarWarsGame.Files.ALO.Binary.Reader;

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
 		<Title>PG.StarWarsGame.Engine</Title>
 		<Product>PG.StarWarsGame.Engine</Product>
 		<PackageId>AlamoEngineTools.PG.StarWarsGame.Engine</PackageId>
@@ -15,14 +15,12 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Audio\**" />
-	  <EmbeddedResource Remove="Audio\**" />
-	  <None Remove="Audio\**" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.19-beta" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.0.187" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.0.187" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.91" />
 		<PackageReference Include="IsExternalInit" Version="1.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -37,8 +35,10 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\PetroglyphTools\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG\PG.StarWarsGame.Files.MEG.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
 	</ItemGroup>
 </Project>

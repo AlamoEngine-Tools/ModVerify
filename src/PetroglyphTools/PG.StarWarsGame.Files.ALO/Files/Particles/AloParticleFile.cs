@@ -1,5 +1,4 @@
 ﻿using System;
-using PG.Commons.Files;
 using PG.StarWarsGame.Files.ALO.Data;
 
 namespace PG.StarWarsGame.Files.ALO.Files.Particles;
