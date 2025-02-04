@@ -10,7 +10,7 @@ using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
-internal class GameObjectTypeTypeGameManager(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
+internal class GameObjectTypeGameManager(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
     : GameManagerBase<GameObject>(repository, errorListener, serviceProvider), IGameObjectTypeGameManager
 {
     protected override async Task InitializeCoreAsync(CancellationToken token)
