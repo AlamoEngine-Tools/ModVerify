@@ -76,7 +76,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             var commandBarManager = new CommandBarGameManager(repository, errorListener, serviceProvider);
             await commandBarManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var gameObjetTypeManager = new GameObjectTypeTypeGameManager(repository, errorListener, serviceProvider);
+            var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorListener, serviceProvider);
             await gameObjetTypeManager.InitializeAsync( _cancellationTokenSource.Token);
 
             repository.Seal();
