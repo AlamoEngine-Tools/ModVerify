@@ -16,7 +16,7 @@ using PG.StarWarsGame.Files.MEG.Data.EntryLocations;
 using PG.StarWarsGame.Files.MEG.Files;
 using PG.StarWarsGame.Files.MEG.Services;
 using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
-using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 

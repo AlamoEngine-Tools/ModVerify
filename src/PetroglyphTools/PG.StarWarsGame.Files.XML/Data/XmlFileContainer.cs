@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PG.StarWarsGame.Files.XML;
+namespace PG.StarWarsGame.Files.XML.Data;
 
 public class XmlFileContainer(IList<string> files)
 {
