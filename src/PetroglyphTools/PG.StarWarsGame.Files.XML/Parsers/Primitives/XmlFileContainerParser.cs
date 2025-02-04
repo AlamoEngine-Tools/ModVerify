@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using PG.Commons.Collections;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;

@@ -8,6 +8,7 @@ using PG.Commons.Hashing;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;

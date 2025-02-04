@@ -2,6 +2,7 @@
 using System;
 using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Utilities;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
