@@ -7,7 +7,7 @@ namespace PG.StarWarsGame.Files.ALO;
 
 public static class AloServiceContribution
 {
-    public static void ContributeServices(IServiceCollection serviceCollection)
+    public static void SupportALO(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<IAloFileService>(sp => new AloFileService(sp));
         serviceCollection.AddSingleton<IAloFileReaderFactory>(sp => new AloFileReaderFactory(sp));

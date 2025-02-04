@@ -9,7 +9,7 @@ namespace PG.StarWarsGame.Files.XML;
 
 public static class XmlServiceContribution 
 {
-    public static void ContributeServices(IServiceCollection serviceCollection)
+    public static void SupportXML(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<IPrimitiveXmlParserErrorListener>(_ => new PrimitiveXmlParserErrorBroker());
         serviceCollection.AddSingleton<IPrimitiveXmlErrorParserProvider>(sp => sp.GetRequiredService<IPrimitiveXmlParserErrorListener>());

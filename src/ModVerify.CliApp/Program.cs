@@ -109,9 +109,9 @@ internal class Program
 
         serviceCollection.SupportMTD();
         serviceCollection.SupportMEG();
-        AloServiceContribution.ContributeServices(serviceCollection);
+        serviceCollection.SupportALO();
+        serviceCollection.SupportXML();
         PetroglyphCommons.ContributeServices(serviceCollection);
-        XmlServiceContribution.ContributeServices(serviceCollection);
 
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
 
