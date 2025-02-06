@@ -5,6 +5,7 @@ using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
@@ -27,8 +28,8 @@ public static class GameObjectXmlTags
 public sealed class GameObjectParser(
     IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements,
     IServiceProvider serviceProvider,
-    IXmlParserErrorListener? listener = null)
-    : XmlObjectParser<GameObject>(parsedElements, serviceProvider, listener)
+    IXmlParserErrorReporter? errorReporter = null)
+    : XmlObjectParser<GameObject>(parsedElements, serviceProvider, errorReporter)
 { 
     public override GameObject Parse(XElement element, out Crc32 nameCrc)
     {
@@ -47,7 +48,7 @@ public sealed class GameObjectParser(
         switch (tag.Name.LocalName)
         {
             case GameObjectXmlTags.LandTerrainModelMapping:
-                var mappingValue = PrimitiveParserProvider.CommaSeparatedStringKeyValueListParser.Parse(tag);
+                var mappingValue = CommaSeparatedStringKeyValueListParser.Instance.Parse(tag);
                 var dict = xmlObject.InternalLandTerrainModelMapping;
                 foreach (var keyValuePair in mappingValue)
                 {
@@ -56,37 +57,37 @@ public sealed class GameObjectParser(
                 }
                 return true;
             case GameObjectXmlTags.GalacticModelName:
-                xmlObject.GalacticModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.GalacticModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.DestroyedGalacticModelName:
-                xmlObject.DestroyedGalacticModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.DestroyedGalacticModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.LandModelName:
-                xmlObject.LandModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.LandModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.SpaceModelName:
-                xmlObject.SpaceModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.SpaceModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.ModelName:
-                xmlObject.ModelName = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.ModelName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.TacticalModelName:
-                xmlObject.TacticalModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.TacticalModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.GalacticFleetOverrideModelName:
-                xmlObject.GalacticFleetOverrideModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.GalacticFleetOverrideModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.GuiModelName:
-                xmlObject.GuiModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.GuiModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.LandModelAnimOverrideName:
-                xmlObject.LandAnimOverrideModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.LandAnimOverrideModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.XxxSpaceModelName:
-                xmlObject.XxxSpaceModeModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.XxxSpaceModeModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case GameObjectXmlTags.DamagedSmokeAssetName:
-                xmlObject.DamagedSmokeAssetModel = PrimitiveParserProvider.StringParser.Parse(tag);
+                xmlObject.DamagedSmokeAssetModel = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             default: return true; // TODO: Once parsing is complete, switch to false.
         }

@@ -13,8 +13,8 @@ using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database;
 
-internal abstract class GameManagerBase<T>(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
-    : GameManagerBase(repository, errorListener, serviceProvider), IGameManager<T>
+internal abstract class GameManagerBase<T>(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    : GameManagerBase(repository, errorReporter, serviceProvider), IGameManager<T>
 {
     protected readonly ValueListDictionary<Crc32, T> NamedEntries = new();
 
@@ -38,17 +38,17 @@ internal abstract class GameManagerBase
     protected readonly IFileSystem FileSystem;
     protected readonly ILogger? Logger;
 
-    protected readonly DatabaseErrorListenerWrapper ErrorListener;
+    protected readonly DatabaseErrorReporterWrapper ErrorReporter;
 
     public bool IsInitialized => _initialized;
 
-    protected GameManagerBase(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
+    protected GameManagerBase(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     {
         GameRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
         FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
-        ErrorListener = errorListener ?? throw new ArgumentNullException(nameof(errorListener));
+        ErrorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
     }
 
     public async Task InitializeAsync(CancellationToken token)

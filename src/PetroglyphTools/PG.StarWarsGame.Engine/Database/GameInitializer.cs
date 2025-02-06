@@ -18,10 +18,10 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
 
     private CancellationTokenSource? _cancellationTokenSource;
 
-    public async Task<IGameDatabase> InitializeAsync(DatabaseErrorListenerWrapper errorListener, CancellationToken token)
+    public async Task<IGameDatabase> InitializeAsync(DatabaseErrorReporterWrapper errorReporter, CancellationToken token)
     {
         _logger?.LogInformation("Initializing Game Database...");
-        errorListener.InitializationError += OnInitializationError;
+        errorReporter.InitializationError += OnInitializationError;
 
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
         
@@ -64,19 +64,19 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             // TargetingPrioritySetFiles.xml
             // MousePointerFiles.xml
             
-            var gameConstants = new GameConstants.GameConstants(repository, errorListener, serviceProvider);
+            var gameConstants = new GameConstants.GameConstants(repository, errorReporter, serviceProvider);
             await gameConstants.InitializeAsync( _cancellationTokenSource.Token);
 
-            var guiDialogs = new GuiDialogGameManager(repository, errorListener, serviceProvider);
+            var guiDialogs = new GuiDialogGameManager(repository, errorReporter, serviceProvider);
             await guiDialogs.InitializeAsync(_cancellationTokenSource.Token);
 
-            var sfxGameManager = new SfxEventGameManager(repository, errorListener, serviceProvider);
+            var sfxGameManager = new SfxEventGameManager(repository, errorReporter, serviceProvider);
             await sfxGameManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var commandBarManager = new CommandBarGameManager(repository, errorListener, serviceProvider);
+            var commandBarManager = new CommandBarGameManager(repository, errorReporter, serviceProvider);
             await commandBarManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorListener, serviceProvider);
+            var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorReporter, serviceProvider);
             await gameObjetTypeManager.InitializeAsync( _cancellationTokenSource.Token);
 
             repository.Seal();
@@ -94,7 +94,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
         }
         finally
         {
-            errorListener.InitializationError -= OnInitializationError;
+            errorReporter.InitializationError -= OnInitializationError;
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
             _logger?.LogInformation("Finished initializing game database");

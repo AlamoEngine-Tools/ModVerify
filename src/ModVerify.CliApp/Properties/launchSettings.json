@@ -2,7 +2,7 @@
   "profiles": {
     "Interactive": {
       "commandName": "Project",
-      "commandLineArgs": "-o verifyResults --minFailSeverity Information --baseline c:/test/focBaseline.json"
+      "commandLineArgs": "-o verifyResults --minFailSeverity Information"
     },
 
     "FromModPath": {

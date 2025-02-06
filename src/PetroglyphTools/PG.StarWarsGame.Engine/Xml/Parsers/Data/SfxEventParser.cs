@@ -7,14 +7,15 @@ using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class SfxEventParser(
     IReadOnlyValueListDictionary<Crc32, SfxEvent> parsedElements,
     IServiceProvider serviceProvider,
-    IXmlParserErrorListener? listener = null)
-    : XmlObjectParser<SfxEvent>(parsedElements, serviceProvider, listener)
+    IXmlParserErrorReporter? errorReporter = null)
+    : XmlObjectParser<SfxEvent>(parsedElements, serviceProvider, errorReporter)
 { 
     public override SfxEvent Parse(XElement element, out Crc32 nameCrc)
     {
@@ -76,14 +77,14 @@ public sealed class SfxEventParser(
         switch (tag.Name.LocalName)
         {
             case SfxEventXmlTags.OverlapTest:
-                sfxEvent.OverlapTestName = PrimitiveParserProvider.StringParser.Parse(tag);
+                sfxEvent.OverlapTestName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.ChainedSfxEvent:
-                sfxEvent.ChainedSfxEventName = PrimitiveParserProvider.StringParser.Parse(tag);
+                sfxEvent.ChainedSfxEventName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.UsePreset:
             {
-                var presetName = PrimitiveParserProvider.StringParser.Parse(tag);
+                var presetName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 var presetNameCrc = HashingService.GetCrc32Upper(presetName.AsSpan(), PGConstants.DefaultPGEncoding);
                 if (presetNameCrc != default && ParsedElements.TryGetFirstValue(presetNameCrc, out var preset))
                     sfxEvent.ApplyPreset(preset);
@@ -96,104 +97,104 @@ public sealed class SfxEventParser(
             }
 
             case SfxEventXmlTags.IsPreset:
-                sfxEvent.IsPreset = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.IsPreset = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.Is3D:
-                sfxEvent.Is3D = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.Is3D = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.Is2D:
-                sfxEvent.Is2D = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.Is2D = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.IsGui:
-                sfxEvent.IsGui = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.IsGui = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.IsHudVo:
-                sfxEvent.IsHudVo = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.IsHudVo = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.IsUnitResponseVo:
-                sfxEvent.IsUnitResponseVo = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.IsUnitResponseVo = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.IsAmbientVo:
-                sfxEvent.IsAmbientVo = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.IsAmbientVo = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.Localize:
-                sfxEvent.IsLocalized = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.IsLocalized = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.PlaySequentially:
-                sfxEvent.PlaySequentially = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.PlaySequentially = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.KillsPreviousObjectSFX:
-                sfxEvent.KillsPreviousObjectsSfx = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                sfxEvent.KillsPreviousObjectsSfx = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
 
             case SfxEventXmlTags.Samples:
-                sfxEvent.Samples = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                sfxEvent.Samples = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case SfxEventXmlTags.PreSamples:
-                sfxEvent.PreSamples = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                sfxEvent.PreSamples = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case SfxEventXmlTags.PostSamples:
-                sfxEvent.PostSamples = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                sfxEvent.PostSamples = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case SfxEventXmlTags.TextID:
-                sfxEvent.LocalizedTextIDs = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                sfxEvent.LocalizedTextIDs = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
 
             case SfxEventXmlTags.Priority:
-                sfxEvent.Priority = (byte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, SfxEvent.MinPriorityValue, SfxEvent.MaxPriorityValue);
+                sfxEvent.Priority = (byte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, SfxEvent.MinPriorityValue, SfxEvent.MaxPriorityValue);
                 return true;
             case SfxEventXmlTags.MinPitch:
-                sfxEvent.MinPitch = (byte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, SfxEvent.MinPitchValue, SfxEvent.MaxPitchValue);
+                sfxEvent.MinPitch = (byte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, SfxEvent.MinPitchValue, SfxEvent.MaxPitchValue);
                 return true;
             case SfxEventXmlTags.MaxPitch:
-                sfxEvent.MaxPitch = (byte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, SfxEvent.MinPitchValue, SfxEvent.MaxPitchValue);
+                sfxEvent.MaxPitch = (byte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, SfxEvent.MinPitchValue, SfxEvent.MaxPitchValue);
                 return true;
             case SfxEventXmlTags.MinPan2D:
-                sfxEvent.MinPan2D = (byte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxPan2dValue);
+                sfxEvent.MinPan2D = (byte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxPan2dValue);
                 return true;
             case SfxEventXmlTags.MaxPan2D:
-                sfxEvent.MaxPan2D = (byte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxPan2dValue);
+                sfxEvent.MaxPan2D = (byte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxPan2dValue);
                 return true;
             case SfxEventXmlTags.PlayCount:
-                sfxEvent.PlayCount = (sbyte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, SfxEvent.InfinitivePlayCount, sbyte.MaxValue);
+                sfxEvent.PlayCount = (sbyte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, SfxEvent.InfinitivePlayCount, sbyte.MaxValue);
                 return true;
             case SfxEventXmlTags.MaxInstances:
-                sfxEvent.MaxInstances = (sbyte)PrimitiveParserProvider.IntParser.ParseWithRange(tag, SfxEvent.MinMaxInstances, sbyte.MaxValue);
+                sfxEvent.MaxInstances = (sbyte)PetroglyphXmlIntegerParser.Instance.ParseWithRange(tag, SfxEvent.MinMaxInstances, sbyte.MaxValue);
                 return true;
 
             case SfxEventXmlTags.Probability:
-                sfxEvent.Probability = PrimitiveParserProvider.Max100ByteParser.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxProbability);
+                sfxEvent.Probability = PetroglyphXmlMax100ByteParser.Instance.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxProbability);
                 return true;
             case SfxEventXmlTags.MinVolume:
-                sfxEvent.MinVolume = PrimitiveParserProvider.Max100ByteParser.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxVolumeValue);
+                sfxEvent.MinVolume = PetroglyphXmlMax100ByteParser.Instance.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxVolumeValue);
                 return true;
             case SfxEventXmlTags.MaxVolume:
-                sfxEvent.MaxVolume = PrimitiveParserProvider.Max100ByteParser.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxVolumeValue);
+                sfxEvent.MaxVolume = PetroglyphXmlMax100ByteParser.Instance.ParseWithRange(tag, byte.MinValue, SfxEvent.MaxVolumeValue);
                 return true;
 
             case SfxEventXmlTags.MinPredelay:
-                sfxEvent.MinPredelay = PrimitiveParserProvider.UIntParser.Parse(tag);
+                sfxEvent.MinPredelay = PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.MaxPredelay:
-                sfxEvent.MaxPredelay = PrimitiveParserProvider.UIntParser.Parse(tag);
+                sfxEvent.MaxPredelay = PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.MinPostdelay:
-                sfxEvent.MinPostdelay = PrimitiveParserProvider.UIntParser.Parse(tag);
+                sfxEvent.MinPostdelay = PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
             case SfxEventXmlTags.MaxPostdelay:
-                sfxEvent.MaxPostdelay = PrimitiveParserProvider.UIntParser.Parse(tag);
+                sfxEvent.MaxPostdelay = PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
 
             case SfxEventXmlTags.LoopFadeInSeconds:
-                sfxEvent.LoopFadeInSeconds = PrimitiveParserProvider.FloatParser.ParseAtLeast(tag, SfxEvent.MinLoopSeconds);
+                sfxEvent.LoopFadeInSeconds = PetroglyphXmlFloatParser.Instance.ParseAtLeast(tag, SfxEvent.MinLoopSeconds);
                 return true;
             case SfxEventXmlTags.LoopFadeOutSeconds:
-                sfxEvent.LoopFadeOutSeconds = PrimitiveParserProvider.FloatParser.ParseAtLeast(tag, SfxEvent.MinLoopSeconds);
+                sfxEvent.LoopFadeOutSeconds = PetroglyphXmlFloatParser.Instance.ParseAtLeast(tag, SfxEvent.MinLoopSeconds);
                 return true;
             case SfxEventXmlTags.VolumeSaturationDistance:
                 // I think it was planned at some time to support -1.0 and >= 0.0, since you don't get a warning when -1.0 is coded
                 // but the Engine coerces anything < 0.0 to 0.0.
-                sfxEvent.VolumeSaturationDistance = PrimitiveParserProvider.FloatParser.ParseAtLeast(tag, SfxEvent.MinVolumeSaturation);
+                sfxEvent.VolumeSaturationDistance = PetroglyphXmlFloatParser.Instance.ParseAtLeast(tag, SfxEvent.MinVolumeSaturation);
                 return true;
             default: return false;
         }

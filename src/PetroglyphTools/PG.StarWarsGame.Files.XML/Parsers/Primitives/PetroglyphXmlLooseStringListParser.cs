@@ -1,13 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveElementParser<IList<string>>
+public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlParser<IList<string>>
 {
     // These are the characters the engine uses as a generic list separator
     private static readonly char[] Separators =
@@ -18,8 +16,10 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveE
         '\n',
         '\r'
     ];
-    
-    internal PetroglyphXmlLooseStringListParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+
+    public static readonly PetroglyphXmlLooseStringListParser Instance = new();
+
+    private PetroglyphXmlLooseStringListParser()
     {
     }
 
@@ -41,11 +41,5 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphXmlPrimitiveE
         var entries = trimmedValued.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
 
         return entries;
-    }
-
-    protected override void OnParseError(XmlParseErrorEventArgs e)
-    {
-        Logger?.LogWarning(e.Message);
-        base.OnParseError(e);
     }
 }

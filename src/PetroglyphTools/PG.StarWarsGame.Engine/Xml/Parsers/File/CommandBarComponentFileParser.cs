@@ -9,14 +9,12 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.File;
 
-internal class CommandBarComponentFileParser(IServiceProvider serviceProvider, IXmlParserErrorListener? listener = null) 
-    : PetroglyphXmlFileParser<CommandBarComponentData>(serviceProvider, listener)
+internal class CommandBarComponentFileParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) 
+    : PetroglyphXmlFileContainerParser<CommandBarComponentData>(serviceProvider, errorReporter)
 {
-    private readonly IXmlParserErrorListener? _listener = listener;
-
     protected override void Parse(XElement element, IValueListDictionary<Crc32, CommandBarComponentData> parsedElements, string fileName)
     {
-        var parser = new CommandBarComponentParser(parsedElements, ServiceProvider, _listener);
+        var parser = new CommandBarComponentParser(parsedElements, ServiceProvider, ErrorReporter);
 
         if (!element.HasElements)
         {
@@ -29,10 +27,5 @@ internal class CommandBarComponentFileParser(IServiceProvider serviceProvider, I
             var sfxEvent = parser.Parse(xElement, out var nameCrc);
             parsedElements.Add(nameCrc, sfxEvent);
         }
-    }
-
-    protected override CommandBarComponentData Parse(XElement element, string fileName)
-    {
-        throw new NotSupportedException();
     }
 }

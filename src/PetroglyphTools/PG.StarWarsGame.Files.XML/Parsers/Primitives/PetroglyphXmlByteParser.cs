@@ -1,19 +1,19 @@
-﻿using System;
-using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
+﻿using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlByteParser : PetroglyphXmlPrimitiveElementParser<byte>
+public sealed class PetroglyphXmlByteParser : PetroglyphPrimitiveXmlParser<byte>
 {
-    internal PetroglyphXmlByteParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+    public static readonly PetroglyphXmlByteParser Instance = new();
+
+    private PetroglyphXmlByteParser()
     {
     }
 
     public override byte Parse(XElement element)
     {
-        var intValue = PrimitiveParserProvider.IntParser.Parse(element);
+        var intValue = PetroglyphXmlIntegerParser.Instance.Parse(element);
 
         var asByte = (byte)intValue;
         if (intValue != asByte)
@@ -23,11 +23,5 @@ public sealed class PetroglyphXmlByteParser : PetroglyphXmlPrimitiveElementParse
         }
 
         return asByte;
-    }
-
-    protected override void OnParseError(XmlParseErrorEventArgs e)
-    {
-        Logger?.LogWarning(e.Message);
-        base.OnParseError(e);
     }
 }

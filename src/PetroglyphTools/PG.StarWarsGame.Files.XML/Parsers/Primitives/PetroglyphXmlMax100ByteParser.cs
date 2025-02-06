@@ -1,20 +1,20 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Utilities;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlMax100ByteParser : PetroglyphXmlPrimitiveElementParser<byte>
+public sealed class PetroglyphXmlMax100ByteParser : PetroglyphPrimitiveXmlParser<byte>
 {
-    internal PetroglyphXmlMax100ByteParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+    public static readonly PetroglyphXmlMax100ByteParser Instance = new();
+
+    private PetroglyphXmlMax100ByteParser()
     {
     }
 
     public override byte Parse(XElement element)
     {
-        var intValue = PrimitiveParserProvider.IntParser.Parse(element);
+        var intValue = PetroglyphXmlIntegerParser.Instance.Parse(element);
 
         if (intValue > 100)
             intValue = 100;
@@ -38,8 +38,14 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphXmlPrimitiveElemen
 
     public byte ParseWithRange(XElement element, byte minValue, byte maxValue)
     {
-        if (maxValue > 100) 
-            Logger?.LogWarning("Upper bound for clamp range is above 100 for a parser that is meant to be capped to value 100.");
+        if (maxValue > 100)
+        {
+            OnParseError(new XmlParseErrorEventArgs(
+                element, XmlParseErrorKind.InvalidValue, 
+                $"The provided maxValue '{maxValue}' is above 100."));
+        }
+
+        // TODO: Do we need to coerce maxValue???
 
         var value = Parse(element);
         
@@ -50,11 +56,5 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphXmlPrimitiveElemen
                 $"Expected byte between {minValue} and {maxValue} but got value '{value}'."));
         }
         return clamped;
-    }
-
-    protected override void OnParseError(XmlParseErrorEventArgs e)
-    {
-        Logger?.LogWarning(e.Message);
-        base.OnParseError(e);
     }
 }

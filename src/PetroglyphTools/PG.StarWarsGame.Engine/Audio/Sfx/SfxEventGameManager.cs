@@ -13,8 +13,8 @@ using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
-internal class SfxEventGameManager(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
-    : GameManagerBase<SfxEvent>(repository, errorListener, serviceProvider), ISfxEventGameManager
+internal class SfxEventGameManager(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    : GameManagerBase<SfxEvent>(repository, errorReporter, serviceProvider), ISfxEventGameManager
 {
     public IEnumerable<LanguageType> InstalledLanguages { get; private set; } = [];
 
@@ -30,9 +30,9 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorListe
         contentParser.XmlParseError += OnParseError;
         try
         {
-            await Task.Run(() => contentParser.ParseEntriesFromContainerXml(
+            await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
                     "DATA\\XML\\SFXEventFiles.XML",
-                    ErrorListener,
+                    ErrorReporter,
                     GameRepository,
                     "DATA\\XML",
                     NamedEntries,
@@ -50,7 +50,7 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorListe
         if (e.IsContainer || e.IsError)
         {
             e.Continue = false;
-            ErrorListener.OnInitializationError(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = GetMessage(e)
@@ -69,7 +69,7 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorListe
     {
         if (filePath.Length > PGConstants.MaxSFXEventDatabaseFileName)
         {
-            ErrorListener.OnInitializationError(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = $"SFXEvent file '{filePath}' is longer than {PGConstants.MaxSFXEventDatabaseFileName} characters."

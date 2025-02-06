@@ -1,12 +1,12 @@
-﻿using System;
-using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
+﻿using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlStringParser : PetroglyphXmlPrimitiveElementParser<string>
+public sealed class PetroglyphXmlStringParser : PetroglyphPrimitiveXmlParser<string>
 {
-    internal PetroglyphXmlStringParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+    public static readonly PetroglyphXmlStringParser Instance = new();
+
+    private PetroglyphXmlStringParser()
     {
     }
 

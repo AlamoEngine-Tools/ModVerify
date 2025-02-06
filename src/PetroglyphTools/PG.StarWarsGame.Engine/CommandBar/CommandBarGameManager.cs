@@ -19,9 +19,9 @@ public interface ICommandBarGameManager : IGameManager<CommandBarComponentData>
 
 internal class CommandBarGameManager(
     GameRepository repository,
-    DatabaseErrorListenerWrapper errorListener,
+    DatabaseErrorReporterWrapper errorReporter,
     IServiceProvider serviceProvider)
-    : GameManagerBase<CommandBarComponentData>(repository, errorListener, serviceProvider), ICommandBarGameManager
+    : GameManagerBase<CommandBarComponentData>(repository, errorReporter, serviceProvider), ICommandBarGameManager
 {
     protected override async Task InitializeCoreAsync(CancellationToken token)
     {
@@ -34,9 +34,9 @@ internal class CommandBarGameManager(
 
         try
         {
-            await Task.Run(() => contentParser.ParseEntriesFromContainerXml(
+            await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
                     "DATA\\XML\\CommandBarComponentFiles.XML",
-                    ErrorListener,
+                    ErrorReporter,
                     GameRepository,
                     ".\\DATA\\XML",
                     parsedCommandBarComponents,
@@ -54,7 +54,7 @@ internal class CommandBarGameManager(
         if (e.IsContainer || e.IsError)
         {
             e.Continue = false;
-            ErrorListener.OnInitializationError(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = GetMessage(e)
@@ -73,7 +73,7 @@ internal class CommandBarGameManager(
     {
         if (filePath.Length > PGConstants.MaxCommandBarDatabaseFileName)
         {
-            ErrorListener.OnInitializationError(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = $"CommandBar file '{filePath}' is longer than {PGConstants.MaxCommandBarDatabaseFileName} characters."

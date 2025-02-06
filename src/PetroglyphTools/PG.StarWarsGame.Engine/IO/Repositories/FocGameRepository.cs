@@ -12,8 +12,8 @@ internal class FocGameRepository : GameRepository
 {
     public override GameEngineType EngineType => GameEngineType.Foc;
 
-    public FocGameRepository(GameLocations gameLocations, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
-        : base(gameLocations, errorListener, serviceProvider)
+    public FocGameRepository(GameLocations gameLocations, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+        : base(gameLocations, errorReporter, serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));

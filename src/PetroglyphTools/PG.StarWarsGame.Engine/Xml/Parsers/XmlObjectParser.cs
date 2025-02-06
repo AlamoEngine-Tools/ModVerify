@@ -11,8 +11,8 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers;
 public abstract class XmlObjectParser<TObject>(
     IReadOnlyValueListDictionary<Crc32, TObject> parsedElements,
     IServiceProvider serviceProvider,
-    IXmlParserErrorListener? listener = null)
-    : XmlObjectParser<TObject, EmptyParseState>(parsedElements, serviceProvider, listener) where TObject : XmlObject
+    IXmlParserErrorReporter? errorReporter = null)
+    : XmlObjectParser<TObject, EmptyParseState>(parsedElements, serviceProvider, errorReporter) where TObject : XmlObject
 {
     protected void Parse(TObject xmlObject, XElement element)
     {
@@ -36,8 +36,8 @@ public readonly struct EmptyParseState
 public abstract class XmlObjectParser<TObject, TParseState>(
     IReadOnlyValueListDictionary<Crc32, TObject> parsedElements,
     IServiceProvider serviceProvider,
-    IXmlParserErrorListener? listener = null)
-    : PetroglyphXmlElementParser<TObject>(serviceProvider, listener) where TObject : XmlObject
+    IXmlParserErrorReporter? errorReporter = null)
+    : PetroglyphXmlElementParser<TObject>(errorReporter) where TObject : XmlObject
 {
     protected IReadOnlyValueListDictionary<Crc32, TObject> ParsedElements { get; } =
         parsedElements ?? throw new ArgumentNullException(nameof(parsedElements));
