@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Utilities;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementParser<int>
-{ 
-    internal PetroglyphXmlIntegerParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+public sealed class PetroglyphXmlIntegerParser : PetroglyphPrimitiveXmlParser<int>
+{
+    public static readonly PetroglyphXmlIntegerParser Instance = new();
+
+    private PetroglyphXmlIntegerParser()
     {
     }
 
@@ -38,11 +38,5 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphXmlPrimitiveElementPa
                 $"Expected integer between {minValue} and {maxValue} but got value '{value}'."));
         }
         return clamped;
-    }
-
-    protected override void OnParseError(XmlParseErrorEventArgs e)
-    {
-        Logger?.LogWarning(e.Message);
-        base.OnParseError(e);
     }
 }

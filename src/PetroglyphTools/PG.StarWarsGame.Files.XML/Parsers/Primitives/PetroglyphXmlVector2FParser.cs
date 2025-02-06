@@ -1,33 +1,34 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlVector2FParser : PetroglyphXmlPrimitiveElementParser<Vector2>
+public sealed class PetroglyphXmlVector2FParser : PetroglyphPrimitiveXmlParser<Vector2>
 {
-    internal PetroglyphXmlVector2FParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+    public static readonly PetroglyphXmlVector2FParser Instance = new();
+
+    private static readonly PetroglyphXmlFloatParser FloatParser = PetroglyphXmlFloatParser.Instance;
+    private static readonly PetroglyphXmlLooseStringListParser LooseStringListParser = PetroglyphXmlLooseStringListParser.Instance;
+
+    private PetroglyphXmlVector2FParser()
     {
     }
 
     public override Vector2 Parse(XElement element)
     {
-        var listOfValues = PrimitiveParserProvider.LooseStringListParser.Parse(element);
+        var listOfValues = LooseStringListParser.Parse(element);
 
         if (listOfValues.Count == 0)
             return default;
 
-        var floatParser = PrimitiveParserProvider.FloatParser;
-
         if (listOfValues.Count == 1)
         {
-            var value = floatParser.Parse(listOfValues[0], element);
+            var value = FloatParser.Parse(listOfValues[0], element);
             return new Vector2(value, 0.0f);
         }
 
-        var value1 = floatParser.Parse(listOfValues[0], element);
-        var value2 = floatParser.Parse(listOfValues[1], element);
+        var value1 = FloatParser.Parse(listOfValues[0], element);
+        var value2 = FloatParser.Parse(listOfValues[1], element);
         
         return new Vector2(value1, value2);
     }

@@ -1,19 +1,19 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
-public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphXmlPrimitiveElementParser<uint>
+public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphPrimitiveXmlParser<uint>
 {
-    internal PetroglyphXmlUnsignedIntegerParser(IServiceProvider serviceProvider, IPrimitiveXmlParserErrorListener listener) : base(serviceProvider, listener)
+    public static readonly PetroglyphXmlUnsignedIntegerParser Instance = new();
+
+    private PetroglyphXmlUnsignedIntegerParser()
     {
     }
 
     public override uint Parse(XElement element)
     {
-        var intValue = PrimitiveParserProvider.IntParser.Parse(element);
+        var intValue = PetroglyphXmlIntegerParser.Instance.Parse(element);
 
         var asUint = (uint)intValue;
         if (intValue != asUint)
@@ -23,11 +23,5 @@ public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphXmlPrimitiveE
         }
 
         return asUint;
-    }
-
-    protected override void OnParseError(XmlParseErrorEventArgs e)
-    {
-        Logger?.LogWarning(e.Message);
-        base.OnParseError(e);
     }
 }

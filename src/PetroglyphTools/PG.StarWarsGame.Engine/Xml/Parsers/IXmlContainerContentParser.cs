@@ -10,9 +10,9 @@ internal interface IXmlContainerContentParser
 {
     event EventHandler<XmlContainerParserErrorEventArgs>? XmlParseError;
 
-    void ParseEntriesFromContainerXml<T>(
+    void ParseEntriesFromFileListXml<T>(
         string xmlFile,
-        IXmlParserErrorListener listener,
+        IXmlParserErrorReporter reporter,
         IGameRepository gameRepository,
         string lookupPath,
         ValueListDictionary<Crc32, T> entries,

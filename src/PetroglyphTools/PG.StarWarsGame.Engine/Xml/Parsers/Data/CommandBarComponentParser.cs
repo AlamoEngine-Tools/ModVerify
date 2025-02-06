@@ -7,14 +7,15 @@ using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class CommandBarComponentParser(
     IReadOnlyValueListDictionary<Crc32, CommandBarComponentData> parsedElements,
     IServiceProvider serviceProvider,
-    IXmlParserErrorListener? listener = null)
-    : XmlObjectParser<CommandBarComponentData>(parsedElements, serviceProvider, listener)
+    IXmlParserErrorReporter? errorReporter = null)
+    : XmlObjectParser<CommandBarComponentData>(parsedElements, serviceProvider, errorReporter)
 {
     public override CommandBarComponentData Parse(XElement element, out Crc32 nameCrc)
     {
@@ -30,307 +31,307 @@ public sealed class CommandBarComponentParser(
         switch (tag.Name.LocalName)
         {
             case CommandBarComponentTags.SelectedTextureName:
-                componentData.SelectedTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.SelectedTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.BlankTextureName:
-                componentData.BlankTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.BlankTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.IconAlternateTextureName:
-                componentData.IconAlternateTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.IconAlternateTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.MouseOverTextureName:
-                componentData.MouseOverTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.MouseOverTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.BarTextureName:
-                componentData.BarTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.BarTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.BarOverlayName:
-                componentData.BarOverlayNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.BarOverlayNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.AlternateFontName:
-                componentData.AlternateFontNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.AlternateFontNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.TooltipText:
-                componentData.TooltipTexts = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.TooltipTexts = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.LowerEffectTextureName:
-                componentData.LowerEffectTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.LowerEffectTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.UpperEffectTextureName:
-                componentData.UpperEffectTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.UpperEffectTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.OverlayTextureName:
-                componentData.OverlayTextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.OverlayTextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
             case CommandBarComponentTags.Overlay2TextureName:
-                componentData.Overlay2TextureNames = new ReadOnlyCollection<string>(PrimitiveParserProvider.LooseStringListParser.Parse(tag));
+                componentData.Overlay2TextureNames = new ReadOnlyCollection<string>(PetroglyphXmlLooseStringListParser.Instance.Parse(tag));
                 return true;
 
             case CommandBarComponentTags.IconTextureName:
-                componentData.IconTextureName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.IconTextureName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DisabledTextureName:
-                componentData.DisabledTextureName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.DisabledTextureName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.FlashTextureName:
-                componentData.FlashTextureName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.FlashTextureName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BuildTextureName:
-                componentData.BuildTextureName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.BuildTextureName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ModelName:
-                componentData.ModelName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.ModelName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BoneName:
-                componentData.BoneName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.BoneName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.CursorTextureName:
-                componentData.CursorTextureName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.CursorTextureName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.FontName:
-                componentData.FontName = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.FontName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ClickSfx:
-                componentData.ClickSfx = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.ClickSfx = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.MouseOverSfx:
-                componentData.MouseOverSfx = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.MouseOverSfx = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.RightClickSfx:
-                componentData.RightClickSfx = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.RightClickSfx = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Type:
-                componentData.Type = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.Type = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Group:
-                componentData.Group = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.Group = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.AssociatedText:
-                componentData.AssociatedText = PrimitiveParserProvider.StringParser.Parse(tag);
+                componentData.AssociatedText = PetroglyphXmlStringParser.Instance.Parse(tag);
                 return true;
 
             case CommandBarComponentTags.DragAndDrop:
-                componentData.DragAndDrop = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.DragAndDrop = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DragSelect:
-                componentData.DragSelect = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.DragSelect = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Receptor:
-                componentData.Receptor = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Receptor = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Toggle:
-                componentData.Toggle = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Toggle = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Tab:
-                componentData.Tab = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Tab = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Hidden:
-                componentData.Hidden = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Hidden = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ClearColor:
-                componentData.ClearColor = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ClearColor = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Disabled:
-                componentData.Disabled = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Disabled = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.SwapTexture:
-                componentData.SwapTexture = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.SwapTexture = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DrawAdditive:
-                componentData.DrawAdditive = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.DrawAdditive = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Editable:
-                componentData.Editable = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Editable = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.TextOutline:
-                componentData.TextOutline = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.TextOutline = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Stackable:
-                componentData.Stackable = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Stackable = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ModelOffsetX:
-                componentData.ModelOffsetX = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ModelOffsetX = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ModelOffsetY:
-                componentData.ModelOffsetY = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ModelOffsetY = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ScaleModelX:
-                componentData.ScaleModelX = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ScaleModelX = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ScaleModelY:
-                componentData.ScaleModelY = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ScaleModelY = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Collideable:
-                componentData.Collideable = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.Collideable = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.TextEmboss:
-                componentData.TextEmboss = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.TextEmboss = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ShouldGhost:
-                componentData.ShouldGhost = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ShouldGhost = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.GhostBaseOnly:
-                componentData.GhostBaseOnly = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.GhostBaseOnly = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.CrossFade:
-                componentData.CrossFade = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.CrossFade = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.LeftJustified:
-                componentData.LeftJustified = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.LeftJustified = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.RightJustified:
-                componentData.RightJustified = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.RightJustified = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.NoShell:
-                componentData.NoShell = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.NoShell = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.SnapDrag:
-                componentData.SnapDrag = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.SnapDrag = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.SnapLocation:
-                componentData.SnapLocation = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.SnapLocation = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.OffsetRender:
-                componentData.OffsetRender = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.OffsetRender = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BlinkFade:
-                componentData.BlinkFade = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.BlinkFade = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.NoHiddenCollision:
-                componentData.NoHiddenCollision = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.NoHiddenCollision = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ManualOffset:
-                componentData.ManualOffset = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ManualOffset = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.SelectedAlpha:
-                componentData.SelectedAlpha = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.SelectedAlpha = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.PixelAlign:
-                componentData.PixelAlign = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.PixelAlign = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.CanDragStack:
-                componentData.CanDragStack = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.CanDragStack = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.CanAnimate:
-                componentData.CanAnimate = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.CanAnimate = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.LoopAnim:
-                componentData.LoopAnim = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.LoopAnim = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.SmoothBar:
-                componentData.SmoothBar = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.SmoothBar = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.OutlinedBar:
-                componentData.OutlinedBar = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.OutlinedBar = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DragBack:
-                componentData.DragBack = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.DragBack = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.LowerEffectAdditive:
-                componentData.LowerEffectAdditive = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.LowerEffectAdditive = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.UpperEffectAdditive:
-                componentData.UpperEffectAdditive = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.UpperEffectAdditive = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ClickShift:
-                componentData.ClickShift = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ClickShift = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.TutorialScene:
-                componentData.TutorialScene = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.TutorialScene = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DialogScene:
-                componentData.DialogScene = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.DialogScene = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ShouldRenderAtDragPos:
-                componentData.ShouldRenderAtDragPos = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.ShouldRenderAtDragPos = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DisableDarken:
-                componentData.DisableDarken = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.DisableDarken = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.AnimateBack:
-                componentData.AnimateBack = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.AnimateBack = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.AnimateUpperEffect:
-                componentData.AnimateUpperEffect = PrimitiveParserProvider.BooleanParser.Parse(tag);
+                componentData.AnimateUpperEffect = PetroglyphXmlBooleanParser.Instance.Parse(tag);
                 return true;
 
             case CommandBarComponentTags.Size:
-                componentData.Size = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.Size = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.TextOffset:
-                componentData.TextOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.TextOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.TextOffset2:
-                componentData.TextOffset2 = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.TextOffset2 = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Offset:
-                componentData.Offset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.Offset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DefaultOffset:
-                componentData.DefaultOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.DefaultOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DefaultOffsetWidescreen:
-                componentData.DefaultOffsetWidescreen = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.DefaultOffsetWidescreen = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.IconOffset:
-                componentData.IconOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.IconOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.MouseOverOffset:
-                componentData.MouseOverOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.MouseOverOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.DisabledOffset:
-                componentData.DisabledOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.DisabledOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BuildDialOffset:
-                componentData.BuildDialOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.BuildDialOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BuildDial2Offset:
-                componentData.BuildDial2Offset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.BuildDial2Offset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.LowerEffectOffset:
-                componentData.LowerEffectOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.LowerEffectOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.UpperEffectOffset:
-                componentData.UpperEffectOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.UpperEffectOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.OverlayOffset:
-                componentData.OverlayOffset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.OverlayOffset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.Overlay2Offset:
-                componentData.Overlay2Offset = PrimitiveParserProvider.Vector2FParser.Parse(tag);
+                componentData.Overlay2Offset = PetroglyphXmlVector2FParser.Instance.Parse(tag);
                 return true;
 
             case CommandBarComponentTags.MaxTextLength:
-                componentData.MaxTextLength = PrimitiveParserProvider.UIntParser.Parse(tag);
+                componentData.MaxTextLength = PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.FontPointSize:
-                componentData.FontPointSize = (int)PrimitiveParserProvider.UIntParser.Parse(tag);
+                componentData.FontPointSize = (int)PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
 
             case CommandBarComponentTags.Scale:
-                componentData.Scale = PrimitiveParserProvider.FloatParser.Parse(tag);
+                componentData.Scale = PetroglyphXmlFloatParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BlinkRate:
-                componentData.BlinkRate = PrimitiveParserProvider.FloatParser.Parse(tag);
+                componentData.BlinkRate = PetroglyphXmlFloatParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.MaxTextWidth:
-                componentData.MaxTextWidth = PrimitiveParserProvider.FloatParser.Parse(tag);
+                componentData.MaxTextWidth = PetroglyphXmlFloatParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.BlinkDuration:
-                componentData.BlinkDuration = PrimitiveParserProvider.FloatParser.Parse(tag);
+                componentData.BlinkDuration = PetroglyphXmlFloatParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.ScaleDuration:
-                componentData.ScaleDuration = PrimitiveParserProvider.FloatParser.Parse(tag);
+                componentData.ScaleDuration = PetroglyphXmlFloatParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.AnimFps:
-                componentData.AnimFps = PrimitiveParserProvider.FloatParser.Parse(tag);
+                componentData.AnimFps = PetroglyphXmlFloatParser.Instance.Parse(tag);
                 return true;
 
             case CommandBarComponentTags.BaseLayer:
-                componentData.BaseLayer = (int)PrimitiveParserProvider.UIntParser.Parse(tag);
+                componentData.BaseLayer = (int)PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
             case CommandBarComponentTags.MaxBarLevel:
-                componentData.MaxBarLevel = (int)PrimitiveParserProvider.UIntParser.Parse(tag);
+                componentData.MaxBarLevel = (int)PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
 
 

@@ -10,5 +10,5 @@ public class GameInitializationOptions
 
     public bool CancelOnError { get; init; }
 
-    public IDatabaseErrorListener? ErrorListener { get; init; }
+    public IDatabaseErrorReporter? ErrorListener { get; init; }
 }

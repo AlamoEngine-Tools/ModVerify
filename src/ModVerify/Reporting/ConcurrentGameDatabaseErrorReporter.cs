@@ -5,7 +5,7 @@ using PG.StarWarsGame.Engine.Database.ErrorReporting;
 
 namespace AET.ModVerify.Reporting;
 
-internal class ConcurrentGameDatabaseErrorListener : DatabaseErrorListener, IDatabaseErrorCollection
+internal class ConcurrentGameDatabaseErrorReporter : DatabaseErrorReporter, IDatabaseErrorCollection
 {
     private readonly ConcurrentBag<XmlError> _xmlErrors = new();
 
@@ -14,12 +14,12 @@ internal class ConcurrentGameDatabaseErrorListener : DatabaseErrorListener, IDat
     public IEnumerable<XmlError> XmlErrors => _xmlErrors.ToList();
     public IEnumerable<InitializationError> InitializationErrors => _initializationErrors.ToList();
 
-    public override void OnXmlError(XmlError error)
+    public override void Report(XmlError error)
     {
         _xmlErrors.Add(error);
     }
 
-    public override void OnInitializationError(InitializationError error)
+    public override void Report(InitializationError error)
     {
         _initializationErrors.Add(error);
     }

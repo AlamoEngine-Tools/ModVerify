@@ -16,7 +16,7 @@ using PG.StarWarsGame.Files.MEG.Data.EntryLocations;
 using PG.StarWarsGame.Files.MEG.Files;
 using PG.StarWarsGame.Files.MEG.Services;
 using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
-using PG.StarWarsGame.Files.XML.Data;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
@@ -28,7 +28,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
-    private readonly DatabaseErrorListenerWrapper _errorListener;
+    private readonly DatabaseErrorReporterWrapper _errorReporter;
     
     protected readonly string GameDirectory;
 
@@ -47,7 +47,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly List<string> _loadedMegFiles = new();
     protected IVirtualMegArchive? MasterMegArchive { get; private set; }
 
-    protected GameRepository(GameLocations gameLocations, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider) : base(serviceProvider)
+    protected GameRepository(GameLocations gameLocations, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) : base(serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));
@@ -58,7 +58,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _megPathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
         _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
-        _errorListener = errorListener;
+        _errorReporter = errorReporter;
 
         foreach (var mod in gameLocations.ModPaths)
         {
@@ -210,8 +210,6 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     {
         var megFilesXmlPath = FileSystem.Path.Combine(lookupPath, "Data\\MegaFiles.xml");
 
-        var fileParserFactory = Services.GetRequiredService<IPetroglyphXmlFileParserFactory>();
-
         using var xmlStream = TryOpenFile(megFilesXmlPath);
 
         if (xmlStream is null)
@@ -220,7 +218,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
             return Array.Empty<IMegFile>();
         }
 
-        var parser = fileParserFactory.CreateFileParser<XmlFileContainer>(_errorListener);
+        var parser = new XmlFileListParser(Services ,_errorReporter);
         var megaFilesXml = parser.ParseFile(xmlStream);
 
         if (megaFilesXml is null)

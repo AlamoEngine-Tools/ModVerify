@@ -5,11 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.Collections;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Database.ErrorReporting;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
-using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Engine.Xml.Parsers.File;
 using PG.StarWarsGame.Engine.Xml.Tags;
 
 namespace PG.StarWarsGame.Engine.GuiDialog;
@@ -22,8 +21,7 @@ partial class GuiDialogGameManager
     {
         return Task.Run(() =>
         {
-            var parserFactory = ServiceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
-            var guiDialogParser = parserFactory.CreateFileParser<GuiDialogsXml>();
+            var guiDialogParser = new GuiDialogParser(ServiceProvider, ErrorReporter);
 
             _defaultTexturesRo = new ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>(_defaultTextures);
 
@@ -32,7 +30,7 @@ partial class GuiDialogGameManager
 
             if (fileStream is null)
             {
-                ErrorListener.OnInitializationError(new InitializationError
+                ErrorReporter.Report(new InitializationError
                 {
                     GameManager = ToString(),
                     Message = "Unable to find GuiDialogs.xml"
@@ -43,7 +41,7 @@ partial class GuiDialogGameManager
             var guiDialogs = guiDialogParser.ParseFile(fileStream);
             if (guiDialogs is null)
             {
-                ErrorListener.OnInitializationError(new InitializationError
+                ErrorReporter.Report(new InitializationError
                 {
                     GameManager = ToString(),
                     Message = "Unable to parse GuiDialogs.xml"
@@ -53,20 +51,20 @@ partial class GuiDialogGameManager
 
             GuiDialogsXml = guiDialogs;
 
-            InitializeTextures(guiDialogs.TextureData, ErrorListener);
+            InitializeTextures(guiDialogs.TextureData, ErrorReporter);
 
         }, token);
     }
 
-    private void InitializeTextures(GuiDialogsXmlTextureData textureData, DatabaseErrorListenerWrapper errorListener)
+    private void InitializeTextures(GuiDialogsXmlTextureData textureData, DatabaseErrorReporterWrapper errorReporter)
     {
-        InitializeMegaTextures(textureData, ErrorListener);
+        InitializeMegaTextures(textureData, ErrorReporter);
 
         var textures = textureData.Textures;
 
         if (textures.Count == 0)
         {
-            errorListener.OnInitializationError(new InitializationError
+            errorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = "No Textures defined in GuiDialogs.xml"
@@ -124,11 +122,11 @@ partial class GuiDialogGameManager
         return result;
     }
 
-    private void InitializeMegaTextures(GuiDialogsXmlTextureData guiDialogs, DatabaseErrorListenerWrapper errorListener)
+    private void InitializeMegaTextures(GuiDialogsXmlTextureData guiDialogs, DatabaseErrorReporterWrapper errorReporter)
     {
         if (guiDialogs.MegaTexture is null)
         {
-            errorListener.OnInitializationError(new InitializationError
+            errorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = "MtdFile is not defined in GuiDialogs.xml"
@@ -140,7 +138,7 @@ partial class GuiDialogGameManager
 
             if (mtdPath.Length > MegaTextureMaxFilePathLength)
             {
-                errorListener.OnInitializationError(new InitializationError
+                errorReporter.Report(new InitializationError
                 {
                     GameManager = ToString(),
                     Message = $"Mtd file path is longer than {MegaTextureMaxFilePathLength}."
@@ -153,7 +151,7 @@ partial class GuiDialogGameManager
 
         if (guiDialogs.CompressedMegaTexture is null)
         {
-            errorListener.OnInitializationError(new InitializationError
+            errorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = "CompressedMegaTexture is not defined in GuiDialogs.xml"
@@ -168,7 +166,7 @@ partial class GuiDialogGameManager
 
         if (textureFileNameWithExtension.Length > MegaTextureMaxFilePathLength)
         {
-            errorListener.OnInitializationError(new InitializationError
+            errorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = $"MegaTexture file path is longer than {MegaTextureMaxFilePathLength}."
@@ -181,7 +179,7 @@ partial class GuiDialogGameManager
         if (invalidKeys.Count == 0)
             return;
 
-        ErrorListener.OnInitializationError(new InitializationError
+        ErrorReporter.Report(new InitializationError
         {
             GameManager = ToString(),
             Message = $"The following XML keys are not valid to describe a GUI component: {string.Join(",", invalidKeys)}"

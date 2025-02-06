@@ -10,8 +10,8 @@ using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
-internal class GameObjectTypeGameManager(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
-    : GameManagerBase<GameObject>(repository, errorListener, serviceProvider), IGameObjectTypeGameManager
+internal class GameObjectTypeGameManager(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    : GameManagerBase<GameObject>(repository, errorReporter, serviceProvider), IGameObjectTypeGameManager
 {
     protected override async Task InitializeCoreAsync(CancellationToken token)
     {
@@ -19,9 +19,9 @@ internal class GameObjectTypeGameManager(GameRepository repository, DatabaseErro
 
         var contentParser = ServiceProvider.GetRequiredService<IXmlContainerContentParser>();
 
-        await Task.Run(() => contentParser.ParseEntriesFromContainerXml(
+        await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
             "DATA\\XML\\GAMEOBJECTFILES.XML",
-            ErrorListener,
+            ErrorReporter,
             GameRepository,
             ".\\DATA\\XML",
             NamedEntries,
@@ -32,7 +32,7 @@ internal class GameObjectTypeGameManager(GameRepository repository, DatabaseErro
     {
         if (filePath.Length > PGConstants.MaxGameObjectDatabaseFileName)
         {
-            ErrorListener.OnInitializationError(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = $"Game object file '{filePath}' is longer than {PGConstants.MaxGameObjectDatabaseFileName} characters."

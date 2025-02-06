@@ -14,8 +14,8 @@ using PG.StarWarsGame.Files.MTD.Services;
 
 namespace PG.StarWarsGame.Engine.GuiDialog;
 
-internal partial class GuiDialogGameManager(GameRepository repository, DatabaseErrorListenerWrapper errorListener, IServiceProvider serviceProvider)
-    : GameManagerBase(repository, errorListener, serviceProvider), IGuiDialogManager
+internal partial class GuiDialogGameManager(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    : GameManagerBase(repository, errorReporter, serviceProvider), IGuiDialogManager
 {
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
