@@ -4,7 +4,8 @@ using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
-internal class EffectsRepository(GameRepository baseRepository, IServiceProvider serviceProvider) : MultiPassRepository(baseRepository, serviceProvider)
+internal class EffectsRepository(GameRepository baseRepository, IServiceProvider serviceProvider) 
+    : MultiPassRepository(baseRepository, serviceProvider)
 {
     private static readonly string[] LookupPaths =
     [

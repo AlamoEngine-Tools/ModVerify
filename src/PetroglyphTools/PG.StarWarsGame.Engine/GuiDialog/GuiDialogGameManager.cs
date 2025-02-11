@@ -25,23 +25,21 @@ internal partial class GuiDialogGameManager(GameRepository repository, DatabaseE
     private readonly Dictionary<GuiComponentType, ComponentTextureEntry> _defaultTextures = new();
     private ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> _defaultTexturesRo = null!;
 
-    private IMtdFile? _megaTexture;
-    private GuiDialogsXml? _guiDialogsXml;
-    private string? _megaTextureFileName;
     private bool _megaTextureExists;
+    private string? _megaTextureFileName;
 
-    
+
     public IMtdFile? MtdFile
     {
         get
         {
             ThrowIfNotInitialized();
-            return _megaTexture;
+            return field;
         }
         private set
         {
             ThrowIfAlreadyInitialized();
-            _megaTexture = value;
+            field = value;
         }
     }
 
@@ -50,12 +48,12 @@ internal partial class GuiDialogGameManager(GameRepository repository, DatabaseE
         get
         {
             ThrowIfNotInitialized();
-            return _guiDialogsXml;
+            return field;
         }
         private set
         {
             ThrowIfAlreadyInitialized();
-            _guiDialogsXml = value;
+            field = value;
         }
     }
 
