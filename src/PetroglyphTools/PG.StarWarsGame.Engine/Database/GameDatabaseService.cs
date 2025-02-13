@@ -15,7 +15,7 @@ internal class GameDatabaseService(IServiceProvider serviceProvider) : IGameData
     {
         var repoFactory = serviceProvider.GetRequiredService<IGameRepositoryFactory>();
 
-        using var errorListenerWrapper = new DatabaseErrorReporterWrapper(gameInitializationOptions.ErrorListener);
+        using var errorListenerWrapper = new DatabaseErrorReporterWrapper(gameInitializationOptions.ErrorListener, serviceProvider);
         var repository = repoFactory.Create(gameInitializationOptions.TargetEngineType, gameInitializationOptions.Locations, errorListenerWrapper);
 
         var gameInitializer = new GameInitializer(repository, gameInitializationOptions.CancelOnError, serviceProvider);
