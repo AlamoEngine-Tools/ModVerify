@@ -44,7 +44,7 @@ public abstract class XmlObjectParser<TObject, TParseState>(
 
     protected ICrc32HashingService HashingService { get; } = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    public abstract TObject Parse(XElement element, out Crc32 nameCrc);
+    public abstract TObject Parse(XElement element, out Crc32 upperNameCrc);
 
     protected void Parse(TObject xmlObject, XElement element, in TParseState state)
     {
@@ -61,11 +61,11 @@ public abstract class XmlObjectParser<TObject, TParseState>(
 
     protected abstract bool ParseTag(XElement tag, TObject xmlObject, in TParseState parseState);
 
-    protected string GetXmlObjectName(XElement element, out Crc32 nameCrc32)
+    protected string GetXmlObjectName(XElement element, out Crc32 upperNameCrc32)
     {
         GetNameAttributeValue(element, out var name);
-        nameCrc32 = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.DefaultPGEncoding);
-        if (nameCrc32 == default)
+        upperNameCrc32 = HashingService.GetCrc32Upper(name.AsSpan(), PGConstants.DefaultPGEncoding);
+        if (upperNameCrc32 == default)
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
                 $"Name for XmlObject cannot be empty."));

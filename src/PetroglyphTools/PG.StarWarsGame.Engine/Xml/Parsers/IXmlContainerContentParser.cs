@@ -16,5 +16,5 @@ internal interface IXmlContainerContentParser
         IGameRepository gameRepository,
         string lookupPath,
         ValueListDictionary<Crc32, T> entries,
-        Action<string>? onFileParseAction = null);
+        Action<string>? onFileParseAction = null) where T : notnull;
 }

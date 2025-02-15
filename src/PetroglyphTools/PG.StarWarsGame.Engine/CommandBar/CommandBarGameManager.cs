@@ -25,7 +25,7 @@ internal class CommandBarGameManager(
 {
     protected override async Task InitializeCoreAsync(CancellationToken token)
     {
-        Logger?.LogInformation("PCreating command bar components...");
+        Logger?.LogInformation("Creating command bar components...");
 
         var contentParser = ServiceProvider.GetRequiredService<IXmlContainerContentParser>();
         contentParser.XmlParseError += OnParseError;
@@ -51,7 +51,7 @@ internal class CommandBarGameManager(
 
     private void OnParseError(object sender, XmlContainerParserErrorEventArgs e)
     {
-        if (e.IsContainer || e.IsError)
+        if (e.ErrorInXmlFileList || e.HasException)
         {
             e.Continue = false;
             ErrorReporter.Report(new InitializationError
@@ -64,7 +64,7 @@ internal class CommandBarGameManager(
 
     private static string GetMessage(XmlContainerParserErrorEventArgs errorEventArgs)
     {
-        if (errorEventArgs.IsError)
+        if (errorEventArgs.HasException)
             return $"Error while parsing CommandBar XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";
         return "Could not find CommandBarComponentFiles.xml";
     }

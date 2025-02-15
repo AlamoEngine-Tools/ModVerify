@@ -17,10 +17,10 @@ public sealed class SfxEventParser(
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<SfxEvent>(parsedElements, serviceProvider, errorReporter)
 { 
-    public override SfxEvent Parse(XElement element, out Crc32 nameCrc)
+    public override SfxEvent Parse(XElement element, out Crc32 upperNameCrc)
     {
-        var name = GetXmlObjectName(element, out nameCrc);
-        var sfxEvent = new SfxEvent(name, nameCrc, XmlLocationInfo.FromElement(element));
+        var name = GetXmlObjectName(element, out upperNameCrc);
+        var sfxEvent = new SfxEvent(name, upperNameCrc, XmlLocationInfo.FromElement(element));
         Parse(sfxEvent, element, default);
         ValidateValues(sfxEvent, element);
         sfxEvent.CoerceValues();

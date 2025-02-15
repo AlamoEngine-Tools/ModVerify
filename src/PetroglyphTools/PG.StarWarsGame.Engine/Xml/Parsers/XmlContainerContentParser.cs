@@ -26,18 +26,17 @@ internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider
         IGameRepository gameRepository,
         string lookupPath,
         ValueListDictionary<Crc32, T> entries,
-        Action<string>? onFileParseAction = null)
+        Action<string>? onFileParseAction = null) where T : notnull
     {
-        var containerParser = new XmlFileListParser(Services, reporter);
         Logger.LogDebug($"Parsing container data '{xmlFile}'");
 
         using var containerStream = gameRepository.TryOpenFile(xmlFile);
         if (containerStream == null)
         {
-            reporter.Report(containerParser.ToString(), XmlParseErrorEventArgs.FromMissingFile(xmlFile));
+            reporter.Report(ToString(), XmlParseErrorEventArgs.FromMissingFile(xmlFile));
             Logger.LogWarning($"Could not find XML file '{xmlFile}'");
 
-            var args = new XmlContainerParserErrorEventArgs(xmlFile, true)
+            var args = new XmlContainerParserErrorEventArgs(xmlFile, null, true)
             {
                 // No reason to continue
                 Continue = false
@@ -50,13 +49,14 @@ internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider
 
         try
         {
-           container = containerParser.ParseFile(containerStream);
+            var containerParser = new XmlFileListParser(Services, reporter);
+            container = containerParser.ParseFile(containerStream);
             if (container is null)
                 throw new XmlException($"Unable to parse XML container file '{xmlFile}'.");
         }
         catch (XmlException e)
         {
-            var args = new XmlContainerParserErrorEventArgs(e, xmlFile, true)
+            var args = new XmlContainerParserErrorEventArgs(xmlFile, e, true)
             {
                 // No reason to continue
                 Continue = false
@@ -101,12 +101,17 @@ internal sealed class XmlContainerContentParser(IServiceProvider serviceProvider
             {
                 reporter.Report(parser.ToString(), new XmlParseErrorEventArgs(new XmlLocationInfo(file, 0), XmlParseErrorKind.Unknown, e.Message));
 
-                var args = new XmlContainerParserErrorEventArgs(e, file);
+                var args = new XmlContainerParserErrorEventArgs(file, e);
                 XmlParseError?.Invoke(this, args);
 
                 if (!args.Continue)
                     return;
             }
         }
+    }
+
+    public override string ToString()
+    {
+        return GetType().FullName;
     }
 }

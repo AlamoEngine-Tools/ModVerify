@@ -47,7 +47,7 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorRepor
 
     private void OnParseError(object sender, XmlContainerParserErrorEventArgs e)
     {
-        if (e.IsContainer || e.IsError)
+        if (e.ErrorInXmlFileList || e.HasException)
         {
             e.Continue = false;
             ErrorReporter.Report(new InitializationError
@@ -60,7 +60,7 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorRepor
 
     private static string GetMessage(XmlContainerParserErrorEventArgs errorEventArgs)
     {
-        if (errorEventArgs.IsError)
+        if (errorEventArgs.HasException)
             return $"Error while parsing SFXEvent XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";
         return "Could not find SFXEventFiles.xml";
     }

@@ -17,10 +17,10 @@ public sealed class CommandBarComponentParser(
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<CommandBarComponentData>(parsedElements, serviceProvider, errorReporter)
 {
-    public override CommandBarComponentData Parse(XElement element, out Crc32 nameCrc)
+    public override CommandBarComponentData Parse(XElement element, out Crc32 upperNameCrc)
     {
-        var name = GetXmlObjectName(element, out nameCrc);
-        var component = new CommandBarComponentData(name, nameCrc, XmlLocationInfo.FromElement(element));
+        var name = GetXmlObjectName(element, out upperNameCrc);
+        var component = new CommandBarComponentData(name, upperNameCrc, XmlLocationInfo.FromElement(element));
         Parse(component, element, default);
         component.CoerceValues();
         return component;
