@@ -3,38 +3,23 @@ using System.Xml;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal class XmlContainerParserErrorEventArgs
+internal class XmlContainerParserErrorEventArgs(string file, XmlException? exception = null, bool isXmlFileList = false)
 {
-    private bool _continue = true;
-
     public bool Continue
     {
-        get => _continue;
+        get;
         // Once this is set to false, there is no way back.
-        set => _continue &= value;
-    }
+        set => field &= value;
+    } = true;
 
-    public bool IsContainer { get; }
+    public bool ErrorInXmlFileList { get; } = isXmlFileList;
 
-    public string File { get; }
+    public string File { get; } = file;
 
     [MemberNotNullWhen(true, nameof(Exception))]
-    public bool IsError => Exception is not null;
+    public bool HasException => Exception is not null;
 
-    public bool IsFileNotFound => !IsError;
+    public bool IsFileNotFound => !HasException;
 
-    public XmlException? Exception { get; }
-
-    public XmlContainerParserErrorEventArgs(XmlException exception, string file, bool container = false)
-    {
-        Exception = exception;
-        File = file;
-        IsContainer = container;
-    }
-
-    public XmlContainerParserErrorEventArgs(string file, bool container = false)
-    {
-        File = file;
-        IsContainer = container;
-    }
+    public XmlException? Exception { get; } = exception;
 }

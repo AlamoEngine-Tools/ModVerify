@@ -51,20 +51,20 @@ partial class GuiDialogGameManager
 
             GuiDialogsXml = guiDialogs;
 
-            InitializeTextures(guiDialogs.TextureData, ErrorReporter);
+            InitializeTextures(guiDialogs.TextureData);
 
         }, token);
     }
 
-    private void InitializeTextures(GuiDialogsXmlTextureData textureData, DatabaseErrorReporterWrapper errorReporter)
+    private void InitializeTextures(GuiDialogsXmlTextureData textureData)
     {
-        InitializeMegaTextures(textureData, ErrorReporter);
+        InitializeMegaTextures(textureData);
 
         var textures = textureData.Textures;
 
         if (textures.Count == 0)
         {
-            errorReporter.Report(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = "No Textures defined in GuiDialogs.xml"
@@ -122,11 +122,11 @@ partial class GuiDialogGameManager
         return result;
     }
 
-    private void InitializeMegaTextures(GuiDialogsXmlTextureData guiDialogs, DatabaseErrorReporterWrapper errorReporter)
+    private void InitializeMegaTextures(GuiDialogsXmlTextureData guiDialogs)
     {
         if (guiDialogs.MegaTexture is null)
         {
-            errorReporter.Report(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = "MtdFile is not defined in GuiDialogs.xml"
@@ -138,7 +138,7 @@ partial class GuiDialogGameManager
 
             if (mtdPath.Length > MegaTextureMaxFilePathLength)
             {
-                errorReporter.Report(new InitializationError
+                ErrorReporter.Report(new InitializationError
                 {
                     GameManager = ToString(),
                     Message = $"Mtd file path is longer than {MegaTextureMaxFilePathLength}."
@@ -151,7 +151,7 @@ partial class GuiDialogGameManager
 
         if (guiDialogs.CompressedMegaTexture is null)
         {
-            errorReporter.Report(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = "CompressedMegaTexture is not defined in GuiDialogs.xml"
@@ -166,7 +166,7 @@ partial class GuiDialogGameManager
 
         if (textureFileNameWithExtension.Length > MegaTextureMaxFilePathLength)
         {
-            errorReporter.Report(new InitializationError
+            ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
                 Message = $"MegaTexture file path is longer than {MegaTextureMaxFilePathLength}."

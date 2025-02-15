@@ -17,10 +17,17 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
         var files = new List<string>();
         foreach (var child in element.Elements())
         {
-            if (child.Name == "File")
+            var tagName = GetTagName(child);
+            if (tagName == "File")
             {
                 var file = PetroglyphXmlStringParser.Instance.Parse(child);
                 files.Add(file);
+            }
+            else
+            {
+                ErrorReporter?.Report(ToString(),
+                    new XmlParseErrorEventArgs(child, XmlParseErrorKind.UnknownNode, 
+                        $"Tag '<{tagName}>' is not supported. Only '<File>' is supported."));
             }
         }
         return new XmlFileListContainer(files);

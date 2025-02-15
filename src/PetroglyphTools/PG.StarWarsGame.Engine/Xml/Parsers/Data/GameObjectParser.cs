@@ -31,12 +31,12 @@ public sealed class GameObjectParser(
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<GameObject>(parsedElements, serviceProvider, errorReporter)
 { 
-    public override GameObject Parse(XElement element, out Crc32 nameCrc)
+    public override GameObject Parse(XElement element, out Crc32 upperNameCrc)
     {
-        var name = GetXmlObjectName(element, out nameCrc);
+        var name = GetXmlObjectName(element, out upperNameCrc);
         var type = GetTagName(element);
         var objectType = EstimateType(type);
-        var gameObject = new GameObject(type, name, nameCrc, objectType, XmlLocationInfo.FromElement(element));
+        var gameObject = new GameObject(type, name, upperNameCrc, objectType, XmlLocationInfo.FromElement(element));
 
         Parse(gameObject, element, default);
 
