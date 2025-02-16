@@ -37,6 +37,8 @@ internal class Program
 
     private static async Task<int> Main(string[] args) 
     {
+        PrintHeader();
+
         var result = 0;
         
         var parseResult = Parser.Default.ParseArguments<ModVerifyOptions>(args);
@@ -159,25 +161,26 @@ internal class Program
         }
 #endif
         loggingBuilder.SetMinimumLevel(logLevel);
-        
+
         SetupFileLogging(loggingBuilder, fileSystem);
 
+
         loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, level) =>
-        {
-            if (level < logLevel)
-                return false;
-            if (string.IsNullOrEmpty(category))
-                return false;
-            if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
-                return false;
-            return true;
-        }).AddConsole();
+            {
+                if (level < logLevel)
+                    return false;
+                if (string.IsNullOrEmpty(category))
+                    return false;
+                if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
+                    return false;
+                return true;
+            })
+            .AddSimpleConsole();
     }
-    
+
     private static void SetupFileLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
     {
         var logPath = fileSystem.Path.Combine(fileSystem.Path.GetTempPath(), "ModVerify_log.txt");
-
 
         var logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
@@ -194,5 +197,17 @@ internal class Program
     private static bool IsXmlParserLogging(LogEvent logEvent)
     {
         return Matching.FromSource(ParserNamespace)(logEvent) || Matching.FromSource(EngineParserNamespace)(logEvent);
+    }
+
+    private static void PrintHeader()
+    {
+        Console.WriteLine("***********************************");
+        Console.WriteLine("***********************************");
+        Console.WriteLine(Figgle.FiggleFonts.Standard.Render("Mod Verify"));
+        Console.WriteLine("***********************************");
+        Console.WriteLine("***********************************");
+        Console.WriteLine("                          by Anakin");
+        Console.WriteLine();
+        Console.WriteLine();
     }
 }
