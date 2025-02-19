@@ -3,7 +3,6 @@ using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Xml;
-using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine;
 
@@ -17,8 +16,5 @@ public static class PetroglyphEngineServiceContribution
         serviceCollection.AddSingleton<IPetroglyphXmlFileParserFactory>(sp => new PetroglyphXmlFileParserFactory(sp));
         
         serviceCollection.AddSingleton<IGameDatabaseService>(sp => new GameDatabaseService(sp));
-
-        // Transients
-        serviceCollection.AddTransient<IXmlContainerContentParser>(sp => new XmlContainerContentParser(sp));
     }
 }

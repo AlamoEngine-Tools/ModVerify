@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Collections;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.Database;
 
-internal abstract class GameManagerBase<T>(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal abstract class GameManagerBase<T>(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGameManager<T>
 {
     protected readonly ValueListDictionary<Crc32, T> NamedEntries = new();
@@ -38,11 +38,11 @@ internal abstract class GameManagerBase
     protected readonly IFileSystem FileSystem;
     protected readonly ILogger? Logger;
 
-    protected readonly DatabaseErrorReporterWrapper ErrorReporter;
+    protected readonly GameErrorReporterWrapper ErrorReporter;
 
     public bool IsInitialized => _initialized;
 
-    protected GameManagerBase(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    protected GameManagerBase(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     {
         GameRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));

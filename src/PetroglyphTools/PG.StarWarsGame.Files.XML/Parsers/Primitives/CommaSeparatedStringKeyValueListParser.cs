@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
+namespace PG.StarWarsGame.Files.XML.Parsers;
 
 // Used e.g, by <Land_Terrain_Model_Mapping>
 // Format: Key, Value, Key, Value
@@ -15,7 +15,9 @@ public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphPrimitive
     {
     }
 
-    public override IList<(string key, string value)> Parse(XElement element)
+    private protected override IList<(string key, string value)> DefaultValue => [];
+
+    protected internal override IList<(string key, string value)> ParseCore(string trimmedValue, XElement element)
     {
         var values = element.Value.Split(',');
 

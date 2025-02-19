@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Numerics;
 using PG.Commons.Hashing;
+using PG.Commons.Numerics;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
 
@@ -14,6 +15,7 @@ public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationI
     public const float DefaultBlinkRate = 0.2f;
     public const int DefaultBaseLayer = 2;
     public static readonly Vector2 DefaultOffsetWidescreenValue = new(9.9999998e17f, 9.9999998e17f);
+    public static readonly Vector4Int WhiteColor = new(255, 255, 255, 255);
 
     public IReadOnlyList<string> SelectedTextureNames { get; internal set; } = [];
     public IReadOnlyList<string> BlankTextureNames { get; internal set; } = [];
@@ -120,6 +122,11 @@ public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationI
     public Vector2 UpperEffectOffset { get; internal set; }
     public Vector2 OverlayOffset { get; internal set; }
     public Vector2 Overlay2Offset { get; internal set; }
+
+    public Vector4Int? Color { get; internal set; } = WhiteColor;
+    public Vector4Int? TextColor { get; internal set; }
+    public Vector4Int? TextColor2 { get; internal set; }
+    public Vector4Int? MaxBarColor { get; internal set; } = WhiteColor;
 
     internal override void CoerceValues()
     {

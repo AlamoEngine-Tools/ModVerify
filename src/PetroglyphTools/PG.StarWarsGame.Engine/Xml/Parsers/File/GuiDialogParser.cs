@@ -6,7 +6,6 @@ using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.File;
 

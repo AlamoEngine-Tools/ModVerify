@@ -1,20 +1,23 @@
 ﻿using System.Numerics;
 using System.Xml.Linq;
 
-namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
+namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public sealed class PetroglyphXmlVector2FParser : PetroglyphPrimitiveXmlParser<Vector2>
 {
     public static readonly PetroglyphXmlVector2FParser Instance = new();
 
     private static readonly PetroglyphXmlFloatParser FloatParser = PetroglyphXmlFloatParser.Instance;
+
     private static readonly PetroglyphXmlLooseStringListParser LooseStringListParser = PetroglyphXmlLooseStringListParser.Instance;
 
     private PetroglyphXmlVector2FParser()
     {
     }
 
-    public override Vector2 Parse(XElement element)
+    private protected override Vector2 DefaultValue => default;
+
+    protected internal override Vector2 ParseCore(string trimmedValue, XElement element)
     {
         var listOfValues = LooseStringListParser.Parse(element);
 
@@ -23,13 +26,13 @@ public sealed class PetroglyphXmlVector2FParser : PetroglyphPrimitiveXmlParser<V
 
         if (listOfValues.Count == 1)
         {
-            var value = FloatParser.Parse(listOfValues[0], element);
+            var value = FloatParser.ParseCore(listOfValues[0], element);
             return new Vector2(value, 0.0f);
         }
 
-        var value1 = FloatParser.Parse(listOfValues[0], element);
-        var value2 = FloatParser.Parse(listOfValues[1], element);
-        
+        var value1 = FloatParser.ParseCore(listOfValues[0], element);
+        var value2 = FloatParser.ParseCore(listOfValues[1], element);
+
         return new Vector2(value1, value2);
     }
 }

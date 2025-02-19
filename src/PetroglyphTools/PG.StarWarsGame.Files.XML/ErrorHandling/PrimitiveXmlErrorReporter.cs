@@ -1,4 +1,5 @@
 ﻿using System;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Files.XML.ErrorHandling;
 
@@ -14,7 +15,7 @@ internal sealed class PrimitiveXmlErrorReporter : IXmlParserErrorReporter, IXmlP
     {
     }
 
-    public void Report(string parser, XmlParseErrorEventArgs error)
+    public void Report(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
     {
         XmlParseError?.Invoke(parser, error);
     }

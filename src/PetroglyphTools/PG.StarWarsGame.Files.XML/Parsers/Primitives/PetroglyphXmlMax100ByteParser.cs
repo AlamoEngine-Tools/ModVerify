@@ -2,19 +2,21 @@
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Utilities;
 
-namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
+namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public sealed class PetroglyphXmlMax100ByteParser : PetroglyphPrimitiveXmlParser<byte>
 {
     public static readonly PetroglyphXmlMax100ByteParser Instance = new();
 
+    private protected override byte DefaultValue => 0;
+
     private PetroglyphXmlMax100ByteParser()
     {
     }
 
-    public override byte Parse(XElement element)
+    protected internal override byte ParseCore(string trimmedValue, XElement element)
     {
-        var intValue = PetroglyphXmlIntegerParser.Instance.Parse(element);
+        var intValue = PetroglyphXmlIntegerParser.Instance.ParseCore(trimmedValue, element);
 
         if (intValue > 100)
             intValue = 100;

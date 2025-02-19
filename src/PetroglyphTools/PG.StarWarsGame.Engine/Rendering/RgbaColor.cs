@@ -24,11 +24,15 @@ public readonly struct RgbaColor(float r, float g, float b, float a) : IEquatabl
     {
     }
 
-    public RgbaColor(Vector4Int rgbaVector) : this(rgbaVector.First, rgbaVector.Second, rgbaVector.Third, rgbaVector.Fourth)
+    public RgbaColor(Vector4Int rgbaVector) : this(
+        unchecked((byte)rgbaVector.First), 
+        unchecked ((byte)rgbaVector.Second),
+        unchecked ((byte)rgbaVector.Third), 
+        unchecked ((byte)rgbaVector.Fourth))
     {
     }
 
-    public RgbaColor(int r, int g, int b, int a) : this(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f)
+    public RgbaColor(uint r, uint g, uint b, uint a) : this(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f)
     {
     }
 
@@ -61,3 +65,22 @@ public readonly struct RgbaColor(float r, float g, float b, float a) : IEquatabl
         return HashCode.Combine(_r, _g, _b, _a);
     }
 }
+
+public enum PrimRenderMode
+{
+    PrimOpaque = 0x0,
+    PrimAdditive = 0x1,
+    PrimAlpha = 0x2,
+    PrimModulate = 0x3,
+    PrimDepthspriteAdditive = 0x4,
+    PrimDepthspriteAlpha = 0x5,
+    PrimDepthspriteModulate = 0x6,
+    PrimDiffuseAlpha = 0x7,
+    PrimStencilDarken = 0x8,
+    PrimStencilDarkenBlur = 0x9,
+    PrimHeat = 0xa,
+    PrimParticleBumpAlpha = 0xb,
+    PrimDecalBumpAlpha = 0xc,
+    PrimAlphaScanlines = 0xd,
+    PrimCount = 0xe
+};

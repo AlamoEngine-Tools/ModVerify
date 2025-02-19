@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
-internal class SfxEventGameManager(GameRepository repository, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal class SfxEventGameManager(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     : GameManagerBase<SfxEvent>(repository, errorReporter, serviceProvider), ISfxEventGameManager
 {
     public IEnumerable<LanguageType> InstalledLanguages { get; private set; } = [];
@@ -26,13 +25,12 @@ internal class SfxEventGameManager(GameRepository repository, DatabaseErrorRepor
 
         Logger?.LogInformation("Parsing SFXEvents...");
 
-        var contentParser = ServiceProvider.GetRequiredService<IXmlContainerContentParser>();
+        var contentParser = new XmlContainerContentParser(ServiceProvider, ErrorReporter);
         contentParser.XmlParseError += OnParseError;
         try
         {
             await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
                     "DATA\\XML\\SFXEventFiles.XML",
-                    ErrorReporter,
                     GameRepository,
                     "DATA\\XML",
                     NamedEntries,

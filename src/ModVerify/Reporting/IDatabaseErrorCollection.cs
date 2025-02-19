@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 
 namespace AET.ModVerify.Reporting;
 

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.CommandBar;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO.Repositories;
@@ -18,7 +18,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
 
     private CancellationTokenSource? _cancellationTokenSource;
 
-    public async Task<IGameDatabase> InitializeAsync(DatabaseErrorReporterWrapper errorReporter, CancellationToken token)
+    public async Task<IGameDatabase> InitializeAsync(GameErrorReporterWrapper errorReporter, CancellationToken token)
     {
         _logger?.LogInformation("Initializing Game Database...");
         errorReporter.InitializationError += OnInitializationError;

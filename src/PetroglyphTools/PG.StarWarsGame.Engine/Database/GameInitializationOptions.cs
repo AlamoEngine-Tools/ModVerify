@@ -1,4 +1,4 @@
-﻿using PG.StarWarsGame.Engine.Database.ErrorReporting;
+﻿using PG.StarWarsGame.Engine.ErrorReporting;
 
 namespace PG.StarWarsGame.Engine.Database;
 
@@ -10,5 +10,5 @@ public class GameInitializationOptions
 
     public bool CancelOnError { get; init; }
 
-    public IDatabaseErrorReporter? ErrorListener { get; init; }
+    public IGameErrorReporter? GameErrorReporter { get; init; }
 }

@@ -20,11 +20,11 @@ public enum XmlParseErrorKind
     /// </summary>
     InvalidValue = 3,
     /// <summary>
-    /// A tag's value is has an invalid syntax.
+    /// A tag's value has an invalid syntax.
     /// </summary>
     MalformedValue = 4,
     /// <summary>
-    /// The value is too long
+    /// The tag or value is too long.
     /// </summary>
     TooLongData = 5,
     /// <summary>
@@ -46,5 +46,9 @@ public enum XmlParseErrorKind
     /// <summary>
     /// The XML element contains an unsupported tag.
     /// </summary>
-    UnknownNode = 10
+    UnknownNode = 10,
+    /// <summary>
+    /// The XML tag name is null or empty.
+    /// </summary>
+    EmptyNodeName
 }

@@ -7,9 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.Localization;
-using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
 using PG.StarWarsGame.Files.MEG.Data.Entries;
 using PG.StarWarsGame.Files.MEG.Data.EntryLocations;
@@ -28,7 +27,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
-    private readonly DatabaseErrorReporterWrapper _errorReporter;
+    private readonly GameErrorReporterWrapper _errorReporter;
     
     protected readonly string GameDirectory;
 
@@ -47,7 +46,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly List<string> _loadedMegFiles = new();
     protected IVirtualMegArchive? MasterMegArchive { get; private set; }
 
-    protected GameRepository(GameLocations gameLocations, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) : base(serviceProvider)
+    protected GameRepository(GameLocations gameLocations, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) : base(serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));

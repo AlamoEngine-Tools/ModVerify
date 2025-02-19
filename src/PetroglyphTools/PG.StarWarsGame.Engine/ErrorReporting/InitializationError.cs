@@ -1,4 +1,4 @@
-﻿namespace PG.StarWarsGame.Engine.Database.ErrorReporting;
+﻿namespace PG.StarWarsGame.Engine.ErrorReporting;
 
 public sealed class InitializationError
 {
