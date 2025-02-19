@@ -4,13 +4,21 @@ using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphXmlParserBase(IXmlParserErrorReporter? errorReporter)
+public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParser
 {
-    protected readonly IXmlParserErrorReporter? ErrorReporter = errorReporter;
+    protected readonly IXmlParserErrorReporter? ErrorReporter;
 
-    public sealed override string ToString()
+    public string Name { get; }
+
+    public override string ToString()
     {
-        return GetType().FullName!;
+        return Name;
+    }
+
+    protected PetroglyphXmlParserBase(IXmlParserErrorReporter? errorReporter)
+    {
+        Name = GetType().FullName!;
+        ErrorReporter = errorReporter;
     }
 
     protected string GetTagName(XElement element)
@@ -48,6 +56,6 @@ public abstract class PetroglyphXmlParserBase(IXmlParserErrorReporter? errorRepo
 
     protected virtual void OnParseError(XmlParseErrorEventArgs error)
     {
-        ErrorReporter?.Report(ToString(), error);
+        ErrorReporter?.Report(this, error);
     }
 }

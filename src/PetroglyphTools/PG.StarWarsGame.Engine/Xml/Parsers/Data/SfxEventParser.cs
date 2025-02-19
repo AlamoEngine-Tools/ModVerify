@@ -7,7 +7,7 @@ using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
@@ -17,10 +17,10 @@ public sealed class SfxEventParser(
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<SfxEvent>(parsedElements, serviceProvider, errorReporter)
 { 
-    public override SfxEvent Parse(XElement element, out Crc32 upperNameCrc)
+    public override SfxEvent Parse(XElement element, out Crc32 crc32)
     {
-        var name = GetXmlObjectName(element, out upperNameCrc);
-        var sfxEvent = new SfxEvent(name, upperNameCrc, XmlLocationInfo.FromElement(element));
+        var name = GetXmlObjectName(element, out crc32, true);
+        var sfxEvent = new SfxEvent(name, crc32, XmlLocationInfo.FromElement(element));
         Parse(sfxEvent, element, default);
         ValidateValues(sfxEvent, element);
         sfxEvent.CoerceValues();

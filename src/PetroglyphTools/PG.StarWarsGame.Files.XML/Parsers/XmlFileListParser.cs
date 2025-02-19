@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -21,12 +20,16 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
             if (tagName == "File")
             {
                 var file = PetroglyphXmlStringParser.Instance.Parse(child);
+                if (file.Length == 0)
+                {
+                    ErrorReporter?.Report(this, 
+                        new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue, "Empty value in <File> tag."));
+                }
                 files.Add(file);
             }
             else
             {
-                ErrorReporter?.Report(ToString(),
-                    new XmlParseErrorEventArgs(child, XmlParseErrorKind.UnknownNode, 
+                ErrorReporter?.Report(this, new XmlParseErrorEventArgs(child, XmlParseErrorKind.UnknownNode, 
                         $"Tag '<{tagName}>' is not supported. Only '<File>' is supported."));
             }
         }

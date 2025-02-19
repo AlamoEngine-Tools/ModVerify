@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.File;
 using PG.StarWarsGame.Engine.Xml.Tags;

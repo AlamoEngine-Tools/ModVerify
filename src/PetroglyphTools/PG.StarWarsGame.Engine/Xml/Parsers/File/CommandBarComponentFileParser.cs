@@ -24,8 +24,8 @@ internal class CommandBarComponentFileParser(IServiceProvider serviceProvider, I
 
         foreach (var xElement in element.Elements())
         {
-            var sfxEvent = parser.Parse(xElement, out var nameCrc);
-            parsedElements.Add(nameCrc, sfxEvent);
+            var commandBarComponent = parser.Parse(xElement, out var nameCrc);
+            parsedElements.Add(nameCrc, commandBarComponent);
         }
     }
 }

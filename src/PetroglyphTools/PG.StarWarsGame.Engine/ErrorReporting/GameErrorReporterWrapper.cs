@@ -2,40 +2,46 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers;
 
-namespace PG.StarWarsGame.Engine.Database.ErrorReporting;
+namespace PG.StarWarsGame.Engine.ErrorReporting;
 
-internal sealed class DatabaseErrorReporterWrapper : XmlErrorReporter, IDatabaseErrorReporter
+internal sealed class GameErrorReporterWrapper : XmlErrorReporter, IGameErrorReporter
 {
     internal event EventHandler<InitializationError>? InitializationError;
 
-    private readonly IDatabaseErrorReporter? _errorListener;
+    private readonly IGameErrorReporter? _errorReporter;
     private readonly ILogger? _logger;
 
-    public DatabaseErrorReporterWrapper(IDatabaseErrorReporter? errorListener, IServiceProvider serviceProvider)
+    public GameErrorReporterWrapper(IGameErrorReporter? errorReporter, IServiceProvider serviceProvider)
     {
-        if (errorListener is null)
+        if (errorReporter is null)
             return;
-        _errorListener = errorListener;
+        _errorReporter = errorReporter;
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
     }
 
     public void Report(XmlError error)
     {
-        _errorListener?.Report(error);
+        _errorReporter?.Report(error);
     }
 
     public void Report(InitializationError error)
     {
         InitializationError?.Invoke(this, error);
-        if (_errorListener is null)
+        if (_errorReporter is null)
             return;
-        _errorListener.Report(error);
+        _errorReporter.Report(error);
     }
 
-    public override void Report(string parser, XmlParseErrorEventArgs error)
+    public void Assert(EngineAssert assert)
     {
-        if (_errorListener is null)
+        _errorReporter?.Assert(assert);
+    }
+
+    public override void Report(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
+    {
+        if (_errorReporter is null)
             return;
 
         _logger?.LogWarning($"Xml parser '{parser}' reported error: {error}");

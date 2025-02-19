@@ -52,12 +52,12 @@ public abstract class VerifyGamePipeline : Pipeline
         {
             var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
 
-            var initializationErrorListener = new ConcurrentGameDatabaseErrorReporter();
+            var initializationErrorListener = new ConcurrentGameGameErrorReporter();
             var initOptions = new GameInitializationOptions
             {
                 Locations = _gameLocations,
                 TargetEngineType = _targetType,
-                ErrorListener = initializationErrorListener
+                GameErrorReporter = initializationErrorListener
 
             };
             var database = await databaseService.InitializeGameAsync(initOptions, token);

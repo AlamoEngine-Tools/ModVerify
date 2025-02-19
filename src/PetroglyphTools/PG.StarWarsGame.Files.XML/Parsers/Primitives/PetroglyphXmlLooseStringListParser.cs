@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
-namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
+namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlParser<IList<string>>
 {
@@ -19,27 +19,22 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlP
 
     public static readonly PetroglyphXmlLooseStringListParser Instance = new();
 
+    private protected override IList<string> DefaultValue => [];
+
     private PetroglyphXmlLooseStringListParser()
     {
     }
 
-    public override IList<string> Parse(XElement element)
+    protected internal override IList<string> ParseCore(string trimmedValue, XElement element)
     {
-        var trimmedValued = element.Value.Trim();
-
-        if (trimmedValued.Length == 0)
-            return Array.Empty<string>();
-
-        if (trimmedValued.Length > 0x2000)
+        if (trimmedValue.Length > 0x2000)
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
-                $"Input value is too long '{trimmedValued.Length}' at {XmlLocationInfo.FromElement(element)}"));
-
-            return Array.Empty<string>();
+                $"Input value is too long '{trimmedValue.Length}' at {XmlLocationInfo.FromElement(element)}"));
+            return DefaultValue;
         }
 
-        var entries = trimmedValued.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
-
+        var entries = trimmedValue.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
         return entries;
     }
 }

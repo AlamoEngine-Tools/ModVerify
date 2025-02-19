@@ -4,7 +4,7 @@ using System.IO.Abstractions;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 

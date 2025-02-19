@@ -1,8 +1,8 @@
-﻿using PG.StarWarsGame.Engine.Database.ErrorReporting;
+﻿using PG.StarWarsGame.Engine.ErrorReporting;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
 internal interface IGameRepositoryFactory
 {
-    GameRepository Create(GameEngineType engineType, GameLocations gameLocations, DatabaseErrorReporterWrapper errorReporter);
+    GameRepository Create(GameEngineType engineType, GameLocations gameLocations, GameErrorReporterWrapper errorReporter);
 }

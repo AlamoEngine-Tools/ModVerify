@@ -4,7 +4,7 @@ using PG.Commons.Hashing;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public interface IPetroglyphXmlFileContainerParser<T> where T : notnull
+public interface IPetroglyphXmlFileContainerParser<T> : IPetroglyphXmlParser where T : notnull 
 {
     void ParseFile(Stream xmlStream, IValueListDictionary<Crc32, T> parsedEntries);
 }

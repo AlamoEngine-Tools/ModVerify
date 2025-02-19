@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PG.StarWarsGame.Engine.Database.ErrorReporting;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Files.MEG.Files;
 
@@ -12,7 +12,7 @@ internal class FocGameRepository : GameRepository
 {
     public override GameEngineType EngineType => GameEngineType.Foc;
 
-    public FocGameRepository(GameLocations gameLocations, DatabaseErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    public FocGameRepository(GameLocations gameLocations, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
         : base(gameLocations, errorReporter, serviceProvider)
     {
         if (gameLocations == null)

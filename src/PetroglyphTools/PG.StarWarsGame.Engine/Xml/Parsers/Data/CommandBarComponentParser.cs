@@ -7,7 +7,7 @@ using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
@@ -17,10 +17,10 @@ public sealed class CommandBarComponentParser(
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<CommandBarComponentData>(parsedElements, serviceProvider, errorReporter)
 {
-    public override CommandBarComponentData Parse(XElement element, out Crc32 upperNameCrc)
+    public override CommandBarComponentData Parse(XElement element, out Crc32 crc32)
     {
-        var name = GetXmlObjectName(element, out upperNameCrc);
-        var component = new CommandBarComponentData(name, upperNameCrc, XmlLocationInfo.FromElement(element));
+        var name = GetXmlObjectName(element, out crc32, true);
+        var component = new CommandBarComponentData(name, crc32, XmlLocationInfo.FromElement(element));
         Parse(component, element, default);
         component.CoerceValues();
         return component;
@@ -334,6 +334,18 @@ public sealed class CommandBarComponentParser(
                 componentData.MaxBarLevel = (int)PetroglyphXmlUnsignedIntegerParser.Instance.Parse(tag);
                 return true;
 
+            case CommandBarComponentTags.Color:
+                componentData.Color = PetroglyphXmlRgbaColorParser.Instance.Parse(tag);
+                return true;
+            case CommandBarComponentTags.TextColor:
+                componentData.TextColor = PetroglyphXmlRgbaColorParser.Instance.Parse(tag);
+                return true;
+            case CommandBarComponentTags.TextColor2:
+                componentData.TextColor2 = PetroglyphXmlRgbaColorParser.Instance.Parse(tag);
+                return true;
+            case CommandBarComponentTags.MaxBarColor:
+                componentData.MaxBarColor = PetroglyphXmlRgbaColorParser.Instance.Parse(tag);
+                return true;
 
             default: return true;
         }

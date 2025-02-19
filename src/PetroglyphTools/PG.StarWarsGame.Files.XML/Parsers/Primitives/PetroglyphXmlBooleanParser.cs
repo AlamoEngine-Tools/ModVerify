@@ -1,7 +1,6 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
-namespace PG.StarWarsGame.Files.XML.Parsers.Primitives;
+namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public sealed class PetroglyphXmlBooleanParser : PetroglyphPrimitiveXmlParser<bool>
 {
@@ -11,22 +10,15 @@ public sealed class PetroglyphXmlBooleanParser : PetroglyphPrimitiveXmlParser<bo
     {
     }
 
-    public override bool Parse(XElement element)
+    private protected override bool DefaultValue => false;
+
+    protected internal override bool ParseCore(string trimmedValue, XElement element)
     {
-        var valueSpan = element.Value.AsSpan();
-        var trimmed = valueSpan.Trim();
-
-        if (trimmed.Length == 0)
-            return false;
-
         // Yes! The engine only checks if the values is exact 1 or starts with Tt or Yy
         // At least it's efficient, I guess...
-        if (trimmed.Length == 1 && trimmed[0] == '1')
+        if (trimmedValue.Length == 1 && trimmedValue[0] == '1')
             return true;
 
-        if (trimmed[0] is 'y' or 'Y' or 't' or 'T')
-            return true;
-
-        return false;
+        return trimmedValue[0] is 'y' or 'Y' or 't' or 'T';
     }
 }

@@ -5,7 +5,7 @@ using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers.Primitives;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
@@ -31,12 +31,12 @@ public sealed class GameObjectParser(
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<GameObject>(parsedElements, serviceProvider, errorReporter)
 { 
-    public override GameObject Parse(XElement element, out Crc32 upperNameCrc)
+    public override GameObject Parse(XElement element, out Crc32 crc32)
     {
-        var name = GetXmlObjectName(element, out upperNameCrc);
+        var name = GetXmlObjectName(element, out crc32, true);
         var type = GetTagName(element);
         var objectType = EstimateType(type);
-        var gameObject = new GameObject(type, name, upperNameCrc, objectType, XmlLocationInfo.FromElement(element));
+        var gameObject = new GameObject(type, name, crc32, objectType, XmlLocationInfo.FromElement(element));
 
         Parse(gameObject, element, default);
 
