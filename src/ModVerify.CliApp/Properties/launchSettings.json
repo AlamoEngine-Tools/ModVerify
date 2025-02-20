@@ -8,11 +8,6 @@
     "FromModPath": {
       "commandName": "Project",
       "commandLineArgs": "-o verifyResults --baseline focBaseline.json --path C:/test --type Foc"
-    },
-
-    "Manual": {
-      "commandName": "Project",
-      "commandLineArgs": "-o verifyResults --baseline c:/users/lrs/desktop/focBaseline.json  --game \"C:/Users/lrs/Privat/Star Wars Empire at War/corruption\" --fallbackGame \"C:/Users/lrs/Privat/Star Wars Empire at War/GameData\" --type Foc"
     }
   }
 }
