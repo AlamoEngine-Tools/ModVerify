@@ -78,14 +78,11 @@ internal class CommandBarGameManager(
         // Create Camera
         // Resize(true)
 
-
         foreach (var parsedCommandBarComponent in parsedCommandBarComponents.Values)
         {
             var component = CommandBarBaseComponent.Create(parsedCommandBarComponent, ErrorReporter);
             if (component is not null)
             {
-                // If I understand this correctly, the name is not uppercased, which means name is case-sensitive!
-                // TODO: Debug to confirm!
                 var crc = _hashingService.GetCrc32(component.Name, PGConstants.DefaultPGEncoding);
                 NamedEntries.Add(crc, component);
             }
@@ -155,7 +152,6 @@ internal class CommandBarGameManager(
         if (Components.FirstOrDefault(x => x is CommandBarShellComponent) is null)
             return;
         // Note: The tag <Mega_Texture_Name> is not used by the engine
-        // TODO: Confirm!
         var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{MegaTextureBaseName}.mtd");
         using var megaTexture = GameRepository.TryOpenFile(mtdPath);
         MegaTextureFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
@@ -163,8 +159,7 @@ internal class CommandBarGameManager(
     }
 
     private void SetComponentGroup(IEnumerable<CommandBarBaseComponent> components)
-    { 
-        // TODO: Check whether groups are really case-sensitive!
+    {
         var groupData = components
             .Where(x => !string.IsNullOrEmpty(x.XmlData.Group))
             .GroupBy(x => x.XmlData.Group!, StringComparer.Ordinal);
