@@ -9,6 +9,7 @@ using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Rendering;
 
 namespace PG.StarWarsGame.Engine.Database;
 
@@ -63,6 +64,8 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             // FactionFiles.xml
             // TargetingPrioritySetFiles.xml
             // MousePointerFiles.xml
+
+            var pgRender = new PGRender(repository, errorReporter, serviceProvider);
             
             var gameConstants = new GameConstants.GameConstants(repository, errorReporter, serviceProvider);
             await gameConstants.InitializeAsync( _cancellationTokenSource.Token);
@@ -73,7 +76,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             var sfxGameManager = new SfxEventGameManager(repository, errorReporter, serviceProvider);
             await sfxGameManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var commandBarManager = new CommandBarGameManager(repository, errorReporter, serviceProvider);
+            var commandBarManager = new CommandBarGameManager(repository, pgRender, errorReporter, serviceProvider);
             await commandBarManager.InitializeAsync( _cancellationTokenSource.Token);
 
             var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorReporter, serviceProvider);

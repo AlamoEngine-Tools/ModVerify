@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using PG.StarWarsGame.Files.MEG.Data.Entries;
 
-namespace PG.StarWarsGame.Engine.IO.Repositories;
+namespace PG.StarWarsGame.Engine.IO;
 
 internal readonly ref struct FileFoundInfo
 {

@@ -1,5 +1,5 @@
-﻿using System;
-using PG.StarWarsGame.Engine.Utilities;
+﻿using PG.StarWarsGame.Engine.Utilities;
+using System;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
@@ -7,7 +7,6 @@ internal class TextureRepository(GameRepository baseRepository, IServiceProvider
 {
     private static readonly string DdsExtension = ".dds";
     private static readonly string TexturePath = "DATA\\ART\\TEXTURES\\";
-
 
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
-using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;

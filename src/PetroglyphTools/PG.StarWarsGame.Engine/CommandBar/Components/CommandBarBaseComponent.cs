@@ -11,13 +11,14 @@ public abstract class CommandBarBaseComponent(CommandBarComponentData xmlData)
     
     public string Name => XmlData.Name;
     public RgbaColor Color { get; } = xmlData.Color.HasValue ? new RgbaColor(xmlData.Color.Value) : new RgbaColor(255, 255, 255, 255);
-    public int Bone { get; } = unchecked((int)0xFFFFFFFF);
+    public int Bone { get; internal set; } = -1;
     public int BaseLayer { get; } = xmlData.BaseLayer;
     public bool Hidden { get; internal set; } = xmlData.Hidden;
     public bool Disabled { get; } = xmlData.Disabled;
     public abstract CommandBarComponentType Type { get; }
     public CommandBarComponentId Id { get; internal set; }
-    public CommandBarComponentGroup Group { get; internal set; }
+    public CommandBarComponentGroup? Group { get; internal set; }
+    public CommandBarShellComponent? ParentShell { get; internal set; }
 
     public static CommandBarBaseComponent? Create(CommandBarComponentData xmlData, IGameErrorReporter errorReporter)
     {
@@ -51,6 +52,11 @@ public abstract class CommandBarBaseComponent(CommandBarComponentData xmlData)
         return null;
     }
 
+    public override string ToString()
+    {
+        return Name;
+    }
+
     private static CommandBarComponentType GetTypeFromString(ReadOnlySpan<char> xmlValue)
     {
         if (xmlValue.Equals("SHELL".AsSpan(), StringComparison.OrdinalIgnoreCase))
@@ -67,8 +73,6 @@ public abstract class CommandBarBaseComponent(CommandBarComponentData xmlData)
             return CommandBarComponentType.Model;
         if (xmlValue.Equals("BAR".AsSpan(), StringComparison.OrdinalIgnoreCase))
             return CommandBarComponentType.Bar;
-
-
         return CommandBarComponentType.None;
     }
 }

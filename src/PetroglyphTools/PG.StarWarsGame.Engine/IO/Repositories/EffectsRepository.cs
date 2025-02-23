@@ -24,7 +24,7 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
         ref ValueStringBuilder destination,
         bool megFileOnly)
     {
-        var strippedName = StripFileName(filePath);
+        var strippedName = PGPathUtilities.StripFileName(filePath);
 
         if (strippedName.Length > PGConstants.MaxEffectFileName)
             return default;
@@ -83,22 +83,5 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
             return default;
 
         return BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref filePathStringBuilder);
-    }
-
-    private static ReadOnlySpan<char> StripFileName(ReadOnlySpan<char> src)
-    {
-        var destination = src;
-
-        for (var i = src.Length - 1; i >= 0; --i)
-        {
-
-            if (src[i] == '.')
-                destination = src.Slice(0, i);
-
-            if (src[i] == '/' || src[i] == '\\')
-                break;
-        }
-
-        return destination;
     }
 }

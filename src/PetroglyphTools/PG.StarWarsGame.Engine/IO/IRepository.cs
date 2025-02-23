@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace PG.StarWarsGame.Engine.IO.Repositories;
+namespace PG.StarWarsGame.Engine.IO;
 
 public interface IRepository
 {
