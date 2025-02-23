@@ -28,3 +28,23 @@ internal static class PathExtensions
         stringBuilder.Append(path2);
     }
 }
+
+internal static class PGPathUtilities
+{
+    public static ReadOnlySpan<char> StripFileName(ReadOnlySpan<char> src)
+    {
+        var destination = src;
+
+        for (var i = src.Length - 1; i >= 0; --i)
+        {
+
+            if (src[i] == '.')
+                destination = src.Slice(0, i);
+
+            if (src[i] == '/' || src[i] == '\\')
+                break;
+        }
+
+        return destination;
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using PG.StarWarsGame.Engine.Localization;
 
-namespace PG.StarWarsGame.Engine.IO.Repositories;
+namespace PG.StarWarsGame.Engine.IO;
 
 public interface IGameRepository : IRepository
 {

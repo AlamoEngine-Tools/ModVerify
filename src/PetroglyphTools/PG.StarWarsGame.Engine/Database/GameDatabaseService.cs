@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine.ErrorReporting;
-using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.IO;
 
 namespace PG.StarWarsGame.Engine.Database;
 

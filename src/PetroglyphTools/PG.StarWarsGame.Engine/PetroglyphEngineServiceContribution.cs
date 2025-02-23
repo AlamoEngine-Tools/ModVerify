@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Xml;
 

@@ -15,11 +15,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using PG.StarWarsGame.Engine.Rendering;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
 internal class CommandBarGameManager(
     GameRepository repository,
+    PGRender pgRender,
     GameErrorReporterWrapper errorReporter,
     IServiceProvider serviceProvider)
     : GameManagerBase<CommandBarBaseComponent>(repository, errorReporter, serviceProvider), ICommandBarGameManager
@@ -29,6 +31,7 @@ internal class CommandBarGameManager(
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
     private readonly Dictionary<string, CommandBarComponentGroup> _groups = new();
+    private readonly PGRender _pgRender = pgRender;
 
     private bool _megaTextureExists;
 
@@ -111,21 +114,52 @@ internal class CommandBarGameManager(
 
     private void LinkComponentsToShell()
     {
-        // TODO: DEBUG!!!
-
         if (!Groups.TryGetValue("Shells", out var shellGroup))
             return;
 
-        foreach (var shellComponent in shellGroup.Components)
+        foreach (var component in Components)
         {
-            if (shellComponent.Type == CommandBarComponentType.None)
+            if (component.Type == CommandBarComponentType.Shell)
                 continue;
 
-            foreach (var other in shellGroup.Components)
+            foreach (var shellComponent in shellGroup.Components)
             {
-                
+                if (LinkToShell(component, shellComponent as CommandBarShellComponent))
+                    break;
             }
         }
+    }
+
+    private bool LinkToShell(CommandBarBaseComponent component, CommandBarShellComponent? shell)
+    {
+        if (shell is null)
+        {
+            ErrorReporter.Assert(EngineAssert.CreateCapture($"Cannot link component '{component}' because shell component is null."));
+            return false;
+        }
+
+        var componentName = component.Name;
+        if (string.IsNullOrEmpty(componentName))
+            return false;
+
+        var modelPath = shell.ModelPath;
+        if (string.IsNullOrEmpty(modelPath))
+            return false;
+
+        using var model = _pgRender.LoadModelAndAnimations(modelPath!);
+        if (model is null)
+        {
+            ErrorReporter.Assert(EngineAssert.CreateCapture($"Cannot link component '{componentName}' to shell '{shell.Name}' because model '{modelPath}' could not be loaded."));
+            return false;
+        }
+
+        var boneIndex = model.IndexOfBone(componentName);
+
+        if (boneIndex == -1)
+            return false;
+        component.Bone = boneIndex;
+        component.ParentShell = shell;
+        return true;
     }
 
     private void SetDefaultFont()

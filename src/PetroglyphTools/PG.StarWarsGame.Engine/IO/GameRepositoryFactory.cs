@@ -1,7 +1,8 @@
 ﻿using System;
 using PG.StarWarsGame.Engine.ErrorReporting;
+using PG.StarWarsGame.Engine.IO.Repositories;
 
-namespace PG.StarWarsGame.Engine.IO.Repositories;
+namespace PG.StarWarsGame.Engine.IO;
 
 internal sealed class GameRepositoryFactory(IServiceProvider serviceProvider) :  IGameRepositoryFactory
 {
