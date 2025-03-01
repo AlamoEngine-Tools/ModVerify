@@ -13,7 +13,6 @@ internal class VerificationReportBroker(GlobalVerificationReportSettings reportS
 {
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(VerificationReportBroker));
 
-
     public async Task<IReadOnlyCollection<VerificationError>> ReportAsync(IEnumerable<GameVerifierBase> steps)
     {
         var suppressions = new SuppressionList(reportSettings.Suppressions);

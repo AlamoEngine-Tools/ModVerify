@@ -6,11 +6,14 @@ using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.Localization;
+using PG.StarWarsGame.Engine.Rendering.Font;
 
 namespace PG.StarWarsGame.Engine.Database;
 
 internal class GameDatabase : IGameDatabase
 {
+    public required IFontManager FontManager { get; init; }
+
     public required ICommandBarGameManager CommandBarManager { get; init; }
 
     public required IGameRepository GameRepository { get; init; }

@@ -7,4 +7,5 @@ internal interface IDatabaseErrorCollection
 {
     IEnumerable<XmlError> XmlErrors { get; }
     IEnumerable<InitializationError> InitializationErrors { get; }
+    IEnumerable<EngineAssert> Asserts { get; }
 }

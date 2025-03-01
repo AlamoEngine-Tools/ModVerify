@@ -18,9 +18,9 @@
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.0.187" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.0.187" />
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.0.91" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.0.206" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.0.206" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.1.8" />
 		<PackageReference Include="IsExternalInit" Version="1.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -33,6 +33,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.0.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />

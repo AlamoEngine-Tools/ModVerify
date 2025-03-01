@@ -2,6 +2,9 @@
 using System.Runtime.CompilerServices;
 using PG.StarWarsGame.Engine.IO.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
+#if NETSTANDARD2_0 || NETFRAMEWORK
+using AnakinRaW.CommonUtilities.FileSystem;
+#endif
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
@@ -20,21 +23,19 @@ internal class ModelRepository(GameRepository baseRepository, IServiceProvider s
         var fileInfo = BaseRepository.FindFile(filePath, ref destination, megFileOnly);
         if (fileInfo.FileFound)
             return fileInfo;
+        
+        destination.Length = 0;
 
-        return default;
+        var stripped = PGPathUtilities.StripFileName(filePath);
 
-        //destination.Length = 0;
+        var path = FileSystem.Path.GetDirectoryName(filePath);
+        FileSystem.Path.Join(path, stripped, ref reusableStringBuilder);
+        reusableStringBuilder.Append(".ALO");
 
-        //var stripped = PGPathUtilities.StripFileName(filePath);
-
-        //var path = FileSystem.Path.GetDirectoryName(filePath);
-        //FileSystem.Path.Join(path, stripped, ref reusableStringBuilder);
-        //reusableStringBuilder.Append(".ALO");
-
-        //var alternatePath = reusableStringBuilder.AsSpan();
-        //return !IsValidSize(alternatePath)
-        //    ? default
-        //    : BaseRepository.FindFile(alternatePath, ref destination, megFileOnly);
+        var alternatePath = reusableStringBuilder.AsSpan();
+        return !IsValidSize(alternatePath)
+            ? default
+            : BaseRepository.FindFile(alternatePath, ref destination, megFileOnly);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

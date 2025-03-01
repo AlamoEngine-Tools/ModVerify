@@ -17,11 +17,10 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
 
     public override string Name => "XMLError";
     
-    protected override void CreateError(XmlError error, out ErrorData errorData)
+    protected override ErrorData CreateError(XmlError error)
     {
         var id = GetIdFromError(error.ErrorKind);
         var severity = GetSeverityFromError(error.ErrorKind);
-
 
         var strippedFileName = _fileSystem.Path
             .GetGameStrippedPath(GameRepository.Path.AsSpan(), error.FileLocation.XmlFile.ToUpperInvariant().AsSpan()).ToString();
@@ -47,8 +46,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
         }
 
         var errorMessage = CreateErrorMessage(error, strippedFileName);
-
-        errorData = new ErrorData(id, errorMessage, assets, severity);
+        return new ErrorData(id, errorMessage, assets, severity);
     }
 
     private static string CreateErrorMessage(XmlError error, string strippedFileName)

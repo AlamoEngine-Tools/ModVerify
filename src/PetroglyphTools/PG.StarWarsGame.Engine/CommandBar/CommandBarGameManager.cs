@@ -15,13 +15,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.Rendering;
+using PG.StarWarsGame.Engine.Rendering.Font;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
 internal class CommandBarGameManager(
     GameRepository repository,
     PGRender pgRender,
+    IGameConstants gameConstants,
+    IFontManager fontManager,
     GameErrorReporterWrapper errorReporter,
     IServiceProvider serviceProvider)
     : GameManagerBase<CommandBarBaseComponent>(repository, errorReporter, serviceProvider), ICommandBarGameManager
@@ -34,10 +38,25 @@ internal class CommandBarGameManager(
     private readonly PGRender _pgRender = pgRender;
 
     private bool _megaTextureExists;
+    private FontData? _defaultFont;
 
     public ICollection<CommandBarBaseComponent> Components => Entries;
 
     public IReadOnlyDictionary<string, CommandBarComponentGroup> Groups => _groups;
+
+    public FontData? DefaultFont 
+    {
+        get
+        {
+            ThrowIfNotInitialized();
+            return _defaultFont;
+        }
+        private set
+        {
+            ThrowIfAlreadyInitialized();
+            _defaultFont = value;
+        }
+    }
 
     public IMtdFile? MegaTextureFile
     {
@@ -124,6 +143,7 @@ internal class CommandBarGameManager(
 
             foreach (var shellComponent in shellGroup.Components)
             {
+                // TODO: Create verifier that shell group only contains shell components
                 if (LinkToShell(component, shellComponent as CommandBarShellComponent))
                     break;
             }
@@ -134,7 +154,9 @@ internal class CommandBarGameManager(
     {
         if (shell is null)
         {
-            ErrorReporter.Assert(EngineAssert.CreateCapture($"Cannot link component '{component}' because shell component is null."));
+            ErrorReporter.Assert(
+                EngineAssert.FromNullOrEmpty(component, 
+                    $"Cannot link component '{component}' because shell component is null."));
             return false;
         }
 
@@ -149,7 +171,9 @@ internal class CommandBarGameManager(
         using var model = _pgRender.LoadModelAndAnimations(modelPath!);
         if (model is null)
         {
-            ErrorReporter.Assert(EngineAssert.CreateCapture($"Cannot link component '{componentName}' to shell '{shell.Name}' because model '{modelPath}' could not be loaded."));
+            ErrorReporter.Assert(
+                EngineAssert.FromNullOrEmpty(new ComponentLinkTuple(component, shell), 
+                    $"Cannot link component '{componentName}' to shell '{shell.Name}' because model '{modelPath}' could not be loaded."));
             return false;
         }
 
@@ -168,16 +192,16 @@ internal class CommandBarGameManager(
         if (Components.FirstOrDefault(x => x is CommandBarTextComponent or CommandBarTextButtonComponent) is null)
             return;
 
-        /*
-           140ab82bd        if (!BaseComponentClass::DefaultFont)
-           140ab82bd        {
-           140ab82c6            int32_t point_size = j_GameConstantsClass::Get_Command_Bar_Default_Font_Size(&TheGameConstants);
-           140ab830c            BaseComponentClass::DefaultFont = j_FontManagerClass::Create_Font(&FontManager, j_GameConstantsClass::Get_Command_Bar_Default_Font_Name(&TheGameConstants), point_size, 1, 0, 0, 1f);
-           140ab830c            
-           140ab831b            if (!BaseComponentClass::DefaultFont)
-           140ab8331                j_Assert_Handler("DefaultFont != NULL", "C:\BuildSystem\AB_SW_STEAM_FOC_BUILDSERV04_BUILD\StarWars_Steam\FOC\Code\RTS\CommandBar\CommandBarComponent.cpp", 0x1325);
-           140ab82bd        } 
-         */
+        if (_defaultFont is null)
+        {
+            // TODO: From GameConstants
+            string fontName = PGConstants.DefaultUnicodeFontName;
+            int size = 11;
+            var font = fontManager.CreateFont(fontName, size, true, false, false, 1.0f);
+            if (font is null)
+                ErrorReporter.Assert(EngineAssert.FromNullOrEmpty(this, $"Unable to create Default from name {fontName}"));
+            DefaultFont = font;
+        }
     }
 
     private void SetMegaTexture()
@@ -238,5 +262,15 @@ internal class CommandBarGameManager(
             });
         }
     }
-}
 
+    private sealed class ComponentLinkTuple(CommandBarBaseComponent component, CommandBarShellComponent shell)
+    {
+        public CommandBarBaseComponent Component { get; } = component;
+        public CommandBarShellComponent Shell { get; } = shell;
+
+        public override string ToString()
+        {
+            return $"component='{Component.Name}' - shell='{Shell.Name}'";
+        }
+    }
+}

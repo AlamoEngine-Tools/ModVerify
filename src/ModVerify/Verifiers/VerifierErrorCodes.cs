@@ -2,6 +2,12 @@
 
 public static class VerifierErrorCodes
 {
+    public const string InitializationError = "INIT00";
+
+    public const string AssertValueNullOrEmpty = "ASRT00";
+    public const string AssertValueOutOfRange = "ASRT01";
+    public const string AssertValueInvalid = "ASRT02";
+
     public const string GenericExceptionErrorCode = "MV00";
 
     public const string DuplicateFound = "DUP00";

@@ -15,6 +15,9 @@ public static class PGConstants
     public const int MaxSFXEventName = 255;
     public const int MaxGameObjectDatabaseFileName = 127;
     public const int MaxCommandBarDatabaseFileName = 259;
+    public const int MaxCommandBarComponentName = 255;
 
     public const int MaxGuiDialogMegaTextureFileName = 255;
+    
+    public const string DefaultUnicodeFontName = "Arial";
 }

@@ -22,6 +22,7 @@ public sealed class CommandBarComponentParser(
         var name = GetXmlObjectName(element, out crc32, true);
         var component = new CommandBarComponentData(name, crc32, XmlLocationInfo.FromElement(element));
         Parse(component, element, default);
+        ValidateValues(component, element);
         component.CoerceValues();
         return component;
     }
@@ -348,6 +349,15 @@ public sealed class CommandBarComponentParser(
                 return true;
 
             default: return true;
+        }
+    }
+
+    private void ValidateValues(CommandBarComponentData xmlData, XElement element)
+    {
+        if (xmlData.Name.Length > PGConstants.MaxCommandBarComponentName)
+        {
+            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
+                $"CommandbarComponent name '{xmlData.Name}' is too long."));
         }
     }
 

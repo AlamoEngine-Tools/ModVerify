@@ -31,11 +31,20 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
         {
             _logger?.LogInformation($"Verifying '{installData.Name}'...");
             await verifyPipeline.RunAsync().ConfigureAwait(false);
-            _logger?.LogInformation("Finished Verifying");
         }
         catch (GameVerificationException e)
         {
+            _logger?.LogError($"There is at least one verification error with severity " +
+                              $"'{settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity}' or greater.");
             returnCode = e.HResult;
+        }
+        finally
+        {
+            var message = $"Verification finished with code: {returnCode}";
+            if (returnCode == 0)
+                _logger?.LogInformation(message);
+            else
+                _logger?.LogError(message);
         }
 
         if (settings.CreateNewBaseline)

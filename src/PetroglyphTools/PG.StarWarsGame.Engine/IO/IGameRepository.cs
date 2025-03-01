@@ -15,6 +15,8 @@ public interface IGameRepository : IRepository
 
     IRepository TextureRepository { get; }
 
+    IRepository ModelRepository { get; }
+
     bool FileExists(string filePath, string[] extensions, bool megFileOnly = false);
 
     bool IsLanguageInstalled(LanguageType languageType);
