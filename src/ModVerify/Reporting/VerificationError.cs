@@ -31,7 +31,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
         Message = message ?? throw new ArgumentNullException(nameof(message));
         Verifier = verifier;
         Severity = severity;
-        _assets = new HashSet<string>(affectedAssets);
+        _assets = new(affectedAssets);
         AffectedAssets = _assets.ToList();
     }
 
@@ -40,7 +40,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
         Id = error.Id;
         Message = error.Message;
         Verifier = error.Verifier;
-        _assets = new HashSet<string>(error.Assets);
+        _assets = new(error.Assets);
         AffectedAssets = _assets.ToList();
     }
 

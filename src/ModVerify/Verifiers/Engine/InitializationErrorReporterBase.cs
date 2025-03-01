@@ -17,12 +17,12 @@ internal abstract class InitializationErrorReporterBase<T>(IGameRepository gameR
     {
         foreach (var error in errors)
         {
-            CreateError(error, out var data);
-            yield return new VerificationError(data.Identifier, data.Message, Name, data.Assets, data.Severity);
+            var errorData = CreateError(error);
+            yield return new VerificationError(errorData.Identifier, errorData.Message, Name, errorData.Assets, errorData.Severity);
         }
     }
 
-    protected abstract void CreateError(T error, out ErrorData errorData);
+    protected abstract ErrorData CreateError(T error);
 
     protected readonly ref struct ErrorData
     {

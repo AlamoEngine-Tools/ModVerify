@@ -2,9 +2,11 @@
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using AET.ModVerify;
+using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
+using AET.ModVerify.Reporting.Settings;
 using AET.ModVerifyTool.Options;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
@@ -129,7 +131,10 @@ internal class Program
 
     private static void SetupReporting(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
     {
-        serviceCollection.RegisterConsoleReporter();
+        serviceCollection.RegisterConsoleReporter(new VerificationReportSettings
+        {
+            MinimumReportSeverity = VerificationSeverity.Error
+        });
 
         serviceCollection.RegisterJsonReporter(new JsonReporterSettings
         {
@@ -206,7 +211,7 @@ internal class Program
         Console.WriteLine(Figgle.FiggleFonts.Standard.Render("Mod Verify"));
         Console.WriteLine("***********************************");
         Console.WriteLine("***********************************");
-        Console.WriteLine("                          by Anakin");
+        Console.WriteLine("                       by AnakinRaW");
         Console.WriteLine();
         Console.WriteLine();
     }

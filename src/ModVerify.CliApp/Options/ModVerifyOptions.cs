@@ -66,4 +66,8 @@ internal class ModVerifyOptions
         HelpText = "Additional fallback paths, which may contain assets that shall be included when doing the verification. Do not add EaW here. " +
                    "Multiple paths can be separated using the ';' (semicolon) character.")]
     public IList<string>? AdditionalFallbackPath { get; set; }
+
+    [Option("ignoreAsserts", Required = false,
+        HelpText = "When this flag is present, the application will not report engine assertions.")]
+    public bool IgnoreAsserts { get; set; }
 }

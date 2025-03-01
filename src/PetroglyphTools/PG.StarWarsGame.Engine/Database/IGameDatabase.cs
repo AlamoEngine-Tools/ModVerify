@@ -5,11 +5,14 @@ using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.Localization;
+using PG.StarWarsGame.Engine.Rendering.Font;
 
 namespace PG.StarWarsGame.Engine.Database;
 
 public interface IGameDatabase
 {
+    IFontManager FontManager { get; }
+
     IGameRepository GameRepository { get; }
 
     IGameConstants GameConstants { get; }

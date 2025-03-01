@@ -6,33 +6,72 @@ using System.Text;
 
 namespace PG.StarWarsGame.Engine.ErrorReporting;
 
-public sealed class EngineAssert(string source, string message)
+public sealed class EngineAssert
 {
-    public string Message { get; } = message ?? throw new ArgumentNullException(nameof(message));
+    private static readonly string ThisNameSpace = typeof(EngineAssert).Namespace!;
 
-    public string Source { get; } = source ?? throw new ArgumentNullException(nameof(source));
+    public object? Value { get; }
 
-    public static EngineAssert CreateCapture(string message)
+    public object? Context { get; }
+
+    public string Message { get; }
+
+    public string Method { get; }
+
+    public string? TypeName { get; }
+
+    public EngineAssertKind Kind { get; }
+
+    internal EngineAssert(EngineAssertKind kind, object? value, object? context, string? type, string method, string message)
     {
-        var stackTrace = new StackTrace();
-        var frame = stackTrace.GetFrame(1);
-        if (frame is null)
-            return new EngineAssert("UNKNOWN SOURCE", message);
-        var method = frame.GetMethod();
-        var methodName = CreateMethodName(method);
-        return new EngineAssert(methodName, message);
+        Kind = kind;
+        Value = value;
+        Context = context;
+        Message = message ?? throw new ArgumentNullException(nameof(message));
+        TypeName = type ?? throw new ArgumentNullException(nameof(type));
+        Method = method ?? throw new ArgumentNullException(nameof(method));
     }
 
-    private static string CreateMethodName(MethodBase method)
+    internal static EngineAssert FromNullOrEmpty(object? context = null, string? message = null)
     {
-        var methodName = new StringBuilder();
+        return Create(EngineAssertKind.NullOrEmptyValue, null, context, message ?? "Expected value to be not null or empty");
+    }
+
+    internal static EngineAssert Create(EngineAssertKind kind, object? value, object? context, string message)
+    {
+        var frame = GetCausingFrame(new StackTrace());
+        if (frame is null)
+            return new EngineAssert(kind, value, context, null, "UNKNOWN SOURCE", message);
+        var method = frame.GetMethod();
+        var methodInfo = GetMethodInfo(method);
+        return new EngineAssert(kind, value, context, methodInfo.type, methodInfo.method, message);
+    }
+
+    private static StackFrame? GetCausingFrame(StackTrace trace)
+    {
+        if (trace.FrameCount == 0)
+            return null;
+        for (var i = 0; i < trace.FrameCount; i++)
+        {
+            var frame = trace.GetFrame(i);
+            var method = frame.GetMethod();
+            if (method.DeclaringType is null || method.DeclaringType.Namespace?.Equals(ThisNameSpace) == false)
+                return frame;
+        }
+        return null;
+    }
+
+    private static (string? type, string method) GetMethodInfo(MethodBase method)
+    {
+        string? type = null;
         if (method.DeclaringType is not null)
-            methodName.Append(method.DeclaringType.FullName);
-        methodName.Append("::");
+            type = method.DeclaringType.FullName;
+
+        var methodName = new StringBuilder();
         methodName.Append(method.Name);
         methodName.Append('(');
         methodName.Append(string.Join(", ", method.GetParameters().Select(p => p.ParameterType.Name)));
         methodName.Append(')');
-        return methodName.ToString();
+        return (type, methodName.ToString());
     }
 }

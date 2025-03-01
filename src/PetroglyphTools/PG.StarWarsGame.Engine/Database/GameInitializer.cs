@@ -10,6 +10,7 @@ using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Rendering;
+using PG.StarWarsGame.Engine.Rendering.Font;
 
 namespace PG.StarWarsGame.Engine.Database;
 
@@ -70,13 +71,20 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
             var gameConstants = new GameConstants.GameConstants(repository, errorReporter, serviceProvider);
             await gameConstants.InitializeAsync( _cancellationTokenSource.Token);
 
+            // AudioConstants
+
+            // MousePointer
+
+            var fontManger = new FontManager(repository, errorReporter, serviceProvider);
+            await fontManger.InitializeAsync(_cancellationTokenSource.Token);
+
             var guiDialogs = new GuiDialogGameManager(repository, errorReporter, serviceProvider);
             await guiDialogs.InitializeAsync(_cancellationTokenSource.Token);
 
             var sfxGameManager = new SfxEventGameManager(repository, errorReporter, serviceProvider);
             await sfxGameManager.InitializeAsync( _cancellationTokenSource.Token);
 
-            var commandBarManager = new CommandBarGameManager(repository, pgRender, errorReporter, serviceProvider);
+            var commandBarManager = new CommandBarGameManager(repository, pgRender, gameConstants, fontManger, errorReporter, serviceProvider);
             await commandBarManager.InitializeAsync( _cancellationTokenSource.Token);
 
             var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorReporter, serviceProvider);
@@ -86,6 +94,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
 
             return new GameDatabase
             {
+                FontManager = fontManger,
                 GameRepository = repository,
                 GameConstants = gameConstants,
                 GuiDialogManager = guiDialogs,

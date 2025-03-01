@@ -73,6 +73,7 @@ internal class SettingsBuilder(IServiceProvider services)
             Baseline = baseline,
             Suppressions = suppressions,
             MinimumReportSeverity = VerificationSeverity.Information,
+            ReportAsserts = !options.IgnoreAsserts
         };
     }
 

@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
-public abstract class FileBasedReporter<T>(T settings, IServiceProvider serviceProvider) : ReporterBase<T>(settings, serviceProvider) where T : FileBasedReporterSettings
+public abstract class FileBasedReporter<T>(T settings, IServiceProvider serviceProvider) 
+    : ReporterBase<T>(settings, serviceProvider) where T : FileBasedReporterSettings
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 

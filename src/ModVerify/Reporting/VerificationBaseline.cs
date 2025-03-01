@@ -20,7 +20,7 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
 
     internal VerificationBaseline(JsonVerificationBaseline baseline)
     {
-        _errors = new HashSet<VerificationError>(baseline.Errors.Select(x => new VerificationError(x)));
+        _errors = new(baseline.Errors.Select(x => new VerificationError(x)));
     }
 
     public VerificationBaseline(IEnumerable<VerificationError> errors)

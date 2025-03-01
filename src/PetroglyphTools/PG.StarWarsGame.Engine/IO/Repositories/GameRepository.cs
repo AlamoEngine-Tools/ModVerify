@@ -41,6 +41,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
     public IRepository EffectsRepository { get; }
     public IRepository TextureRepository { get; }
+    public IRepository ModelRepository { get; }
 
 
     private readonly List<string> _loadedMegFiles = new();
@@ -82,7 +83,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
         EffectsRepository = new EffectsRepository(this, serviceProvider);
         TextureRepository = new TextureRepository(this, serviceProvider);
-
+        ModelRepository = new ModelRepository(this, serviceProvider);
 
         var path = ModPaths.Any() ? ModPaths.First() : GameDirectory;
         if (!FileSystem.Path.HasTrailingDirectorySeparator(path))
