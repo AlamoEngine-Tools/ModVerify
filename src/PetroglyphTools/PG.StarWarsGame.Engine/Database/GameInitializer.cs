@@ -94,6 +94,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
 
             return new GameDatabase
             {
+                PGRender = pgRender,
                 FontManager = fontManger,
                 GameRepository = repository,
                 GameConstants = gameConstants,

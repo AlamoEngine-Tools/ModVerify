@@ -12,7 +12,9 @@ public sealed record AloFileInformation : PetroglyphMegPackableFileInformation
 
     public bool IsModel => ContentInfo.Type == AloType.Model;
 
-    public bool IsParticle => !IsModel;
+    public bool IsParticle => ContentInfo.Type == AloType.Particle;
+
+    public bool IsAnimation => ContentInfo.Type == AloType.Animation;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AloFileInformation"/> class.

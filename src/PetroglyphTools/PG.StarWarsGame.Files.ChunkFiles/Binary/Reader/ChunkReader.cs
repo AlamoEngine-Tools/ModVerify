@@ -53,6 +53,13 @@ public class ChunkReader : DisposableObject
         return value;
     }
 
+    public float ReadFloat(ref int readSize)
+    {
+        var value = _binaryReader.ReadSingle();
+        readSize += sizeof(float);
+        return value;
+    }
+
     public uint ReadDword()
     { 
         return _binaryReader.ReadUInt32();

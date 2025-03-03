@@ -85,7 +85,7 @@ internal ref struct ValueStringBuilder
 
     public override string ToString()
     {
-        string s = _chars.Slice(0, _pos).ToString();
+        var s = _chars.Slice(0, _pos).ToString();
         Dispose();
         return s;
     }
@@ -134,41 +134,41 @@ internal ref struct ValueStringBuilder
             Grow(count);
         }
 
-        int remaining = _pos - index;
+        var remaining = _pos - index;
         _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
         _chars.Slice(index, count).Fill(value);
+        _pos += count;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Insert(int index, scoped ReadOnlySpan<char> value)
+    {
+        if (value.IsEmpty)
+            return;
+
+        var count = value.Length;
+
+        if (_pos > _chars.Length - count) 
+            Grow(count);
+
+        var remaining = _pos - index;
+        _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
+        value.CopyTo(_chars.Slice(index));
         _pos += count;
     }
 
     public void Insert(int index, string? s)
     {
         if (s == null)
-        {
             return;
-        }
-
-        int count = s.Length;
-
-        if (_pos > (_chars.Length - count))
-        {
-            Grow(count);
-        }
-
-        int remaining = _pos - index;
-        _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
-        s
-#if !NETCOREAPP
-            .AsSpan()
-#endif
-            .CopyTo(_chars.Slice(index));
-        _pos += count;
+        Insert(index, s.AsSpan());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Append(char c)
     {
-        int pos = _pos;
-        Span<char> chars = _chars;
+        var pos = _pos;
+        var chars = _chars;
         if ((uint)pos < (uint)chars.Length)
         {
             chars[pos] = c;
@@ -188,7 +188,7 @@ internal ref struct ValueStringBuilder
             return;
         }
 
-        int pos = _pos;
+        var pos = _pos;
         if (s.Length == 1 && (uint)pos < (uint)_chars.Length) // very common case, e.g. appending strings from NumberFormatInfo like separators, percent symbols, etc.
         {
             _chars[pos] = s[0];
@@ -202,7 +202,7 @@ internal ref struct ValueStringBuilder
 
     private void AppendSlow(string s)
     {
-        int pos = _pos;
+        var pos = _pos;
         if (pos > _chars.Length - s.Length)
         {
             Grow(s.Length);
@@ -223,8 +223,8 @@ internal ref struct ValueStringBuilder
             Grow(count);
         }
 
-        Span<char> dst = _chars.Slice(_pos, count);
-        for (int i = 0; i < dst.Length; i++)
+        var dst = _chars.Slice(_pos, count);
+        for (var i = 0; i < dst.Length; i++)
         {
             dst[i] = c;
         }
@@ -233,14 +233,14 @@ internal ref struct ValueStringBuilder
 
     public unsafe void Append(char* value, int length)
     {
-        int pos = _pos;
+        var pos = _pos;
         if (pos > _chars.Length - length)
         {
             Grow(length);
         }
 
-        Span<char> dst = _chars.Slice(_pos, length);
-        for (int i = 0; i < dst.Length; i++)
+        var dst = _chars.Slice(_pos, length);
+        for (var i = 0; i < dst.Length; i++)
         {
             dst[i] = *value++;
         }
@@ -249,7 +249,7 @@ internal ref struct ValueStringBuilder
 
     public void Append(scoped ReadOnlySpan<char> value)
     {
-        int pos = _pos;
+        var pos = _pos;
         if (pos > _chars.Length - value.Length)
         {
             Grow(value.Length);
@@ -262,7 +262,7 @@ internal ref struct ValueStringBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<char> AppendSpan(int length)
     {
-        int origPos = _pos;
+        var origPos = _pos;
         if (origPos > _chars.Length - length)
         {
             Grow(length);
@@ -297,17 +297,17 @@ internal ref struct ValueStringBuilder
 
         // Increase to at least the required size (_pos + additionalCapacityBeyondPos), but try
         // to double the size if possible, bounding the doubling to not go beyond the max array length.
-        int newCapacity = (int)Math.Max(
+        var newCapacity = (int)Math.Max(
             (uint)(_pos + additionalCapacityBeyondPos),
             Math.Min((uint)_chars.Length * 2, ArrayMaxLength));
 
         // Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative.
         // This could also go negative if the actual required length wraps around.
-        char[] poolArray = ArrayPool<char>.Shared.Rent(newCapacity);
+        var poolArray = ArrayPool<char>.Shared.Rent(newCapacity);
 
         _chars.Slice(0, _pos).CopyTo(poolArray);
 
-        char[]? toReturn = _arrayToReturnToPool;
+        var toReturn = _arrayToReturnToPool;
         _chars = _arrayToReturnToPool = poolArray;
         if (toReturn != null)
         {
@@ -348,7 +348,7 @@ internal ref struct ValueStringBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-        char[]? toReturn = _arrayToReturnToPool;
+        var toReturn = _arrayToReturnToPool;
         this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
         if (toReturn != null)
         {

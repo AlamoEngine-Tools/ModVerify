@@ -3,5 +3,6 @@
 public enum AloType
 {
     Model,
-    Particle
+    Particle,
+    Animation
 }

@@ -26,9 +26,34 @@ internal class AloContentInfoIdentifier : IAloContentInfoIdentifier
                 return new AloContentInfo(AloType.Particle, AloVersion.V1);
             case ChunkType.ParticleUaW:
                 return new AloContentInfo(AloType.Particle, AloVersion.V2);
+            case ChunkType.Animation:
+                return FromAnimation(chunkReader);
             default:
                 throw new BinaryCorruptedException("Unable to get ALO content information.");
         }
+    }
+
+    private static AloContentInfo FromAnimation(ChunkReader chunkReader)
+    {
+        var chunk = chunkReader.TryReadChunk();
+        while (chunk.HasValue)
+        {
+            switch ((ChunkType)chunk.Value.Type)
+            {
+                case ChunkType.AnimationInformation:
+                    return chunk.Value.Size switch
+                    {
+                        36 => new AloContentInfo(AloType.Animation, AloVersion.V2),
+                        18 => new AloContentInfo(AloType.Animation, AloVersion.V1),
+                        _ => throw new BinaryCorruptedException("Invalid ALA animation.")
+                    };
+                default:
+                    chunkReader.Skip(chunk.Value.Size);
+                    break;
+            }
+            chunk = chunkReader.TryReadChunk();
+        }
+        throw new BinaryCorruptedException("Invalid ALA animation.");
     }
 
     private static AloContentInfo FromConnection(ChunkReader chunkReader)

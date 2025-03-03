@@ -5,9 +5,8 @@ using System.Text;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.Binary;
-using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
 
-namespace PG.StarWarsGame.Files.ALO.Binary.Reader;
+namespace PG.StarWarsGame.Files.ALO.Binary.Reader.Particles;
 
 internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : AloFileReader<AlamoParticle>(loadOptions, stream)
 {
@@ -19,7 +18,7 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
 
         var rootChunk = ChunkReader.ReadChunk();
 
-        if (rootChunk.Type != (int)ChunkType.Particle)
+        if (rootChunk.Type != (int)ParticleChunkType.Particle)
             throw new NotSupportedException("This reader only support V1 particles.");
 
         var actualSize = 0;
@@ -30,10 +29,10 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
 
             switch (chunk.Type)
             {
-                case (int)ChunkType.Name:
+                case (int)ParticleChunkType.Name:
                     ReadName(chunk.Size, out name);
                     break;
-                case (int)ChunkType.Emitters:
+                case (int)ParticleChunkType.Emitters:
                     ReadEmitters(chunk.Size, textures);
                     break;
                 default:
@@ -68,7 +67,7 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
 
-            if (chunk.Type != (int)ChunkType.Emitter)
+            if (chunk.Type != (int)ParticleChunkType.Emitter)
                 throw new BinaryCorruptedException("Unable to read particle");
 
             ReadEmitter(chunk.Size, textures);
@@ -90,17 +89,17 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
 
-            if (chunk.Type == (int)ChunkType.Properties)
+            if (chunk.Type == (int)ParticleChunkType.Properties)
             {
                 var shader = ChunkReader.ReadDword();
                 ChunkReader.Skip(chunk.Size - sizeof(uint));
             }
-            else if (chunk.Type == (int)ChunkType.ColorTextureName)
+            else if (chunk.Type == (int)ParticleChunkType.ColorTextureName)
             {
                 var texture = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true);
                 textures.Add(texture);
             }
-            else if (chunk.Type == (int)ChunkType.BumpTextureName)
+            else if (chunk.Type == (int)ParticleChunkType.BumpTextureName)
             {
                 var bump = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true);
                 textures.Add(bump);

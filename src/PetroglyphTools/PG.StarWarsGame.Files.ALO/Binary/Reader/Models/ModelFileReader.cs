@@ -6,9 +6,8 @@ using System.Text;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.Binary;
-using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
 
-namespace PG.StarWarsGame.Files.ALO.Binary.Reader;
+namespace PG.StarWarsGame.Files.ALO.Binary.Reader.Models;
 
 internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloFileReader<AlamoModel>(loadOptions, stream)
 {
@@ -25,13 +24,13 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         {
             switch (chunk.Value.Type)
             {
-                case (int)ChunkType.Skeleton:
+                case (int)ModelChunkTypes.Skeleton:
                     ReadSkeleton(chunk.Value.Size, bones);
                     break;
-                case (int)ChunkType.Mesh:
+                case (int)ModelChunkTypes.Mesh:
                     ReadMesh(chunk.Value.Size, textures, shaders);
                     break;
-                case (int)ChunkType.Connections:
+                case (int)ModelChunkTypes.Connections:
                     ReadConnections(chunk.Value.Size, proxies);
                     break;
                 default:
@@ -61,7 +60,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
 
-            if (chunk.Type == (int)ChunkType.ProxyConnection)
+            if (chunk.Type == (int)ModelChunkTypes.ProxyConnection)
             {
                 ReadProxy(chunk.Size, out var proxy, ref actualSize);
                 proxies.Add(proxy);
@@ -110,7 +109,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
 
-            if (chunk.Type == (int)ChunkType.SubMeshMaterialInformation)
+            if (chunk.Type == (int)ModelChunkTypes.SubMeshMaterialInformation)
                 ReadSubMeshMaterialInformation(chunk.Size, textures, shaders, ref actualSize);
             else
                 ChunkReader.Skip(chunk.Size, ref actualSize);
@@ -131,13 +130,13 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
 
             switch (chunk.Type)
             {
-                case (int)ChunkType.ShaderFileName:
+                case (int)ModelChunkTypes.ShaderFileName:
                     {
                         var shader = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true, ref actualSize);
                         shaders.Add(shader);
                         break;
                     }
-                case (int)ChunkType.ShaderTexture:
+                case (int)ModelChunkTypes.ShaderTexture:
                     ReadShaderTexture(chunk.Size, textures, ref actualSize);
                     break;
                 default:
@@ -192,7 +191,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
 
         var boneCountChunk = ChunkReader.ReadChunk(ref actualSize);
 
-        Debug.Assert(boneCountChunk is { Size: 128, Type: (int)ChunkType.BoneCount });
+        Debug.Assert(boneCountChunk is { Size: 128, Type: (int)ModelChunkTypes.BoneCount });
 
         var boneCount = ChunkReader.ReadDword(ref actualSize);
 
@@ -202,7 +201,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         {
             var bone = ChunkReader.ReadChunk(ref actualSize);
 
-            Debug.Assert(bone is { Type: (int)ChunkType.Bone, IsContainer: true });
+            Debug.Assert(bone is { Type: (int)ModelChunkTypes.Bone, IsContainer: true });
 
             var boneReadSize = 0;
 
@@ -210,7 +209,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
             {
                 var innerBoneChunk = ChunkReader.ReadChunk(ref boneReadSize);
 
-                if (innerBoneChunk.Type == (int)ChunkType.BoneName)
+                if (innerBoneChunk.Type == (int)ModelChunkTypes.BoneName)
                 {
                     var nameSize = innerBoneChunk.Size;
 
