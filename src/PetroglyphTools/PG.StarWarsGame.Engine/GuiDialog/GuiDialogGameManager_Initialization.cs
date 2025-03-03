@@ -10,6 +10,7 @@ using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.File;
 using PG.StarWarsGame.Engine.Xml.Tags;
+using PG.StarWarsGame.Files.Binary;
 
 namespace PG.StarWarsGame.Engine.GuiDialog;
 
@@ -146,7 +147,16 @@ partial class GuiDialogGameManager
             }
 
             using var megaTexture = GameRepository.TryOpenFile(mtdPath);
-            MtdFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+            try
+            {
+                MtdFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+            }
+            catch (BinaryCorruptedException e)
+            {
+                var message = $"Failed to load MTD file '{mtdPath}': {e.Message}";
+                Logger?.LogError(e, message);
+                ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, null, message));
+            }
         }
 
         if (guiDialogs.CompressedMegaTexture is null)

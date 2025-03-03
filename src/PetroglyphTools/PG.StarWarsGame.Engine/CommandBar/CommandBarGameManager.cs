@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.Rendering;
 using PG.StarWarsGame.Engine.Rendering.Font;
+using PG.StarWarsGame.Files.Binary;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
@@ -232,7 +233,17 @@ internal class CommandBarGameManager(
         // Note: The tag <Mega_Texture_Name> is not used by the engine
         var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{MegaTextureBaseName}.mtd");
         using var megaTexture = GameRepository.TryOpenFile(mtdPath);
-        MegaTextureFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+
+        try
+        {
+            MegaTextureFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+        }
+        catch (BinaryCorruptedException e)
+        {
+            var message = $"Failed to load MTD file '{mtdPath}': {e.Message}";
+            Logger?.LogError(e, message);
+            ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, null, message));
+        }
         _megaTextureExists = GameRepository.TextureRepository.FileExists($"{MegaTextureBaseName}.tga");
     }
 

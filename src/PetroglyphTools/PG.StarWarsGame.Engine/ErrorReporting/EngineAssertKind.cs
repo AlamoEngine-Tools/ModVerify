@@ -4,5 +4,6 @@ public enum EngineAssertKind
 {
     NullOrEmptyValue,
     ValueOutOfRange,
-    InvalidValue
+    InvalidValue,
+    CorruptBinary
 }
