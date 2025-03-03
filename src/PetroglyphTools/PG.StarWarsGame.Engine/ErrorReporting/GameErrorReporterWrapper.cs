@@ -44,7 +44,7 @@ internal sealed class GameErrorReporterWrapper : XmlErrorReporter, IGameErrorRep
         if (_errorReporter is null)
             return;
 
-        _logger?.LogWarning($"Xml parser '{parser}' reported error: {error}");
+        _logger?.LogWarning($"Xml parser '{parser}' reported error: {error.Message}");
 
         Report(new XmlError
         {

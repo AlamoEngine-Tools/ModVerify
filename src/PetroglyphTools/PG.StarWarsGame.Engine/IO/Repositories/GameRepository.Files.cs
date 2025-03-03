@@ -97,7 +97,7 @@ internal partial class GameRepository
 
         var crc = _crc32HashingService.GetCrc32(fileName, MegFileConstants.MegDataEntryPathEncoding);
 
-        var entry = MasterMegArchive!.FirstEntryWithCrc(crc);
+        var entry = MasterMegArchive!.EntriesWithCrc(crc).FirstOrDefault();
 
         return new FileFoundInfo(entry);
     }

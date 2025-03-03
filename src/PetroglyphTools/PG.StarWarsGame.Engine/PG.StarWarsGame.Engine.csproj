@@ -18,8 +18,8 @@
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.0.206" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.0.206" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.1.7" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.1.7" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.1.8" />
 		<PackageReference Include="IsExternalInit" Version="1.0.3">
 			<PrivateAssets>all</PrivateAssets>
