@@ -11,7 +11,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
+using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.ALO.Files.Animations;
+using PG.StarWarsGame.Files.Binary;
 
 namespace PG.StarWarsGame.Engine.Rendering;
 
@@ -22,6 +25,7 @@ internal class PGRender(GameRepository gameRepository, GameErrorReporterWrapper 
     private readonly IRepository _modelRepository = gameRepository.ModelRepository;
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
+    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(PGRender));
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")] 
     private static readonly Dictionary<ModelAnimationType, string> AnimationTypeToName = new()
@@ -162,7 +166,19 @@ internal class PGRender(GameRepository gameRepository, GameErrorReporterWrapper 
             return null;
 
         var loadOptions = metadataOnly ? AloLoadOptions.MetadataOnly : AloLoadOptions.Full;
-        return _aloFileService.Load(aloStream, loadOptions);
+
+        try
+        {
+            return _aloFileService.Load(aloStream, loadOptions);
+        }
+        catch (BinaryCorruptedException e)
+        {
+            var pathString = path.ToString();
+            var errorMessage = $"Unable to load 3D asset '{pathString}': {e.Message}";
+            _logger?.LogWarning(e, errorMessage);
+            errorReporter.Assert(EngineAssert.Create(EngineAssertKind.InvalidValue, pathString, null, errorMessage));
+            return null;
+        }
     }
 
     public ModelClass? LoadModelAndAnimations(ReadOnlySpan<char> path, string? animOverrideName, bool metadataOnly = true)
@@ -210,8 +226,8 @@ internal class PGRender(GameRepository gameRepository, GameErrorReporterWrapper 
                             $"Cannot get animation file '{animFile}' for model '{model}', because animation file path is too long."));
                     return null;
                 }
-                var animationFile = Load3DAsset(stringBuilder.AsSpan(), metadataOnly);
-                if (animationFile is not null)
+                var animationAsset = Load3DAsset(stringBuilder.AsSpan(), metadataOnly);
+                if (animationAsset is IAloAnimationFile animationFile)
                 {
                     loadingNumberedAnimations = true;
                     var crc = _hashingService.GetCrc32(animationFilenameWithoutExtension, PGConstants.DefaultPGEncoding);

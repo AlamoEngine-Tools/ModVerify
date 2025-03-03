@@ -3,12 +3,13 @@ using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Collections;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.ALO.Files.Animations;
 
 namespace PG.StarWarsGame.Engine.Rendering;
 
 public sealed class AnimationCollection : DisposableObject
 {
-    private readonly ValueListDictionary<ModelAnimationType, object> _animations = new();
+    private readonly ValueListDictionary<ModelAnimationType, IAloAnimationFile> _animations = new();
     private readonly ValueListDictionary<ModelAnimationType, Crc32> _animationCrc = new();
 
     public int Cout => _animations.Count;
@@ -23,17 +24,17 @@ public sealed class AnimationCollection : DisposableObject
         return checksumsForType[subIndex];
     }
 
-    public ReadOnlyFrugalList<object> GetAnimations(ModelAnimationType type)
+    public ReadOnlyFrugalList<IAloAnimationFile> GetAnimations(ModelAnimationType type)
     {
         return _animations.GetValues(type);
     }
 
-    public bool TryGetAnimations(ModelAnimationType type, out ReadOnlyFrugalList<object> animations)
+    public bool TryGetAnimations(ModelAnimationType type, out ReadOnlyFrugalList<IAloAnimationFile> animations)
     {
         return _animations.TryGetValues(type, out animations);
     }
 
-    public object GetAnimation(ModelAnimationType type, int subIndex)
+    public IAloAnimationFile GetAnimation(ModelAnimationType type, int subIndex)
     {
         if (subIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(subIndex), "subIndex cannot be negative.");
@@ -43,7 +44,7 @@ public sealed class AnimationCollection : DisposableObject
         return animations[subIndex];
     }
 
-    internal void AddAnimation(ModelAnimationType type, object animation, Crc32 crc)
+    internal void AddAnimation(ModelAnimationType type, IAloAnimationFile animation, Crc32 crc)
     {
         _animations.Add(type, animation);
         _animationCrc.Add(type, crc);
@@ -51,12 +52,9 @@ public sealed class AnimationCollection : DisposableObject
 
     protected override void DisposeResources()
     {
-        foreach (var animation in _animations)
-        {
-            if (animation.Value is IDisposable disposable)
-                disposable.Dispose();
-        }   
-        //_animationCrc.Clear();
-        //_animations.Clear();
+        foreach (var animation in _animations.Values) 
+            animation.Dispose();
+        _animationCrc.Clear();
+        _animations.Clear();
     }
 }
