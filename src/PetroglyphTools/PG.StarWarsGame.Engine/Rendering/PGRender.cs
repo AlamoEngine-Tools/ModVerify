@@ -176,7 +176,7 @@ internal class PGRender(GameRepository gameRepository, GameErrorReporterWrapper 
             var pathString = path.ToString();
             var errorMessage = $"Unable to load 3D asset '{pathString}': {e.Message}";
             _logger?.LogWarning(e, errorMessage);
-            errorReporter.Assert(EngineAssert.Create(EngineAssertKind.InvalidValue, pathString, null, errorMessage));
+            errorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, pathString, null, errorMessage));
             return null;
         }
     }
