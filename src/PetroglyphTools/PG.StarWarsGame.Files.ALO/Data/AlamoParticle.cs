@@ -2,7 +2,7 @@
 
 namespace PG.StarWarsGame.Files.ALO.Data;
 
-public class AlamoParticle : IAloDataContent
+public sealed class AlamoParticle : IAloDataContent
 {
     public required string Name { get; init; }
 

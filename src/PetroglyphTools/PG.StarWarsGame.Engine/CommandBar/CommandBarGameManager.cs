@@ -136,6 +136,7 @@ internal class CommandBarGameManager(
         if (!Groups.TryGetValue("Shells", out var shellGroup))
             return;
 
+        var modelCache = new Dictionary<string, ModelClass?>();
         foreach (var component in Components)
         {
             if (component.Type == CommandBarComponentType.Shell)
@@ -144,13 +145,19 @@ internal class CommandBarGameManager(
             foreach (var shellComponent in shellGroup.Components)
             {
                 // TODO: Create verifier that shell group only contains shell components
-                if (LinkToShell(component, shellComponent as CommandBarShellComponent))
+                if (LinkToShell(component, shellComponent as CommandBarShellComponent, modelCache))
                     break;
             }
         }
+
+        foreach (var model in modelCache.Values) 
+            model?.Dispose();
     }
 
-    private bool LinkToShell(CommandBarBaseComponent component, CommandBarShellComponent? shell)
+    private bool LinkToShell(
+        CommandBarBaseComponent component, 
+        CommandBarShellComponent? shell,
+        IDictionary<string, ModelClass?> modelCache)
     {
         if (shell is null)
         {
@@ -168,12 +175,25 @@ internal class CommandBarGameManager(
         if (string.IsNullOrEmpty(modelPath))
             return false;
 
-        using var model = _pgRender.LoadModelAndAnimations(modelPath!);
+        if (!modelCache.TryGetValue(shell.Name, out var model))
+        {
+            model = _pgRender.LoadModelAndAnimations(modelPath.AsSpan(), null, true);
+            modelCache.Add(shell.Name, model);
+        }
+
         if (model is null)
         {
             ErrorReporter.Assert(
                 EngineAssert.FromNullOrEmpty(new ComponentLinkTuple(component, shell), 
                     $"Cannot link component '{componentName}' to shell '{shell.Name}' because model '{modelPath}' could not be loaded."));
+            return false;
+        }
+
+        if (!model.IsModel)
+        {
+            ErrorReporter.Assert(
+                EngineAssert.FromNullOrEmpty(new ComponentLinkTuple(component, shell),
+                    $"Cannot link component '{componentName}' to shell '{shell.Name}' because the loaded file '{modelPath}' is not a model."));
             return false;
         }
 

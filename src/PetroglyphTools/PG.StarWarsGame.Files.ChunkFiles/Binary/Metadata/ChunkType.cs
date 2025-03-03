@@ -25,6 +25,8 @@ public enum ChunkType
     Emitters = 0x800,
     Particle = 0x900,
     Animation = 0x1000,
+    AnimationInformation = 0x1001,
+    AnimationBoneData = 0x1002,
     Light = 0x1300,
     ParticleUaW = 0x1500,
     SubMeshData = 0x00010000,

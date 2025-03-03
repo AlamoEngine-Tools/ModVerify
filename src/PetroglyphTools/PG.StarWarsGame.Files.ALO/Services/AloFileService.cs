@@ -7,6 +7,7 @@ using PG.StarWarsGame.Files.ALO.Binary;
 using PG.StarWarsGame.Files.ALO.Binary.Identifier;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Files;
+using PG.StarWarsGame.Files.ALO.Files.Animations;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 
@@ -17,7 +18,7 @@ public class AloFileService(IServiceProvider serviceProvider) : ServiceBase(serv
     private readonly IAloFileReaderFactory _readerFactory = serviceProvider.GetRequiredService<IAloFileReaderFactory>();
     private readonly IAloContentInfoIdentifier _aloContentIdentifier = serviceProvider.GetRequiredService<IAloContentInfoIdentifier>();
 
-    public IAloFile<IAloDataContent, PetroglyphMegPackableFileInformation> Load(Stream stream, AloLoadOptions loadOptions = AloLoadOptions.Full)
+    public IAloFile<IAloDataContent, AloFileInformation> Load(Stream stream, AloLoadOptions loadOptions = AloLoadOptions.Full)
     {
         return Load(stream, null, loadOptions);
     }
@@ -32,7 +33,12 @@ public class AloFileService(IServiceProvider serviceProvider) : ServiceBase(serv
         return (IAloParticleFile)Load(stream, AloType.Particle, loadOptions);
     }
 
-    public IAloFile<IAloDataContent, PetroglyphMegPackableFileInformation> Load(Stream stream, AloType? supportedType = null,
+    public IAloAnimationFile LoadAnimation(Stream stream, AloLoadOptions loadOptions = AloLoadOptions.Full)
+    {
+        return (IAloAnimationFile)Load(stream, AloType.Animation, loadOptions);
+    }
+
+    public IAloFile<IAloDataContent, AloFileInformation> Load(Stream stream, AloType? supportedType = null,
         AloLoadOptions loadOptions = AloLoadOptions.Full)
     {
         if (stream == null)
@@ -62,6 +68,9 @@ public class AloFileService(IServiceProvider serviceProvider) : ServiceBase(serv
 
         if (alo is AlamoParticle particle)
             return new AloParticleFile(particle, fileInfo, Services);
+
+        if (alo is AlamoAnimation animation)
+            return new AloAnimationFile(animation, fileInfo, Services);
 
         throw new InvalidOperationException();
     }

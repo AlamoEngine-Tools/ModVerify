@@ -11,6 +11,7 @@ public static class PGConstants
     public const int MaxEffectFileName = 259;
     public const int MaxTextureFileName = 259;
     public const int MaxModelFileName = 259;
+    public const int MaxAnimationFileName = 255;
     public const int MaxSFXEventDatabaseFileName = 259;
     public const int MaxSFXEventName = 255;
     public const int MaxGameObjectDatabaseFileName = 127;

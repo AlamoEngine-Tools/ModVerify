@@ -3,7 +3,7 @@ using PG.StarWarsGame.Files.ALO.Files;
 
 namespace PG.StarWarsGame.Files.ALO.Binary.Identifier;
 
-interface IAloContentInfoIdentifier
+internal interface IAloContentInfoIdentifier
 {
     AloContentInfo GetContentInfo(Stream stream);
 }

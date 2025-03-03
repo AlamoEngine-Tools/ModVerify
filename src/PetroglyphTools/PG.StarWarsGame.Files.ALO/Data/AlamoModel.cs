@@ -2,7 +2,7 @@
 
 namespace PG.StarWarsGame.Files.ALO.Data;
 
-public class AlamoModel : IAloDataContent
+public sealed class AlamoModel : IAloDataContent
 {
     public IList<string> Bones { get; init; }
 

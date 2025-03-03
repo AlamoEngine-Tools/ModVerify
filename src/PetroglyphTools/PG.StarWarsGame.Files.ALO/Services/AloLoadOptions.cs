@@ -20,4 +20,8 @@ public enum AloLoadOptions
     /// If the file is a model, this option gets the list of bones from the model.
     /// </summary>
     Bones = 2,
+    /// <summary>
+    /// Extracts only metadata from the model/particle
+    /// </summary>
+    MetadataOnly = Assets | Bones
 }
