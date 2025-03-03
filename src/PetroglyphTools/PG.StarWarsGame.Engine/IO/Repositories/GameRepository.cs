@@ -115,7 +115,10 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         var megArchive = LoadMegArchive(megFile);
         if (megArchive is null)
         {
-            Logger.LogWarning($"Unable to find MEG file at '{megFile}'");
+            if (IsSpeechMeg(megFile))
+                Logger.LogDebug($"Unable to find Speech MEG file at '{megFile}'");
+            else
+                Logger.LogWarning($"Unable to find MEG file at '{megFile}'");
             return;
         }
 
@@ -247,7 +250,10 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         using var megFileStream = TryOpenFile(megPath);
         if (megFileStream is not FileSystemStream fileSystemStream)
         {
-            Logger.LogWarning($"Unable to find MEG file '{megPath}'");
+            if (IsSpeechMeg(megPath))
+                Logger.LogDebug($"Unable to find Speech MEG file '{megPath}'");
+            else
+                Logger.LogWarning($"Unable to find MEG file '{megPath}'");
             return null;
         }
 
@@ -257,6 +263,11 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
             throw new InvalidOperationException("MEG data version must be V1.");
 
         return megFile;
+    }
+
+    private bool IsSpeechMeg(string megFile)
+    {
+        return FileSystem.Path.GetFileName(megFile.AsSpan()).EndsWith("Speech.meg".AsSpan(), StringComparison.OrdinalIgnoreCase);
     }
 
     private void ThrowIfSealed()
