@@ -20,13 +20,15 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
         return GetLocations(targetObject, gameResult, settings.AdditionalFallbackPaths);
     }
 
-    private IPhysicalPlayableObject SelectPlayableObject(GameFinderResult finderResult)
+    private static IPhysicalPlayableObject SelectPlayableObject(GameFinderResult finderResult)
     {
         var list = new List<IPhysicalPlayableObject>();
 
         var game = finderResult.Game;
         list.Add(finderResult.Game);
 
+        Console.WriteLine("=================");
+        Console.WriteLine();
         Console.WriteLine($"0: {game.Name}");
 
         var counter = 1;
@@ -52,6 +54,8 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
         {
             var fallbackGame = finderResult.FallbackGame;
             list.Add(fallbackGame);
+
+            Console.WriteLine("_________________");
             Console.WriteLine($"{counter++}: {fallbackGame.Name}");
 
             foreach (var mod in fallbackGame.Mods)
@@ -72,12 +76,19 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
             }
         }
 
-        Console.WriteLine("Workshop Items:");
-        foreach (var mod in workshopMods)
+        if (workshopMods.Count > 0)
         {
-            Console.WriteLine($"{counter++}:\t{mod.Name}");
-            list.Add(mod);
+            Console.WriteLine("_________________");
+            Console.WriteLine("Workshop Items:");
+            foreach (var mod in workshopMods)
+            {
+                Console.WriteLine($"{counter++}:\t{mod.Name}");
+                list.Add(mod);
+            }
         }
+        
+        Console.WriteLine();
+        Console.WriteLine("=================");
 
         while (true)
         {

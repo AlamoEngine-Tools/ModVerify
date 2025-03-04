@@ -6,5 +6,8 @@ namespace AET.ModVerifyTool.ModSelectors;
 
 internal interface IModSelector
 {
-    GameLocations? Select(GameInstallationsSettings settings, out IPhysicalPlayableObject? targetObject, out GameEngineType? actualEngineType);
+    GameLocations? Select(
+        GameInstallationsSettings settings,
+        out IPhysicalPlayableObject? targetObject, 
+        out GameEngineType? actualEngineType);
 }
