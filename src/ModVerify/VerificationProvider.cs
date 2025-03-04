@@ -10,10 +10,9 @@ internal class VerificationProvider(IServiceProvider serviceProvider) : IVerific
 {
     public IEnumerable<GameVerifierBase> GetAllDefaultVerifiers(IGameDatabase database, GameVerifySettings settings)
     {
-        yield break;
-        //yield return new ReferencedModelsVerifier(database, settings, serviceProvider);
-        //yield return new DuplicateNameFinder(database, settings, serviceProvider);
-        //yield return new AudioFilesVerifier(database, settings, serviceProvider);
-        //yield return new ReferencedTexturesVerifier(database, settings, serviceProvider);
+        yield return new ReferencedModelsVerifier(database, settings, serviceProvider);
+        yield return new DuplicateNameFinder(database, settings, serviceProvider);
+        yield return new AudioFilesVerifier(database, settings, serviceProvider);
+        yield return new ReferencedTexturesVerifier(database, settings, serviceProvider);
     }
 }

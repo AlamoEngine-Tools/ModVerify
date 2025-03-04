@@ -10,7 +10,8 @@ internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
 {
     public VerifyGameInstallationData CreateInstallationDataFromSettings(GameInstallationsSettings settings)
     {
-        var gameLocations = new ModSelectorFactory(serviceProvider).CreateSelector(settings)
+        var gameLocations = new ModSelectorFactory(serviceProvider)
+            .CreateSelector(settings)
             .Select(settings, out var targetObject, out var engineType);
 
         if (gameLocations is null)

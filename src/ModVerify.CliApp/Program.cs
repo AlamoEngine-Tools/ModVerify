@@ -15,7 +15,6 @@ using AnakinRaW.CommonUtilities.Registry.Windows;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using PG.Commons;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files.ALO;
@@ -28,7 +27,9 @@ using PG.StarWarsGame.Infrastructure.Services.Name;
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
+using Serilog.Sinks.SystemConsole.Themes;
 using Testably.Abstractions;
+using ILogger = Serilog.ILogger;
 
 namespace AET.ModVerifyTool;
 
@@ -36,6 +37,7 @@ internal class Program
 {
     private const string EngineParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
     private const string ParserNamespace = "PG.StarWarsGame.Files.XML.Parsers";
+    private const string GameInfrastructureNamespace = "PG.StarWarsGame.Infrastructure";
 
     private static async Task<int> Main(string[] args) 
     {
@@ -87,6 +89,14 @@ internal class Program
             Console.WriteLine($"Error: {e.Message}");
             logger?.LogCritical(e, e.Message);
             return e.HResult;
+        }
+        finally
+        {
+#if NET
+            await Log.CloseAndFlushAsync();
+#else
+            Log.CloseAndFlush();
+#endif
         }
     }
     
@@ -154,49 +164,59 @@ internal class Program
         loggingBuilder.ClearProviders();
 
         // ReSharper disable once RedundantAssignment
-        var logLevel = LogLevel.Information;
+        var logLevel = LogEventLevel.Information;
 #if DEBUG
-        logLevel = LogLevel.Debug;
+        logLevel = LogEventLevel.Debug;
         loggingBuilder.AddDebug();
 #else
         if (verbose)
         {
-            logLevel = LogLevel.Debug;
+            logLevel = LogLevel.Verbose;
             loggingBuilder.AddDebug();
         }
 #endif
-        loggingBuilder.SetMinimumLevel(logLevel);
+        var fileLogger = SetupFileLogging(fileSystem, logLevel);
+        loggingBuilder.AddSerilog(fileLogger);
 
-        SetupFileLogging(loggingBuilder, fileSystem);
-
-
-        loggingBuilder.AddFilter<ConsoleLoggerProvider>((category, level) =>
+        var cLogger = new LoggerConfiguration()
+            .WriteTo.Async(c =>
             {
-                if (level < logLevel)
-                    return false;
-                if (string.IsNullOrEmpty(category))
-                    return false;
-                if (category.StartsWith(EngineParserNamespace) || category.StartsWith(ParserNamespace))
-                    return false;
-                return true;
+                c.Console(logLevel, theme: AnsiConsoleTheme.Code);
             })
-            .AddSimpleConsole();
+            .Filter.ByExcluding(x =>
+            {
+                if (!x.Properties.TryGetValue("SourceContext", out var value))
+                    return true;
+                var source = value.ToString().AsSpan().Trim('\"');
+
+                if (source.StartsWith(EngineParserNamespace.AsSpan()))
+                    return true;
+                if (source.StartsWith(ParserNamespace.AsSpan()))
+                    return true;
+                if (source.StartsWith(GameInfrastructureNamespace.AsSpan()))
+                    return true;
+                return false;
+            })
+            .CreateLogger();
+        loggingBuilder.AddSerilog(cLogger);
     }
 
-    private static void SetupFileLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem)
+    private static ILogger SetupFileLogging(IFileSystem fileSystem, LogEventLevel minLevel)
     {
         var logPath = fileSystem.Path.Combine(fileSystem.Path.GetTempPath(), "ModVerify_log.txt");
 
-        var logger = new LoggerConfiguration()
+        return new LoggerConfiguration()
             .Enrich.FromLogContext()
-            .MinimumLevel.Verbose()
+            .MinimumLevel.Is(minLevel)
             .Filter.ByExcluding(IsXmlParserLogging)
-            .WriteTo.RollingFile(
-                logPath,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message}{NewLine}{Exception}")
+            .WriteTo.Async(c =>
+            {
+                c.RollingFile(
+                    logPath,
+                    outputTemplate:
+                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message}{NewLine}{Exception}");
+            })
             .CreateLogger();
-
-        loggingBuilder.AddSerilog(logger);
     }
 
     private static bool IsXmlParserLogging(LogEvent logEvent)

@@ -21,9 +21,11 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
     {
         var returnCode = 0;
 
-        var installData = new SettingsBasedModSelector(services).CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
+        var installData = new SettingsBasedModSelector(services)
+            .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
 
-        _logger?.LogInformation($"Verify install data: {installData}");
+        Console.WriteLine();
+        _logger?.LogDebug($"Verify install data: {installData}");
 
         var verifyPipeline = new ModVerifyPipeline(installData.EngineType, installData.GameLocations, settings.GameVerifySettings, services);
 
