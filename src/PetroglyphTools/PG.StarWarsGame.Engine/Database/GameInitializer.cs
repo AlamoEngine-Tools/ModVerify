@@ -99,7 +99,7 @@ internal class GameInitializer(GameRepository repository, bool cancelOnError, IS
                 GameRepository = repository,
                 GameConstants = gameConstants,
                 GuiDialogManager = guiDialogs,
-                CommandBarManager = commandBarManager,
+                CommandBar = commandBarManager,
                 GameObjectTypeManager = gameObjetTypeManager,
                 SfxGameManager = sfxGameManager,
                 InstalledLanguages = sfxGameManager.InstalledLanguages

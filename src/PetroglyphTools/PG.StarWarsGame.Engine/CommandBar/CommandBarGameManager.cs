@@ -31,8 +31,6 @@ internal class CommandBarGameManager(
     IServiceProvider serviceProvider)
     : GameManagerBase<CommandBarBaseComponent>(repository, errorReporter, serviceProvider), ICommandBarGameManager
 {
-    public const string MegaTextureBaseName = "MT_COMMANDBAR";
-
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
     private readonly Dictionary<string, CommandBarComponentGroup> _groups = new();
@@ -134,7 +132,7 @@ internal class CommandBarGameManager(
 
     private void LinkComponentsToShell()
     {
-        if (!Groups.TryGetValue("Shells", out var shellGroup))
+        if (!Groups.TryGetValue(CommandBarConstants.ShellGroupName, out var shellGroup))
             return;
 
         var modelCache = new Dictionary<string, ModelClass?>();
@@ -145,7 +143,6 @@ internal class CommandBarGameManager(
 
             foreach (var shellComponent in shellGroup.Components)
             {
-                // TODO: Create verifier that shell group only contains shell components
                 if (LinkToShell(component, shellComponent as CommandBarShellComponent, modelCache))
                     break;
             }
@@ -231,7 +228,7 @@ internal class CommandBarGameManager(
         if (Components.FirstOrDefault(x => x is CommandBarShellComponent) is null)
             return;
         // Note: The tag <Mega_Texture_Name> is not used by the engine
-        var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{MegaTextureBaseName}.mtd");
+        var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{CommandBarConstants.MegaTextureBaseName}.mtd");
         using var megaTexture = GameRepository.TryOpenFile(mtdPath);
 
         try
@@ -244,7 +241,7 @@ internal class CommandBarGameManager(
             Logger?.LogError(e, message);
             ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, null, message));
         }
-        _megaTextureExists = GameRepository.TextureRepository.FileExists($"{MegaTextureBaseName}.tga");
+        _megaTextureExists = GameRepository.TextureRepository.FileExists($"{CommandBarConstants.MegaTextureBaseName}.tga");
     }
 
     private void SetComponentGroup(IEnumerable<CommandBarBaseComponent> components)

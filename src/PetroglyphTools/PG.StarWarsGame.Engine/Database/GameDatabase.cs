@@ -17,7 +17,7 @@ internal class GameDatabase : IGameDatabase
 
     public required IFontManager FontManager { get; init; }
 
-    public required ICommandBarGameManager CommandBarManager { get; init; }
+    public required ICommandBarGameManager CommandBar { get; init; }
 
     public required IGameRepository GameRepository { get; init; }
 
