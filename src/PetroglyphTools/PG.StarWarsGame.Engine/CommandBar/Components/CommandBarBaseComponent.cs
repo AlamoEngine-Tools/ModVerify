@@ -16,7 +16,7 @@ public abstract class CommandBarBaseComponent(CommandBarComponentData xmlData)
     public bool Hidden { get; internal set; } = xmlData.Hidden;
     public bool Disabled { get; } = xmlData.Disabled;
     public abstract CommandBarComponentType Type { get; }
-    public CommandBarComponentId Id { get; internal set; }
+    public CommandBarComponentId Id { get; internal set; } = CommandBarComponentId.None;
     public CommandBarComponentGroup? Group { get; internal set; }
     public CommandBarShellComponent? ParentShell { get; internal set; }
 

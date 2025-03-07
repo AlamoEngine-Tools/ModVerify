@@ -4,7 +4,7 @@ namespace PG.StarWarsGame.Engine.CommandBar;
 
 internal static class SupportedCommandBarComponentData
 {
-    public static IReadOnlyDictionary<CommandBarComponentId, string> SupportedComponents =
+    public static readonly IReadOnlyDictionary<CommandBarComponentId, string> SupportedComponents =
         new Dictionary<CommandBarComponentId, string>
         {
             { CommandBarComponentId.MainShell, "i_main_commandbar" },

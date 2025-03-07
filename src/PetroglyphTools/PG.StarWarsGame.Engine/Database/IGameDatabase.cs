@@ -7,6 +7,7 @@ using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Rendering;
 using PG.StarWarsGame.Engine.Rendering.Font;
 using System.Collections.Generic;
+using PG.StarWarsGame.Engine.CommandBar;
 
 namespace PG.StarWarsGame.Engine.Database;
 
@@ -21,6 +22,8 @@ public interface IGameDatabase
     IGameConstants GameConstants { get; }
 
     IGuiDialogManager GuiDialogManager { get; }
+
+    ICommandBarGameManager CommandBar { get; }
 
     IGameObjectTypeGameManager GameObjectTypeManager { get; } 
 

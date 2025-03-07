@@ -14,5 +14,6 @@ internal class VerificationProvider(IServiceProvider serviceProvider) : IVerific
         yield return new DuplicateNameFinder(database, settings, serviceProvider);
         yield return new AudioFilesVerifier(database, settings, serviceProvider);
         yield return new ReferencedTexturesVerifier(database, settings, serviceProvider);
+        yield return new CommandBarVerifier(database, settings, serviceProvider);
     }
 }

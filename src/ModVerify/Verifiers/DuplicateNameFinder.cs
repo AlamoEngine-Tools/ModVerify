@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.Collections;
+using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Files.MTD.Data;
+using PG.StarWarsGame.Files.MTD.Files;
 
 namespace AET.ModVerify.Verifiers;
 
@@ -15,41 +19,81 @@ public sealed class DuplicateNameFinder(
     IServiceProvider serviceProvider)
     : GameVerifierBase(gameDatabase, settings, serviceProvider)
 {
-    public override string FriendlyName => "Duplicate Definitions";
+    public override string FriendlyName => "Duplicates";
 
     protected override void RunVerification(CancellationToken token)
     {
-        CheckDatabaseForDuplicates(Database.GameObjectTypeManager, "GameObject");
-        CheckDatabaseForDuplicates(Database.SfxGameManager, "SFXEvent");
-    }
+        CheckXmlObjectsForDuplicates("GameObject", Database.GameObjectTypeManager);
+        CheckXmlObjectsForDuplicates("SFXEvent", Database.SfxGameManager);
 
-    private void CheckDatabaseForDuplicates<T>(IGameManager<T> gameManager, string databaseName) where T : NamedXmlObject
-    {
-        foreach (var key in gameManager.EntryKeys)
+        if (Database.GuiDialogManager.MtdFile is not null)
+            CheckXmlObjectsForDuplicates(Database.GuiDialogManager.MtdFile);
+
+        if (Database.CommandBar.MegaTextureFile is not null)
         {
-            var entries = gameManager.GetEntries(key);
+            if (!Database.CommandBar.MegaTextureFile.FilePath.Equals(Database.GuiDialogManager.MtdFile?.FileName))
+                CheckXmlObjectsForDuplicates(Database.CommandBar.MegaTextureFile);
+        }
+    } 
+    
+    private void CheckForDuplicateCrcEntries<TSource, TEntry>(
+        string sourceName,
+        TSource source, 
+        Func<TSource, IEnumerable<Crc32>> crcSelector, 
+        Func<TSource, Crc32, ReadOnlyFrugalList<TEntry>> entrySelector, 
+        Func<ReadOnlyFrugalList<TEntry>, IEnumerable<string>> entryToStringSelector,
+        Func<ReadOnlyFrugalList<TEntry>, string, string> errorMessageCreator)
+    {
+        foreach (var crc32 in crcSelector(source))
+        {
+            var entries = entrySelector(source, crc32);
             if (entries.Count > 1)
             {
-                var entryNames = entries.Select(x => x.Name);
+                var entryNames = entryToStringSelector(entries);
                 AddError(VerificationError.Create(
                     this,
                     VerifierErrorCodes.DuplicateFound,
-                    CreateDuplicateErrorMessage(databaseName, entries), 
-                    VerificationSeverity.Warning,
+                    errorMessageCreator(entries, sourceName),
+                    VerificationSeverity.Error,
                     entryNames));
             }
         }
     }
 
-    private string CreateDuplicateErrorMessage<T>(string databaseName, ReadOnlyFrugalList<T> entries) where T : NamedXmlObject
+    private void CheckXmlObjectsForDuplicates(IMtdFile mtdFile)
+    {
+        CheckForDuplicateCrcEntries(
+            mtdFile.FileName,
+            mtdFile,
+            mtd => mtd.Content.Select(x => x.Crc32),
+            (mtd, crc32) => mtd.Content.EntriesWithCrc(crc32),
+            list => list.Select(x => x.FileName),
+            CreateDuplicateMtdErrorMessage);
+    }
+
+    private void CheckXmlObjectsForDuplicates<T>(string databaseName, IGameManager<T> gameManager) where T : NamedXmlObject
+    {
+        CheckForDuplicateCrcEntries(
+            databaseName,
+            gameManager,
+            manager => manager.EntryKeys,
+            (manager, crc32) => manager.GetEntries(crc32), 
+            list => list.Select(x => x.Name),
+            CreateDuplicateXmlErrorMessage);
+    }
+
+    private static string CreateDuplicateMtdErrorMessage(ReadOnlyFrugalList<MegaTextureFileIndex> entries, string fileName)
     {
         var firstEntry = entries.First();
+        return $"MTD File '{fileName}' has duplicate definitions for CRC ({firstEntry}): {string.Join(",", entries.Select(x => x.FileName))}";
+    }
 
+    private static string CreateDuplicateXmlErrorMessage<T>(ReadOnlyFrugalList<T> entries, string databaseName) where T : NamedXmlObject
+    {
+        var firstEntry = entries.First();
         var message = $"{databaseName} '{firstEntry.Name}' ({firstEntry.Crc32}) has duplicate definitions: ";
-
         foreach (var entry in entries) 
             message += $"['{entry.Name}' in {entry.Location.XmlFile}:{entry.Location.Line}] ";
-
         return message.TrimEnd();
     }
 }
