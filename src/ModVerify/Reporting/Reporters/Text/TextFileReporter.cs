@@ -32,7 +32,7 @@ internal class TextFileReporter(TextFileReporterSettings settings, IServiceProvi
 
     private async Task ReportByVerifier(IReadOnlyCollection<VerificationError> errors)
     {
-        var grouped = errors.GroupBy(x => x.Verifier);
+        var grouped = errors.GroupBy(x => x.VerifierChain.Last());
         foreach (var group in grouped) 
             await ReportToSingleFile(group);
     }

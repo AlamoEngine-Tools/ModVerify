@@ -38,7 +38,7 @@ public class AudioFilesVerifier : GameVerifierBase
     private readonly IGameLanguageManager _languageManager;
 
     public AudioFilesVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider) 
-        : base(gameDatabase, settings, serviceProvider)
+        : base(null, gameDatabase, settings, serviceProvider)
     {
         _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
@@ -48,7 +48,7 @@ public class AudioFilesVerifier : GameVerifierBase
 
     public override string FriendlyName => "Verify Audio Files";
 
-    protected override void RunVerification(CancellationToken token)
+    public override void Verify(CancellationToken token)
     {
         var visitedSamples = new HashSet<Crc32>();
         var languagesToVerify = GetLanguagesToVerify().ToList();
@@ -127,7 +127,7 @@ public class AudioFilesVerifier : GameVerifierBase
         {
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
-                this,
+                VerifierChain,
                 VerifierErrorCodes.SampleNotFound,
                 $"Audio file '{sampleString}' could not be found.",
                 VerificationSeverity.Error,
@@ -153,7 +153,7 @@ public class AudioFilesVerifier : GameVerifierBase
         {
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
-                this,
+                VerifierChain,
                 VerifierErrorCodes.SampleNotPCM,
                 $"Audio file '{sampleString}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
                 VerificationSeverity.Error,
@@ -164,7 +164,7 @@ public class AudioFilesVerifier : GameVerifierBase
         {
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
-                this,
+                VerifierChain,
                 VerifierErrorCodes.SampleNotMono, 
                 $"Audio file '{sampleString}' is not mono audio.", 
                 VerificationSeverity.Information,
@@ -175,7 +175,7 @@ public class AudioFilesVerifier : GameVerifierBase
         {
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
-                this,
+                VerifierChain,
                 VerifierErrorCodes. InvalidSampleRate, 
                 $"Audio file '{sampleString}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
                 VerificationSeverity.Error,
@@ -186,7 +186,7 @@ public class AudioFilesVerifier : GameVerifierBase
         {
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
-                this,
+                VerifierChain,
                 VerifierErrorCodes.InvalidBitsPerSeconds, 
                 $"Audio file '{sampleString}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
                 VerificationSeverity.Error,

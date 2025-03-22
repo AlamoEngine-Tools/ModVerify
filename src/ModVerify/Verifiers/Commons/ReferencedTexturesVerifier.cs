@@ -10,13 +10,13 @@ public sealed partial class ReferencedTexturesVerifier(
     GameVerifySettings settings,
     IServiceProvider serviceProvider)
     :
-        GameVerifierBase(gameDatabase, settings, serviceProvider)
+        GameVerifierBase(null, gameDatabase, settings, serviceProvider)
 {
     public const string MtdNotFound = "TEX00";
     public const string TexutreNotFound = "TEX01";
     public const string FileNameTooLong = "PAT00";
 
-    protected override void RunVerification(CancellationToken token)
+    public override void Verify(CancellationToken token)
     {
         var textures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         try

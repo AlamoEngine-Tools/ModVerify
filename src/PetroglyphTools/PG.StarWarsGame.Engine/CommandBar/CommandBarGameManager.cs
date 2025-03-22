@@ -6,8 +6,12 @@ using PG.StarWarsGame.Engine.CommandBar.Components;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.ErrorReporting;
+using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Rendering;
+using PG.StarWarsGame.Engine.Rendering.Font;
 using PG.StarWarsGame.Engine.Xml.Parsers;
+using PG.StarWarsGame.Files.Binary;
 using PG.StarWarsGame.Files.MTD.Files;
 using PG.StarWarsGame.Files.MTD.Services;
 using System;
@@ -15,10 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using PG.StarWarsGame.Engine.GameConstants;
-using PG.StarWarsGame.Engine.Rendering;
-using PG.StarWarsGame.Engine.Rendering.Font;
-using PG.StarWarsGame.Files.Binary;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
@@ -119,14 +119,13 @@ internal class CommandBarGameManager(
 
     private void LinkComponentsWithActions()
     {
-        var ids = (CommandBarComponentId[])Enum.GetValues(typeof(CommandBarComponentId));
-        foreach (var id in ids)
+        var nameLookup = SupportedCommandBarComponentData.GetComponentIdsForEngine(GameRepository.EngineType);
+
+        foreach (var idPair in nameLookup)
         {
-            if (!SupportedCommandBarComponentData.SupportedComponents.TryGetValue(id, out var name))
-                continue;
-            var crc = _hashingService.GetCrc32(name, PGConstants.DefaultPGEncoding);
+            var crc = _hashingService.GetCrc32(idPair.Value, PGConstants.DefaultPGEncoding);
             if (NamedEntries.TryGetFirstValue(crc, out var component))
-                component.Id = id;
+                component.Id = idPair.Key;
         }
     }
 

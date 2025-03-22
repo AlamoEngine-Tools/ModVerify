@@ -20,12 +20,12 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
 
     internal VerificationBaseline(JsonVerificationBaseline baseline)
     {
-        _errors = new(baseline.Errors.Select(x => new VerificationError(x)));
+        _errors = [..baseline.Errors.Select(x => new VerificationError(x))];
     }
 
     public VerificationBaseline(IEnumerable<VerificationError> errors)
     {
-        _errors = new(errors);
+        _errors = [..errors];
     }
 
     public void ToJson(Stream stream)

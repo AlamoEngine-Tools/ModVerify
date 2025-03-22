@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using AET.ModVerify.Reporting;
 using AET.ModVerify.Utilities;
+using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Reporting.Reporters.Engine;
 
 internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider) :
-    InitializationErrorReporterBase<XmlError>(gameRepository, serviceProvider)
+    EngineErrorReporterBase<XmlError>(gameRepository, serviceProvider)
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 

@@ -17,11 +17,11 @@ public sealed class DuplicateNameFinder(
     IGameDatabase gameDatabase, 
     GameVerifySettings settings, 
     IServiceProvider serviceProvider)
-    : GameVerifierBase(gameDatabase, settings, serviceProvider)
+    : GameVerifierBase(null, gameDatabase, settings, serviceProvider)
 {
     public override string FriendlyName => "Duplicates";
 
-    protected override void RunVerification(CancellationToken token)
+    public override void Verify(CancellationToken token)
     {
         CheckXmlObjectsForDuplicates("GameObject", Database.GameObjectTypeManager);
         CheckXmlObjectsForDuplicates("SFXEvent", Database.SfxGameManager);
@@ -51,7 +51,7 @@ public sealed class DuplicateNameFinder(
             {
                 var entryNames = entryToStringSelector(entries);
                 AddError(VerificationError.Create(
-                    this,
+                    VerifierChain,
                     VerifierErrorCodes.DuplicateFound,
                     errorMessageCreator(entries, sourceName),
                     VerificationSeverity.Error,

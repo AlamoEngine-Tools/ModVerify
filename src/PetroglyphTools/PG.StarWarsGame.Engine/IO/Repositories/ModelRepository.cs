@@ -26,7 +26,7 @@ internal class ModelRepository(GameRepository baseRepository, IServiceProvider s
         
         destination.Length = 0;
 
-        var stripped = PGPathUtilities.StripFileName(filePath);
+        var stripped = StripFileName(filePath);
 
         var path = FileSystem.Path.GetDirectoryName(filePath);
         FileSystem.Path.Join(path, stripped, ref reusableStringBuilder);
@@ -42,5 +42,21 @@ internal class ModelRepository(GameRepository baseRepository, IServiceProvider s
     private static bool IsValidSize(ReadOnlySpan<char> path)
     {
         return path.Length != 0 && path.Length < PGConstants.MaxModelFileName;
+    }
+
+    private static ReadOnlySpan<char> StripFileName(ReadOnlySpan<char> src)
+    {
+        var tmp = src;
+
+        for (var i = src.Length - 1; i >= 0; --i)
+        {
+            if (src[i] == '.')
+                tmp = src.Slice(0, i);
+
+            if (src[i] == '/' || src[i] == '\\')
+                return tmp.Slice(i + 1);
+        }
+
+        return tmp;
     }
 }

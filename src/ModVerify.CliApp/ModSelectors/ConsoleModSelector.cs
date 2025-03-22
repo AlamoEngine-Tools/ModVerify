@@ -5,6 +5,7 @@ using AET.ModVerifyTool.GameFinder;
 using AET.ModVerifyTool.Options;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
+using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 
 namespace AET.ModVerifyTool.ModSelectors;
@@ -56,7 +57,9 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
             list.Add(fallbackGame);
 
             Console.WriteLine("_________________");
-            Console.WriteLine($"{counter++}: {fallbackGame.Name}");
+            Console.WriteLine(fallbackGame.Type == GameType.Eaw
+                ? $"{counter++}: {fallbackGame.Name} [Not yet supported]"
+                : $"{counter++}: {fallbackGame.Name}");
 
             foreach (var mod in fallbackGame.Mods)
             {

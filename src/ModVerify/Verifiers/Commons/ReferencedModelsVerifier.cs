@@ -1,93 +1,116 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using PG.Commons.Utilities;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
-using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
 using AnakinRaW.CommonUtilities.FileSystem;
 using PG.StarWarsGame.Files;
+using PG.StarWarsGame.Files.ALO.Data;
+using PG.StarWarsGame.Files.ALO.Files;
 using PG.StarWarsGame.Files.Binary;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.Commons;
 
-public sealed class ReferencedModelsVerifier(
+internal sealed class AlreadyVerifiedCache
+{
+    internal static readonly AlreadyVerifiedCache Instance = new();
+
+    private readonly ConcurrentDictionary<string, byte> _cachedModels = new(StringComparer.OrdinalIgnoreCase);
+
+    private AlreadyVerifiedCache()
+    {
+    }
+
+    public bool TryAddModel(string fileName)
+    {
+        return _cachedModels.TryAdd(fileName, 0);
+    }
+}
+
+public sealed class SharedReferencedModelsVerifier(
+    IGameVerifier? parent,
+    IEnumerable<string> modelSource,
     IGameDatabase database,
     GameVerifySettings settings,
     IServiceProvider serviceProvider)
-    : GameVerifierBase(database, settings, serviceProvider)
+    : GameVerifierBase(parent, database, settings, serviceProvider)
 {
     private const string ProxyAltIdentifier = "_ALT";
 
-    private readonly IAloFileService _modelFileService = serviceProvider.GetRequiredService<IAloFileService>();
+    private readonly AlreadyVerifiedCache _cache = AlreadyVerifiedCache.Instance;
 
-    public override string FriendlyName => "Referenced Models";
+    public override string FriendlyName => "Models";
 
-    protected override void RunVerification(CancellationToken token)
+    public override void Verify(CancellationToken token)
     {
-        var aloQueue = new Queue<string>(Database.GameObjectTypeManager.Entries
-            .SelectMany(x => x.Models)
-            .Concat(FocHardcodedConstants.HardcodedModels));
-        
-        var visitedAloFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var aloQueue = new Queue<string>(modelSource);
 
         while (aloQueue.Count != 0)
         {
-            var model = aloQueue.Dequeue();
-            if (!visitedAloFiles.Add(model))
+            var fileName = aloQueue.Dequeue();
+            if (!_cache.TryAddModel(fileName))
                 continue;
 
             token.ThrowIfCancellationRequested();
 
-            using var modelStream = Repository.TryOpenFile(BuildModelPath(model));
+            var modelPath = BuildModelPath(fileName).AsSpan();
 
-            if (modelStream is null)
+            IAloFile<IAloDataContent, AloFileInformation>? aloFile = null;
+            try
             {
-                var error = VerificationError.Create(
-                    this,
-                    VerifierErrorCodes.ModelNotFound, 
-                    $"Unable to find .ALO file '{model}'", 
-                    VerificationSeverity.Error, 
-                    model);
+                try
+                {
+                    aloFile = Database.PGRender.Load3DAsset(modelPath, true, true);
+                }
+                catch (BinaryCorruptedException e)
+                {
+                    var aloFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), modelPath).ToString();
+                    var message = $"{aloFile} is corrupted: {e.Message}";
+                    AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelBroken, message, VerificationSeverity.Critical, aloFilePath));
+                    continue;
+                }
 
-                AddError(error);
+                if (aloFile is null)
+                {
+                    var error = VerificationError.Create(
+                        VerifierChain,
+                        VerifierErrorCodes.ModelNotFound,
+                        $"Unable to find .ALO file '{fileName}'",
+                        VerificationSeverity.Error,
+                        fileName);
+                    AddError(error);
+                    continue;
+                }
+
+                VerifyModelOrParticle(aloFile, aloQueue);
             }
-            else
-                VerifyModelOrParticle(modelStream, aloQueue);
+            finally
+            {
+               aloFile?.Dispose();
+            }
         }
     }
 
-    private void VerifyModelOrParticle(Stream modelStream, Queue<string> workingQueue)
+    private void VerifyModelOrParticle(IAloFile<IAloDataContent, AloFileInformation> aloFile, Queue<string> workingQueue)
     {
-        try
+        switch (aloFile)
         {
-            using var aloData = _modelFileService.Load(modelStream, AloLoadOptions.Assets);
-            switch (aloData)
-            {
-                case IAloModelFile model:
-                    VerifyModel(model, workingQueue);
-                    break;
-                case IAloParticleFile particle:
-                    VerifyParticle(particle);
-                    break;
-                default:
-                    throw new InvalidOperationException("The data stream is neither a model nor particle.");
-            }
-        }
-        catch (BinaryCorruptedException e)
-        {
-            var aloFile = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), modelStream.GetFilePath().AsSpan()).ToString();
-            var message = $"{aloFile} is corrupted: {e.Message}";
-            AddError(VerificationError.Create(this, VerifierErrorCodes.ModelBroken, message, VerificationSeverity.Critical, aloFile));
+            case IAloModelFile model:
+                VerifyModel(model, workingQueue);
+                break;
+            case IAloParticleFile particle:
+                VerifyParticle(particle);
+                break;
+            default:
+                throw new InvalidOperationException("The data stream is neither a model nor particle.");
         }
     }
 
@@ -101,7 +124,7 @@ public sealed class ReferencedModelsVerifier(
                 {
                     var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        this,
+                        VerifierChain,
                         VerifierErrorCodes.InvalidTexture,
                         $"Invalid texture file name" +
                         $" '{texture}' in particle 'modelFilePath'",
@@ -118,9 +141,9 @@ public sealed class ReferencedModelsVerifier(
         {
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
             AddError(VerificationError.Create(
-                this,
+                VerifierChain,
                 VerifierErrorCodes.InvalidParticleName,
-                $"The particle name '{file.Content.Name}' does not match file name '{modelFilePath}'", 
+                $"The particle name '{file.Content.Name}' does not match file name '{modelFilePath}'",
                 VerificationSeverity.Error,
                 modelFilePath));
         }
@@ -138,10 +161,10 @@ public sealed class ReferencedModelsVerifier(
                     var modelFilePath =
                         FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        this,
-                        VerifierErrorCodes.InvalidTexture, 
+                        VerifierChain,
+                        VerifierErrorCodes.InvalidTexture,
                         $"Invalid texture file name '{texture}' in model '{modelFilePath}'",
-                        VerificationSeverity.Error, 
+                        VerificationSeverity.Error,
                         texture, modelFilePath));
                 });
         }
@@ -155,7 +178,7 @@ public sealed class ReferencedModelsVerifier(
                     var shaderPath =
                         FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        this,
+                        VerifierChain,
                         VerifierErrorCodes.InvalidShader,
                         $"Invalid texture file name '{shader}' in model '{shaderPath}'",
                         VerificationSeverity.Error,
@@ -173,7 +196,7 @@ public sealed class ReferencedModelsVerifier(
                     var proxyPath = FileSystem.Path
                         .GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        this,
+                        VerifierChain,
                         VerifierErrorCodes.InvalidProxy,
                         $"Invalid proxy file name '{proxy}' in model '{proxyPath}'",
                         VerificationSeverity.Error,
@@ -186,13 +209,13 @@ public sealed class ReferencedModelsVerifier(
     {
         if (texture == "None")
             return;
-        
+
         if (!Repository.TextureRepository.FileExists(texture))
         {
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan())
                 .ToString();
             var message = $"{modelFilePath} references missing texture: {texture}";
-            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, modelFilePath, texture);
+            var error = VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, modelFilePath, texture);
             AddError(error);
         }
     }
@@ -200,16 +223,17 @@ public sealed class ReferencedModelsVerifier(
     private void VerifyProxyExists(IPetroglyphFileHolder model, string proxy, Queue<string> workingQueue)
     {
         var proxyName = ProxyNameWithoutAlt(proxy);
-        var particle = FileSystem.Path.ChangeExtension(proxyName, "alo");
-        if (!Repository.FileExists(BuildModelPath(particle)))
+
+        if (!Repository.ModelRepository.FileExists(BuildModelPath(proxyName)))
         {
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan()).ToString();
-            var message = $"{modelFilePath} references missing proxy particle: {particle}";
-            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, modelFilePath, particle);
+            var message = $"{modelFilePath} references missing proxy particle: {proxyName}";
+            var error = VerificationError.Create(VerifierChain, 
+                VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, modelFilePath, proxyName);
             AddError(error);
         }
         else
-            workingQueue.Enqueue(particle);
+            workingQueue.Enqueue(proxyName);
     }
 
     private string BuildModelPath(string fileName)
@@ -226,7 +250,7 @@ public sealed class ReferencedModelsVerifier(
         {
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), data.FilePath.AsSpan()).ToString();
             var message = $"{modelFilePath} references missing shader effect: {shader}";
-            var error = VerificationError.Create(this, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, modelFilePath, shader);
+            var error = VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, modelFilePath, shader);
             AddError(error);
         }
     }
@@ -249,5 +273,39 @@ public sealed class ReferencedModelsVerifier(
         }
 
         return proxyName.ToString();
+    }
+}
+
+
+
+public sealed class ReferencedModelsVerifier(
+    IGameDatabase database,
+    GameVerifySettings settings,
+    IServiceProvider serviceProvider)
+    : GameVerifierBase(null, database, settings, serviceProvider)
+{
+    public override string FriendlyName => "Referenced Models";
+
+    public override void Verify(CancellationToken token)
+    {
+        var models = Database.GameObjectTypeManager.Entries
+            .SelectMany(x => x.Models)
+            .Concat(FocHardcodedConstants.HardcodedModels);
+
+        var inner = new SharedReferencedModelsVerifier(this, models, Database, Settings, Services);
+        try
+        {
+            inner.Error += OnModelError;
+            inner.Verify(token);
+        }
+        finally
+        {
+            inner.Error -= OnModelError;
+        }
+    }
+
+    private void OnModelError(object sender, VerificationErrorEventArgs e)
+    {
+        AddError(e.Error);
     }
 }

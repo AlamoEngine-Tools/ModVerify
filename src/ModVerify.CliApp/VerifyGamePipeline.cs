@@ -1,23 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
+using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AET.ModVerify;
 
+public sealed class GameVerifierPipelineStep(IGameVerifier verifier, IServiceProvider serviceProvider) : PipelineStep(serviceProvider)
+{
+    private readonly IGameVerifier _gameVerifier = verifier ?? throw new ArgumentNullException(nameof(verifier));
+
+    protected override void RunCore(CancellationToken token)
+    {
+        Logger?.LogDebug($"Running verifier '{_gameVerifier.FriendlyName}'...");
+        try
+        {
+            _gameVerifier.Verify(token);
+        }
+        finally
+        {
+            Logger?.LogDebug($"Finished verifier '{_gameVerifier.FriendlyName}'");
+        }
+    }
+}
+
 public abstract class VerifyGamePipeline : Pipeline
 {
-    private readonly List<GameVerifierBase> _verificationSteps = new();
+    private readonly List<IGameVerifier> _verificationSteps = new();
     private readonly GameEngineType _targetType;
     private readonly GameLocations _gameLocations;
     private readonly ParallelStepRunner _verifyRunner;
@@ -93,11 +112,11 @@ public abstract class VerifyGamePipeline : Pipeline
 
     }
 
-    protected abstract IEnumerable<GameVerifierBase> CreateVerificationSteps(IGameDatabase database);
+    protected abstract IEnumerable<IGameVerifier> CreateVerificationSteps(IGameDatabase database);
 
-    private void AddStep(GameVerifierBase verifier)
+    private void AddStep(IGameVerifier verifier)
     {
-        _verifyRunner.AddStep(verifier);
+        _verifyRunner.AddStep(new GameVerifierPipelineStep(verifier, ServiceProvider));
         _verificationSteps.Add(verifier);
     }
 }
