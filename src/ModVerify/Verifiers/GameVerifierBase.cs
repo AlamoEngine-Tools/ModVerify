@@ -1,60 +1,66 @@
-﻿using System;
+﻿using AET.ModVerify.Reporting;
+using AET.ModVerify.Settings;
+using Microsoft.Extensions.DependencyInjection;
+using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine.IO;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading;
-using AET.ModVerify.Reporting;
-using AET.ModVerify.Settings;
-using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.IO;
 
 namespace AET.ModVerify.Verifiers;
 
-public abstract class GameVerifierBase(
-    IGameDatabase gameDatabase,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider)
-    : PipelineStep(serviceProvider), IGameVerifier
+public abstract class GameVerifierBase : IGameVerifier
 {
+    public event EventHandler<VerificationErrorEventArgs>? Error;
 
-    protected readonly IFileSystem FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+    private readonly ConcurrentDictionary<VerificationError, byte> _verifyErrors = new();
 
-    private readonly HashSet<VerificationError> _verifyErrors = new();
-    
-    public IReadOnlyCollection<VerificationError> VerifyErrors => _verifyErrors;
+    protected readonly IFileSystem FileSystem;
+    protected readonly IServiceProvider Services;
+    private readonly IGameDatabase _gameDatabase;
 
-    protected GameVerifySettings Settings { get; } = settings;
+    protected GameVerifierBase(IGameVerifier? parent,
+        IGameDatabase gameDatabase,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider)
+    {
+        _gameDatabase = gameDatabase;
+        FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+        Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        Parent = parent;
+        Settings = settings;
+        Database = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
+        VerifierChain = CreateVerifierChain();
+    }
 
-    protected IGameDatabase Database { get; } = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
-
-    protected IGameRepository Repository => gameDatabase.GameRepository;
+    public IReadOnlyCollection<VerificationError> VerifyErrors => [.._verifyErrors.Keys];
 
     public virtual string FriendlyName => GetType().Name;
 
     public string Name => GetType().FullName;
 
-    protected sealed override void RunCore(CancellationToken token)
-    {
-        Logger?.LogInformation($"Running verifier '{FriendlyName}'...");
-        try
-        {
-            RunVerification(token);
-        }
-        finally
-        {
-            Logger?.LogInformation($"Finished verifier '{FriendlyName}'");
-        }
-    }
+    public IGameVerifier? Parent { get; }
 
-    protected abstract void RunVerification(CancellationToken token);
+    protected GameVerifySettings Settings { get; }
+
+    protected IGameDatabase Database { get; }
+
+    protected IGameRepository Repository => _gameDatabase.GameRepository;
+
+    protected IReadOnlyList<IGameVerifier> VerifierChain { get; }
+
+    public abstract void Verify(CancellationToken token);
 
     protected void AddError(VerificationError error)
     {
-        _verifyErrors.Add(error);
-        if (Settings.AbortSettings.FailFast && error.Severity >= Settings.AbortSettings.MinimumAbortSeverity)
-            throw new GameVerificationException(error);
+        if (_verifyErrors.TryAdd(error, 0))
+        {
+            Error?.Invoke(this, new VerificationErrorEventArgs(error));
+            if (Settings.AbortSettings.FailFast && error.Severity >= Settings.AbortSettings.MinimumAbortSeverity)
+                throw new GameVerificationException(error);
+        }
     }
 
     protected void GuardedVerify(Action action, Predicate<Exception> exceptionFilter, Action<Exception> exceptionHandler)
@@ -67,5 +73,19 @@ public abstract class GameVerifierBase(
         {
             exceptionHandler(e);
         }
+    }
+
+    private IReadOnlyList<IGameVerifier> CreateVerifierChain()
+    {
+        var verifierChain = new List<IGameVerifier> { this };
+
+        var parent = Parent;
+        while (parent != null)
+        {
+            verifierChain.Insert(0, parent);
+            parent = parent.Parent;
+        }
+
+        return verifierChain;
     }
 }

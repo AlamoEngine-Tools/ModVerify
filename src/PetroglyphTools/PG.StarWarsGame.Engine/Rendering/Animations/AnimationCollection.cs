@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.ALO.Files.Animations;
 
-namespace PG.StarWarsGame.Engine.Rendering;
+namespace PG.StarWarsGame.Engine.Rendering.Animations;
 
-public sealed class AnimationCollection : DisposableObject
+public sealed class AnimationCollection : DisposableObject, IEnumerable<IAloAnimationFile>
 {
+    public static readonly AnimationCollection Empty = new();
+
     private readonly ValueListDictionary<ModelAnimationType, IAloAnimationFile> _animations = new();
     private readonly ValueListDictionary<ModelAnimationType, Crc32> _animationCrc = new();
 
@@ -44,6 +48,19 @@ public sealed class AnimationCollection : DisposableObject
         return animations[subIndex];
     }
 
+    public bool TryGetAnimation(ModelAnimationType type, int subIndex, out IAloAnimationFile? animation)
+    {
+        animation = null;
+        if (subIndex < 0)
+            throw new ArgumentOutOfRangeException(nameof(subIndex), "subIndex cannot be negative.");
+        if (!TryGetAnimations(type, out var animations))
+            return false;
+        if (subIndex >= animations.Count)
+            throw new ArgumentOutOfRangeException(nameof(subIndex), "subIndex cannot be larger than stored animations.");
+        animation =  animations[subIndex];
+        return true;
+    }
+
     internal void AddAnimation(ModelAnimationType type, IAloAnimationFile animation, Crc32 crc)
     {
         _animations.Add(type, animation);
@@ -56,5 +73,15 @@ public sealed class AnimationCollection : DisposableObject
             animation.Dispose();
         _animationCrc.Clear();
         _animations.Clear();
+    }
+
+    public IEnumerator<IAloAnimationFile> GetEnumerator()
+    {
+        return _animations.Values.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

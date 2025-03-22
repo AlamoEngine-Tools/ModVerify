@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
+using AET.ModVerify.Verifiers.Commons;
 using PG.StarWarsGame.Engine.Database;
 
 namespace AET.ModVerify;

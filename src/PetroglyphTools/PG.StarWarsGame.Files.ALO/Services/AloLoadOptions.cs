@@ -21,7 +21,7 @@ public enum AloLoadOptions
     /// </summary>
     Bones = 2,
     /// <summary>
-    /// Extracts only metadata from the model/particle
+    /// Extracts only metadata from the model/particle/animation.
     /// </summary>
     MetadataOnly = Assets | Bones
 }

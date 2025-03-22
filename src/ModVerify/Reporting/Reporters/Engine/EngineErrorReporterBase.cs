@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using AET.ModVerify.Reporting;
 using AnakinRaW.CommonUtilities;
 using PG.StarWarsGame.Engine.IO;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Reporting.Reporters.Engine;
 
-internal abstract class InitializationErrorReporterBase<T>(IGameRepository gameRepository, IServiceProvider serviceProvider)
+internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepository, IServiceProvider serviceProvider)
 {
     protected readonly IGameRepository GameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
     protected readonly IServiceProvider ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -18,7 +17,7 @@ internal abstract class InitializationErrorReporterBase<T>(IGameRepository gameR
         foreach (var error in errors)
         {
             var errorData = CreateError(error);
-            yield return new VerificationError(errorData.Identifier, errorData.Message, Name, errorData.Assets, errorData.Severity);
+            yield return new VerificationError(errorData.Identifier, errorData.Message, [Name], errorData.Assets, errorData.Severity);
         }
     }
 

@@ -16,22 +16,23 @@ public sealed class VerificationError : IEquatable<VerificationError>
 
     public string Message { get; }
 
-    public string Verifier { get; }
+    public IReadOnlyList<string> VerifierChain { get; }
 
     public IReadOnlyCollection<string> AffectedAssets { get; }
 
     public VerificationSeverity Severity { get; }
 
-    public VerificationError(string id, string message, string verifier, IEnumerable<string> affectedAssets, VerificationSeverity severity)
+    public VerificationError(string id, string message, IReadOnlyList<string> verifiers, IEnumerable<string> affectedAssets,
+        VerificationSeverity severity)
     {
-        if (affectedAssets == null) 
+        if (affectedAssets == null)
             throw new ArgumentNullException(nameof(affectedAssets));
         ThrowHelper.ThrowIfNullOrEmpty(id);
         Id = id;
         Message = message ?? throw new ArgumentNullException(nameof(message));
-        Verifier = verifier;
+        VerifierChain = verifiers;
         Severity = severity;
-        _assets = new(affectedAssets);
+        _assets = [..affectedAssets];
         AffectedAssets = _assets.ToList();
     }
 
@@ -39,60 +40,30 @@ public sealed class VerificationError : IEquatable<VerificationError>
     {
         Id = error.Id;
         Message = error.Message;
-        Verifier = error.Verifier;
-        _assets = new(error.Assets);
+        VerifierChain = error.VerifierChain;
+        _assets = [..error.Assets];
         AffectedAssets = _assets.ToList();
     }
 
     public static VerificationError Create(
-        IGameVerifier verifier,
+        IReadOnlyList<IGameVerifier> verifiers,
         string id,
         string message,
-        VerificationSeverity severity, 
+        VerificationSeverity severity,
         IEnumerable<string> assets)
     {
-        return new VerificationError(id, message, verifier.Name, assets, severity);
-    }
-
-
-    public static VerificationError Create(
-        IGameVerifier verifier,
-        string id, 
-        string message, 
-        VerificationSeverity severity, 
-        params string[] assets)
-    {
-        return new VerificationError(id, message, verifier.Name, assets, severity);
+        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), assets, severity);
     }
 
     public static VerificationError Create(
-        IGameVerifier verifier, 
-        string id, 
+        IReadOnlyList<IGameVerifier> verifiers,
+        string id,
         string message,
-        VerificationSeverity severity)
-    {
-        return Create(verifier, id, message, severity, []);
-    }
-
-    internal static VerificationError Create(
-        IGameVerifier verifier, 
-        string id, 
-        Exception exception, 
         VerificationSeverity severity,
         params string[] assets)
     {
-        return new VerificationError(id, exception.Message, verifier.Name, assets, severity);
+        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), assets, severity);
     }
-
-    internal static VerificationError Create(
-        IGameVerifier verifier,
-        string id,
-        Exception exception,
-        VerificationSeverity severity)
-    {
-        return Create(verifier, id, exception, severity, []);
-    }
-
 
     public bool Equals(VerificationError? other)
     {
@@ -102,8 +73,6 @@ public sealed class VerificationError : IEquatable<VerificationError>
             return true;
 
         if (!Id.Equals(other.Id))
-            return false;
-        if (!Verifier.Equals(other.Verifier))
             return false;
 
         return AssetComparer.Equals(_assets, other._assets);
@@ -118,13 +87,12 @@ public sealed class VerificationError : IEquatable<VerificationError>
     {
         var hashCode = new HashCode();
         hashCode.Add(Id);
-        hashCode.Add(Verifier);
         hashCode.Add(_assets, AssetComparer);
         return hashCode.ToHashCode();
     }
 
     public override string ToString()
     {
-        return $"[{Severity}] [{Verifier}] {Id}: Message={Message}; Affected Assets=[{string.Join(",", AffectedAssets)}];";
+        return $"[{Severity}] [{string.Join(" --> ", VerifierChain)}] {Id}: Message={Message}; Affected Assets=[{string.Join(",", AffectedAssets)}];";
     }
 }

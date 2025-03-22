@@ -29,9 +29,7 @@ internal sealed class GameErrorReporterWrapper : XmlErrorReporter, IGameErrorRep
     public void Report(InitializationError error)
     {
         InitializationError?.Invoke(this, error);
-        if (_errorReporter is null)
-            return;
-        _errorReporter.Report(error);
+        _errorReporter?.Report(error);
     }
 
     public void Assert(EngineAssert assert)
@@ -44,7 +42,7 @@ internal sealed class GameErrorReporterWrapper : XmlErrorReporter, IGameErrorRep
         if (_errorReporter is null)
             return;
 
-        _logger?.LogWarning($"Xml parser '{parser}' reported error: {error.Message}");
+        _logger?.LogWarning($"Xml parser '{parser}' reported error for file '{error.Location.XmlFile}': {error.Message}");
 
         Report(new XmlError
         {

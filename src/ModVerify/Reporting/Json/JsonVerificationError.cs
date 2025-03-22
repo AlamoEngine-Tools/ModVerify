@@ -8,8 +8,8 @@ internal class JsonVerificationError
     [JsonPropertyName("id")]
     public string Id { get; }
 
-    [JsonPropertyName("verifier")]
-    public string Verifier { get; }
+    [JsonPropertyName("verifiers")]
+    public IReadOnlyList<string> VerifierChain { get; }
 
     [JsonPropertyName("message")]
     public string Message { get; }
@@ -21,10 +21,10 @@ internal class JsonVerificationError
     public IEnumerable<string> Assets { get; }
 
     [JsonConstructor]
-    private JsonVerificationError(string id, string verifier, string message, VerificationSeverity severity, IEnumerable<string> assets)
+    private JsonVerificationError(string id, IReadOnlyList<string> verifierChain, string message, VerificationSeverity severity, IEnumerable<string> assets)
     {
         Id = id;
-        Verifier = verifier;
+        VerifierChain = verifierChain;
         Message = message;
         Severity = severity;
         Assets = assets;
@@ -33,7 +33,7 @@ internal class JsonVerificationError
     public JsonVerificationError(VerificationError error)
     {
         Id = error.Id;
-        Verifier = error.Verifier;
+        VerifierChain = error.VerifierChain;
         Message = error.Message;
         Severity = error.Severity;
         Assets = error.AffectedAssets;

@@ -1,12 +1,12 @@
 ﻿using System;
-using AET.ModVerify.Reporting;
+using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Reporting.Reporters.Engine;
 
 internal sealed class InitializationErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider) 
-    : InitializationErrorReporterBase<InitializationError>(gameRepository, serviceProvider)
+    : EngineErrorReporterBase<InitializationError>(gameRepository, serviceProvider)
 {
     public override string Name => "InitializationErrors";
 

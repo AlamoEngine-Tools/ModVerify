@@ -36,7 +36,7 @@ sealed partial class ReferencedTexturesVerifier
         if (Database.GuiDialogManager.MtdFile is null)
         {
             var mtdFileName = megaTextureName ?? "<<MTD_NOT_SPECIFIED>>";
-            VerificationError.Create(this, MtdNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
+            VerificationError.Create(VerifierChain, MtdNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
                 VerificationSeverity.Critical, mtdFileName);
         }
 
@@ -47,7 +47,7 @@ sealed partial class ReferencedTexturesVerifier
 
             if (!Repository.TextureRepository.FileExists(megaTextureFileName))
             {
-                VerificationError.Create(this, TexutreNotFound, $"Could not find texture '{megaTextureFileName}' could not be found",
+                VerificationError.Create(VerifierChain, TexutreNotFound, $"Could not find texture '{megaTextureFileName}' could not be found",
                     VerificationSeverity.Error, megaTextureFileName);
             }
         }
@@ -60,7 +60,7 @@ sealed partial class ReferencedTexturesVerifier
 
             if (!Repository.TextureRepository.FileExists(compressedMegaTextureFieName))
             {
-                VerificationError.Create(this, TexutreNotFound, $"Could not find texture '{compressedMegaTextureFieName}' could not be found",
+                VerificationError.Create(VerifierChain, TexutreNotFound, $"Could not find texture '{compressedMegaTextureFieName}' could not be found",
                     VerificationSeverity.Error, compressedMegaTextureFieName);
             }
         }
@@ -102,7 +102,7 @@ sealed partial class ReferencedTexturesVerifier
 
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
-                        AddError(VerificationError.Create(this, FileNameTooLong,
+                        AddError(VerificationError.Create(VerifierChain, FileNameTooLong,
                             $"The filename is too long. Max length is {MtdFileConstants.MaxFileNameSize} characters.",
                             VerificationSeverity.Error, texture.Texture));
                     }
@@ -113,7 +113,7 @@ sealed partial class ReferencedTexturesVerifier
                         if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
                             message += " The file name is too long.";
 
-                        AddError(VerificationError.Create(this, TexutreNotFound,
+                        AddError(VerificationError.Create(VerifierChain, TexutreNotFound,
                             message, VerificationSeverity.Error,
                             texture.Texture, component, origin.ToString()));
                     }

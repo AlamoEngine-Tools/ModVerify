@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using AET.ModVerify.Reporting;
+using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Reporting.Reporters.Engine;
 
 internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider)
-    : InitializationErrorReporterBase<EngineAssert>(gameRepository, serviceProvider)
+    : EngineErrorReporterBase<EngineAssert>(gameRepository, serviceProvider)
 {
     public override string Name => "GameAsserts";
 

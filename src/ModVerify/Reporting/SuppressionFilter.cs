@@ -22,7 +22,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         Id = id;
         Verifier = verifier;
         if (assets is not null) 
-            _assets = new HashSet<string>(assets);
+            _assets = [..assets];
         Assets = _assets?.ToList() ?? null;
     }
 
@@ -32,7 +32,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         Verifier = filter.Verifier;
 
         if (filter.Assets is not null)
-            _assets = new HashSet<string>(filter.Assets);
+            _assets = [..filter.Assets];
         Assets = _assets?.ToList() ?? null;
     }
 
@@ -50,7 +50,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
 
         if (Verifier is not null)
         {
-            if (Verifier.Equals(error.Verifier))
+            if (error.VerifierChain.Contains(Verifier))
                 suppresses = true;
             else
                 return false;

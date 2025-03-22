@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using AnakinRaW.CommonUtilities;
-using PG.StarWarsGame.Files;
+using PG.StarWarsGame.Engine.Rendering.Animations;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Files;
 
 namespace PG.StarWarsGame.Engine.Rendering;
 
-public sealed class ModelClass : DisposableObject
+public sealed class ModelClass(
+    IAloFile<IAloDataContent, AloFileInformation> aloFile,
+    AnimationCollection animations)
+    : DisposableObject
 {
-    public IAloDataContent RenderableContent { get; }
+    public IAloDataContent RenderableContent { get; } = aloFile.Content;
 
-    public IPetroglyphFileHolder File { get; }
+    public IAloFile<IAloDataContent, AloFileInformation> File { get; } =
+        aloFile ?? throw new ArgumentNullException(nameof(aloFile));
 
-    public AlamoModel? Model { get; }
+    public AlamoModel? Model { get; } = aloFile.Content as AlamoModel;
 
     [MemberNotNullWhen(true, nameof(Model))]
     public bool IsModel => Model is not null;
 
-    public AnimationCollection Animations { get; } = new();
+    public AnimationCollection Animations { get; } = animations ?? throw new ArgumentNullException(nameof(animations));
 
-    public ModelClass(IAloFile<IAloDataContent, AloFileInformation> aloFile)
+    public ModelClass(IAloFile<IAloDataContent, AloFileInformation> aloFile) : this(aloFile, AnimationCollection.Empty)
     {
-        File = aloFile;
-        RenderableContent = aloFile.Content;
-        Model = aloFile.Content as AlamoModel;
     }
+
 
     public int IndexOfBone(string boneName)
     {
@@ -37,6 +39,7 @@ public sealed class ModelClass : DisposableObject
             if (bones[i].Equals(boneName, StringComparison.OrdinalIgnoreCase))
                 return i;
         }
+
         return -1;
     }
 
