@@ -24,7 +24,10 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
 
         var strippedFileName = _fileSystem.Path
             .GetGameStrippedPath(GameRepository.Path.AsSpan(), error.FileLocation.XmlFile.ToUpperInvariant().AsSpan()).ToString();
-        var assets = new List<string>
+
+        var asset = strippedFileName;
+        
+        var context = new List<string>
         {
             strippedFileName
         };
@@ -33,20 +36,22 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
 
         if (xmlElement is not null)
         {
-            assets.Add(xmlElement.Name.LocalName);
+            var localName = xmlElement.Name.LocalName;
+            context.Add(localName);
+            
+            asset = localName;
 
             var parent = xmlElement.Parent;
 
             if (parent != null)
             {
                 var parentName = parent.Attribute("Name");
-                assets.Add(parentName != null ? $"parentName='{parentName.Value}'" : $"parentTag='{parent.Name.LocalName}'");
+                context.Add(parentName != null ? $"parentName='{parentName.Value}'" : $"parentTag='{parent.Name.LocalName}'");
             }
-
         }
 
         var errorMessage = CreateErrorMessage(error, strippedFileName);
-        return new ErrorData(id, errorMessage, assets, severity);
+        return new ErrorData(id, errorMessage, context, asset, severity);
     }
 
     private static string CreateErrorMessage(XmlError error, string strippedFileName)

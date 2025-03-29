@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
-using AET.ModVerify.Verifiers.Commons;
 using PG.StarWarsGame.Engine.Database;
 
-namespace AET.ModVerify;
+namespace AET.ModVerifyTool;
 
-internal class VerificationProvider(IServiceProvider serviceProvider) : IVerificationProvider
+internal class GameVerifierFactory : IGameVerifierFactory
 {
-    public IEnumerable<GameVerifierBase> GetAllDefaultVerifiers(IGameDatabase database, GameVerifySettings settings)
+    public IEnumerable<GameVerifier> GetVerifiers(
+        IGameDatabase database, 
+        GameVerifySettings settings, 
+        IServiceProvider serviceProvider)
     {
         yield return new ReferencedModelsVerifier(database, settings, serviceProvider);
         yield return new DuplicateNameFinder(database, settings, serviceProvider);

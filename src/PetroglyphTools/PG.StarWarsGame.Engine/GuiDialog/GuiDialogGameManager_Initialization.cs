@@ -155,7 +155,7 @@ partial class GuiDialogGameManager
             {
                 var message = $"Failed to load MTD file '{mtdPath}': {e.Message}";
                 Logger?.LogError(e, message);
-                ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, null, message));
+                ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, [], message));
             }
         }
 

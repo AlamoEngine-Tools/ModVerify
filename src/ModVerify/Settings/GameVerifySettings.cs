@@ -1,4 +1,4 @@
-﻿using AET.ModVerify.Reporting.Settings;
+﻿using AET.ModVerify.Reporting;
 
 namespace AET.ModVerify.Settings;
 
@@ -6,16 +6,14 @@ public record GameVerifySettings
 {
     public static readonly GameVerifySettings Default = new()
     {
-        AbortSettings = new(),
-        GlobalReportSettings = new(),
-        LocalizationOption = VerifyLocalizationOption.English
+        LocalizationOption = VerifyLocalizationOption.English,
+        IgnoreAsserts = false,
+        ThrowsOnMinimumSeverity = null
     };
 
-    public int ParallelVerifiers { get; init; } = 4;
-
-    public VerificationAbortSettings AbortSettings { get; init; }
-
-    public GlobalVerificationReportSettings GlobalReportSettings { get; init; }
+    public VerificationSeverity? ThrowsOnMinimumSeverity { get; init; }
 
     public VerifyLocalizationOption LocalizationOption { get; init; }
+
+    public bool IgnoreAsserts { get; init; }
 }

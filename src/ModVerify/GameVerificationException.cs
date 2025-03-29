@@ -5,29 +5,37 @@ using AET.ModVerify.Reporting;
 
 namespace AET.ModVerify;
 
-public sealed class GameVerificationException(IEnumerable<VerificationError> errors) : Exception
+public sealed class GameVerificationException : Exception
 {
-    private readonly string? _error = null;
-    private readonly IEnumerable<VerificationError> _errors = errors ?? throw new ArgumentNullException(nameof(errors));
+    private readonly string? _errorMessage = null;
+    
+    public IReadOnlyCollection<VerificationError> Errors { get; }
+    
+    private string ErrorMessage
+    {
+        get
+        {
+            if (_errorMessage != null)
+                return _errorMessage;
+            var stringBuilder = new StringBuilder();
+
+            foreach (var error in Errors)
+                stringBuilder.AppendLine($"Verification error: {error.Id}: {error.Message};");
+            return stringBuilder.ToString().TrimEnd(';');
+        }
+    }
+
+    /// <inheritdoc/>
+    public override string Message => ErrorMessage;
 
     public GameVerificationException(VerificationError error) : this([error])
     {
     }
 
-    /// <inheritdoc/>
-    public override string Message => Error;
-
-    private string Error
+    public GameVerificationException(IEnumerable<VerificationError> errors)
     {
-        get
-        {
-            if (_error != null)
-                return _error;
-            var stringBuilder = new StringBuilder();
-
-            foreach (var error in _errors)
-                stringBuilder.AppendLine($"Verification error: {error.Id}:{error.Message};");
-            return stringBuilder.ToString().TrimEnd(';');
-        }
+        if (errors is null)
+            throw new ArgumentNullException(nameof(errors));
+        Errors = [..errors];
     }
 }

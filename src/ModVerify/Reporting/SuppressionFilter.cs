@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using AET.ModVerify.Reporting.Json;
 
@@ -7,33 +6,26 @@ namespace AET.ModVerify.Reporting;
 
 public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
 {
-    private static readonly AssetsEqualityComparer AssetComparer = AssetsEqualityComparer.Instance;
-
-    private readonly HashSet<string>? _assets;
-
     public string? Id { get; }
 
     public string? Verifier { get; }
 
-    public IReadOnlyCollection<string>? Assets { get; }
+    public string? Asset { get; }
 
-    public SuppressionFilter(string? id, string? verifier, ICollection<string>? assets)
+    public bool IsDisabled => Id == null && Verifier == null && Asset == null;
+
+    public SuppressionFilter(string? id, string? verifier, string? asset)
     {
         Id = id;
         Verifier = verifier;
-        if (assets is not null) 
-            _assets = [..assets];
-        Assets = _assets?.ToList() ?? null;
+        Asset = asset;
     }
 
     internal SuppressionFilter(JsonSuppressionFilter filter)
     {
         Id = filter.Id;
         Verifier = filter.Verifier;
-
-        if (filter.Assets is not null)
-            _assets = [..filter.Assets];
-        Assets = _assets?.ToList() ?? null;
+        Asset = filter.Asset;
     }
 
     public bool Suppresses(VerificationError error)
@@ -56,23 +48,15 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
                 return false;
         }
 
-        if (_assets is not null)
+        if (Asset is not null)
         {
-            if (_assets.Count != error.AffectedAssets.Count)
+            if (error.Asset.Equals(Asset))
+                suppresses = true;
+            else
                 return false;
-
-            if (!_assets.SetEquals(error.AffectedAssets))
-                return false;
-
-            suppresses = true;
         }
 
         return suppresses;
-    }
-
-    public bool IsDisabled()
-    {
-        return Id == null && Verifier == null && (Assets == null || !Assets.Any());
     }
 
     public int Specificity()
@@ -82,7 +66,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
             specificity++;
         if (Verifier != null)
             specificity++;
-        if (Assets != null && Assets.Any())
+        if (Asset != null)
             specificity++;
         return specificity;
     }
@@ -95,7 +79,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         if (Verifier != null && other.Verifier != null && other.Verifier != Verifier)
             return false;
 
-        if (Assets != null && other.Assets != null && !AssetComparer.Equals(_assets, other._assets))
+        if (Asset != null && other.Asset != null)
             return false;
 
         return other.Specificity() < Specificity();
@@ -112,8 +96,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
             return false;
         if (Verifier != other.Verifier)
             return false;
-
-        return AssetComparer.Equals(_assets, other._assets);
+        return Asset == other.Asset;
     }
 
     public override bool Equals(object? obj)
@@ -126,10 +109,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         var hashCode = new HashCode();
         hashCode.Add(Id);
         hashCode.Add(Verifier);
-        if (_assets is not null)
-            hashCode.Add(_assets, AssetComparer);
-        else
-            hashCode.Add((HashSet<string>)null!);
+        hashCode.Add(Asset);
         return hashCode.ToHashCode();
     }
 }

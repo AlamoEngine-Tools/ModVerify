@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
-using AET.ModVerify;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
@@ -13,6 +9,7 @@ using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
 using CommandLine;
+using CommandLine.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons;
@@ -28,8 +25,14 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
+using System;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
+using AET.ModVerifyTool.Options.CommandLine;
+using AET.ModVerifyTool.Pipeline;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
+using VerifyVerbOption = AET.ModVerifyTool.Options.CommandLine.VerifyVerbOption;
 
 namespace AET.ModVerifyTool;
 
@@ -38,6 +41,7 @@ internal class Program
     private const string EngineParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
     private const string ParserNamespace = "PG.StarWarsGame.Files.XML.Parsers";
     private const string GameInfrastructureNamespace = "PG.StarWarsGame.Infrastructure";
+    private static readonly string GameVerifierStepNamespace = typeof(GameVerifierPipelineStep).FullName!;
 
     private static async Task<int> Main(string[] args) 
     {
@@ -45,29 +49,31 @@ internal class Program
 
         var result = 0;
         
-        var parseResult = Parser.Default.ParseArguments<ModVerifyOptions>(args);
+        Type[] programVerbs =
+        [
+            typeof(VerifyVerbOption),
+            typeof(CreateBaselineVerbOption),
+        ];
 
-        ModVerifyOptions? verifyOptions = null!;
-        await parseResult.WithParsedAsync(o =>
+        var parseResult = Parser.Default.ParseArguments(args, programVerbs);
+
+        await parseResult.WithParsedAsync(async o =>
         {
-            verifyOptions = o;
-            return Task.CompletedTask;
-        }).ConfigureAwait(false);
-
+            result = await Run((BaseModVerifyOptions)o);
+        });
         await parseResult.WithNotParsedAsync(e =>
         {
+            Console.WriteLine(HelpText.AutoBuild(parseResult).ToString());
             result = 0xA0;
             return Task.CompletedTask;
-        }).ConfigureAwait(false);
+        });
 
-        if (verifyOptions is null)
-        {
-            if (result != 0)
-                return result;
-            throw new InvalidOperationException("Mod verify was executed with the wrong arguments.");
-        }
+        return result;
+    }
 
-        var coreServiceCollection = CreateCoreServices(verifyOptions.Verbose);
+    private static async Task<int> Run(BaseModVerifyOptions options)
+    {
+        var coreServiceCollection = CreateCoreServices(options.Verbose);
         var coreServices = coreServiceCollection.BuildServiceProvider();
         var logger = coreServices.GetService<ILoggerFactory>()?.CreateLogger(typeof(Program));
 
@@ -75,18 +81,15 @@ internal class Program
 
         try
         {
-            var settings = new SettingsBuilder(coreServices)
-                .BuildSettings(verifyOptions);
-
+            var settings = new SettingsBuilder(coreServices).BuildSettings(options);
             var services = CreateAppServices(coreServiceCollection, settings);
-
             var verifier = new ModVerifyApp(settings, services);
 
             return await verifier.RunApplication().ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error: {e.Message}");
+            PrintApplicationFailure();
             logger?.LogCritical(e, e.Message);
             return e.HResult;
         }
@@ -99,7 +102,7 @@ internal class Program
 #endif
         }
     }
-    
+
     private static IServiceCollection CreateCoreServices(bool verboseLogging)
     {
         var fileSystem = new RealFileSystem();
@@ -112,7 +115,6 @@ internal class Program
 
         return serviceCollection;
     }
-
 
     private static IServiceProvider CreateAppServices(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
     {
@@ -129,9 +131,7 @@ internal class Program
 
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
 
-        ModVerifyServiceContribution.ContributeServices(serviceCollection);
-
-        SetupReporting(serviceCollection, settings);
+        SetupVerifyReporting(serviceCollection, settings);
 
         serviceCollection.AddSingleton<IModNameResolver>(sp => new OnlineModNameResolver(sp));
         serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OnlineModGameTypeResolver(sp));
@@ -139,23 +139,27 @@ internal class Program
         return serviceCollection.BuildServiceProvider();
     }
 
-    private static void SetupReporting(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
+    private static void SetupVerifyReporting(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
     {
-        serviceCollection.RegisterConsoleReporter(new VerificationReportSettings
+        var printOnlySummary = settings.CreateNewBaseline;
+        serviceCollection.RegisterConsoleReporter(new VerifyReportSettings
         {
             MinimumReportSeverity = VerificationSeverity.Error
-        });
+        }, printOnlySummary);
+
+        if (string.IsNullOrEmpty(settings.ReportOutput))
+            return;
 
         serviceCollection.RegisterJsonReporter(new JsonReporterSettings
         {
-            OutputDirectory = settings.Output,
-            MinimumReportSeverity = settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity
+            OutputDirectory = settings.ReportOutput!,
+            MinimumReportSeverity = settings.GlobalReportSettings.MinimumReportSeverity
         });
 
         serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
         {
-            OutputDirectory = settings.Output,
-            MinimumReportSeverity = settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity
+            OutputDirectory = settings.ReportOutput!,
+            MinimumReportSeverity = settings.GlobalReportSettings.MinimumReportSeverity
         });
     }
 
@@ -181,7 +185,10 @@ internal class Program
         var cLogger = new LoggerConfiguration()
             .WriteTo.Async(c =>
             {
-                c.Console(logLevel, theme: AnsiConsoleTheme.Code);
+                c.Console(
+                    logLevel,
+                    theme: AnsiConsoleTheme.Code,
+                    outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}");
             })
             .Filter.ByExcluding(x =>
             {
@@ -194,6 +201,8 @@ internal class Program
                 if (source.StartsWith(ParserNamespace.AsSpan()))
                     return true;
                 if (source.StartsWith(GameInfrastructureNamespace.AsSpan()))
+                    return true;
+                if (source.StartsWith(GameVerifierStepNamespace.AsSpan()))
                     return true;
                 return false;
             })
@@ -233,6 +242,19 @@ internal class Program
         Console.WriteLine("***********************************");
         Console.WriteLine("                       by AnakinRaW");
         Console.WriteLine();
+        Console.WriteLine();
+    }
+
+    private static void PrintApplicationFailure()
+    {
+        Console.WriteLine();
+        Console.WriteLine("**************");
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine(" App Failure! ");
+        Console.ResetColor();
+        Console.WriteLine("**************");
+        Console.WriteLine();
+        Console.WriteLine("The application encountered an unexpected error and will terminate now!");
         Console.WriteLine();
     }
 }

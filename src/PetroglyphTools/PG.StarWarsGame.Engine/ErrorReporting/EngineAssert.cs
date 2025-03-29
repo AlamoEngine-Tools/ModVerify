@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -9,42 +10,52 @@ namespace PG.StarWarsGame.Engine.ErrorReporting;
 public sealed class EngineAssert
 {
     private static readonly string ThisNameSpace = typeof(EngineAssert).Namespace!;
+    private const string NullLiteral = "NULL";
 
-    public object? Value { get; }
+    public string Value { get; }
 
-    public object? Context { get; }
+    public IReadOnlyCollection<string> Context { get; }
 
     public string Message { get; }
 
     public string Method { get; }
 
+    public int MethodOffset { get; }
+
     public string? TypeName { get; }
 
     public EngineAssertKind Kind { get; }
 
-    internal EngineAssert(EngineAssertKind kind, object? value, object? context, string? type, string method, string message)
+    private EngineAssert(EngineAssertKind kind, object? value, IEnumerable<string> context, string? type, string method, int methodOffset, string message)
     {
         Kind = kind;
-        Value = value;
-        Context = context;
+        Value = value?.ToString() ?? NullLiteral;
+        Context = [..context];
         Message = message ?? throw new ArgumentNullException(nameof(message));
         TypeName = type ?? throw new ArgumentNullException(nameof(type));
         Method = method ?? throw new ArgumentNullException(nameof(method));
+        MethodOffset = methodOffset;
     }
 
-    internal static EngineAssert FromNullOrEmpty(object? context = null, string? message = null)
+    internal static EngineAssert FromNullOrEmpty(string? message = null)
+    {
+        return FromNullOrEmpty([], message);
+    }
+
+    internal static EngineAssert FromNullOrEmpty(IEnumerable<string> context, string? message = null)
     {
         return Create(EngineAssertKind.NullOrEmptyValue, null, context, message ?? "Expected value to be not null or empty");
     }
 
-    internal static EngineAssert Create(EngineAssertKind kind, object? value, object? context, string message)
+    internal static EngineAssert Create(EngineAssertKind kind, object? value, IEnumerable<string> context, string message)
     {
         var frame = GetCausingFrame(new StackTrace());
         if (frame is null)
-            return new EngineAssert(kind, value, context, null, "UNKNOWN SOURCE", message);
+            return new EngineAssert(kind, value, context, null, "UNKNOWN SOURCE", -1, message);
+        var offset = frame.GetNativeOffset();
         var method = frame.GetMethod();
         var methodInfo = GetMethodInfo(method);
-        return new EngineAssert(kind, value, context, methodInfo.type, methodInfo.method, message);
+        return new EngineAssert(kind, value, context, methodInfo.type, methodInfo.method, offset, message);
     }
 
     private static StackFrame? GetCausingFrame(StackTrace trace)

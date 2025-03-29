@@ -1,47 +1,28 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
-using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Files.ALO.Files.Models;
-using PG.StarWarsGame.Files.ALO.Files.Particles;
-using PG.StarWarsGame.Files.ChunkFiles.Data;
 using AnakinRaW.CommonUtilities.FileSystem;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Files;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Files;
+using PG.StarWarsGame.Files.ALO.Files.Models;
+using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.Binary;
+using PG.StarWarsGame.Files.ChunkFiles.Data;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
-internal sealed class AlreadyVerifiedCache
-{
-    internal static readonly AlreadyVerifiedCache Instance = new();
-
-    private readonly ConcurrentDictionary<string, byte> _cachedModels = new(StringComparer.OrdinalIgnoreCase);
-
-    private AlreadyVerifiedCache()
-    {
-    }
-
-    public bool TryAddModel(string fileName)
-    {
-        return _cachedModels.TryAdd(fileName, 0);
-    }
-}
-
 public sealed class SharedReferencedModelsVerifier(
-    IGameVerifier? parent,
+    IGameVerifierInfo? parent,
     IEnumerable<string> modelSource,
     IGameDatabase database,
     GameVerifySettings settings,
     IServiceProvider serviceProvider)
-    : GameVerifierBase(parent, database, settings, serviceProvider)
+    : GameVerifier(parent, database, settings, serviceProvider)
 {
     private const string ProxyAltIdentifier = "_ALT";
 
@@ -94,7 +75,7 @@ public sealed class SharedReferencedModelsVerifier(
             }
             finally
             {
-               aloFile?.Dispose();
+                aloFile?.Dispose();
             }
         }
     }
@@ -122,15 +103,13 @@ public sealed class SharedReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
+                    var particlePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         VerifierChain,
                         VerifierErrorCodes.InvalidTexture,
-                        $"Invalid texture file name" +
-                        $" '{texture}' in particle 'modelFilePath'",
+                        $"Invalid texture file name '{texture}' in particle '{particlePath}'",
                         VerificationSeverity.Error,
-                        texture,
-                        modelFilePath));
+                        [particlePath], texture));
                 });
         }
 
@@ -139,13 +118,13 @@ public sealed class SharedReferencedModelsVerifier(
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
         {
-            var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
+            var particlePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
             AddError(VerificationError.Create(
                 VerifierChain,
                 VerifierErrorCodes.InvalidParticleName,
-                $"The particle name '{file.Content.Name}' does not match file name '{modelFilePath}'",
+                $"The particle name '{file.Content.Name}' does not match file name '{particlePath}'",
                 VerificationSeverity.Error,
-                modelFilePath));
+                particlePath));
         }
 
     }
@@ -165,7 +144,7 @@ public sealed class SharedReferencedModelsVerifier(
                         VerifierErrorCodes.InvalidTexture,
                         $"Invalid texture file name '{texture}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
-                        texture, modelFilePath));
+                        [modelFilePath], texture));
                 });
         }
 
@@ -175,14 +154,15 @@ public sealed class SharedReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var shaderPath =
+                    var modelFilePath =
                         FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         VerifierChain,
                         VerifierErrorCodes.InvalidShader,
-                        $"Invalid texture file name '{shader}' in model '{shaderPath}'",
+                        $"Invalid texture file name '{shader}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
-                        shader, shaderPath));
+                        [modelFilePath],
+                        shader));
                 });
         }
 
@@ -193,14 +173,15 @@ public sealed class SharedReferencedModelsVerifier(
                 e => e is ArgumentException,
                 _ =>
                 {
-                    var proxyPath = FileSystem.Path
+                    var modelFilePath = FileSystem.Path
                         .GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
                         VerifierChain,
                         VerifierErrorCodes.InvalidProxy,
-                        $"Invalid proxy file name '{proxy}' in model '{proxyPath}'",
+                        $"Invalid proxy file name '{proxy}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
-                        proxy, proxyPath));
+                        [modelFilePath],
+                        proxy));
                 });
         }
     }
@@ -215,7 +196,7 @@ public sealed class SharedReferencedModelsVerifier(
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan())
                 .ToString();
             var message = $"{modelFilePath} references missing texture: {texture}";
-            var error = VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, modelFilePath, texture);
+            var error = VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelMissingTexture, message, VerificationSeverity.Error, [modelFilePath], texture);
             AddError(error);
         }
     }
@@ -229,7 +210,7 @@ public sealed class SharedReferencedModelsVerifier(
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan()).ToString();
             var message = $"{modelFilePath} references missing proxy particle: {proxyName}";
             var error = VerificationError.Create(VerifierChain, 
-                VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, modelFilePath, proxyName);
+                VerifierErrorCodes.ModelMissingProxy, message, VerificationSeverity.Error, [modelFilePath], proxyName);
             AddError(error);
         }
         else
@@ -250,7 +231,7 @@ public sealed class SharedReferencedModelsVerifier(
         {
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), data.FilePath.AsSpan()).ToString();
             var message = $"{modelFilePath} references missing shader effect: {shader}";
-            var error = VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, modelFilePath, shader);
+            var error = VerificationError.Create(VerifierChain, VerifierErrorCodes.ModelMissingShader, message, VerificationSeverity.Error, [modelFilePath], shader);
             AddError(error);
         }
     }
@@ -273,39 +254,5 @@ public sealed class SharedReferencedModelsVerifier(
         }
 
         return proxyName.ToString();
-    }
-}
-
-
-
-public sealed class ReferencedModelsVerifier(
-    IGameDatabase database,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider)
-    : GameVerifierBase(null, database, settings, serviceProvider)
-{
-    public override string FriendlyName => "Referenced Models";
-
-    public override void Verify(CancellationToken token)
-    {
-        var models = Database.GameObjectTypeManager.Entries
-            .SelectMany(x => x.Models)
-            .Concat(FocHardcodedConstants.HardcodedModels);
-
-        var inner = new SharedReferencedModelsVerifier(this, models, Database, Settings, Services);
-        try
-        {
-            inner.Error += OnModelError;
-            inner.Verify(token);
-        }
-        finally
-        {
-            inner.Error -= OnModelError;
-        }
-    }
-
-    private void OnModelError(object sender, VerificationErrorEventArgs e)
-    {
-        AddError(e.Error);
     }
 }

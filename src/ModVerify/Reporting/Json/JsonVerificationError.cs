@@ -15,19 +15,30 @@ internal class JsonVerificationError
     public string Message { get; }
 
     [JsonPropertyName("severity")]
+    [JsonConverter(typeof(JsonStringEnumConverter<VerificationSeverity>))]
     public VerificationSeverity Severity { get; }
 
-    [JsonPropertyName("assets")]
-    public IEnumerable<string> Assets { get; }
+    [JsonPropertyName("context")]
+    public IEnumerable<string> ContextEntries { get; }
+
+    [JsonPropertyName("asset")]
+    public string Asset { get; }
 
     [JsonConstructor]
-    private JsonVerificationError(string id, IReadOnlyList<string> verifierChain, string message, VerificationSeverity severity, IEnumerable<string> assets)
+    private JsonVerificationError(
+        string id, 
+        IReadOnlyList<string>? verifierChain, 
+        string message,
+        VerificationSeverity severity, 
+        IEnumerable<string>? contextEntries, 
+        string asset)
     {
         Id = id;
-        VerifierChain = verifierChain;
+        VerifierChain = verifierChain ?? [];
         Message = message;
         Severity = severity;
-        Assets = assets;
+        ContextEntries = contextEntries ?? [];
+        Asset = asset ?? string.Empty;
     }
 
     public JsonVerificationError(VerificationError error)
@@ -36,6 +47,7 @@ internal class JsonVerificationError
         VerifierChain = error.VerifierChain;
         Message = error.Message;
         Severity = error.Severity;
-        Assets = error.AffectedAssets;
+        ContextEntries = error.ContextEntries;
+        Asset = error.Asset;
     }
 }

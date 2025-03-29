@@ -11,7 +11,7 @@ using PG.StarWarsGame.Engine.Database;
 namespace AET.ModVerify.Verifiers;
 
 public partial class CommandBarVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider)
-    : GameVerifierBase(null, gameDatabase, settings, serviceProvider)
+    : GameVerifier(null, gameDatabase, settings, serviceProvider)
 {
     public const string CommandBarNoShellsGroup = "CMDBAR00";
     public const string CommandBarManyShellsGroup = "CMDBAR01";
@@ -55,7 +55,7 @@ partial class CommandBarVerifier
         {
             AddError(VerificationError.Create(VerifierChain,
                 CommandBarShellNoModel, $"Could not find model '{shellComponent.ModelPath}' for CommandBarShellComponent '{component.Name}'.",
-                VerificationSeverity.Error, shellComponent.Name, shellComponent.ModelPath));
+                VerificationSeverity.Error, [shellComponent.Name], shellComponent.ModelPath));
             return;
         }
     }
@@ -141,7 +141,7 @@ partial class CommandBarVerifier
                 CommandBarManyShellsGroup, 
                 $"Found more than one Shells CommandBarGroup. Mind that group names are case-sensitive. Correct name is '{CommandBarConstants.ShellGroupName}'",
                 VerificationSeverity.Warning, 
-                shellGroups.Concat(["GameCommandBar"])));
+                shellGroups, "GameCommandBar"));
     }
 
     private void VerifyShellGroup(CommandBarComponentGroup shellGroup)
@@ -154,7 +154,7 @@ partial class CommandBarVerifier
                 AddError(VerificationError.Create(VerifierChain,
                     CommandBarNoShellsComponentInShellGroup, 
                     $"The CommandBar component '{component.Name}' is not a shell component, but part of the '{CommandBarConstants.ShellGroupName}' group.", 
-                    VerificationSeverity.Warning, shellGroup.Name, component.Name));
+                    VerificationSeverity.Warning, component.Name));
             }
         }
     }

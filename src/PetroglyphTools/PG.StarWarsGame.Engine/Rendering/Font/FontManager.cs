@@ -33,7 +33,7 @@ internal class FontManager : GameManagerBase, IFontManager
 
         if (size <= 0)
         {
-            ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.ValueOutOfRange, size, fontName, 
+            ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.ValueOutOfRange, size, [fontName], 
                 $"Font size '{size}' for '{fontName}' must be greater than 0."));
         }
 
@@ -42,7 +42,7 @@ internal class FontManager : GameManagerBase, IFontManager
 
         if (!_fontNames.Contains(fontName))
         {
-            ErrorReporter.Assert(EngineAssert.FromNullOrEmpty(fontName, $"Unable to find font '{fontName}'"));
+            ErrorReporter.Assert(EngineAssert.FromNullOrEmpty([fontName], $"Unable to find font '{fontName}'"));
             return null;
         }
 

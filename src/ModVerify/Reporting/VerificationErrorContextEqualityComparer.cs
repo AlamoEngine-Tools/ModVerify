@@ -2,13 +2,13 @@
 
 namespace AET.ModVerify.Reporting;
 
-internal class AssetsEqualityComparer : IEqualityComparer<HashSet<string>>
+internal class VerificationErrorContextEqualityComparer : IEqualityComparer<HashSet<string>>
 {
     readonly IEqualityComparer<HashSet<string>> _setComparer = HashSet<string>.CreateSetComparer();
 
-    public static AssetsEqualityComparer Instance { get; } = new();
+    public static VerificationErrorContextEqualityComparer Instance { get; } = new();
 
-    private AssetsEqualityComparer()
+    private VerificationErrorContextEqualityComparer()
     {
     }
 

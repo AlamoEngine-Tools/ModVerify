@@ -12,7 +12,7 @@ public sealed class GameEngineErrorCollector(
     IDatabaseErrorCollection errorCollection,
     IGameDatabase gameDatabase,
     GameVerifySettings settings,
-    IServiceProvider serviceProvider) : GameVerifierBase(null, gameDatabase, settings, serviceProvider)
+    IServiceProvider serviceProvider) : GameVerifier(null, gameDatabase, settings, serviceProvider)
 {
     public override string FriendlyName => "Reporting Game Engine Errors";
 
@@ -20,7 +20,7 @@ public sealed class GameEngineErrorCollector(
     {
         AddErrors(new InitializationErrorReporter(Repository, Services).GetErrors(errorCollection.InitializationErrors));
         AddErrors(new XmlParseErrorReporter(Repository, Services).GetErrors(errorCollection.XmlErrors));
-        if (Settings.GlobalReportSettings.ReportAsserts)
+        if (!Settings.IgnoreAsserts)
             AddErrors(new GameAssertErrorReporter(Repository, Services).GetErrors(errorCollection.Asserts));
     }
 

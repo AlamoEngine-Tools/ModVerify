@@ -3,7 +3,7 @@ using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerifyTool;
 
-internal class VerifyGameInstallationData
+internal sealed class VerifyGameInstallationData
 {
     public required string Name { get; init; }
 

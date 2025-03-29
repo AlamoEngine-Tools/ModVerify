@@ -15,7 +15,7 @@ internal sealed class InitializationErrorReporter(IGameRepository gameRepository
         return new ErrorData(
             VerifierErrorCodes.InitializationError, 
             error.Message, 
-            [error.GameManager],
+            error.GameManager,
             VerificationSeverity.Critical);
     }
 }

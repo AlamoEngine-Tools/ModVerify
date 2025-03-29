@@ -22,7 +22,7 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
         if (suppressionFilters == null) 
             throw new ArgumentNullException(nameof(suppressionFilters));
 
-        _filters = new List<SuppressionFilter>(suppressionFilters);
+        _filters = [..suppressionFilters];
         _minimizedFilters = MinimizeSuppressions(_filters);
     }
 
@@ -48,6 +48,10 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
         return new SuppressionList(baselineJson);
     }
 
+    public IEnumerable<VerificationError> Apply(IEnumerable<VerificationError> errors)
+    {
+        return Count == 0 ? errors : errors.Where(e => !Suppresses(e));
+    }
 
     public bool Suppresses(VerificationError error)
     {
@@ -64,7 +68,7 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
 
     private static IReadOnlyCollection<SuppressionFilter> MinimizeSuppressions(IEnumerable<SuppressionFilter> filters)
     {
-        var sortedFilters = filters.Where(f => !f.IsDisabled())
+        var sortedFilters = filters.Where(f => !f.IsDisabled)
             .OrderBy(x => x.Specificity());
 
         var result = new List<SuppressionFilter>();

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace AET.ModVerify.Reporting.Json;
 
@@ -13,7 +12,7 @@ internal class JsonSuppressionFilter(SuppressionFilter filter)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Verifier { get; } = filter.Verifier;
 
-    [JsonPropertyName("assets")]
+    [JsonPropertyName("asset")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IEnumerable<string>? Assets { get;  } = filter.Assets;
+    public string? Asset { get;  } = filter.Asset;
 }
