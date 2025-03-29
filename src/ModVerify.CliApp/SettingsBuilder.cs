@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using AET.ModVerify.Pipeline;
 using AET.ModVerifyTool.Options.CommandLine;
 using Microsoft.Extensions.Logging;
 
@@ -43,7 +44,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
         {
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
-                VerifierFactory = new GameVerifierFactory(),
+                VerifiersProvider = new DefaultGameVerifiersProvider(),
                 FailFast = verifyOptions.FailFast,
                 GameVerifySettings = new GameVerifySettings
                 {
@@ -89,7 +90,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
                     IgnoreAsserts = false,
                     ThrowsOnMinimumSeverity = null,
                 },
-                VerifierFactory = new GameVerifierFactory(),
+                VerifiersProvider = new DefaultGameVerifiersProvider(),
                 FailFast = false,
             },
             AppThrowsOnMinimumSeverity = null,

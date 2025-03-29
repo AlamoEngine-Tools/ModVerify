@@ -4,9 +4,9 @@ using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.Database;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerify.Pipeline;
 
-internal class GameVerifierFactory : IGameVerifierFactory
+public sealed class DefaultGameVerifiersProvider : IGameVerifiersProvider
 {
     public IEnumerable<GameVerifier> GetVerifiers(
         IGameDatabase database, 

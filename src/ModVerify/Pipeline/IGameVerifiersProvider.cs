@@ -1,12 +1,12 @@
-﻿using AET.ModVerify.Settings;
+﻿using System;
+using System.Collections.Generic;
+using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.Database;
-using System;
-using System.Collections.Generic;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerify.Pipeline;
 
-public interface IGameVerifierFactory
+public interface IGameVerifiersProvider
 {
     IEnumerable<GameVerifier> GetVerifiers(
         IGameDatabase database, 
