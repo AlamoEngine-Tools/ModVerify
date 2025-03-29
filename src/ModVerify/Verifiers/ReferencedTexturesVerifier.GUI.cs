@@ -115,7 +115,7 @@ sealed partial class ReferencedTexturesVerifier
 
                         AddError(VerificationError.Create(VerifierChain, TexutreNotFound,
                             message, VerificationSeverity.Error,
-                            texture.Texture, component, origin.ToString()));
+                            [component, origin.ToString()], texture.Texture));
                     }
                 }
 

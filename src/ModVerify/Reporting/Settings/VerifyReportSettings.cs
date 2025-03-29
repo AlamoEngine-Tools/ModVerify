@@ -1,6 +1,6 @@
 ﻿namespace AET.ModVerify.Reporting.Settings;
 
-public record VerificationReportSettings
+public record VerifyReportSettings
 {
     public VerificationSeverity MinimumReportSeverity { get; init; } = VerificationSeverity.Information;
 }

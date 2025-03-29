@@ -6,7 +6,11 @@ using AET.ModVerify.Reporting.Settings;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
-internal class ConsoleReporter(VerificationReportSettings settings, IServiceProvider serviceProvider) : ReporterBase<VerificationReportSettings>(settings, serviceProvider)
+internal class ConsoleReporter(
+    VerifyReportSettings settings, 
+    bool summaryOnly,
+    IServiceProvider serviceProvider) : 
+    ReporterBase<VerifyReportSettings>(settings, serviceProvider)
 {
     public override Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {
@@ -26,8 +30,16 @@ internal class ConsoleReporter(VerificationReportSettings settings, IServiceProv
         Console.WriteLine();
         if (errors.Count == 0)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("No errors! Well done :)");
+            if (summaryOnly)
+            {
+                Console.WriteLine("No errors found.");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("No errors! Well done :)");
+            }
+
             Console.ResetColor();
             return;
         }
@@ -35,10 +47,8 @@ internal class ConsoleReporter(VerificationReportSettings settings, IServiceProv
         Console.WriteLine($"TOTAL Verification Errors: {errors.Count}");
 
         var groupedBySeverity = errors.GroupBy(x => x.Severity);
-        foreach (var group in groupedBySeverity)
-        {
+        foreach (var group in groupedBySeverity) 
             Console.WriteLine($"  Severity {group.Key}: {group.Count()}");
-        }
         Console.WriteLine();
 
         if (filteredErrors.Count == 0)
@@ -48,7 +58,10 @@ internal class ConsoleReporter(VerificationReportSettings settings, IServiceProv
             return;
         }
 
-        Console.WriteLine($"Below the list of error with minimum severity {Settings.MinimumReportSeverity}:");
+        if (summaryOnly)
+            return;
+
+        Console.WriteLine($"Below the list of errors with severity '{Settings.MinimumReportSeverity}' or higher:");
 
         foreach (var error in filteredErrors)
             Console.WriteLine($"[{error.Severity}] [{error.Id}] Message={error.Message}");

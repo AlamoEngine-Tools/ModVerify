@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using AET.ModVerify.Reporting.Json;
+using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities;
 
 namespace AET.ModVerify.Reporting;
 
 public sealed class VerificationError : IEquatable<VerificationError>
 {
-    private static readonly AssetsEqualityComparer AssetComparer = AssetsEqualityComparer.Instance;
+    private static readonly VerificationErrorContextEqualityComparer ContextComparer = VerificationErrorContextEqualityComparer.Instance;
 
-    private readonly HashSet<string> _assets;
+    private readonly HashSet<string> _contextEntries;
 
     public string Id { get; }
 
@@ -18,22 +19,33 @@ public sealed class VerificationError : IEquatable<VerificationError>
 
     public IReadOnlyList<string> VerifierChain { get; }
 
-    public IReadOnlyCollection<string> AffectedAssets { get; }
+    public IReadOnlyCollection<string> ContextEntries { get; }
 
     public VerificationSeverity Severity { get; }
 
-    public VerificationError(string id, string message, IReadOnlyList<string> verifiers, IEnumerable<string> affectedAssets,
+    public string Asset { get; }
+
+    public VerificationError(
+        string id, 
+        string message, 
+        IReadOnlyList<string> verifiers, 
+        IEnumerable<string> contextEntries, 
+        string asset,
         VerificationSeverity severity)
     {
-        if (affectedAssets == null)
-            throw new ArgumentNullException(nameof(affectedAssets));
+        if (contextEntries == null)
+            throw new ArgumentNullException(nameof(contextEntries));
+        if (asset is null)
+            throw new ArgumentNullException(nameof(asset));
         ThrowHelper.ThrowIfNullOrEmpty(id);
+
         Id = id;
         Message = message ?? throw new ArgumentNullException(nameof(message));
         VerifierChain = verifiers;
         Severity = severity;
-        _assets = [..affectedAssets];
-        AffectedAssets = _assets.ToList();
+        _contextEntries = [.. contextEntries];
+        ContextEntries = _contextEntries.ToList();
+        Asset = asset;
     }
 
     internal VerificationError(JsonVerificationError error)
@@ -41,28 +53,30 @@ public sealed class VerificationError : IEquatable<VerificationError>
         Id = error.Id;
         Message = error.Message;
         VerifierChain = error.VerifierChain;
-        _assets = [..error.Assets];
-        AffectedAssets = _assets.ToList();
+        _contextEntries = [..error.ContextEntries];
+        ContextEntries = _contextEntries.ToList();
+        Asset = error.Asset;
     }
 
     public static VerificationError Create(
-        IReadOnlyList<IGameVerifier> verifiers,
+        IReadOnlyList<IGameVerifierInfo> verifiers,
         string id,
         string message,
         VerificationSeverity severity,
-        IEnumerable<string> assets)
+        IEnumerable<string> context,
+        string asset)
     {
-        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), assets, severity);
+        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), context, asset, severity);
     }
 
     public static VerificationError Create(
-        IReadOnlyList<IGameVerifier> verifiers,
+        IReadOnlyList<IGameVerifierInfo> verifiers,
         string id,
         string message,
         VerificationSeverity severity,
-        params string[] assets)
+        string asset)
     {
-        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), assets, severity);
+        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), [], asset, severity);
     }
 
     public bool Equals(VerificationError? other)
@@ -75,7 +89,10 @@ public sealed class VerificationError : IEquatable<VerificationError>
         if (!Id.Equals(other.Id))
             return false;
 
-        return AssetComparer.Equals(_assets, other._assets);
+        if (!Asset.Equals(other.Asset))
+            return false;
+
+        return ContextComparer.Equals(_contextEntries, other._contextEntries);
     }
 
     public override bool Equals(object? obj)
@@ -87,12 +104,13 @@ public sealed class VerificationError : IEquatable<VerificationError>
     {
         var hashCode = new HashCode();
         hashCode.Add(Id);
-        hashCode.Add(_assets, AssetComparer);
+        hashCode.Add(_contextEntries, ContextComparer);
+        hashCode.Add(Asset);
         return hashCode.ToHashCode();
     }
 
     public override string ToString()
     {
-        return $"[{Severity}] [{string.Join(" --> ", VerifierChain)}] {Id}: Message={Message}; Affected Assets=[{string.Join(",", AffectedAssets)}];";
+        return $"[{Severity}] [{string.Join(" --> ", VerifierChain)}] {Id}: Message={Message}; Asset='{Asset}'; Context=[{string.Join(",", ContextEntries)}];";
     }
 }

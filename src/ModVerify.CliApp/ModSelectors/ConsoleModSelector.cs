@@ -93,15 +93,22 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
         Console.WriteLine();
         Console.WriteLine("=================");
 
-        while (true)
+        try
         {
-            Console.Write("Select a game or mod: ");
-            var numberString = Console.ReadLine();
+            while (true)
+            {
+                Console.Write("Select a game or mod: ");
+                var numberString = Console.ReadLine();
 
-            if (!int.TryParse(numberString, out var number))
-                continue;
-            if (number < list.Count)
-                return list[number];
+                if (!int.TryParse(numberString, out var number))
+                    continue;
+                if (number < list.Count)
+                    return list[number];
+            }
+        }
+        finally
+        {
+            Console.WriteLine();
         }
     }
 }

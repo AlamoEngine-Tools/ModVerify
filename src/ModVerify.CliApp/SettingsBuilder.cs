@@ -1,83 +1,145 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 using AET.ModVerifyTool.Options;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
+using AET.ModVerifyTool.Options.CommandLine;
+using Microsoft.Extensions.Logging;
 
 namespace AET.ModVerifyTool;
 
-internal class SettingsBuilder(IServiceProvider services)
+internal sealed class SettingsBuilder(IServiceProvider services)
 {
     private readonly IFileSystem _fileSystem = services.GetRequiredService<IFileSystem>();
+    private readonly ILogger? _logger =
+        services.GetRequiredService<ILoggerFactory>()?.CreateLogger(typeof(SettingsBuilder));
 
-    public ModVerifyAppSettings BuildSettings(ModVerifyOptions options)
+    public ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
+    {
+        switch (options)
+        {
+            case VerifyVerbOption verifyVerb:
+                return BuildFromVerifyVerb(verifyVerb);
+            case CreateBaselineVerbOption baselineVerb:
+                return BuildFromCreateBaselineVerb(baselineVerb);
+        }
+        throw new NotSupportedException($"The option '{options.GetType().Name}' is not supported!");
+    }
+
+
+    private ModVerifyAppSettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
     {
         var output = Environment.CurrentDirectory;
-        if (!string.IsNullOrEmpty(options.Output))
-            output = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(Environment.CurrentDirectory, options.Output));
-
+        var outDir = verifyOptions.OutputDirectory;
         
+        if (!string.IsNullOrEmpty(outDir))
+            output = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(Environment.CurrentDirectory, outDir!));
+
         return new ModVerifyAppSettings
         {
-            GameVerifySettings = BuildGameVerifySettings(options),
-            GameInstallationsSettings = BuildInstallationSettings(options),
-            Output = output,
-            NewBaselinePath = options.NewBaselineFile
+            VerifyPipelineSettings = new VerifyPipelineSettings
+            {
+                VerifierFactory = new GameVerifierFactory(),
+                FailFast = verifyOptions.FailFast,
+                GameVerifySettings = new GameVerifySettings
+                {
+                    IgnoreAsserts = verifyOptions.IgnoreAsserts,
+                    ThrowsOnMinimumSeverity = GetVerifierMinimumThrowSeverity()
+                }
+            },
+            AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
+            GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
+            GlobalReportSettings = BuilderGlobalReportSettings(verifyOptions),
+            ReportOutput = output
+        };
+
+        VerificationSeverity? GetVerifierMinimumThrowSeverity()
+        {
+            var minFailSeverity = verifyOptions.MinimumFailureSeverity;
+            if (verifyOptions.FailFast)
+            {
+                if (minFailSeverity == null)
+                {
+                    _logger?.LogWarning($"Verification is configured to fail fast but 'minFailSeverity' is not specified. " +
+                                        $"Using severity '{VerificationSeverity.Information}'.");
+                    minFailSeverity = VerificationSeverity.Information;
+                }
+
+                return minFailSeverity;
+            }
+
+            // Only in a failFast scenario we want the verifier to throw.
+            // In a normal run, the verifier should simply store the error.
+            return null;
+        }
+    }
+
+    private ModVerifyAppSettings BuildFromCreateBaselineVerb(CreateBaselineVerbOption baselineVerb)
+    {
+        return new ModVerifyAppSettings
+        {
+            VerifyPipelineSettings = new VerifyPipelineSettings
+            {
+                GameVerifySettings = new GameVerifySettings
+                {
+                    IgnoreAsserts = false,
+                    ThrowsOnMinimumSeverity = null,
+                },
+                VerifierFactory = new GameVerifierFactory(),
+                FailFast = false,
+            },
+            AppThrowsOnMinimumSeverity = null,
+            GameInstallationsSettings = BuildInstallationSettings(baselineVerb),
+            GlobalReportSettings = BuilderGlobalReportSettings(baselineVerb),
+            NewBaselinePath = baselineVerb.OutputFile,
+            ReportOutput = null, 
         };
     }
 
-    private GameVerifySettings BuildGameVerifySettings(ModVerifyOptions options)
+    private GlobalVerifyReportSettings BuilderGlobalReportSettings(BaseModVerifyOptions options)
     {
-        var settings = GameVerifySettings.Default;
-        
-        return settings with
+        return new GlobalVerifyReportSettings
         {
-            GlobalReportSettings = BuilderGlobalReportSettings(options),
-            AbortSettings = BuildAbortSettings(options)
+            Baseline = CreateBaseline(),
+            Suppressions = CreateSuppressions(),
+            MinimumReportSeverity = options.MinimumSeverity,
         };
-    }
 
-    private VerificationAbortSettings BuildAbortSettings(ModVerifyOptions options)
-    {
-        return new VerificationAbortSettings
+        VerificationBaseline CreateBaseline()
         {
-            FailFast = options.FailFast,
-            MinimumAbortSeverity = options.MinimumFailureSeverity ?? VerificationSeverity.Information,
-            ThrowsGameVerificationException = options.MinimumFailureSeverity.HasValue || options.FailFast
-        };
-    }
+            // It does not make sense to create a baseline on another baseline.
+            if (options is not VerifyVerbOption verifyOptions || string.IsNullOrEmpty(verifyOptions.Baseline))
+                return VerificationBaseline.Empty;
 
-    private GlobalVerificationReportSettings BuilderGlobalReportSettings(ModVerifyOptions options)
-    {
-        var baseline = VerificationBaseline.Empty;
-        var suppressions = SuppressionList.Empty;
-        
-        if (options.Baseline is not null)
-        {
-            using var fs = _fileSystem.FileStream.New(options.Baseline, FileMode.Open, FileAccess.Read);
-            baseline = VerificationBaseline.FromJson(fs);
+            using var fs = _fileSystem.FileStream.New(verifyOptions.Baseline!, FileMode.Open, FileAccess.Read);
+
+            try
+            {
+                return VerificationBaseline.FromJson(fs);
+            }
+            catch (IncompatibleBaselineException)
+            {
+                Console.WriteLine($"The baseline '{verifyOptions.Baseline}' is not compatible with with version of ModVerify." +
+                                  $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +
+                                  $"{Environment.NewLine}");
+                throw;
+            }
         }
 
-        if (options.Suppressions is not null)
+        SuppressionList CreateSuppressions()
         {
+            if (options.Suppressions is null) 
+                return SuppressionList.Empty;
             using var fs = _fileSystem.FileStream.New(options.Suppressions, FileMode.Open, FileAccess.Read);
-            suppressions = SuppressionList.FromJson(fs);
+            return SuppressionList.FromJson(fs);
         }
-        
-        return new GlobalVerificationReportSettings
-        {
-            Baseline = baseline,
-            Suppressions = suppressions,
-            MinimumReportSeverity = VerificationSeverity.Information,
-            ReportAsserts = !options.IgnoreAsserts
-        };
     }
 
-    private GameInstallationsSettings BuildInstallationSettings(ModVerifyOptions options)
+    private GameInstallationsSettings BuildInstallationSettings(BaseModVerifyOptions options)
     {
         var modPaths = new List<string>();
         if (options.ModPaths is not null)

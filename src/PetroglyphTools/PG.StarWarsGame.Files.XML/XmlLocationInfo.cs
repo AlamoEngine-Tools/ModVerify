@@ -24,6 +24,6 @@ public readonly struct XmlLocationInfo(string xmlFile, int? line)
     {
         if (string.IsNullOrEmpty(XmlFile))
             return "(n/a)";
-        return Line is null ? XmlFile : $"{XmlFile} at line: {Line}";
+        return Line is null ? $"'{XmlFile}'" : $"'{XmlFile}':#{Line}";
     }
 }

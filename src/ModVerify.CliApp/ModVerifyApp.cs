@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
-using AET.ModVerify;
+﻿using AET.ModVerify;
 using AET.ModVerify.Reporting;
 using AET.ModVerifyTool.ModSelectors;
 using AET.ModVerifyTool.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Threading.Tasks;
+using AET.ModVerifyTool.Pipeline;
 
 namespace AET.ModVerifyTool;
 
@@ -19,53 +21,87 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 
     public async Task<int> RunApplication()
     {
-        var returnCode = 0;
-
         var installData = new SettingsBasedModSelector(services)
             .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
 
-        Console.WriteLine();
         _logger?.LogDebug($"Verify install data: {installData}");
+        _logger?.LogTrace($"Verify settings: {settings}");
+        
+        var allErrors = await Verify(installData).ConfigureAwait(false);
 
-        var verifyPipeline = new ModVerifyPipeline(installData.EngineType, installData.GameLocations, settings.GameVerifySettings, services);
+        try
+        {
+            await ReportErrors(allErrors).ConfigureAwait(false);
+        }
+        catch (GameVerificationException e)
+        {
+            return e.HResult;
+        }
+        
+        if (!settings.CreateNewBaseline)
+            return 0;
+
+        await WriteBaseline(allErrors, settings.NewBaselinePath).ConfigureAwait(false);
+        _logger?.LogInformation("Baseline successfully created.");
+
+        return 0;
+    }
+
+    private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyGameInstallationData installData)
+    {
+        var verifyPipeline = new VerifyGamePipeline(
+            installData.EngineType,
+            installData.GameLocations,
+            settings.VerifyPipelineSettings,
+            settings.GlobalReportSettings,
+            services);
 
         try
         {
             _logger?.LogInformation($"Verifying '{installData.Name}'...");
             await verifyPipeline.RunAsync().ConfigureAwait(false);
         }
-        catch (GameVerificationException e)
+        catch (OperationCanceledException)
         {
-            _logger?.LogError($"There is at least one verification error with severity " +
-                              $"'{settings.GameVerifySettings.GlobalReportSettings.MinimumReportSeverity}' or greater.");
-            returnCode = e.HResult;
+            _logger?.LogWarning("Verification stopped due to enabled failFast setting.");
+        }
+        catch (Exception e)
+        {
+            _logger?.LogError(e, $"Verification failed: {e.Message}");
+            throw;
         }
         finally
         {
-            var message = $"Verification finished with code: {returnCode}";
-            if (returnCode == 0)
-                _logger?.LogInformation(message);
-            else
-                _logger?.LogError(message);
+            _logger?.LogInformation("Finished verification");
         }
 
-        if (settings.CreateNewBaseline)
-            await WriteBaseline(verifyPipeline.Errors, settings.NewBaselinePath).ConfigureAwait(false);
-
-        return returnCode;
+        return verifyPipeline.FilteredErrors;
     }
+
+    private async Task ReportErrors(IReadOnlyCollection<VerificationError> errors)
+    {
+        _logger?.LogInformation("Reporting Errors...");
+        
+        var reportBroker = new VerificationReportBroker(services);
+
+        await reportBroker.ReportAsync(errors);
+
+        if (errors.Any(x => x.Severity >= settings.AppThrowsOnMinimumSeverity))
+            throw new GameVerificationException(errors);
+    }
+
 
     private async Task WriteBaseline(IEnumerable<VerificationError> errors, string baselineFile)
     {
-        var currentBaseline = settings.GameVerifySettings.GlobalReportSettings.Baseline;
-
-        var newBaseline = currentBaseline.MergeWith(errors);
+        var baseline = new VerificationBaseline(settings.GlobalReportSettings.MinimumReportSeverity, errors);
 
         var fullPath = _fileSystem.Path.GetFullPath(baselineFile);
+        _logger?.LogInformation($"Writing Baseline to '{fullPath}'");
+
 #if NET
         await 
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await newBaseline.ToJsonAsync(fs);
+        await baseline.ToJsonAsync(fs);
     }
 }

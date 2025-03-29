@@ -7,61 +7,63 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Threading;
 
 namespace AET.ModVerify.Verifiers;
 
-public abstract class GameVerifierBase : IGameVerifier
+public abstract class GameVerifierBase : IGameVerifierInfo
 {
     public event EventHandler<VerificationErrorEventArgs>? Error;
 
+    private readonly IGameDatabase _gameDatabase;
     private readonly ConcurrentDictionary<VerificationError, byte> _verifyErrors = new();
 
     protected readonly IFileSystem FileSystem;
     protected readonly IServiceProvider Services;
-    private readonly IGameDatabase _gameDatabase;
+    protected readonly GameVerifySettings Settings;
 
-    protected GameVerifierBase(IGameVerifier? parent,
-        IGameDatabase gameDatabase,
-        GameVerifySettings settings,
-        IServiceProvider serviceProvider)
-    {
-        _gameDatabase = gameDatabase;
-        FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
-        Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        Parent = parent;
-        Settings = settings;
-        Database = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
-        VerifierChain = CreateVerifierChain();
-    }
 
-    public IReadOnlyCollection<VerificationError> VerifyErrors => [.._verifyErrors.Keys];
+    public IReadOnlyCollection<VerificationError> VerifyErrors => [.. _verifyErrors.Keys];
 
     public virtual string FriendlyName => GetType().Name;
 
     public string Name => GetType().FullName;
 
-    public IGameVerifier? Parent { get; }
-
-    protected GameVerifySettings Settings { get; }
+    public IGameVerifierInfo? Parent { get; }
 
     protected IGameDatabase Database { get; }
 
     protected IGameRepository Repository => _gameDatabase.GameRepository;
 
-    protected IReadOnlyList<IGameVerifier> VerifierChain { get; }
+    protected IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
 
-    public abstract void Verify(CancellationToken token);
+    protected GameVerifierBase(
+        IGameVerifierInfo? parent,
+        IGameDatabase gameDatabase,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider)
+    {
+        if (serviceProvider == null) 
+            throw new ArgumentNullException(nameof(serviceProvider));
+        FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+        Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _gameDatabase = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase)); 
+        Parent = parent;
+        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        Database = gameDatabase ?? throw new ArgumentNullException(nameof(gameDatabase));
+        VerifierChain = CreateVerifierChain();
+    }
 
     protected void AddError(VerificationError error)
     {
         if (_verifyErrors.TryAdd(error, 0))
         {
             Error?.Invoke(this, new VerificationErrorEventArgs(error));
-            if (Settings.AbortSettings.FailFast && error.Severity >= Settings.AbortSettings.MinimumAbortSeverity)
+
+            if (error.Severity >= Settings.ThrowsOnMinimumSeverity)
                 throw new GameVerificationException(error);
         }
     }
+
 
     protected void GuardedVerify(Action action, Predicate<Exception> exceptionFilter, Action<Exception> exceptionHandler)
     {
@@ -75,9 +77,9 @@ public abstract class GameVerifierBase : IGameVerifier
         }
     }
 
-    private IReadOnlyList<IGameVerifier> CreateVerifierChain()
+    private IReadOnlyList<IGameVerifierInfo> CreateVerifierChain()
     {
-        var verifierChain = new List<IGameVerifier> { this };
+        var verifierChain = new List<IGameVerifierInfo> { this };
 
         var parent = Parent;
         while (parent != null)

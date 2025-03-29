@@ -14,15 +14,17 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
 
     protected override ErrorData CreateError(EngineAssert assert)
     {
-        var assets = new List<string>
-        {
-            GetLocation(assert)
-        };
+        var context = new List<string>();
+
         if (assert.Value is not null)
-            assets.Add($"value='{assert.Value}'");
+            context.Add($"value='{assert.Value}'");
         if (assert.Context is not null)
-            assets.Add($"context='{assert.Context}'");
-        return new ErrorData(GetIdFromError(assert.Kind), assert.Message, assets, VerificationSeverity.Warning);
+            context.Add($"context='{assert.Context}'");
+
+        // The location is the only identifiable thing of an assert. 'Value' might be null, thus we cannot use it. 
+        var asset = GetLocation(assert);
+
+        return new ErrorData(GetIdFromError(assert.Kind), assert.Message, asset, VerificationSeverity.Warning);
     }
 
     private static string GetLocation(EngineAssert assert)

@@ -23,26 +23,32 @@ public static class VerificationReportersExtensions
         });
     }
 
-    public static IServiceCollection RegisterConsoleReporter(this IServiceCollection serviceCollection)
+    public static IServiceCollection RegisterConsoleReporter(this IServiceCollection serviceCollection, bool summaryOnly = false)
     {
-        return RegisterConsoleReporter(serviceCollection, new VerificationReportSettings
+        return RegisterConsoleReporter(serviceCollection, new VerifyReportSettings
         {
             MinimumReportSeverity = VerificationSeverity.Error
-        });
+        }, summaryOnly);
     }
 
-    public static IServiceCollection RegisterJsonReporter(this IServiceCollection serviceCollection, JsonReporterSettings settings)
+    public static IServiceCollection RegisterJsonReporter(
+        this IServiceCollection serviceCollection, 
+        JsonReporterSettings settings)
     {
         return serviceCollection.AddSingleton<IVerificationReporter>(sp => new JsonReporter(settings, sp));
     }
 
-    public static IServiceCollection RegisterTextFileReporter(this IServiceCollection serviceCollection, TextFileReporterSettings settings)
+    public static IServiceCollection RegisterTextFileReporter(
+        this IServiceCollection serviceCollection, 
+        TextFileReporterSettings settings)
     {
         return serviceCollection.AddSingleton<IVerificationReporter>(sp => new TextFileReporter(settings, sp));
     }
 
-    public static IServiceCollection RegisterConsoleReporter(this IServiceCollection serviceCollection, VerificationReportSettings settings)
+    public static IServiceCollection RegisterConsoleReporter(this IServiceCollection serviceCollection, 
+        VerifyReportSettings settings,
+        bool summaryOnly = false)
     {
-        return serviceCollection.AddSingleton<IVerificationReporter>(sp => new ConsoleReporter(settings, sp));
+        return serviceCollection.AddSingleton<IVerificationReporter>(sp => new ConsoleReporter(settings, summaryOnly, sp));
     }
 }

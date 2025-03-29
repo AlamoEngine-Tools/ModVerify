@@ -159,8 +159,8 @@ internal class CommandBarGameManager(
         if (shell is null)
         {
             ErrorReporter.Assert(
-                EngineAssert.FromNullOrEmpty(component, 
-                    $"Cannot link component '{component}' because shell component is null."));
+                EngineAssert.FromNullOrEmpty(
+                    [component.Name], $"Cannot link component '{component}' because shell component is null."));
             return false;
         }
 
@@ -181,7 +181,8 @@ internal class CommandBarGameManager(
         if (model is null)
         {
             ErrorReporter.Assert(
-                EngineAssert.FromNullOrEmpty(new ComponentLinkTuple(component, shell), 
+                EngineAssert.FromNullOrEmpty(
+                    [$"component='{component.Name}'", $"shell='{shell.Name}'"], 
                     $"Cannot link component '{componentName}' to shell '{shell.Name}' because model '{modelPath}' could not be loaded."));
             return false;
         }
@@ -189,7 +190,8 @@ internal class CommandBarGameManager(
         if (!model.IsModel)
         {
             ErrorReporter.Assert(
-                EngineAssert.FromNullOrEmpty(new ComponentLinkTuple(component, shell),
+                EngineAssert.FromNullOrEmpty(
+                    [$"component='{component.Name}'", $"shell='{shell.Name}'"],
                     $"Cannot link component '{componentName}' to shell '{shell.Name}' because the loaded file '{modelPath}' is not a model."));
             return false;
         }
@@ -216,7 +218,7 @@ internal class CommandBarGameManager(
             int size = 11;
             var font = fontManager.CreateFont(fontName, size, true, false, false, 1.0f);
             if (font is null)
-                ErrorReporter.Assert(EngineAssert.FromNullOrEmpty(this, $"Unable to create Default from name {fontName}"));
+                ErrorReporter.Assert(EngineAssert.FromNullOrEmpty([ToString()], $"Unable to create Default from name {fontName}"));
             DefaultFont = font;
         }
     }
@@ -238,7 +240,7 @@ internal class CommandBarGameManager(
         {
             var message = $"Failed to load MTD file '{mtdPath}': {e.Message}";
             Logger?.LogError(e, message);
-            ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, null, message));
+            ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, [], message));
         }
         _megaTextureExists = GameRepository.TextureRepository.FileExists($"{CommandBarConstants.MegaTextureBaseName}.tga");
     }
@@ -287,17 +289,6 @@ internal class CommandBarGameManager(
                 GameManager = ToString(),
                 Message = $"CommandBar file '{filePath}' is longer than {PGConstants.MaxCommandBarDatabaseFileName} characters."
             });
-        }
-    }
-
-    private sealed class ComponentLinkTuple(CommandBarBaseComponent component, CommandBarShellComponent shell)
-    {
-        public CommandBarBaseComponent Component { get; } = component;
-        public CommandBarShellComponent Shell { get; } = shell;
-
-        public override string ToString()
-        {
-            return $"component='{Component.Name}' - shell='{Shell.Name}'";
         }
     }
 }

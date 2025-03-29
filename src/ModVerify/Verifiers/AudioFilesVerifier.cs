@@ -23,7 +23,7 @@ using AnakinRaW.CommonUtilities.FileSystem;
 
 namespace AET.ModVerify.Verifiers;
 
-public class AudioFilesVerifier : GameVerifierBase
+public class AudioFilesVerifier : GameVerifier
 {
     private static readonly PathNormalizeOptions SampleNormalizerOptions = new()
     {

@@ -10,7 +10,7 @@ public sealed partial class ReferencedTexturesVerifier(
     GameVerifySettings settings,
     IServiceProvider serviceProvider)
     :
-        GameVerifierBase(null, gameDatabase, settings, serviceProvider)
+        GameVerifier(null, gameDatabase, settings, serviceProvider)
 {
     public const string MtdNotFound = "TEX00";
     public const string TexutreNotFound = "TEX01";

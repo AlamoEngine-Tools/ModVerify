@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "Interactive": {
+    "Interactive Verify": {
       "commandName": "Project",
-      "commandLineArgs": "-o verifyResults --minFailSeverity Information --baseline c:/test/focBaseline.json"
+      "commandLineArgs": "verify -o verifyResults --minFailSeverity Information --failFast --baseline focBaseline.json"
+    },
+    "Interactive Baseline": {
+      "commandName": "Project",
+      "commandLineArgs": "createBaseline -o focBaseline.json"
     },
 
     "FromModPath": {

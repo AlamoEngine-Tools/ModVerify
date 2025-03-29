@@ -17,7 +17,7 @@ public sealed class DuplicateNameFinder(
     IGameDatabase gameDatabase, 
     GameVerifySettings settings, 
     IServiceProvider serviceProvider)
-    : GameVerifierBase(null, gameDatabase, settings, serviceProvider)
+    : GameVerifier(null, gameDatabase, settings, serviceProvider)
 {
     public override string FriendlyName => "Duplicates";
 
@@ -27,12 +27,12 @@ public sealed class DuplicateNameFinder(
         CheckXmlObjectsForDuplicates("SFXEvent", Database.SfxGameManager);
 
         if (Database.GuiDialogManager.MtdFile is not null)
-            CheckXmlObjectsForDuplicates(Database.GuiDialogManager.MtdFile);
+            CheckMtdForDuplicates(Database.GuiDialogManager.MtdFile);
 
         if (Database.CommandBar.MegaTextureFile is not null)
         {
             if (!Database.CommandBar.MegaTextureFile.FilePath.Equals(Database.GuiDialogManager.MtdFile?.FileName))
-                CheckXmlObjectsForDuplicates(Database.CommandBar.MegaTextureFile);
+                CheckMtdForDuplicates(Database.CommandBar.MegaTextureFile);
         }
     } 
     
@@ -41,7 +41,8 @@ public sealed class DuplicateNameFinder(
         TSource source, 
         Func<TSource, IEnumerable<Crc32>> crcSelector, 
         Func<TSource, Crc32, ReadOnlyFrugalList<TEntry>> entrySelector, 
-        Func<ReadOnlyFrugalList<TEntry>, IEnumerable<string>> entryToStringSelector,
+        Func<TEntry, string> entryToStringSelector,
+        Func<ReadOnlyFrugalList<TEntry>, IEnumerable<string>> contextSelector,
         Func<ReadOnlyFrugalList<TEntry>, string, string> errorMessageCreator)
     {
         foreach (var crc32 in crcSelector(source))
@@ -49,25 +50,28 @@ public sealed class DuplicateNameFinder(
             var entries = entrySelector(source, crc32);
             if (entries.Count > 1)
             {
-                var entryNames = entryToStringSelector(entries);
+                var entryNames = entryToStringSelector(entries.First());
+                var context = contextSelector(entries);
                 AddError(VerificationError.Create(
                     VerifierChain,
                     VerifierErrorCodes.DuplicateFound,
                     errorMessageCreator(entries, sourceName),
                     VerificationSeverity.Error,
+                    context,
                     entryNames));
             }
         }
     }
 
-    private void CheckXmlObjectsForDuplicates(IMtdFile mtdFile)
+    private void CheckMtdForDuplicates(IMtdFile mtdFile)
     {
         CheckForDuplicateCrcEntries(
             mtdFile.FileName,
             mtdFile,
             mtd => mtd.Content.Select(x => x.Crc32),
-            (mtd, crc32) => mtd.Content.EntriesWithCrc(crc32),
-            list => list.Select(x => x.FileName),
+            (mtd, crc32) => mtd.Content.EntriesWithCrc(crc32), 
+            entry => entry.FileName,
+            entries => entries.Select(x => $"'{x.FileName}' (CRC: {x.Crc32})"),
             CreateDuplicateMtdErrorMessage);
     }
 
@@ -78,7 +82,8 @@ public sealed class DuplicateNameFinder(
             gameManager,
             manager => manager.EntryKeys,
             (manager, crc32) => manager.GetEntries(crc32), 
-            list => list.Select(x => x.Name),
+            entry => entry.Name,
+            entries => entries.Select(x => $"'{x.Name}' - {x.Location}"),
             CreateDuplicateXmlErrorMessage);
     }
 

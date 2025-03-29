@@ -42,7 +42,7 @@ internal class PGRender(
         bool throwsException = false)
     {
         if (path.IsEmpty)
-            errorReporter.Assert(EngineAssert.FromNullOrEmpty(null, "Model path is null or empty."));
+            errorReporter.Assert(EngineAssert.FromNullOrEmpty([], "Model path is null or empty."));
 
         using var aloStream = _modelRepository.TryOpenFile(path);
         if (aloStream is null)
@@ -62,7 +62,7 @@ internal class PGRender(
             var pathString = path.ToString();
             var errorMessage = $"Unable to load 3D asset '{pathString}': {e.Message}";
             _logger?.LogWarning(e, errorMessage);
-            errorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, pathString, null, errorMessage));
+            errorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, pathString, [], errorMessage));
             return null;
         }
     }
@@ -129,7 +129,7 @@ internal class PGRender(
                 {
                     var animFile = stringBuilder.AsSpan().ToString();
                     errorReporter.Assert(
-                        EngineAssert.Create(EngineAssertKind.ValueOutOfRange, animFile, null,
+                        EngineAssert.Create(EngineAssertKind.ValueOutOfRange, animFile, [],
                             $"Cannot get animation file '{animFile}' , because animation file path is too long."));
                     continue;
                 }

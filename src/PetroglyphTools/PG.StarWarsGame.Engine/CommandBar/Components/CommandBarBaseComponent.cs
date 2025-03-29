@@ -48,7 +48,7 @@ public abstract class CommandBarBaseComponent(CommandBarComponentData xmlData)
 
         // TODO: Verifier for any invalid type value
         errorReporter.Assert(
-            EngineAssert.Create(EngineAssertKind.InvalidValue, type, xmlData.Name,
+            EngineAssert.Create(EngineAssertKind.InvalidValue, type, [xmlData.Name],
             $"Invalid type value '{xmlData.Type}' for CommandbarComponent '{xmlData.Name}')"));
 
         return null;

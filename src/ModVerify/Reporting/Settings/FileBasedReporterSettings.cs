@@ -2,7 +2,7 @@
 
 namespace AET.ModVerify.Reporting.Settings;
 
-public record FileBasedReporterSettings : VerificationReportSettings
+public record FileBasedReporterSettings : VerifyReportSettings
 {
     private readonly string _outputDirectory = Environment.CurrentDirectory;
 
