@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AET.ModVerify;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Settings;
+using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
-using AET.ModVerifyTool.Options;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,9 +15,9 @@ using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Database;
 
-namespace AET.ModVerifyTool.Pipeline;
+namespace AET.ModVerify.Pipeline;
 
-internal sealed class VerifyGamePipeline : AnakinRaW.CommonUtilities.SimplePipeline.Pipeline
+public sealed class GameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipeline.Pipeline
 {
     private readonly List<GameVerifier> _verificationSteps = new();
     private readonly GameEngineType _targetType;
@@ -32,7 +31,7 @@ internal sealed class VerifyGamePipeline : AnakinRaW.CommonUtilities.SimplePipel
 
     public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
     
-    public VerifyGamePipeline(
+    public GameVerifyPipeline(
         GameEngineType targetType, 
         GameLocations gameLocations, 
         VerifyPipelineSettings pipelineSettings, 
@@ -104,7 +103,7 @@ internal sealed class VerifyGamePipeline : AnakinRaW.CommonUtilities.SimplePipel
 
     private IEnumerable<GameVerifier> CreateVerificationSteps(IGameDatabase database)
     {
-        return _pipelineSettings.VerifierFactory.GetVerifiers(database, _pipelineSettings.GameVerifySettings, ServiceProvider);
+        return _pipelineSettings.VerifiersProvider.GetVerifiers(database, _pipelineSettings.GameVerifySettings, ServiceProvider);
     }
 
     private void AddStep(GameVerifier verifier)

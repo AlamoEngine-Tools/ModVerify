@@ -10,7 +10,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
-using AET.ModVerifyTool.Pipeline;
+using AET.ModVerify.Pipeline;
 
 namespace AET.ModVerifyTool;
 
@@ -49,7 +49,7 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 
     private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyGameInstallationData installData)
     {
-        var verifyPipeline = new VerifyGamePipeline(
+        var verifyPipeline = new GameVerifyPipeline(
             installData.EngineType,
             installData.GameLocations,
             settings.VerifyPipelineSettings,

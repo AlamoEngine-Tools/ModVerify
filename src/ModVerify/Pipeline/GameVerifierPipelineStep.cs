@@ -4,9 +4,9 @@ using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
 
-namespace AET.ModVerifyTool.Pipeline;
+namespace AET.ModVerify.Pipeline;
 
-internal sealed class GameVerifierPipelineStep(GameVerifier verifier, IServiceProvider serviceProvider) : PipelineStep(serviceProvider)
+public sealed class GameVerifierPipelineStep(GameVerifier verifier, IServiceProvider serviceProvider) : PipelineStep(serviceProvider)
 {
     private readonly GameVerifier _gameVerifier = verifier ?? throw new ArgumentNullException(nameof(verifier));
 
