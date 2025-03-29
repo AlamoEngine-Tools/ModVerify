@@ -33,7 +33,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.0.6" />
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.1.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
