@@ -21,7 +21,6 @@ public abstract class GameVerifierBase : IGameVerifierInfo
     protected readonly IServiceProvider Services;
     protected readonly GameVerifySettings Settings;
 
-
     public IReadOnlyCollection<VerificationError> VerifyErrors => [.. _verifyErrors.Keys];
 
     public virtual string FriendlyName => GetType().Name;
@@ -63,7 +62,6 @@ public abstract class GameVerifierBase : IGameVerifierInfo
                 throw new GameVerificationException(error);
         }
     }
-
 
     protected void GuardedVerify(Action action, Predicate<Exception> exceptionFilter, Action<Exception> exceptionHandler)
     {

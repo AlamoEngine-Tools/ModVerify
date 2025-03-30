@@ -84,7 +84,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
         return xmlErrorErrorKind switch
         {
             XmlParseErrorKind.EmptyRoot => VerifierErrorCodes.EmptyXmlRoot,
-            XmlParseErrorKind.MissingFile => VerifierErrorCodes.MissingXmlFile,
+            XmlParseErrorKind.MissingFile => VerifierErrorCodes.FileNotFound,
             XmlParseErrorKind.InvalidValue => VerifierErrorCodes.InvalidXmlValue,
             XmlParseErrorKind.MalformedValue => VerifierErrorCodes.MalformedXmlValue,
             XmlParseErrorKind.MissingAttribute => VerifierErrorCodes.MissingXmlAttribute,

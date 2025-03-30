@@ -10,6 +10,9 @@ internal abstract class BaseModVerifyOptions
     [Option('v', "verbose", Required = false, HelpText = "Sets output to verbose messages.")]
     public bool Verbose { get; set; }
 
+    [Option("offline", Default = false, HelpText = "When set, the application will work in offline mode and does not need an Internet connection.")]
+    public bool OfflineMode { get; set; }
+
     [Option("minSeverity", Required = false, Default = VerificationSeverity.Information,
         HelpText = "When set, only findings with at least the specified severity value are processed.")]
     public VerificationSeverity MinimumSeverity { get; set; }

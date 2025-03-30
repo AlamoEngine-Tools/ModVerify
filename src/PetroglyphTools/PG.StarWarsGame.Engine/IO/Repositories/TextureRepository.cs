@@ -3,7 +3,8 @@ using System;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
-internal class TextureRepository(GameRepository baseRepository, IServiceProvider serviceProvider) : MultiPassRepository(baseRepository, serviceProvider)
+internal class TextureRepository(GameRepository baseRepository, IServiceProvider serviceProvider) : 
+    MultiPassRepository(baseRepository, serviceProvider)
 {
     private static readonly string DdsExtension = ".dds";
     private static readonly string TexturePath = "DATA\\ART\\TEXTURES\\";
@@ -15,7 +16,7 @@ internal class TextureRepository(GameRepository baseRepository, IServiceProvider
         bool megFileOnly)
     {
         if (filePath.Length > PGConstants.MaxTextureFileName)
-            return default;
+            return new FileFoundInfo { PathTooLong = true };
 
         reusableStringBuilder.Append(filePath);
 
@@ -38,7 +39,6 @@ internal class TextureRepository(GameRepository baseRepository, IServiceProvider
         if (fileInfo.FileFound)
             return fileInfo;
 
-
         // Only PG knows why they only search for backslash and not also forward slash,
         // when in fact in other methods, they handle both. 
         var separatorIndex = multiPassStringBuilder.AsSpan().LastIndexOf('\\');
@@ -46,6 +46,9 @@ internal class TextureRepository(GameRepository baseRepository, IServiceProvider
             multiPassStringBuilder.Remove(0 , separatorIndex + 1);
 
         multiPassStringBuilder.Insert(0, TexturePath);
+
+        if (multiPassStringBuilder.AsSpan().Length > PGConstants.MaxTextureFileName)
+            return new FileFoundInfo { PathTooLong = true };
 
         return BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref pathStringBuilder);
     }

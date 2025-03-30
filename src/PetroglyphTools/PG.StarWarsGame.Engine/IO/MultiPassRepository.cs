@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,13 +33,19 @@ internal abstract class MultiPassRepository(GameRepository baseRepository, IServ
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
+        return FileExists(filePath, megFileOnly, out _);
+    }
+
+    public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly, out bool pathTooLong)
+    {
         var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
-        var result = fileFound.FileFound;
+        var result = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
+        var fileFound = result.FileFound;
+        pathTooLong = result.PathTooLong;
         multiPassSb.Dispose();
         destinationSb.Dispose();
-        return result;
+        return fileFound;
     }
 
     private protected abstract FileFoundInfo MultiPassAction(

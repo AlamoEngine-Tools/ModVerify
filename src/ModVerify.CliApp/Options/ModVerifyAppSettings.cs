@@ -21,4 +21,6 @@ internal sealed class ModVerifyAppSettings
     public bool CreateNewBaseline => !string.IsNullOrEmpty(NewBaselinePath);
 
     public string? NewBaselinePath { get; init; }
+
+    public bool Offline { get; init; }
 }
