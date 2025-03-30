@@ -55,7 +55,8 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
             GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
             GlobalReportSettings = BuilderGlobalReportSettings(verifyOptions),
-            ReportOutput = output
+            ReportOutput = output,
+            Offline = verifyOptions.OfflineMode
         };
 
         VerificationSeverity? GetVerifierMinimumThrowSeverity()
@@ -98,6 +99,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             GlobalReportSettings = BuilderGlobalReportSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
             ReportOutput = null, 
+            Offline = baselineVerb.OfflineMode
         };
     }
 

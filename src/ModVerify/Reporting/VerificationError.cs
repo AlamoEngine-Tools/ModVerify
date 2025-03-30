@@ -28,7 +28,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
     public VerificationError(
         string id, 
         string message, 
-        IReadOnlyList<string> verifiers, 
+        IReadOnlyList<string> verifiers,
         IEnumerable<string> contextEntries, 
         string asset,
         VerificationSeverity severity)
@@ -76,7 +76,13 @@ public sealed class VerificationError : IEquatable<VerificationError>
         VerificationSeverity severity,
         string asset)
     {
-        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), [], asset, severity);
+        return new VerificationError(
+            id,
+            message, 
+            verifiers.Select(x => x.Name).ToList(),
+            [], 
+            asset, 
+            severity);
     }
 
     public bool Equals(VerificationError? other)

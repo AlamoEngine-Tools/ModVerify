@@ -10,6 +10,7 @@ public interface IRepository
 
     bool FileExists(string filePath, bool megFileOnly = false);
     bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false);
+    bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly, out bool pathTooLong);
 
     Stream? TryOpenFile(string filePath, bool megFileOnly = false);
 

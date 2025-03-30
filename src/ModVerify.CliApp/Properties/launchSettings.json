@@ -2,11 +2,11 @@
   "profiles": {
     "Interactive Verify": {
       "commandName": "Project",
-      "commandLineArgs": "verify -o verifyResults --minFailSeverity Information --failFast --baseline focBaseline.json"
+      "commandLineArgs": "verify -o verifyResults --minFailSeverity Information --baseline focBaseline.json --offline"
     },
     "Interactive Baseline": {
       "commandName": "Project",
-      "commandLineArgs": "createBaseline -o focBaseline.json"
+      "commandLineArgs": "createBaseline -o focBaseline.json --offline"
     },
 
     "FromModPath": {

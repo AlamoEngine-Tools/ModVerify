@@ -1,20 +1,28 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
+using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers;
 
-internal sealed class AlreadyVerifiedCache
+internal sealed class AlreadyVerifiedCache(IServiceProvider serviceProvider) : IAlreadyVerifiedCache
 {
-    internal static readonly AlreadyVerifiedCache Instance = new();
+    private readonly ICrc32HashingService _crc32Hashing = serviceProvider.GetRequiredService<ICrc32HashingService>();
+    private readonly ConcurrentDictionary<Crc32, byte> _cachedChecksums = new();
 
-    private readonly ConcurrentDictionary<string, byte> _cachedModels = new(StringComparer.OrdinalIgnoreCase);
-
-    private AlreadyVerifiedCache()
+    public bool TryAddEntry(string entry)
     {
+        return TryAddEntry(entry.AsSpan());
     }
 
-    public bool TryAddModel(string fileName)
+    public bool TryAddEntry(ReadOnlySpan<char> entry)
     {
-        return _cachedModels.TryAdd(fileName, 0);
+        return TryAddEntry(_crc32Hashing.GetCrc32Upper(entry, PGConstants.DefaultPGEncoding));
+    }
+
+    public bool TryAddEntry(Crc32 checksum)
+    {
+        return _cachedChecksums.TryAdd(checksum, 0);
     }
 }

@@ -8,6 +8,8 @@ internal readonly ref struct FileFoundInfo
 {
     public bool FileFound => FilePath != ReadOnlySpan<char>.Empty || InMeg;
 
+    public bool PathTooLong { get; init; }
+
     public ReadOnlySpan<char> FilePath { get; }
 
     public MegDataEntryReference? MegDataEntryReference { get; }

@@ -26,8 +26,10 @@ using Serilog.Events;
 using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
+using System.Dynamic;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
+using AET.ModVerify;
 using AET.ModVerify.Pipeline;
 using AET.ModVerifyTool.Options.CommandLine;
 using Testably.Abstractions;
@@ -130,11 +132,20 @@ internal class Program
         PetroglyphCommons.ContributeServices(serviceCollection);
 
         PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
+        serviceCollection.RegisterVerifierCache();
 
         SetupVerifyReporting(serviceCollection, settings);
 
-        serviceCollection.AddSingleton<IModNameResolver>(sp => new OnlineModNameResolver(sp));
-        serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OnlineModGameTypeResolver(sp));
+        if (settings.Offline)
+        {
+            serviceCollection.AddSingleton<IModNameResolver>(sp => new OfflineModNameResolver(sp));
+            serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
+        }
+        else
+        {
+            serviceCollection.AddSingleton<IModNameResolver>(sp => new OnlineModNameResolver(sp));
+            serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OnlineModGameTypeResolver(sp));
+        }
         
         return serviceCollection.BuildServiceProvider();
     }

@@ -1,24 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
+using AET.ModVerify.Settings;
+using AET.ModVerify.Verifiers.Commons;
+using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Files.MTD.Binary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.GuiDialogs;
 
-sealed partial class ReferencedTexturesVerifier
+sealed class GuiDialogsVerifier : GameVerifier
 {
     internal const string DefaultComponentIdentifier = "<<DEFAULT>>";
 
     private static readonly GuiComponentType[] GuiComponentTypes =
         Enum.GetValues(typeof(GuiComponentType)).OfType<GuiComponentType>().ToArray();
 
-    private void VerifyGuiTextures(ISet<string> visitedTextures)
-    { 
-        VerifyMegaTexturesExist();
+    private readonly IAlreadyVerifiedCache? _cache;
+    private readonly TextureVeifier _textureVerifier;
 
+    public GuiDialogsVerifier(IGameDatabase gameDatabase,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider) : base(null, gameDatabase, settings, serviceProvider)
+    {
+        _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
+        _textureVerifier = new TextureVeifier(this, gameDatabase, settings, serviceProvider);
+    }
+
+    public override void Verify(CancellationToken token)
+    {
+        try
+        {
+            _textureVerifier.Error += OnTextureError;
+            VerifyMegaTexturesExist(token);
+            VerifyGuiTextures();
+        }
+        finally
+        {
+            _textureVerifier.Error -= OnTextureError;
+        }
+    }
+
+    private void VerifyGuiTextures()
+    { 
         var components = new List<string>
         {
             DefaultComponentIdentifier
@@ -26,30 +54,24 @@ sealed partial class ReferencedTexturesVerifier
         components.AddRange(Database.GuiDialogManager.Components);
 
         foreach (var component in components)
-            VerifyGuiComponentTexturesExist(component, visitedTextures);
+            VerifyGuiComponentTexturesExist(component);
 
     }
 
-    private void VerifyMegaTexturesExist()
+    private void VerifyMegaTexturesExist(CancellationToken token)
     {
         var megaTextureName = Database.GuiDialogManager.GuiDialogsXml?.TextureData.MegaTexture;
         if (Database.GuiDialogManager.MtdFile is null)
         {
             var mtdFileName = megaTextureName ?? "<<MTD_NOT_SPECIFIED>>";
-            VerificationError.Create(VerifierChain, MtdNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
+            VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
                 VerificationSeverity.Critical, mtdFileName);
         }
 
-        
         if (megaTextureName is not null)
         {
             var megaTextureFileName = $"{megaTextureName}.tga";
-
-            if (!Repository.TextureRepository.FileExists(megaTextureFileName))
-            {
-                VerificationError.Create(VerifierChain, TexutreNotFound, $"Could not find texture '{megaTextureFileName}' could not be found",
-                    VerificationSeverity.Error, megaTextureFileName);
-            }
+            _textureVerifier.Verify(megaTextureFileName, ["GUIDIALOGS.XML"], token);
         }
 
 
@@ -57,16 +79,11 @@ sealed partial class ReferencedTexturesVerifier
         if (compressedMegaTextureName is not null)
         {
             var compressedMegaTextureFieName = $"{compressedMegaTextureName}.dds";
-
-            if (!Repository.TextureRepository.FileExists(compressedMegaTextureFieName))
-            {
-                VerificationError.Create(VerifierChain, TexutreNotFound, $"Could not find texture '{compressedMegaTextureFieName}' could not be found",
-                    VerificationSeverity.Error, compressedMegaTextureFieName);
-            }
+            _textureVerifier.Verify(compressedMegaTextureFieName, ["GUIDIALOGS.XML"], token);
         }
     }
 
-    private void VerifyGuiComponentTexturesExist(string component, ISet<string> visitedTextures)
+    private void VerifyGuiComponentTexturesExist(string component)
     {
         var middleButtonInRepoMode = false;
 
@@ -82,7 +99,7 @@ sealed partial class ReferencedTexturesVerifier
                 if (!entriesForComponent.TryGetValue(componentType, out var texture))
                     continue;
 
-                if (!visitedTextures.Add(texture.Texture))
+                if (_cache?.TryAddEntry(texture.Texture) == false)
                 {
                     // If we are in a special case we don't want to skip
                     if (!middleButtonInRepoMode &&
@@ -102,7 +119,7 @@ sealed partial class ReferencedTexturesVerifier
 
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
-                        AddError(VerificationError.Create(VerifierChain, FileNameTooLong,
+                        AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FilePathTooLong,
                             $"The filename is too long. Max length is {MtdFileConstants.MaxFileNameSize} characters.",
                             VerificationSeverity.Error, texture.Texture));
                     }
@@ -113,7 +130,7 @@ sealed partial class ReferencedTexturesVerifier
                         if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
                             message += " The file name is too long.";
 
-                        AddError(VerificationError.Create(VerifierChain, TexutreNotFound,
+                        AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound,
                             message, VerificationSeverity.Error,
                             [component, origin.ToString()], texture.Texture));
                     }
@@ -139,5 +156,10 @@ sealed partial class ReferencedTexturesVerifier
             return Database.GuiDialogManager.DefaultTextureEntries;
         }
         return Database.GuiDialogManager.GetTextureEntries(component, out defined);
+    }
+
+    private void OnTextureError(object sender, VerificationErrorEventArgs e)
+    {
+        AddError(e.Error);
     }
 }

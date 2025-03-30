@@ -22,11 +22,15 @@ public sealed class ReferencedModelsVerifier(
             .SelectMany(x => x.Models)
             .Concat(FocHardcodedConstants.HardcodedModels);
 
-        var inner = new SharedReferencedModelsVerifier(this, models, Database, Settings, Services);
+
+        var inner = new SingleModelVerifier(this, Database, Settings, Services);
         try
         {
             inner.Error += OnModelError;
-            inner.Verify(token);
+            foreach (var model in models)
+            {
+                inner.Verify(model, [], token);
+            }
         }
         finally
         {

@@ -34,9 +34,15 @@ internal partial class GameRepository
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
+        return FileExists(filePath, megFileOnly, out _);
+    }
+
+    public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly, out bool pathTooLong)
+    {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var fileFound = FindFile(filePath, ref sb, megFileOnly);
         var fileExists = fileFound.FileFound;
+        pathTooLong = fileFound.PathTooLong;
         sb.Dispose();
         return fileExists;
     }

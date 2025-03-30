@@ -158,7 +158,7 @@ internal partial class GuiDialogGameManager(GameRepository repository, GameError
         if (textureInfo.ComponentType == GuiComponentType.FrameBackground)
         {
             textureOrigin = GuiTextureOrigin.Repository;
-            return GameRepository.FileExists(textureInfo.Texture);
+            return GameRepository.TextureRepository.FileExists(textureInfo.Texture);
         }
 
         textureOrigin = default;
