@@ -136,7 +136,7 @@ partial class CommandBarVerifier
                 VerificationSeverity.Error, 
                 "GameCommandBar"));
 
-        if (shellGroups.Count >= 1) 
+        if (shellGroups.Count > 1) 
             AddError(VerificationError.Create(VerifierChain, 
                 CommandBarManyShellsGroup, 
                 $"Found more than one Shells CommandBarGroup. Mind that group names are case-sensitive. Correct name is '{CommandBarConstants.ShellGroupName}'",
