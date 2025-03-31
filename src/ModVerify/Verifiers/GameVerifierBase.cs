@@ -7,12 +7,15 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using AET.ModVerify.Pipeline;
 
 namespace AET.ModVerify.Verifiers;
 
 public abstract class GameVerifierBase : IGameVerifierInfo
 {
     public event EventHandler<VerificationErrorEventArgs>? Error;
+
+    public event EventHandler<VerifyProgressEventArgs>? Progress; 
 
     private readonly IGameDatabase _gameDatabase;
     private readonly ConcurrentDictionary<VerificationError, byte> _verifyErrors = new();
@@ -73,6 +76,11 @@ public abstract class GameVerifierBase : IGameVerifierInfo
         {
             exceptionHandler(e);
         }
+    }
+
+    protected void OnProgress(string message, double progress)
+    {
+        Progress?.Invoke(this, new VerifyProgressEventArgs(message, progress));
     }
 
     private IReadOnlyList<IGameVerifierInfo> CreateVerifierChain()
