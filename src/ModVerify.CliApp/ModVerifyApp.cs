@@ -11,6 +11,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using AET.ModVerify.Pipeline;
+using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 
 namespace AET.ModVerifyTool;
 
@@ -49,11 +50,12 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 
     private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyGameInstallationData installData)
     {
-        var verifyPipeline = new GameVerifyPipeline(
+        using var verifyPipeline = new GameVerifyPipeline(
             installData.EngineType,
             installData.GameLocations,
             settings.VerifyPipelineSettings,
             settings.GlobalReportSettings,
+            new VerifyConsoleProgressReporter(),
             services);
 
         try
@@ -103,5 +105,17 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
         await baseline.ToJsonAsync(fs);
+    }
+}
+
+public class VerifyConsoleProgressReporter : IVerifyProgressReporter
+{
+    public void Report(string progressText, double progress, ProgressType type, VerifyProgressInfo detailedProgress)
+    {
+        if (type != VerifyProgress.ProgressType)
+            return;
+
+
+        Console.WriteLine(progressText);
     }
 }

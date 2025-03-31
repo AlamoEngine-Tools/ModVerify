@@ -1,25 +1,125 @@
-﻿using System;
-using System.Threading;
-using AET.ModVerify.Verifiers;
+﻿using AET.ModVerify.Verifiers;
+using AnakinRaW.CommonUtilities.SimplePipeline;
+using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace AET.ModVerify.Pipeline;
 
-public sealed class GameVerifierPipelineStep(GameVerifier verifier, IServiceProvider serviceProvider) : PipelineStep(serviceProvider)
+public sealed class GameVerifierPipelineStep(
+    GameVerifier verifier,
+    IStepProgressReporter progressReporter,
+    IServiceProvider serviceProvider) 
+    : PipelineStep(serviceProvider), IProgressStep
 {
-    private readonly GameVerifier _gameVerifier = verifier ?? throw new ArgumentNullException(nameof(verifier));
+    internal GameVerifier GameVerifier { get; } = verifier ?? throw new ArgumentNullException(nameof(verifier));
+
+    public ProgressType Type => VerifyProgress.ProgressType;
+
+    public IStepProgressReporter ProgressReporter { get; } = progressReporter ?? throw new ArgumentNullException(nameof(progressReporter));
+
+    public long Size => 1;
 
     protected override void RunCore(CancellationToken token)
     {
-        Logger?.LogDebug($"Running verifier '{_gameVerifier.FriendlyName}'...");
+        Logger?.LogDebug($"Running verifier '{GameVerifier.FriendlyName}'...");
         try
         {
-            _gameVerifier.Verify(token);
+            ProgressReporter.Report(this, 0.0);
+            GameVerifier.Progress += OnVerifyProgress;
+            GameVerifier.Verify(token);
         }
         finally
         {
-            Logger?.LogDebug($"Finished verifier '{_gameVerifier.FriendlyName}'");
+            ProgressReporter.Report(this, 1.0);
+            GameVerifier.Progress += OnVerifyProgress;
+            Logger?.LogDebug($"Finished verifier '{GameVerifier.FriendlyName}'");
         }
+    }
+
+    private void OnVerifyProgress(object _, VerifyProgressEventArgs e)
+    {
+        ProgressReporter.Report(this, e.Progress);
+    }
+}
+
+public sealed class VerifyProgressEventArgs : ProgressEventArgs<VerifyProgressInfo>
+{
+    public VerifyProgressEventArgs(string progressText, double progress) 
+        : base(progressText, progress, VerifyProgress.ProgressType)
+    {
+    }
+}
+
+public static class VerifyProgress
+{
+    public static readonly ProgressType ProgressType = new()
+    {
+        Id = "Verify",
+        DisplayName = "Verify"
+    };
+}
+
+
+
+public interface IVerifyProgressReporter : IProgressReporter<VerifyProgressInfo>
+{
+
+}
+
+internal class VerifyProgressReporter : IVerifyProgressReporter
+{
+    public void Report(string progressText, double progress, ProgressType type, VerifyProgressInfo detailedProgress)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+
+internal class AggregatedVerifyProgressReporter(
+    IVerifyProgressReporter progressReporter,
+    IEnumerable<GameVerifierPipelineStep> steps) 
+    : AggregatedProgressReporter<GameVerifierPipelineStep, VerifyProgressInfo>(progressReporter, steps)
+{
+    protected override ProgressType Type => VerifyProgress.ProgressType;
+
+    protected override string GetProgressText(GameVerifierPipelineStep step)
+    {
+        return step.GameVerifier.FriendlyName;
+    }
+
+    protected override double CalculateAggregatedProgress(GameVerifierPipelineStep task, double progress, out VerifyProgressInfo progressInfo)
+    {
+        progressInfo = default;
+        return 0;
+    }
+}
+
+public struct VerifyProgressInfo
+{
+    public int TotalVerifiers { get; internal set; }
+}
+
+
+internal class LateInitDelegatingProgressReporter : IStepProgressReporter, IDisposable
+{
+    private IStepProgressReporter? _innerReporter;
+
+    public void Report(IProgressStep step, double progress)
+    {
+        _innerReporter?.Report(step, progress);
+    }
+
+    public void Initialize(IStepProgressReporter progressReporter)
+    {
+        _innerReporter = progressReporter;
+    }
+
+    public void Dispose()
+    {
+        _innerReporter = null;
     }
 }
