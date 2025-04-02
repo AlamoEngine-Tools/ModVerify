@@ -20,7 +20,7 @@ public abstract class CommandBarBaseComponent(CommandBarComponentData xmlData)
     public CommandBarComponentGroup? Group { get; internal set; }
     public CommandBarShellComponent? ParentShell { get; internal set; }
 
-    public static CommandBarBaseComponent? Create(CommandBarComponentData xmlData, IGameErrorReporter errorReporter)
+    public static CommandBarBaseComponent? Create(CommandBarComponentData xmlData, IGameEngineErrorReporter errorReporter)
     {
         var type = GetTypeFromString(xmlData.Type.AsSpan());
         switch (type)

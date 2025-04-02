@@ -2,14 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
-internal class GameObjectTypeGameManager(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal class GameObjectTypeGameManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     : GameManagerBase<GameObject>(repository, errorReporter, serviceProvider), IGameObjectTypeGameManager
 {
     protected override async Task InitializeCoreAsync(CancellationToken token)

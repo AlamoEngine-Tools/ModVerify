@@ -45,6 +45,8 @@ internal class Program
     private const string GameInfrastructureNamespace = "PG.StarWarsGame.Infrastructure";
     private static readonly string GameVerifierStepNamespace = typeof(GameVerifierPipelineStep).FullName!;
 
+    private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
+
     private static async Task<int> Main(string[] args) 
     {
         PrintHeader();
@@ -194,29 +196,39 @@ internal class Program
         loggingBuilder.AddSerilog(fileLogger);
 
         var cLogger = new LoggerConfiguration()
-            .WriteTo.Async(c =>
-            {
-                c.Console(
-                    logLevel,
-                    theme: AnsiConsoleTheme.Code,
-                    outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}");
-            })
-            .Filter.ByExcluding(x =>
+
+            .WriteTo.Console(
+                logLevel, 
+                theme: AnsiConsoleTheme.Code, 
+                outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .Filter.ByIncludingOnly(x =>
             {
                 if (!x.Properties.TryGetValue("SourceContext", out var value))
                     return true;
+                
                 var source = value.ToString().AsSpan().Trim('\"');
 
-                if (source.StartsWith(EngineParserNamespace.AsSpan()))
+                if (source.StartsWith(ModVerifyRootNameSpace.AsSpan()))
                     return true;
-                if (source.StartsWith(ParserNamespace.AsSpan()))
-                    return true;
-                if (source.StartsWith(GameInfrastructureNamespace.AsSpan()))
-                    return true;
-                if (source.StartsWith(GameVerifierStepNamespace.AsSpan()))
-                    return true;
+
                 return false;
             })
+            //.Filter.ByExcluding(x =>
+            //{
+            //    if (!x.Properties.TryGetValue("SourceContext", out var value))
+            //        return true;
+            //    var source = value.ToString().AsSpan().Trim('\"');
+
+            //    if (source.StartsWith(EngineParserNamespace.AsSpan()))
+            //        return true;
+            //    if (source.StartsWith(ParserNamespace.AsSpan()))
+            //        return true;
+            //    if (source.StartsWith(GameInfrastructureNamespace.AsSpan()))
+            //        return true;
+            //    if (source.StartsWith(GameVerifierStepNamespace.AsSpan()))
+            //        return true;
+            //    return false;
+            //})
             .CreateLogger();
         loggingBuilder.AddSerilog(cLogger);
     }
@@ -259,11 +271,11 @@ internal class Program
     private static void PrintApplicationFailure()
     {
         Console.WriteLine();
-        Console.WriteLine("**************");
+        Console.WriteLine("********************");
         Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.WriteLine(" App Failure! ");
+        Console.WriteLine(" ModVerify Failure! ");
         Console.ResetColor();
-        Console.WriteLine("**************");
+        Console.WriteLine("********************");
         Console.WriteLine();
         Console.WriteLine("The application encountered an unexpected error and will terminate now!");
         Console.WriteLine();

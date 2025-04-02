@@ -5,7 +5,7 @@ using PG.StarWarsGame.Engine.ErrorReporting;
 
 namespace AET.ModVerify.Reporting;
 
-public sealed class ConcurrentGameGameErrorReporter : GameErrorReporter, IDatabaseErrorCollection
+public sealed class ConcurrentGameEngineErrorReporter : GameEngineErrorReporter, IGameEngineErrorCollection
 {
     private readonly ConcurrentBag<XmlError> _xmlErrors = new();
     private readonly ConcurrentBag<InitializationError> _initializationErrors = new();

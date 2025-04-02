@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Localization;
@@ -12,7 +11,7 @@ using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
-internal class SfxEventGameManager(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal class SfxEventGameManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     : GameManagerBase<SfxEvent>(repository, errorReporter, serviceProvider), ISfxEventGameManager
 {
     public IEnumerable<LanguageType> InstalledLanguages { get; private set; } = [];

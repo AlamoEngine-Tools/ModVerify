@@ -6,7 +6,7 @@ using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.MTD.Data;
 using PG.StarWarsGame.Files.MTD.Files;
@@ -14,25 +14,25 @@ using PG.StarWarsGame.Files.MTD.Files;
 namespace AET.ModVerify.Verifiers;
 
 public sealed class DuplicateNameFinder(
-    IGameDatabase gameDatabase, 
+    IStarWarsGameEngine gameEngine, 
     GameVerifySettings settings, 
     IServiceProvider serviceProvider)
-    : GameVerifier(null, gameDatabase, settings, serviceProvider)
+    : GameVerifier(null, gameEngine, settings, serviceProvider)
 {
     public override string FriendlyName => "Duplicates";
 
     public override void Verify(CancellationToken token)
     {
-        CheckXmlObjectsForDuplicates("GameObject", Database.GameObjectTypeManager);
-        CheckXmlObjectsForDuplicates("SFXEvent", Database.SfxGameManager);
+        CheckXmlObjectsForDuplicates("GameObject", GameEngine.GameObjectTypeManager);
+        CheckXmlObjectsForDuplicates("SFXEvent", GameEngine.SfxGameManager);
 
-        if (Database.GuiDialogManager.MtdFile is not null)
-            CheckMtdForDuplicates(Database.GuiDialogManager.MtdFile);
+        if (GameEngine.GuiDialogManager.MtdFile is not null)
+            CheckMtdForDuplicates(GameEngine.GuiDialogManager.MtdFile);
 
-        if (Database.CommandBar.MegaTextureFile is not null)
+        if (GameEngine.CommandBar.MegaTextureFile is not null)
         {
-            if (!Database.CommandBar.MegaTextureFile.FilePath.Equals(Database.GuiDialogManager.MtdFile?.FileName))
-                CheckMtdForDuplicates(Database.CommandBar.MegaTextureFile);
+            if (!GameEngine.CommandBar.MegaTextureFile.FilePath.Equals(GameEngine.GuiDialogManager.MtdFile?.FileName))
+                CheckMtdForDuplicates(GameEngine.CommandBar.MegaTextureFile);
         }
     } 
     

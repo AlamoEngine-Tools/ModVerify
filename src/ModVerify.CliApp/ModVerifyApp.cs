@@ -9,9 +9,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Pipeline;
-using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
+using AET.ModVerifyTool.Reporting;
+using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerifyTool;
 
@@ -48,20 +50,68 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
         return 0;
     }
 
-    private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyGameInstallationData installData)
+    private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyInstallationInformation installInformation)
     {
+        var gameEngineService = services.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
+        var engineErrorReporter = new ConcurrentGameEngineErrorReporter();
+
+        IStarWarsGameEngine gameEngine;
+
+        try
+        {
+            var initProgress = new Progress<string>();
+            var initProgressReporter = new EngineInitializeProgressReporter(initProgress);
+
+            try
+            {
+                _logger?.LogInformation($"Creating Game Engine '{installInformation.EngineType}'");
+                gameEngine = await gameEngineService.InitializeAsync(
+                    installInformation.EngineType,
+                    installInformation.GameLocations,
+                    engineErrorReporter,
+                    initProgress,
+                    false,
+                    CancellationToken.None).ConfigureAwait(false);
+                _logger?.LogInformation($"Game Engine created");
+            }
+            finally
+            {
+                initProgressReporter.Dispose();
+            }
+        }
+        catch (Exception e)
+        {
+            _logger?.LogError(e, $"Creating game engine failed: {e.Message}");
+            throw;
+        }
+        
+        var progressReporter = new VerifyConsoleProgressReporter(installInformation.Name);
+
         using var verifyPipeline = new GameVerifyPipeline(
-            installData.EngineType,
-            installData.GameLocations,
+            gameEngine,
+            engineErrorReporter,
             settings.VerifyPipelineSettings,
             settings.GlobalReportSettings,
-            new VerifyConsoleProgressReporter(),
+            progressReporter,
             services);
 
         try
         {
-            _logger?.LogInformation($"Verifying '{installData.Name}'...");
-            await verifyPipeline.RunAsync().ConfigureAwait(false);
+            try
+            {
+                _logger?.LogInformation($"Verifying '{installInformation.Name}'...");
+                await verifyPipeline.RunAsync().ConfigureAwait(false);
+                progressReporter.Report(string.Empty, 1.0);
+            }
+            catch
+            {
+                progressReporter.ReportError("Verification failed", null);
+                throw;
+            }
+            finally
+            {
+                progressReporter.Dispose();
+            }
         }
         catch (OperationCanceledException)
         {
@@ -72,11 +122,8 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
             _logger?.LogError(e, $"Verification failed: {e.Message}");
             throw;
         }
-        finally
-        {
-            _logger?.LogInformation("Finished verification");
-        }
 
+        _logger?.LogInformation("Finished verification");
         return verifyPipeline.FilteredErrors;
     }
 
@@ -91,8 +138,7 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
         if (errors.Any(x => x.Severity >= settings.AppThrowsOnMinimumSeverity))
             throw new GameVerificationException(errors);
     }
-
-
+    
     private async Task WriteBaseline(IEnumerable<VerificationError> errors, string baselineFile)
     {
         var baseline = new VerificationBaseline(settings.GlobalReportSettings.MinimumReportSeverity, errors);
@@ -105,17 +151,5 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
         await baseline.ToJsonAsync(fs);
-    }
-}
-
-public class VerifyConsoleProgressReporter : IVerifyProgressReporter
-{
-    public void Report(string progressText, double progress, ProgressType type, VerifyProgressInfo detailedProgress)
-    {
-        if (type != VerifyProgress.ProgressType)
-            return;
-
-
-        Console.WriteLine(progressText);
     }
 }

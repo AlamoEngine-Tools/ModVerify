@@ -19,7 +19,7 @@ namespace PG.StarWarsGame.Engine.Rendering;
 
 internal class PGRender(
     GameRepository gameRepository,
-    GameErrorReporterWrapper errorReporter, 
+    GameEngineErrorReporterWrapper errorReporter, 
     IServiceProvider serviceProvider) : IPGRender
 {
     private readonly IAloFileService _aloFileService = serviceProvider.GetRequiredService<IAloFileService>();

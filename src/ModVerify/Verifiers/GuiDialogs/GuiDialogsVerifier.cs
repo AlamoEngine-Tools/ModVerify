@@ -3,7 +3,6 @@ using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.GuiDialog;
 using PG.StarWarsGame.Files.MTD.Binary;
 using System;
@@ -23,12 +22,12 @@ sealed class GuiDialogsVerifier : GameVerifier
     private readonly IAlreadyVerifiedCache? _cache;
     private readonly TextureVeifier _textureVerifier;
 
-    public GuiDialogsVerifier(IGameDatabase gameDatabase,
+    public GuiDialogsVerifier(IStarWarsGameEngine gameEngine,
         GameVerifySettings settings,
-        IServiceProvider serviceProvider) : base(null, gameDatabase, settings, serviceProvider)
+        IServiceProvider serviceProvider) : base(null, gameEngine, settings, serviceProvider)
     {
         _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
-        _textureVerifier = new TextureVeifier(this, gameDatabase, settings, serviceProvider);
+        _textureVerifier = new TextureVeifier(this, gameEngine, settings, serviceProvider);
     }
 
     public override void Verify(CancellationToken token)
@@ -51,7 +50,7 @@ sealed class GuiDialogsVerifier : GameVerifier
         {
             DefaultComponentIdentifier
         };
-        components.AddRange(Database.GuiDialogManager.Components);
+        components.AddRange(GameEngine.GuiDialogManager.Components);
 
         foreach (var component in components)
             VerifyGuiComponentTexturesExist(component);
@@ -60,8 +59,8 @@ sealed class GuiDialogsVerifier : GameVerifier
 
     private void VerifyMegaTexturesExist(CancellationToken token)
     {
-        var megaTextureName = Database.GuiDialogManager.GuiDialogsXml?.TextureData.MegaTexture;
-        if (Database.GuiDialogManager.MtdFile is null)
+        var megaTextureName = GameEngine.GuiDialogManager.GuiDialogsXml?.TextureData.MegaTexture;
+        if (GameEngine.GuiDialogManager.MtdFile is null)
         {
             var mtdFileName = megaTextureName ?? "<<MTD_NOT_SPECIFIED>>";
             VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
@@ -75,7 +74,7 @@ sealed class GuiDialogsVerifier : GameVerifier
         }
 
 
-        var compressedMegaTextureName = Database.GuiDialogManager.GuiDialogsXml?.TextureData.CompressedMegaTexture;
+        var compressedMegaTextureName = GameEngine.GuiDialogManager.GuiDialogsXml?.TextureData.CompressedMegaTexture;
         if (compressedMegaTextureName is not null)
         {
             var compressedMegaTextureFieName = $"{compressedMegaTextureName}.dds";
@@ -109,7 +108,7 @@ sealed class GuiDialogsVerifier : GameVerifier
                         continue;
                 }
 
-                if (!Database.GuiDialogManager.TextureExists(
+                if (!GameEngine.GuiDialogManager.TextureExists(
                         texture,
                         out var origin,
                         out var isNone,
@@ -153,9 +152,9 @@ sealed class GuiDialogsVerifier : GameVerifier
         if (component == DefaultComponentIdentifier)
         {
             defined = true;
-            return Database.GuiDialogManager.DefaultTextureEntries;
+            return GameEngine.GuiDialogManager.DefaultTextureEntries;
         }
-        return Database.GuiDialogManager.GetTextureEntries(component, out defined);
+        return GameEngine.GuiDialogManager.GetTextureEntries(component, out defined);
     }
 
     private void OnTextureError(object sender, VerificationErrorEventArgs e)

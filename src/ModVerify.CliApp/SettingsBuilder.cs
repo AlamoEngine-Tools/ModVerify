@@ -44,6 +44,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
         {
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
+                ParallelVerifiers = verifyOptions.Sequential ? 1 : 4,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
                 FailFast = verifyOptions.FailFast,
                 GameVerifySettings = new GameVerifySettings
@@ -86,6 +87,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
         {
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
+                ParallelVerifiers = baselineVerb.Sequential ? 1 : 4,
                 GameVerifySettings = new GameVerifySettings
                 {
                     IgnoreAsserts = false,

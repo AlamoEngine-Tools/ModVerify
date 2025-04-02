@@ -28,6 +28,7 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
         var game = finderResult.Game;
         list.Add(finderResult.Game);
 
+        Console.WriteLine();
         Console.WriteLine("=================");
         Console.WriteLine();
         Console.WriteLine($"0: {game.Name}");

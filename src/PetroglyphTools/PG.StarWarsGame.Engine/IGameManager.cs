@@ -2,7 +2,7 @@
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 
-namespace PG.StarWarsGame.Engine.Database;
+namespace PG.StarWarsGame.Engine;
 
 public interface IGameManager<T>
 {

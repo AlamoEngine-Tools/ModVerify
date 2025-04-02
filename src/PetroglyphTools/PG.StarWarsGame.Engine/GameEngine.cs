@@ -9,10 +9,12 @@ using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Rendering;
 using PG.StarWarsGame.Engine.Rendering.Font;
 
-namespace PG.StarWarsGame.Engine.Database;
+namespace PG.StarWarsGame.Engine;
 
-internal class GameDatabase : IGameDatabase
+internal sealed class GameEngine : IStarWarsGameEngine
 {
+    public required GameEngineType EngineType { get; init; }
+
     public required IPGRender PGRender { get; init; }
 
     public required IFontManager FontManager { get; init; }

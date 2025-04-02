@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Engine.IO.Repositories;
@@ -14,7 +13,7 @@ using PG.StarWarsGame.Files.MTD.Services;
 
 namespace PG.StarWarsGame.Engine.GuiDialog;
 
-internal partial class GuiDialogGameManager(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal partial class GuiDialogGameManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGuiDialogManager
 {
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();

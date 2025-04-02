@@ -5,16 +5,16 @@ using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
 public sealed class TextureVeifier(
-    IGameVerifierInfo? parent, 
-    IGameDatabase gameDatabase, 
+    IGameVerifierInfo? parent,
+    IStarWarsGameEngine gameEngine, 
     GameVerifySettings settings, 
     IServiceProvider serviceProvider) 
-    : GameVerifier<string>(parent, gameDatabase, settings, serviceProvider)
+    : GameVerifier<string>(parent, gameEngine, settings, serviceProvider)
 {
     private readonly IAlreadyVerifiedCache? _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
 

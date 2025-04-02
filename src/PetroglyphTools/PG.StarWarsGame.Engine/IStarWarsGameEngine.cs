@@ -1,4 +1,6 @@
-﻿using PG.StarWarsGame.Engine.Audio.Sfx;
+﻿using System.Collections.Generic;
+using PG.StarWarsGame.Engine.Audio.Sfx;
+using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.GuiDialog;
@@ -6,13 +8,13 @@ using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Rendering;
 using PG.StarWarsGame.Engine.Rendering.Font;
-using System.Collections.Generic;
-using PG.StarWarsGame.Engine.CommandBar;
 
-namespace PG.StarWarsGame.Engine.Database;
+namespace PG.StarWarsGame.Engine;
 
-public interface IGameDatabase
+public interface IStarWarsGameEngine
 {
+    GameEngineType EngineType { get; }
+
     IPGRender PGRender { get; }
 
     IFontManager FontManager { get; }
@@ -25,7 +27,7 @@ public interface IGameDatabase
 
     ICommandBarGameManager CommandBar { get; }
 
-    IGameObjectTypeGameManager GameObjectTypeManager { get; } 
+    IGameObjectTypeGameManager GameObjectTypeManager { get; }
 
     ISfxEventGameManager SfxGameManager { get; }
 

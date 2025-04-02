@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Audio.Sfx;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
 
@@ -37,8 +36,8 @@ public class AudioFilesVerifier : GameVerifier
     private readonly IFileSystem _fileSystem;
     private readonly IGameLanguageManager _languageManager;
 
-    public AudioFilesVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider) 
-        : base(null, gameDatabase, settings, serviceProvider)
+    public AudioFilesVerifier(IStarWarsGameEngine gameEngine, GameVerifySettings settings, IServiceProvider serviceProvider) 
+        : base(null, gameEngine, settings, serviceProvider)
     {
         _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
@@ -46,13 +45,13 @@ public class AudioFilesVerifier : GameVerifier
             .GetLanguageManager(Repository.EngineType);
     }
 
-    public override string FriendlyName => "Verify Audio Files";
+    public override string FriendlyName => "Audio Files";
 
     public override void Verify(CancellationToken token)
     {
         var visitedSamples = new HashSet<Crc32>();
         var languagesToVerify = GetLanguagesToVerify().ToList();
-        foreach (var sfxEvent in Database.SfxGameManager.Entries)
+        foreach (var sfxEvent in GameEngine.SfxGameManager.Entries)
         {
             foreach (var codedSample in sfxEvent.AllSamples)
             {
@@ -226,7 +225,7 @@ public class AudioFilesVerifier : GameVerifier
             case VerifyLocalizationOption.CurrentSystem:
                 return new List<LanguageType> { _languageManager.GetLanguagesFromUser() };
             case VerifyLocalizationOption.AllInstalled:
-                return Database.InstalledLanguages;
+                return GameEngine.InstalledLanguages;
             case VerifyLocalizationOption.All:
                 return _languageManager.SupportedLanguages;
             default:
