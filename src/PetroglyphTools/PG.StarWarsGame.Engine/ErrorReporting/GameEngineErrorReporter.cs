@@ -1,6 +1,6 @@
 ﻿namespace PG.StarWarsGame.Engine.ErrorReporting;
 
-public abstract class GameErrorReporter : IGameErrorReporter
+public abstract class GameEngineErrorReporter : IGameEngineErrorReporter
 {
     public virtual void Report(XmlError error)
     {

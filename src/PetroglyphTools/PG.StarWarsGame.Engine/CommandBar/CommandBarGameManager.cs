@@ -4,7 +4,6 @@ using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Components;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
-using PG.StarWarsGame.Engine.Database;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.IO.Repositories;
@@ -27,7 +26,7 @@ internal class CommandBarGameManager(
     PGRender pgRender,
     IGameConstants gameConstants,
     IFontManager fontManager,
-    GameErrorReporterWrapper errorReporter,
+    GameEngineErrorReporterWrapper errorReporter,
     IServiceProvider serviceProvider)
     : GameManagerBase<CommandBarBaseComponent>(repository, errorReporter, serviceProvider), ICommandBarGameManager
 {

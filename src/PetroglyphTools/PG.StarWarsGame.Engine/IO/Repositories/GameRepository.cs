@@ -27,7 +27,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
-    private readonly GameErrorReporterWrapper _errorReporter;
+    private readonly GameEngineErrorReporterWrapper _errorReporter;
     
     protected readonly string GameDirectory;
 
@@ -47,7 +47,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly List<string> _loadedMegFiles = new();
     protected IVirtualMegArchive? MasterMegArchive { get; private set; }
 
-    protected GameRepository(GameLocations gameLocations, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) : base(serviceProvider)
+    protected GameRepository(GameLocations gameLocations, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) : base(serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));
@@ -253,7 +253,11 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
             if (IsSpeechMeg(megPath))
                 Logger.LogDebug($"Unable to find Speech MEG file '{megPath}'");
             else
+            {
+                var message = $"Unable to find MEG file '{megPath}'";
+                _errorReporter.Assert(EngineAssert.Create(EngineAssertKind.FileNotFound, megPath, [], message));
                 Logger.LogWarning($"Unable to find MEG file '{megPath}'");
+            }
             return null;
         }
 

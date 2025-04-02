@@ -11,46 +11,46 @@ namespace AET.ModVerify.Pipeline;
 
 public sealed class GameVerifierPipelineStep(
     GameVerifier verifier,
-    IStepProgressReporter progressReporter,
     IServiceProvider serviceProvider) 
-    : PipelineStep(serviceProvider), IProgressStep
+    : PipelineStep(serviceProvider), IProgressStep<VerifyProgressInfo>
 {
+    public event EventHandler<ProgressEventArgs<VerifyProgressInfo>>? Progress;
+
     internal GameVerifier GameVerifier { get; } = verifier ?? throw new ArgumentNullException(nameof(verifier));
 
     public ProgressType Type => VerifyProgress.ProgressType;
-
-    public IStepProgressReporter ProgressReporter { get; } = progressReporter ?? throw new ArgumentNullException(nameof(progressReporter));
 
     public long Size => 1;
 
     protected override void RunCore(CancellationToken token)
     {
-        Logger?.LogDebug($"Running verifier '{GameVerifier.FriendlyName}'...");
         try
         {
-            ProgressReporter.Report(this, 0.0);
+            Logger?.LogDebug($"Running verifier '{GameVerifier.FriendlyName}'...");
+            ReportProgress(new ProgressEventArgs<VerifyProgressInfo>("Started", 0.0));
+            
             GameVerifier.Progress += OnVerifyProgress;
             GameVerifier.Verify(token);
+
+            Logger?.LogDebug($"Finished verifier '{GameVerifier.FriendlyName}'");
+            ReportProgress(new ProgressEventArgs<VerifyProgressInfo>("Finished", 1.0));
         }
         finally
         {
-            ProgressReporter.Report(this, 1.0);
             GameVerifier.Progress += OnVerifyProgress;
-            Logger?.LogDebug($"Finished verifier '{GameVerifier.FriendlyName}'");
         }
     }
 
-    private void OnVerifyProgress(object _, VerifyProgressEventArgs e)
+    private void OnVerifyProgress(object _, ProgressEventArgs<VerifyProgressInfo> e)
     {
-        ProgressReporter.Report(this, e.Progress);
+        if (e.Progress > 1.0) 
+            e = new ProgressEventArgs<VerifyProgressInfo>(e.ProgressText, 1.0, e.ProgressInfo);
+        ReportProgress(e);
     }
-}
 
-public sealed class VerifyProgressEventArgs : ProgressEventArgs<VerifyProgressInfo>
-{
-    public VerifyProgressEventArgs(string progressText, double progress) 
-        : base(progressText, progress, VerifyProgress.ProgressType)
+    private void ReportProgress(ProgressEventArgs<VerifyProgressInfo> e)
     {
+        Progress?.Invoke(this, e);
     }
 }
 
@@ -63,63 +63,58 @@ public static class VerifyProgress
     };
 }
 
-
-
-public interface IVerifyProgressReporter : IProgressReporter<VerifyProgressInfo>
-{
-
-}
-
-internal class VerifyProgressReporter : IVerifyProgressReporter
-{
-    public void Report(string progressText, double progress, ProgressType type, VerifyProgressInfo detailedProgress)
-    {
-        throw new NotImplementedException();
-    }
-}
-
+public interface IVerifyProgressReporter : IProgressReporter<VerifyProgressInfo>;
 
 internal class AggregatedVerifyProgressReporter(
     IVerifyProgressReporter progressReporter,
     IEnumerable<GameVerifierPipelineStep> steps) 
     : AggregatedProgressReporter<GameVerifierPipelineStep, VerifyProgressInfo>(progressReporter, steps)
 {
-    protected override ProgressType Type => VerifyProgress.ProgressType;
+    private readonly object _syncLock = new();
 
-    protected override string GetProgressText(GameVerifierPipelineStep step)
+    private readonly HashSet<GameVerifierPipelineStep> _completedSteps = new();
+
+    private long _totalProgressSize;
+
+    protected override string GetProgressText(GameVerifierPipelineStep step, string progressText)
     {
-        return step.GameVerifier.FriendlyName;
+        return $"Verifier '{step.GameVerifier.FriendlyName}': {progressText}";
     }
 
-    protected override double CalculateAggregatedProgress(GameVerifierPipelineStep task, double progress, out VerifyProgressInfo progressInfo)
+    protected override ProgressEventArgs<VerifyProgressInfo> CalculateAggregatedProgress(
+        GameVerifierPipelineStep step,
+        ProgressEventArgs<VerifyProgressInfo> progress)
     {
-        progressInfo = default;
-        return 0;
+        lock (_syncLock)
+        {
+            var currentStepProgressSize = (long)(progress.Progress * step.Size);
+            var completed = currentStepProgressSize >= step.Size;
+
+            var progressInfo = new VerifyProgressInfo
+            {
+                TotalVerifiers = TotalStepCount,
+            };
+
+            if (!completed || _completedSteps.Add(step)) 
+                _totalProgressSize += (long)(progress.Progress * step.Size);
+            
+            return new ProgressEventArgs<VerifyProgressInfo>(progress.ProgressText, GetTotalProgress(), progressInfo);
+        }
+    }
+
+    private double GetTotalProgress()
+    { 
+        return Math.Min((double)_totalProgressSize / TotalSize, 0.99);
+    }
+
+    protected override void DisposeResources()
+    {
+        base.DisposeResources();
+        _completedSteps.Clear();
     }
 }
 
 public struct VerifyProgressInfo
 {
     public int TotalVerifiers { get; internal set; }
-}
-
-
-internal class LateInitDelegatingProgressReporter : IStepProgressReporter, IDisposable
-{
-    private IStepProgressReporter? _innerReporter;
-
-    public void Report(IProgressStep step, double progress)
-    {
-        _innerReporter?.Report(step, progress);
-    }
-
-    public void Initialize(IStepProgressReporter progressReporter)
-    {
-        _innerReporter = progressReporter;
-    }
-
-    public void Dispose()
-    {
-        _innerReporter = null;
-    }
 }

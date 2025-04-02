@@ -5,5 +5,6 @@ public enum EngineAssertKind
     NullOrEmptyValue,
     ValueOutOfRange,
     InvalidValue,
-    CorruptBinary
+    CorruptBinary,
+    FileNotFound,
 }

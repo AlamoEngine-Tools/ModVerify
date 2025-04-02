@@ -8,7 +8,6 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,38 +20,41 @@ public sealed class GameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipelin
 {
     private readonly List<GameVerifier> _verifiers = new();
     private readonly List<GameVerifierPipelineStep> _verificationSteps = new();
-    private readonly GameEngineType _targetType;
-    private readonly GameLocations _gameLocations;
-    private readonly ParallelStepRunner _verifyRunner;
+    private readonly StepRunnerBase _verifyRunner;
+
+    private readonly IStarWarsGameEngine _gameEngine;
+    private readonly IGameEngineErrorCollection _engineErrors;
 
     private readonly VerifyPipelineSettings _pipelineSettings;
     private readonly GlobalVerifyReportSettings _reportSettings;
 
     private readonly IVerifyProgressReporter _progressReporter;
-    private readonly LateInitDelegatingProgressReporter _verifyDelegatingProgressReporter = new();
 
     protected override bool FailFast { get; }
 
     public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
     
     public GameVerifyPipeline(
-        GameEngineType targetType, 
-        GameLocations gameLocations, 
+        IStarWarsGameEngine gameEngine, 
+        IGameEngineErrorCollection engineErrors,
         VerifyPipelineSettings pipelineSettings, 
         GlobalVerifyReportSettings reportSettings,
         IVerifyProgressReporter progressReporter,
         IServiceProvider serviceProvider) : base(serviceProvider)
     {
-        _targetType = targetType;
-        _gameLocations = gameLocations ?? throw new ArgumentNullException(nameof(gameLocations));
+        _gameEngine = gameEngine ?? throw new ArgumentNullException(nameof(gameEngine));
+        _engineErrors = engineErrors ?? throw new ArgumentNullException(nameof(gameEngine));
         _pipelineSettings = pipelineSettings ?? throw new ArgumentNullException(nameof(pipelineSettings));
         _reportSettings = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
         _progressReporter = progressReporter ?? throw new ArgumentNullException(nameof(progressReporter));
 
         if (pipelineSettings.ParallelVerifiers is < 0 or > 64)
             throw new ArgumentException("_pipelineSettings has invalid parallel worker number.", nameof(pipelineSettings));
-        
-        _verifyRunner = new ParallelStepRunner(pipelineSettings.ParallelVerifiers, serviceProvider);
+
+        if (pipelineSettings.ParallelVerifiers == 1)
+            _verifyRunner = new SequentialStepRunner(serviceProvider);
+        else
+            _verifyRunner = new ParallelStepRunner(pipelineSettings.ParallelVerifiers, serviceProvider);
 
         FailFast = pipelineSettings.FailFast;
     }
@@ -60,30 +62,18 @@ public sealed class GameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipelin
     protected override Task<bool> PrepareCoreAsync()
     {
         _verifiers.Clear();
+
+        AddStep(new GameEngineErrorCollector(_engineErrors, _gameEngine, _pipelineSettings.GameVerifySettings, ServiceProvider));
+
+        foreach (var gameVerificationStep in CreateVerificationSteps(_gameEngine))
+            AddStep(gameVerificationStep);
+
         return Task.FromResult(true);
     }
 
     protected override async Task RunCoreAsync(CancellationToken token)
-    {
-        var databaseService = ServiceProvider.GetRequiredService<IGameDatabaseService>();
-
-        var initializationErrorListener = new ConcurrentGameGameErrorReporter();
-        var initOptions = new GameInitializationOptions
-        {
-            Locations = _gameLocations,
-            TargetEngineType = _targetType,
-            GameErrorReporter = initializationErrorListener
-
-        };
-        var database = await databaseService.InitializeGameAsync(initOptions, token);
-        
-        AddStep(new GameEngineErrorCollector(initializationErrorListener, database, _pipelineSettings.GameVerifySettings, ServiceProvider));
-
-        foreach (var gameVerificationStep in CreateVerificationSteps(database))
-            AddStep(gameVerificationStep);
-
+    { 
         var aggregatedVerifyProgressReporter = new AggregatedVerifyProgressReporter(_progressReporter, _verificationSteps);
-        _verifyDelegatingProgressReporter.Initialize(aggregatedVerifyProgressReporter);
 
         try
         {
@@ -93,17 +83,20 @@ public sealed class GameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipelin
         }
         finally
         {
+            aggregatedVerifyProgressReporter.Dispose();
             _verifyRunner.Error -= OnError;
             Logger?.LogDebug("Game verifiers finished.");
         }
 
-        FilteredErrors = GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)).ToList();
-    }
+        token.ThrowIfCancellationRequested();
 
-    protected override void DisposeResources()
-    {
-        base.DisposeResources();
-        _verifyDelegatingProgressReporter.Dispose();
+        var failedSteps = _verifyRunner.ExecutedSteps.Where(p =>
+            p.Error != null && !p.Error.IsExceptionType<OperationCanceledException>()).ToList();
+
+        if (failedSteps.Count != 0)
+            throw new StepFailureException(failedSteps);
+
+        FilteredErrors = GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)).ToList();
     }
 
     protected override void OnError(object sender, StepRunnerErrorEventArgs e)
@@ -116,14 +109,14 @@ public sealed class GameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipelin
         base.OnError(sender, e);
     }
 
-    private IEnumerable<GameVerifier> CreateVerificationSteps(IGameDatabase database)
+    private IEnumerable<GameVerifier> CreateVerificationSteps(IStarWarsGameEngine database)
     {
         return _pipelineSettings.VerifiersProvider.GetVerifiers(database, _pipelineSettings.GameVerifySettings, ServiceProvider);
     }
 
     private void AddStep(GameVerifier verifier)
     {
-        var verificationStep = new GameVerifierPipelineStep(verifier, _verifyDelegatingProgressReporter, ServiceProvider);
+        var verificationStep = new GameVerifierPipelineStep(verifier, ServiceProvider);
         _verifyRunner.AddStep(verificationStep);
         _verificationSteps.Add(verificationStep);
         _verifiers.Add(verifier);

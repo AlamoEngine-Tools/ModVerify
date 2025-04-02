@@ -5,7 +5,7 @@ using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Files;
@@ -26,11 +26,11 @@ public sealed class SingleModelVerifier : GameVerifier<string>
     private readonly IAlreadyVerifiedCache? _cache;
 
     public SingleModelVerifier(IGameVerifierInfo? parent,
-        IGameDatabase database,
+        IStarWarsGameEngine engine,
         GameVerifySettings settings,
-        IServiceProvider serviceProvider) : base(parent, database, settings, serviceProvider)
+        IServiceProvider serviceProvider) : base(parent, engine, settings, serviceProvider)
     {
-        _textureVerifier = new TextureVeifier(this, database, settings, serviceProvider);
+        _textureVerifier = new TextureVeifier(this, engine, settings, serviceProvider);
         _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
     }
 
@@ -68,7 +68,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         {
             try
             {
-                aloFile = Database.PGRender.Load3DAsset(modelPath, true, true);
+                aloFile = GameEngine.PGRender.Load3DAsset(modelPath, true, true);
             }
             catch (BinaryCorruptedException e)
             {

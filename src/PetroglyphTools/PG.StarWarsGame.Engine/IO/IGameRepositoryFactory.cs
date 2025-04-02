@@ -5,5 +5,5 @@ namespace PG.StarWarsGame.Engine.IO;
 
 internal interface IGameRepositoryFactory
 {
-    GameRepository Create(GameEngineType engineType, GameLocations gameLocations, GameErrorReporterWrapper errorReporter);
+    GameRepository Create(GameEngineType engineType, GameLocations gameLocations, GameEngineErrorReporterWrapper errorReporter);
 }

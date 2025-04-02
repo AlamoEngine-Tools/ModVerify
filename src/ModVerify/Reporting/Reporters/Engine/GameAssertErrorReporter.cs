@@ -47,6 +47,7 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
             EngineAssertKind.NullOrEmptyValue => VerifierErrorCodes.AssertValueNullOrEmpty,
             EngineAssertKind.ValueOutOfRange => VerifierErrorCodes.AssertValueOutOfRange,
             EngineAssertKind.InvalidValue => VerifierErrorCodes.AssertValueInvalid,
+            EngineAssertKind.FileNotFound => VerifierErrorCodes.FileNotFound,
             _ => throw new ArgumentOutOfRangeException(nameof(assertKind), assertKind, null)
         };
     }

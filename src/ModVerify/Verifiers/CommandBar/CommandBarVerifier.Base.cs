@@ -4,14 +4,14 @@ using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.Collections;
+using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.CommandBar.Components;
-using PG.StarWarsGame.Engine.Database;
 
 namespace AET.ModVerify.Verifiers;
 
-public partial class CommandBarVerifier(IGameDatabase gameDatabase, GameVerifySettings settings, IServiceProvider serviceProvider)
-    : GameVerifier(null, gameDatabase, settings, serviceProvider)
+public partial class CommandBarVerifier(IStarWarsGameEngine gameEngine, GameVerifySettings settings, IServiceProvider serviceProvider)
+    : GameVerifier(null, gameEngine, settings, serviceProvider)
 {
     public const string CommandBarNoShellsGroup = "CMDBAR00";
     public const string CommandBarManyShellsGroup = "CMDBAR01";
@@ -20,7 +20,7 @@ public partial class CommandBarVerifier(IGameDatabase gameDatabase, GameVerifySe
     public const string CommandBarUnsupportedComponent = "CMDBAR04";
     public const string CommandBarShellNoModel = "CMDBAR05";
 
-    public override string FriendlyName => "CommandBar Verifiers";
+    public override string FriendlyName => "CommandBar";
 
     public override void Verify(CancellationToken token)
     {
@@ -50,7 +50,7 @@ partial class CommandBarVerifier
             return;
         }
 
-        var model = Database.PGRender.LoadModelAndAnimations(shellComponent.ModelPath.AsSpan(), null);
+        var model = GameEngine.PGRender.LoadModelAndAnimations(shellComponent.ModelPath.AsSpan(), null);
         if (model is null)
         {
             AddError(VerificationError.Create(VerifierChain,
@@ -81,7 +81,7 @@ partial class CommandBarVerifier
         var occupiedComponentIds = SupportedCommandBarComponentData.GetComponentIdsForEngine(Repository.EngineType).Keys
             .ToDictionary(value => value, _ => false);
 
-        foreach (var component in Database.CommandBar.Components)
+        foreach (var component in GameEngine.CommandBar.Components)
         {
             if (!occupiedComponentIds.TryGetValue(component.Id, out var alreadyOccupied))
             {
@@ -116,7 +116,7 @@ partial class CommandBarVerifier
     private void VerifyCommandBarShellsGroups()
     {
         var shellGroups = new FrugalList<string>();
-        foreach (var groupPair in Database.CommandBar.Groups)
+        foreach (var groupPair in GameEngine.CommandBar.Groups)
         {
             if (groupPair.Key == CommandBarConstants.ShellGroupName)
             {

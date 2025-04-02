@@ -1,6 +1,6 @@
 ﻿namespace PG.StarWarsGame.Engine.ErrorReporting;
 
-public interface IGameErrorReporter
+public interface IGameEngineErrorReporter
 {
     void Report(XmlError error);
 

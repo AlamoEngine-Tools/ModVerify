@@ -22,8 +22,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.1.8" />
-	  <PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.1.8" />
+	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.2.2" />
+	  <PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.2.2" />
 	  <PackageReference Include="IsExternalInit" Version="1.0.3">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

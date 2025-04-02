@@ -23,7 +23,7 @@ internal sealed class FileInfoGlobbingWrapper
             : new DirectoryInfoGlobbingWrapper(_fileSystem, _fileInfo.Directory);
 
     /// <summary>
-    /// Initialize a new instance
+    /// InitializeAsync a new instance
     /// </summary>
     /// <param name="fileSystem">The filesystem</param>
     /// <param name="fileInfo">The file</param>

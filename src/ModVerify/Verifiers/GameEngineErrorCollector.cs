@@ -4,17 +4,17 @@ using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Reporters.Engine;
 using AET.ModVerify.Settings;
-using PG.StarWarsGame.Engine.Database;
+using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers;
 
 public sealed class GameEngineErrorCollector(
-    IDatabaseErrorCollection errorCollection,
-    IGameDatabase gameDatabase,
+    IGameEngineErrorCollection errorCollection,
+    IStarWarsGameEngine gameEngine,
     GameVerifySettings settings,
-    IServiceProvider serviceProvider) : GameVerifier(null, gameDatabase, settings, serviceProvider)
+    IServiceProvider serviceProvider) : GameVerifier(null, gameEngine, settings, serviceProvider)
 {
-    public override string FriendlyName => "Reporting Game Engine Errors";
+    public override string FriendlyName => "Game Engine Initialization";
 
     public override void Verify(CancellationToken token)
     {

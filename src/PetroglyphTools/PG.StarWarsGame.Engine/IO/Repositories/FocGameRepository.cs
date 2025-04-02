@@ -12,7 +12,7 @@ internal class FocGameRepository : GameRepository
 {
     public override GameEngineType EngineType => GameEngineType.Foc;
 
-    public FocGameRepository(GameLocations gameLocations, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    public FocGameRepository(GameLocations gameLocations, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
         : base(gameLocations, errorReporter, serviceProvider)
     {
         if (gameLocations == null)

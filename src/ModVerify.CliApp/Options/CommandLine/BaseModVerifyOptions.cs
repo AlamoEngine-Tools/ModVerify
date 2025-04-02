@@ -51,4 +51,9 @@ internal abstract class BaseModVerifyOptions
         HelpText = "Additional fallback paths, which may contain assets that shall be included when doing the verification. Do not add EaW here. " +
                    "Multiple paths can be separated using the ';' (semicolon) character.")]
     public IList<string>? AdditionalFallbackPath { get; set; }
+
+    [Option("sequential", Default = false,
+        HelpText = "When set, game verifiers will run sequentially and not in parallel. " +
+                   "This increases analysis duration but may help in debugging sessions.")]
+    public bool Sequential { get; set; }
 }

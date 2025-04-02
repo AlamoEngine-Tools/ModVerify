@@ -1,5 +1,4 @@
-﻿using PG.StarWarsGame.Engine.Database;
-using PG.StarWarsGame.Engine.ErrorReporting;
+﻿using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ internal class FontManager : GameManagerBase, IFontManager
 
     private ISet<string> _fontNames = null!;
 
-    public FontManager(GameRepository repository, GameErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) 
+    public FontManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) 
         : base(repository, errorReporter, serviceProvider)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

@@ -8,7 +8,7 @@ namespace AET.ModVerifyTool.ModSelectors;
 
 internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
 {
-    public VerifyGameInstallationData CreateInstallationDataFromSettings(GameInstallationsSettings settings)
+    public VerifyInstallationInformation CreateInstallationDataFromSettings(GameInstallationsSettings settings)
     {
         var gameLocations = new ModSelectorFactory(serviceProvider)
             .CreateSelector(settings)
@@ -20,7 +20,7 @@ internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
         if (engineType is null)
             throw new InvalidOperationException("Engine type not specified.");
 
-        return new VerifyGameInstallationData
+        return new VerifyInstallationInformation
         {
             EngineType = engineType.Value,
             GameLocations = gameLocations,
