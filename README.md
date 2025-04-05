@@ -72,7 +72,7 @@ ModVerify.exe --path "C:\My Games\FoC\Mods\MyMod" --output "C:\My Games\FoC\Mods
 The following verifiers are currently implemented: 
 
 ### SFX Events: 
-- Checks whether coded preset exist
+- Checks whether coded presets exist
 - Checks the referenced samples for validity (bit rate, sample size, channels, etc.)
 - Duplicates
 
