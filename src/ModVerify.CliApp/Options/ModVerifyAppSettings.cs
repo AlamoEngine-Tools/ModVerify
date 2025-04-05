@@ -7,6 +7,8 @@ namespace AET.ModVerifyTool.Options;
 
 internal sealed class ModVerifyAppSettings
 {
+    public bool Interactive => GameInstallationsSettings.Interactive;
+
     public required VerifyPipelineSettings VerifyPipelineSettings { get; init; }
 
     public required GlobalVerifyReportSettings GlobalReportSettings { get; init; }

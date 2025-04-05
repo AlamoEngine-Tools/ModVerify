@@ -80,15 +80,16 @@ internal class Program
 
         logger?.LogDebug($"Raw command line: {Environment.CommandLine}");
 
+        var interactive = false;
         try
         {
             var settings = new SettingsBuilder(coreServices).BuildSettings(options);
+            interactive = settings.Interactive;
             var services = CreateAppServices(coreServiceCollection, settings);
 
             if (!settings.Offline)
                 await CheckForUpdate(services, logger);
-
-
+            
             var verifier = new ModVerifyApp(settings, services);
             return await verifier.RunApplication().ConfigureAwait(false);
         }
@@ -105,6 +106,13 @@ internal class Program
 #else
             Log.CloseAndFlush();
 #endif
+            if (interactive)
+            {
+                Console.WriteLine();
+                ConsoleUtilities.WriteHorizontalLine('-');
+                Console.WriteLine("Press any key to exit");
+                Console.ReadLine();
+            }
         }
     }
 
