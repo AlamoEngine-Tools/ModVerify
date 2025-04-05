@@ -31,7 +31,6 @@ internal sealed class SettingsBuilder(IServiceProvider services)
         throw new NotSupportedException($"The option '{options.GetType().Name}' is not supported!");
     }
 
-
     private ModVerifyAppSettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
     {
         var output = Environment.CurrentDirectory;
