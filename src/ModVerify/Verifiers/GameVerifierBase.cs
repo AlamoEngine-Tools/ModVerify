@@ -1,5 +1,4 @@
-﻿using AET.ModVerify.Pipeline;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using AET.ModVerify.Pipeline.Progress;
 using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers;
@@ -79,9 +79,9 @@ public abstract class GameVerifierBase : IGameVerifierInfo
         }
     }
 
-    protected void OnProgress(string message, double progress)
+    protected void OnProgress(double progress, string? message)
     {
-        Progress?.Invoke(this, new(message, progress));
+        Progress?.Invoke(this, new(progress, message));
     }
 
     private IReadOnlyList<IGameVerifierInfo> CreateVerifierChain()

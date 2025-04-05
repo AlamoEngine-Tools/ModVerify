@@ -15,7 +15,6 @@ using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
-
 #if NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
 #endif
@@ -51,10 +50,16 @@ public class AudioFilesVerifier : GameVerifier
     {
         var visitedSamples = new HashSet<Crc32>();
         var languagesToVerify = GetLanguagesToVerify().ToList();
+
+
+        var numSamples = GameEngine.SfxGameManager.Entries.Sum(x => x.AllSamples.Count());
+        double counter = 0;
+        
         foreach (var sfxEvent in GameEngine.SfxGameManager.Entries)
         {
             foreach (var codedSample in sfxEvent.AllSamples)
             {
+                OnProgress(++counter / numSamples, $"Audio File - '{codedSample}'");
                 VerifySample(codedSample.AsSpan(), sfxEvent, languagesToVerify, visitedSamples);
             }
         }

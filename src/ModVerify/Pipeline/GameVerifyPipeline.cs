@@ -5,7 +5,6 @@ using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using System;
@@ -13,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AET.ModVerify.Pipeline.Progress;
 
 namespace AET.ModVerify.Pipeline;
 

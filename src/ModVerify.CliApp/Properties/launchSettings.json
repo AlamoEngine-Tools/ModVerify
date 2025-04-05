@@ -2,7 +2,7 @@
   "profiles": {
     "Interactive Verify": {
       "commandName": "Project",
-      "commandLineArgs": "verify -o verifyResults --minFailSeverity Information --baseline focBaseline.json --offline --sequential"
+      "commandLineArgs": "verify -o verifyResults --minFailSeverity Information -v --baseline focBaseline.json --offline"
     },
     "Interactive Baseline": {
       "commandName": "Project",

@@ -25,7 +25,7 @@ public static class VerifierErrorCodes
     public const string InvalidSampleRate = "WAV04";
     public const string InvalidBitsPerSeconds = "WAV05";
 
-    public const string InvalidParticleName = "ALO08";
+    public const string InvalidParticleName = "ALO01";
 
     public const string GenericXmlError = "XML00";
     public const string EmptyXmlRoot = "XML01";

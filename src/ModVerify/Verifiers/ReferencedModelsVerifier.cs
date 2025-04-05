@@ -1,11 +1,9 @@
 ﻿using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
-using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify.Verifiers;
 
@@ -17,15 +15,17 @@ public sealed class ReferencedModelsVerifier(
 {
     public override string FriendlyName => "Referenced Models";
 
-    private readonly ILogger? _logger =
-        serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(ReferencedModelsVerifier));
-
     public override void Verify(CancellationToken token)
     {
         var models = GameEngine.GameObjectTypeManager.Entries
             .SelectMany(x => x.Models)
-            .Concat(FocHardcodedConstants.HardcodedModels);
+            .Concat(FocHardcodedConstants.HardcodedModels).ToList();
 
+        if (models.Count == 0)
+            return;
+
+        var numModels = models.Count;
+        var counter = 0;
 
         var inner = new SingleModelVerifier(this, GameEngine, Settings, Services);
         try
@@ -33,6 +33,7 @@ public sealed class ReferencedModelsVerifier(
             inner.Error += OnModelError;
             foreach (var model in models)
             {
+                OnProgress((double)++counter / numModels, $"Model - '{model}'");
                 inner.Verify(model, [], token);
             }
         }

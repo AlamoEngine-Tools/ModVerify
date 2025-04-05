@@ -1,9 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
-      <PrivateAssets>all</PrivateAssets>
-      <Version>3.6.143</Version>
-    </PackageReference>
-  </ItemGroup>
+<Project>
+
+	<PropertyGroup>
+		<RepoRootPath>$(MSBuildThisFileDirectory)</RepoRootPath>
+		<ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+		<EnableDynamicPlatformResolution>true</EnableDynamicPlatformResolution>
+		<GitVersionBaseDirectory>$(RepoRootPath)</GitVersionBaseDirectory>
+		<PackageOutputPath>$(RepoRootPath)bin\Packages\$(Configuration)\</PackageOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Product>ModVerify</Product>
+		<Authors>Alamo Engine Tools and Contributors</Authors>
+		<Copyright>Copyright © 2025 Alamo Engine Tools and contributors. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://github.com/AlamoEngine-Tools/ModVerify</PackageProjectUrl>
+		<LicenseFile>$(RepoRootPath)LICENSE</LicenseFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/AlamoEngine-Tools/ModVerify</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Company>Alamo Engine Tools</Company>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>aet.png</PackageIcon>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+			<PrivateAssets>all</PrivateAssets>
+			<Version>3.7.115</Version>
+		</PackageReference>
+		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(IsPackable)' == 'true'">
+		<None Include="$(LicenseFile)" Pack="true" PackagePath=""/>
+		<None Include="$(RepoRootPath)aet.png" Pack="true" PackagePath=""/>
+	</ItemGroup>
+
 </Project>

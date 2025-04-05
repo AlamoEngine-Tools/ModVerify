@@ -29,8 +29,7 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
         list.Add(finderResult.Game);
 
         Console.WriteLine();
-        Console.WriteLine("=================");
-        Console.WriteLine();
+        ConsoleUtilities.WriteHorizontalLine();
         Console.WriteLine($"0: {game.Name}");
 
         var counter = 1;
@@ -57,7 +56,7 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
             var fallbackGame = finderResult.FallbackGame;
             list.Add(fallbackGame);
 
-            Console.WriteLine("_________________");
+            ConsoleUtilities.WriteHorizontalLine('_');
             Console.WriteLine(fallbackGame.Type == GameType.Eaw
                 ? $"{counter++}: {fallbackGame.Name} [Not yet supported]"
                 : $"{counter++}: {fallbackGame.Name}");
@@ -82,7 +81,7 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
 
         if (workshopMods.Count > 0)
         {
-            Console.WriteLine("_________________");
+            ConsoleUtilities.WriteHorizontalLine('_');
             Console.WriteLine("Workshop Items:");
             foreach (var mod in workshopMods)
             {
@@ -90,22 +89,20 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
                 list.Add(mod);
             }
         }
-        
-        Console.WriteLine();
-        Console.WriteLine("=================");
+
+        ConsoleUtilities.WriteHorizontalLine();
 
         try
         {
-            while (true)
-            {
-                Console.Write("Select a game or mod: ");
-                var numberString = Console.ReadLine();
-
-                if (!int.TryParse(numberString, out var number))
-                    continue;
-                if (number < list.Count)
-                    return list[number];
-            }
+            var selected = ConsoleUtilities.UserQuestionOnSameLine("Select a game or mod: ",
+                (string input, out int value) =>
+                {
+                    if (!int.TryParse(input, out value))
+                        return false;
+                    
+                    return value <= list.Count;
+                });
+            return list[selected];
         }
         finally
         {

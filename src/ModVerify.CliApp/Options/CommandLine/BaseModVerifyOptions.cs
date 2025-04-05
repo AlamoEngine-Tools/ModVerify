@@ -52,8 +52,8 @@ internal abstract class BaseModVerifyOptions
                    "Multiple paths can be separated using the ';' (semicolon) character.")]
     public IList<string>? AdditionalFallbackPath { get; set; }
 
-    [Option("sequential", Default = false,
-        HelpText = "When set, game verifiers will run sequentially and not in parallel. " +
-                   "This increases analysis duration but may help in debugging sessions.")]
-    public bool Sequential { get; set; }
+    [Option("parallel", Default = false,
+        HelpText = "When set, game verifiers will run in parallel. " +
+                   "While this may reduce analysis time, console output might be harder to read.")]
+    public bool Parallel { get; set; }
 }

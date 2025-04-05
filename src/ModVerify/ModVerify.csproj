@@ -22,26 +22,27 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.2.2" />
-	  <PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.2.2" />
-	  <PackageReference Include="IsExternalInit" Version="1.0.3">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	  <PackageReference Include="Required" Version="1.0.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	  <PackageReference Include="System.Text.Json" Version="9.0.3" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.4" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.3.4" />
+		<PackageReference Include="IsExternalInit" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Required" Version="1.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Text.Json" Version="9.0.3" />
+		
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj" />
-	  <ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
+		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj" />
+		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
+		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
 	</ItemGroup>
 
 </Project>

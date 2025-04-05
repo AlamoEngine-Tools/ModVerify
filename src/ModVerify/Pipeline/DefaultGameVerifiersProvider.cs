@@ -18,6 +18,6 @@ public sealed class DefaultGameVerifiersProvider : IGameVerifiersProvider
         yield return new DuplicateNameFinder(database, settings, serviceProvider);
         yield return new AudioFilesVerifier(database, settings, serviceProvider);
         yield return new GuiDialogsVerifier(database, settings, serviceProvider);
-        yield return new CommandBarVerifier(database, settings, serviceProvider);
+        //yield return new CommandBarVerifier(database, settings, serviceProvider);
     }
 }

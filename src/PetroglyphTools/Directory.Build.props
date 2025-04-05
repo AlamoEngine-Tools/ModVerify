@@ -1,12 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
-	<Import Project="../Directory.Build.props" />
-
+	<Import Project="../../Directory.Build.props" />
 
 	<PropertyGroup>
-		<Authors>Alamo Engine Tools and Contributors</Authors>
 		<PackageProjectUrl>https://github.com/AlamoEngine-Tools/PetroglyphTools</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/AlamoEngine-Tools/PetroglyphTools</RepositoryUrl>
 	</PropertyGroup>
-
+	
 </Project>

@@ -1,9 +1,9 @@
-﻿using AET.ModVerify.Pipeline;
-using AnakinRaW.CommonUtilities;
+﻿using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 using ShellProgressBar;
 using System;
 using System.Threading;
+using AET.ModVerify.Pipeline.Progress;
 
 namespace AET.ModVerifyTool.Reporting;
 
@@ -28,22 +28,27 @@ public sealed class VerifyConsoleProgressReporter(string toVerifyName) : Disposa
 
     public void Report(string message, double progress)
     {
-        Report(message, progress, VerifyProgress.ProgressType, default);
+        Report(progress, message, VerifyProgress.ProgressType, default);
     }
 
-    public void Report(string progressText, double progress, ProgressType type, VerifyProgressInfo detailedProgress)
+    public void Report(double progress, string? progressText, ProgressType type, VerifyProgressInfo detailedProgress)
     {
         if (type != VerifyProgress.ProgressType)
             return;
 
         var progressBar = EnsureProgressBar();
 
+        // TODO: Only recognize detailed mode
+        progressBar.Message = progressText;
+
         if (progress >= 1.0)
             progressBar.Message = $"Verified '{toVerifyName}'";
 
         var cpb = progressBar.AsProgress<double>();
         cpb.Report(progress);
-        progressBar.WriteLine(progressText);
+        
+        // TODO: Only in verbose mode
+        //progressBar.WriteLine(progressText);
     }
 
     protected override void DisposeResources()

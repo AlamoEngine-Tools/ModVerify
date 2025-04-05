@@ -1,1632 +1,1827 @@
 {
+  "version": "2.0",
+  "minSeverity": "Information",
   "errors": [
     {
       "id": "XML04",
-      "verifier": "AET.ModVerify.Verifiers.XmlParseErrorCollector",
-      "message": "Expected integer but got \u002780, 20\u0027 at DATA\\XML\\SFXEVENTSWEAPONS.XML at line: 90",
-      "severity": 0,
-      "assets": [
+      "verifiers": [
+        "XMLError"
+      ],
+      "message": "Expected double but got value \u002737\u0060\u0027. File=\u0027DATA\\XML\\COMMANDBARCOMPONENTS.XML #11571\u0027",
+      "severity": "Warning",
+      "context": [
+        "DATA\\XML\\COMMANDBARCOMPONENTS.XML",
+        "Size",
+        "parentName=\u0027bm_text_steal\u0027"
+      ],
+      "asset": "Size"
+    },
+    {
+      "id": "XML04",
+      "verifiers": [
+        "XMLError"
+      ],
+      "message": "Expected integer but got \u002780, 20\u0027. File=\u0027DATA\\XML\\SFXEVENTSWEAPONS.XML #90\u0027",
+      "severity": "Warning",
+      "context": [
         "DATA\\XML\\SFXEVENTSWEAPONS.XML",
         "Probability",
         "parentName=\u0027Unit_TIE_Fighter_Fire\u0027"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_VCH.ALO references missing proxy particle: P_heat_small01.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_VCH.ALO",
-        "P_heat_small01.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_SCH.ALO references missing proxy particle: p_cold_tiny01.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_SCH.ALO",
-        "p_cold_tiny01.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_MONCAL_BUILDING.ALO references missing proxy particle: p_smoke_small_thin2.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_MONCAL_BUILDING.ALO",
-        "p_smoke_small_thin2.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_NOGHRI_HUT.ALO references missing proxy particle: p_explosion_smoke_small_thin5.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_NOGHRI_HUT.ALO",
-        "p_explosion_smoke_small_thin5.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_rv_XWingProp.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_rv_XWingProp.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\ALTTEST.ALO references missing texture: Cin_DeathStar.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\ALTTEST.ALO",
-        "Cin_DeathStar.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_MDU_CAGE.ALO references missing texture: UB_girder_B.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_MDU_CAGE.ALO",
-        "UB_girder_B.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_MDU_CAGE.ALO references missing texture: NB_YsalamiriTree_B.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_MDU_CAGE.ALO",
-        "NB_YsalamiriTree_B.tga"
-      ]
-    },
-    {
-      "id": "ALO04",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\EV_MDU_SENSORNODE.ALO references missing shader effect: Default.fx",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\EV_MDU_SENSORNODE.ALO",
-        "Default.fx"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\RV_MPTL-2A.ALO references missing proxy particle: P_mptl-2a_Die.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\RV_MPTL-2A.ALO",
-        "P_mptl-2a_Die.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027w_planet_volcanic.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "w_planet_volcanic.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027RV_nebulonb_D_death_00.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "RV_nebulonb_D_death_00.ALO"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_STARS_LOW.ALO references missing proxy particle: Lensflare0.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_STARS_LOW.ALO",
-        "Lensflare0.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_STARS_MEDIUM.ALO references missing proxy particle: Lensflare0.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_STARS_MEDIUM.ALO",
-        "Lensflare0.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_STARS_HIGH.ALO references missing proxy particle: Lensflare0.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_STARS_HIGH.ALO",
-        "Lensflare0.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_STARS_CINE.ALO references missing proxy particle: Lensflare0.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_STARS_CINE.ALO",
-        "Lensflare0.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_STARS_CINE_LUA.ALO references missing proxy particle: Lensflare0.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_STARS_CINE_LUA.ALO",
-        "Lensflare0.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\EI_MARAJADE.ALO references missing proxy particle: p_desert_ground_dust.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\EI_MARAJADE.ALO",
-        "p_desert_ground_dust.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\RI_KYLEKATARN.ALO references missing proxy particle: p_desert_ground_dust.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\RI_KYLEKATARN.ALO",
-        "p_desert_ground_dust.alo"
-      ]
-    },
-    {
-      "id": "ALO04",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_SKIPRAY.ALO references missing shader effect: Default.fx",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_SKIPRAY.ALO",
-        "Default.fx"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\RB_HYPERVELOCITYGUN.ALO references missing proxy particle: p_smoke_small_thin2.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\RB_HYPERVELOCITYGUN.ALO",
-        "p_smoke_small_thin2.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\RB_HEAVYVEHICLEFACTORY.ALO references missing proxy particle: p_steam_small.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\RB_HEAVYVEHICLEFACTORY.ALO",
-        "p_steam_small.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_PRISON.ALO references missing proxy particle: p_prison_light.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_PRISON.ALO",
-        "p_prison_light.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_PRISON.ALO references missing proxy particle: p_smoke_small_thin2.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_PRISON.ALO",
-        "p_smoke_small_thin2.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_PRISON.ALO references missing proxy particle: p_smoke_small_thin4.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_PRISON.ALO",
-        "p_smoke_small_thin4.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\EB_COMMANDCENTER.ALO references missing proxy particle: p_explosion_small_delay00.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\EB_COMMANDCENTER.ALO",
-        "p_explosion_small_delay00.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_THERMAL_DETONATOR_EMPIRE.ALO references missing proxy particle: p_bomb_spin.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_THERMAL_DETONATOR_EMPIRE.ALO",
-        "p_bomb_spin.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_GRENADE.ALO references missing texture: w_grenade.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_GRENADE.ALO",
-        "w_grenade.tga"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027p_splash_wake_lava.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "p_splash_wake_lava.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\EV_TIE_PHANTOM.ALO references missing texture: W_TE_Rock_f_02_b.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\EV_TIE_PHANTOM.ALO",
-        "W_TE_Rock_f_02_b.tga"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\EV_ARCHAMMER.ALO references missing proxy particle: p_hp_archammer-damage.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\EV_ARCHAMMER.ALO",
-        "p_hp_archammer-damage.alo"
-      ]
-    },
-    {
-      "id": "ALO04",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\EV_TIE_LANCET.ALO references missing shader effect: Default.fx",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\EV_TIE_LANCET.ALO",
-        "Default.fx"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\RV_BWING.ALO references missing proxy particle: pe_bwing_yellow.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\RV_BWING.ALO",
-        "pe_bwing_yellow.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_F9TZTRANSPORT.ALO references missing texture: W_TE_Rock_f_02_b.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_F9TZTRANSPORT.ALO",
-        "W_TE_Rock_f_02_b.tga"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UI_EWOK_HANDLER.ALO references missing proxy particle: p_ewok_drag_dirt.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UI_EWOK_HANDLER.ALO",
-        "p_ewok_drag_dirt.alo"
-      ]
-    },
-    {
-      "id": "ALO04",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_CRUSADERCLASSCORVETTE.ALO references missing shader effect: Default.fx",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_CRUSADERCLASSCORVETTE.ALO",
-        "Default.fx"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_VENGEANCE.ALO references missing texture: W_TE_Rock_f_02_b.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_VENGEANCE.ALO",
-        "W_TE_Rock_f_02_b.tga"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UB_01_STATION_D.ALO references missing proxy particle: p_uwstation_death.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UB_01_STATION_D.ALO",
-        "p_uwstation_death.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UB_02_STATION_D.ALO references missing proxy particle: p_uwstation_death.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UB_02_STATION_D.ALO",
-        "p_uwstation_death.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UB_03_STATION_D.ALO references missing proxy particle: p_uwstation_death.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UB_03_STATION_D.ALO",
-        "p_uwstation_death.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UB_04_STATION_D.ALO references missing proxy particle: p_uwstation_death.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UB_04_STATION_D.ALO",
-        "p_uwstation_death.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UB_05_STATION_D.ALO references missing proxy particle: p_uwstation_death.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UB_05_STATION_D.ALO",
-        "p_uwstation_death.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_ECLIPSE_UC.ALO references missing proxy particle: lookat.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_ECLIPSE_UC.ALO",
-        "lookat.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_ECLIPSE_UC_DC.ALO references missing proxy particle: p_ssd_debris.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_ECLIPSE_UC_DC.ALO",
-        "p_ssd_debris.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_ECLIPSE.ALO references missing proxy particle: lookat.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_ECLIPSE.ALO",
-        "lookat.alo"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UI_SABOTEUR.ALO references missing proxy particle: p_desert_ground_dust.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UI_SABOTEUR.ALO",
-        "p_desert_ground_dust.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\NB_YSALAMIRI_TREE.ALO references missing texture: NB_YsalamiriTree_B.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\NB_YSALAMIRI_TREE.ALO",
-        "NB_YsalamiriTree_B.tga"
-      ]
-    },
-    {
-      "id": "ALO03",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UI_IG88.ALO references missing proxy particle: p_desert_ground_dust.alo",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UI_IG88.ALO",
-        "p_desert_ground_dust.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\UV_KRAYTCLASSDESTROYER_TYBER.ALO references missing texture: W_TE_Rock_f_02_b.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\UV_KRAYTCLASSDESTROYER_TYBER.ALO",
-        "W_TE_Rock_f_02_b.tga"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_SwampGasEmit.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "W_SwampGasEmit.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_Bush_Swmp00.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "W_Bush_Swmp00.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_Volcano_Rock02.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "W_Volcano_Rock02.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_Vol_Steam01.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "W_Vol_Steam01.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_Kamino_Reflect.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "W_Kamino_Reflect.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_AllShaders.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "W_AllShaders.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027W_droid_steam.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "W_droid_steam.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_bridge.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_bridge.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_DeathStar_High.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_DeathStar_High.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CINE_EV_StarDestroyer.ALO\u0027",
-      "severity": 0,
-      "assets": [
-        "CINE_EV_StarDestroyer.ALO"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_Coruscant.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_Coruscant.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_Planet_Alderaan_High.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_Planet_Alderaan_High.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_Planet_Hoth_High.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_Planet_Hoth_High.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_EV_Stardestroyer_Warp.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_EV_Stardestroyer_Warp.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_Officer.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_Officer.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_DStar_Dish_close.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_DStar_Dish_close.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_DStar_LeverPanel.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_DStar_LeverPanel.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_DeathStar_Wall.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_DeathStar_Wall.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_DStar_protons.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_DStar_protons.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_DStar_TurretLasers.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_DStar_TurretLasers.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_EV_TieAdvanced.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_EV_TieAdvanced.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_ImperialCraft.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_ImperialCraft.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_Shuttle_Tyderium.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_Shuttle_Tyderium.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_p_proton_torpedo.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_p_proton_torpedo.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_DeathStar_Hangar.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_DeathStar_Hangar.alo"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_SITH_LEFTHALL.ALO references missing texture: Cin_Reb_CelebHall_Wall.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_SITH_LEFTHALL.ALO",
-        "Cin_Reb_CelebHall_Wall.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_SITH_LEFTHALL.ALO references missing texture: Cin_Reb_CelebHall_Wall_B.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_SITH_LEFTHALL.ALO",
-        "Cin_Reb_CelebHall_Wall_B.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_SITH_CONSOLE.ALO references missing texture: Cin_Reb_CelebHall_Wall.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_SITH_CONSOLE.ALO",
-        "Cin_Reb_CelebHall_Wall.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_SITH_CONSOLE.ALO references missing texture: Cin_Reb_CelebHall_Wall_B.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_SITH_CONSOLE.ALO",
-        "Cin_Reb_CelebHall_Wall_B.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_TILE.ALO references missing texture: Cin_Reb_CelebHall_Wall_B.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_TILE.ALO",
-        "Cin_Reb_CelebHall_Wall_B.tga"
-      ]
-    },
-    {
-      "id": "ALO02",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "DATA\\ART\\MODELS\\W_TILE.ALO references missing texture: Cin_Reb_CelebHall_Wall.tga",
-      "severity": 0,
-      "assets": [
-        "DATA\\ART\\MODELS\\W_TILE.ALO",
-        "Cin_Reb_CelebHall_Wall.tga"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027w_sith_arch.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "w_sith_arch.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Trooper_Row.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Trooper_Row.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Biker_Row.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Biker_Row.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Officer_Row.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Officer_Row.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_NavyTrooper_Row.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_NavyTrooper_Row.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Lambda_Mouth.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Lambda_Mouth.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Lambda_Head.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Lambda_Head.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Reb_CelebHall.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Reb_CelebHall.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_REb_CelebCharacters.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_REb_CelebCharacters.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Rbel_NavyRow.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Rbel_NavyRow.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Rbel_Soldier.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Rbel_Soldier.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Rbel_Soldier_Group.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Rbel_Soldier_Group.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Rbel_grey.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Rbel_grey.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Rbel_GreyGroup.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Rbel_GreyGroup.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_EV_lambdaShuttle_150.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_EV_lambdaShuttle_150.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_EI_Vader.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_EI_Vader.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027Cin_EI_Palpatine.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "Cin_EI_Palpatine.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
-      "message": "Unable to find .ALO file \u0027CIN_Fire_Huge.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Fire_Huge.alo"
-      ]
-    },
-    {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+      ],
+      "asset": "Probability"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027DATA\\ART\\MODELS\\RB_HYPERVELOCITYGUN.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\RB_HYPERVELOCITYGUN.ALO"
+      ],
+      "asset": "p_smoke_small_thin2"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
       "message": "Unable to find .ALO file \u0027CIN_Fire_Medium.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Fire_Medium.alo"
-      ]
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Fire_Medium.alo"
     },
     {
-      "id": "ALO00",
-      "verifier": "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_EV_Stardestroyer_Warp.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_EV_Stardestroyer_Warp.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Rbel_GreyGroup.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Rbel_GreyGroup.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027DATA\\ART\\MODELS\\UB_03_STATION_D.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UB_03_STATION_D.ALO"
+      ],
+      "asset": "p_uwstation_death"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Biker_Row.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Biker_Row.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Trooper_Row.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Trooper_Row.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_rv_XWingProp.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_rv_XWingProp.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027p_splash_wake_lava.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "p_splash_wake_lava.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_DStar_LeverPanel.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_DStar_LeverPanel.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_PRISON.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_PRISON.ALO"
+      ],
+      "asset": "p_smoke_small_thin2"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_EI_Vader.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_EI_Vader.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Rbel_Soldier.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Rbel_Soldier.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Rbel_NavyRow.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Rbel_NavyRow.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027MODELS\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "MODELS"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_droid_steam.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_droid_steam.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_EV_lambdaShuttle_150.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_EV_lambdaShuttle_150.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_DeathStar_Hangar.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_DeathStar_Hangar.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Fire_Huge.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Fire_Huge.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027DATA\\ART\\MODELS\\W_STARS_CINE.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\W_STARS_CINE.ALO"
+      ],
+      "asset": "Lensflare0"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_ewok_drag_dirt\u0027 not found for model \u0027DATA\\ART\\MODELS\\UI_EWOK_HANDLER.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UI_EWOK_HANDLER.ALO"
+      ],
+      "asset": "p_ewok_drag_dirt"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_steam_small\u0027 not found for model \u0027DATA\\ART\\MODELS\\RB_HEAVYVEHICLEFACTORY.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\RB_HEAVYVEHICLEFACTORY.ALO"
+      ],
+      "asset": "p_steam_small"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_hp_archammer-damage\u0027 not found for model \u0027DATA\\ART\\MODELS\\EV_ARCHAMMER.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\EV_ARCHAMMER.ALO"
+      ],
+      "asset": "p_hp_archammer-damage"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027DATA\\ART\\MODELS\\UB_02_STATION_D.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UB_02_STATION_D.ALO"
+      ],
+      "asset": "p_uwstation_death"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Rbel_grey.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Rbel_grey.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_explosion_small_delay00\u0027 not found for model \u0027DATA\\ART\\MODELS\\EB_COMMANDCENTER.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\EB_COMMANDCENTER.ALO"
+      ],
+      "asset": "p_explosion_small_delay00"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_REb_CelebCharacters.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_REb_CelebCharacters.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027DATA\\ART\\MODELS\\UI_IG88.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UI_IG88.ALO"
+      ],
+      "asset": "p_desert_ground_dust"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027RV_nebulonb_D_death_00.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "RV_nebulonb_D_death_00.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_DStar_Dish_close.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_DStar_Dish_close.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027DATA\\ART\\MODELS\\UI_SABOTEUR.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UI_SABOTEUR.ALO"
+      ],
+      "asset": "p_desert_ground_dust"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_AllShaders.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_AllShaders.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027P_heat_small01\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_VCH.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_VCH.ALO"
+      ],
+      "asset": "P_heat_small01"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_NavyTrooper_Row.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_NavyTrooper_Row.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_DeathStar_Wall.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_DeathStar_Wall.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027DATA\\ART\\MODELS\\UB_01_STATION_D.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UB_01_STATION_D.ALO"
+      ],
+      "asset": "p_uwstation_death"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_ImperialCraft.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_ImperialCraft.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027DATA\\ART\\MODELS\\UB_05_STATION_D.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UB_05_STATION_D.ALO"
+      ],
+      "asset": "p_uwstation_death"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_ssd_debris\u0027 not found for model \u0027DATA\\ART\\MODELS\\UV_ECLIPSE_UC_DC.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UV_ECLIPSE_UC_DC.ALO"
+      ],
+      "asset": "p_ssd_debris"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027DATA\\ART\\MODELS\\UV_SKIPRAY.ALO\u0027.",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UV_SKIPRAY.ALO"
+      ],
+      "asset": "Default.fx"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027DATA\\ART\\MODELS\\W_STARS_CINE_LUA.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\W_STARS_CINE_LUA.ALO"
+      ],
+      "asset": "Lensflare0"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_Shuttle_Tyderium.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_Shuttle_Tyderium.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027w_planet_volcanic.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "w_planet_volcanic.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027lookat\u0027 not found for model \u0027DATA\\ART\\MODELS\\UV_ECLIPSE_UC.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UV_ECLIPSE_UC.ALO"
+      ],
+      "asset": "lookat"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027pe_bwing_yellow\u0027 not found for model \u0027DATA\\ART\\MODELS\\RV_BWING.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\RV_BWING.ALO"
+      ],
+      "asset": "pe_bwing_yellow"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_EV_TieAdvanced.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_EV_TieAdvanced.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_Officer.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_Officer.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027P_mptl-2a_Die\u0027 not found for model \u0027DATA\\ART\\MODELS\\RV_MPTL-2A.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\RV_MPTL-2A.ALO"
+      ],
+      "asset": "P_mptl-2a_Die"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027DATA\\ART\\MODELS\\UV_CRUSADERCLASSCORVETTE.ALO\u0027.",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UV_CRUSADERCLASSCORVETTE.ALO"
+      ],
+      "asset": "Default.fx"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Reb_CelebHall.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Reb_CelebHall.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027lookat\u0027 not found for model \u0027DATA\\ART\\MODELS\\UV_ECLIPSE.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UV_ECLIPSE.ALO"
+      ],
+      "asset": "lookat"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027w_sith_arch.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "w_sith_arch.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_DeathStar_High.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_DeathStar_High.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_prison_light\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_PRISON.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_PRISON.ALO"
+      ],
+      "asset": "p_prison_light"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_SwampGasEmit.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_SwampGasEmit.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_DStar_protons.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_DStar_protons.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Officer_Row.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Officer_Row.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Rbel_Soldier_Group.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Rbel_Soldier_Group.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027DATA\\ART\\MODELS\\EI_MARAJADE.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\EI_MARAJADE.ALO"
+      ],
+      "asset": "p_desert_ground_dust"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_EI_Palpatine.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_EI_Palpatine.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027DATA\\ART\\MODELS\\EV_TIE_LANCET.ALO\u0027.",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\EV_TIE_LANCET.ALO"
+      ],
+      "asset": "Default.fx"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_Planet_Alderaan_High.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_Planet_Alderaan_High.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027DATA\\ART\\MODELS\\W_STARS_HIGH.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\W_STARS_HIGH.ALO"
+      ],
+      "asset": "Lensflare0"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_bomb_spin\u0027 not found for model \u0027DATA\\ART\\MODELS\\W_THERMAL_DETONATOR_EMPIRE.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\W_THERMAL_DETONATOR_EMPIRE.ALO"
+      ],
+      "asset": "p_bomb_spin"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_DStar_TurretLasers.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_DStar_TurretLasers.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_smoke_small_thin4\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_PRISON.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_PRISON.ALO"
+      ],
+      "asset": "p_smoke_small_thin4"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_Vol_Steam01.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_Vol_Steam01.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027DATA\\ART\\MODELS\\RI_KYLEKATARN.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\RI_KYLEKATARN.ALO"
+      ],
+      "asset": "p_desert_ground_dust"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_Planet_Hoth_High.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_Planet_Hoth_High.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027DATA\\ART\\MODELS\\W_STARS_LOW.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\W_STARS_LOW.ALO"
+      ],
+      "asset": "Lensflare0"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027DATA\\ART\\MODELS\\UB_04_STATION_D.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\UB_04_STATION_D.ALO"
+      ],
+      "asset": "p_uwstation_death"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_Coruscant.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_Coruscant.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_MONCAL_BUILDING.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_MONCAL_BUILDING.ALO"
+      ],
+      "asset": "p_smoke_small_thin2"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_p_proton_torpedo.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_p_proton_torpedo.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027Cin_bridge.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "Cin_bridge.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_explosion_smoke_small_thin5\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_NOGHRI_HUT.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_NOGHRI_HUT.ALO"
+      ],
+      "asset": "p_explosion_smoke_small_thin5"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_Kamino_Reflect.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_Kamino_Reflect.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CINE_EV_StarDestroyer.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CINE_EV_StarDestroyer.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027p_cold_tiny01\u0027 not found for model \u0027DATA\\ART\\MODELS\\NB_SCH.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\NB_SCH.ALO"
+      ],
+      "asset": "p_cold_tiny01"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027DATA\\ART\\MODELS\\W_STARS_MEDIUM.ALO\u0027",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\W_STARS_MEDIUM.ALO"
+      ],
+      "asset": "Lensflare0"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_Volcano_Rock02.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_Volcano_Rock02.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Lambda_Head.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Lambda_Head.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027W_Bush_Swmp00.ALO\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "W_Bush_Swmp00.ALO"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
       "message": "Unable to find .ALO file \u0027CIN_Probe_Droid.alo\u0027",
-      "severity": 0,
-      "assets": [
-        "CIN_Probe_Droid.alo"
-      ]
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Probe_Droid.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Unable to find .ALO file \u0027CIN_Lambda_Mouth.alo\u0027",
+      "severity": "Error",
+      "context": [],
+      "asset": "CIN_Lambda_Mouth.alo"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.ReferencedModelsVerifier",
+        "AET.ModVerify.Verifiers.Commons.SingleModelVerifier"
+      ],
+      "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027DATA\\ART\\MODELS\\EV_MDU_SENSORNODE.ALO\u0027.",
+      "severity": "Error",
+      "context": [
+        "DATA\\ART\\MODELS\\EV_MDU_SENSORNODE.ALO"
+      ],
+      "asset": "Default.fx"
     },
     {
       "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027C000_DST0102_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "C000_DST0102_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV03",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027WIND_GUST_1_STEREO.WAV\u0027 is not mono audio.",
-      "severity": 0,
-      "assets": [
-        "WIND_GUST_1_STEREO.WAV"
-      ]
-    },
-    {
-      "id": "WAV03",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027WIND_GUST_2_STEREO.WAV\u0027 is not mono audio.",
-      "severity": 0,
-      "assets": [
-        "WIND_GUST_2_STEREO.WAV"
-      ]
-    },
-    {
-      "id": "WAV03",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027WIND_GUST_3_STEREO.WAV\u0027 is not mono audio.",
-      "severity": 0,
-      "assets": [
-        "WIND_GUST_3_STEREO.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027TESTUNITMOVE_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "TESTUNITMOVE_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027AMB_DES_CLEAR_LOOP_1.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "AMB_DES_CLEAR_LOOP_1.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027AMB_URB_CLEAR_LOOP_1.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "AMB_URB_CLEAR_LOOP_1.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_TMC0212_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_TMC0212_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_MAL0503_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_MAL0503_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_DEF3006_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_DEF3006_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_DEF3106_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_DEF3106_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0101_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0101_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0102_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0102_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0103_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0103_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0104_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0104_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0105_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0105_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
       "message": "Audio file \u0027U000_LEI0106_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0106_ENG.WAV"
-      ]
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0106_ENG.WAV"
     },
     {
       "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0107_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0107_ENG.WAV"
-      ]
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_MAL0503_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_MAL0503_ENG.WAV"
     },
     {
       "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0108_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0108_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0109_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0109_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0110_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0110_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0111_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0111_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0112_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0112_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0113_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0113_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0114_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0114_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0115_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0115_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0201_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0201_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0202_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0202_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0203_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0203_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0204_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0204_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0205_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0205_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0206_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0206_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0207_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0207_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0208_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0208_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0209_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0209_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0210_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0210_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0211_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0211_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0212_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0212_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0213_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0213_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0215_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0215_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0301_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0301_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0303_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0303_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0304_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0304_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0305_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0305_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0306_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0306_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0307_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0307_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0308_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0308_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0309_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0309_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0311_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0311_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0312_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0312_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0313_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0313_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0314_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0314_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
       "message": "Audio file \u0027U000_LEI0315_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0315_ENG.WAV"
-      ]
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0315_ENG.WAV"
     },
     {
       "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0401_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0401_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0402_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0402_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0403_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0403_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0404_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0404_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0501_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0501_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0502_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0502_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0503_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0503_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0504_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0504_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0601_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0601_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0602_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0602_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0603_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0603_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_LEI0604_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_LEI0604_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_ARC3104_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_ARC3104_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_ARC3105_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_ARC3105_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_ARC3106_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_ARC3106_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027U000_MCF1601_ENG.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "U000_MCF1601_ENG.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027FS_BEETLE_1.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "FS_BEETLE_1.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027FS_BEETLE_2.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "FS_BEETLE_2.WAV"
-      ]
-    },
-    {
-      "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
       "message": "Audio file \u0027FS_BEETLE_3.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "FS_BEETLE_3.WAV"
-      ]
+      "severity": "Error",
+      "context": [],
+      "asset": "FS_BEETLE_3.WAV"
     },
     {
       "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
-      "message": "Audio file \u0027FS_BEETLE_4.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "FS_BEETLE_4.WAV"
-      ]
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0314_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0314_ENG.WAV"
     },
     {
       "id": "WAV00",
-      "verifier": "AET.ModVerify.Verifiers.AudioFilesVerifier",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0109_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0109_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027FS_BEETLE_2.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "FS_BEETLE_2.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0202_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0202_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0204_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0204_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0304_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0304_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
       "message": "Audio file \u0027EGL_STAR_VIPER_SPINNING_1.WAV\u0027 could not be found.",
-      "severity": 0,
-      "assets": [
-        "EGL_STAR_VIPER_SPINNING_1.WAV"
-      ]
+      "severity": "Error",
+      "context": [],
+      "asset": "EGL_STAR_VIPER_SPINNING_1.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0402_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0402_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0112_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0112_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_ARC3106_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_ARC3106_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0201_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0201_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_ARC3104_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_ARC3104_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0311_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0311_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0111_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0111_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0114_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0114_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_DEF3106_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_DEF3106_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0110_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0110_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0503_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0503_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_ARC3105_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_ARC3105_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0305_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0305_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0208_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0208_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0313_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0313_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0308_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0308_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0206_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0206_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0105_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0105_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027FS_BEETLE_1.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "FS_BEETLE_1.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027FS_BEETLE_4.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "FS_BEETLE_4.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0209_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0209_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0501_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0501_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027TESTUNITMOVE_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "TESTUNITMOVE_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0312_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0312_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0404_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0404_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0603_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0603_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0108_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0108_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0306_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0306_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0303_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0303_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027AMB_DES_CLEAR_LOOP_1.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "AMB_DES_CLEAR_LOOP_1.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0307_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0307_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0102_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0102_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027C000_DST0102_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "C000_DST0102_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0205_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0205_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0504_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0504_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0210_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0210_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0403_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0403_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0211_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0211_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0604_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0604_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_TMC0212_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_TMC0212_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0309_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0309_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_DEF3006_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_DEF3006_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0101_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0101_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0203_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0203_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0401_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0401_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0602_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0602_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_MCF1601_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_MCF1601_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0115_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0115_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0207_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0207_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0502_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0502_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0113_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0113_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0213_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0213_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0104_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0104_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0301_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0301_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0601_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0601_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0212_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0212_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0103_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0103_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027AMB_URB_CLEAR_LOOP_1.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "AMB_URB_CLEAR_LOOP_1.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0107_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0107_ENG.WAV"
+    },
+    {
+      "id": "WAV00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.AudioFilesVerifier"
+      ],
+      "message": "Audio file \u0027U000_LEI0215_ENG.WAV\u0027 could not be found.",
+      "severity": "Error",
+      "context": [],
+      "asset": "U000_LEI0215_ENG.WAV"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.GuiDialogs.GuiDialogsVerifier"
+      ],
+      "message": "Could not find GUI texture \u0027i_button_petro_sliver.tga\u0027 at location \u0027MegaTexture\u0027.",
+      "severity": "Error",
+      "context": [
+        "IDC_MENU_PETRO_LOGO",
+        "MegaTexture"
+      ],
+      "asset": "i_button_petro_sliver.tga"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.GuiDialogs.GuiDialogsVerifier"
+      ],
+      "message": "Could not find GUI texture \u0027underworld_logo_off.tga\u0027 at location \u0027MegaTexture\u0027.",
+      "severity": "Error",
+      "context": [
+        "IDC_PLAY_FACTION_A_BUTTON_BIG",
+        "MegaTexture"
+      ],
+      "asset": "underworld_logo_off.tga"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.GuiDialogs.GuiDialogsVerifier"
+      ],
+      "message": "Could not find GUI texture \u0027i_dialogue_button_large_middle_off.tga\u0027 at location \u0027Repository\u0027.",
+      "severity": "Error",
+      "context": [
+        "IDC_PLAY_FACTION_B_BUTTON_BIG",
+        "Repository"
+      ],
+      "asset": "i_dialogue_button_large_middle_off.tga"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.GuiDialogs.GuiDialogsVerifier"
+      ],
+      "message": "Could not find GUI texture \u0027underworld_logo_rollover.tga\u0027 at location \u0027MegaTexture\u0027.",
+      "severity": "Error",
+      "context": [
+        "IDC_PLAY_FACTION_A_BUTTON_BIG",
+        "MegaTexture"
+      ],
+      "asset": "underworld_logo_rollover.tga"
+    },
+    {
+      "id": "FILE00",
+      "verifiers": [
+        "AET.ModVerify.Verifiers.GuiDialogs.GuiDialogsVerifier"
+      ],
+      "message": "Could not find GUI texture \u0027underworld_logo_selected.tga\u0027 at location \u0027MegaTexture\u0027.",
+      "severity": "Error",
+      "context": [
+        "IDC_PLAY_FACTION_A_BUTTON_BIG",
+        "MegaTexture"
+      ],
+      "asset": "underworld_logo_selected.tga"
     }
   ]
 }
