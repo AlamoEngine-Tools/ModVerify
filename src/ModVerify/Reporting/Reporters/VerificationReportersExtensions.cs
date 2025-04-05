@@ -45,7 +45,8 @@ public static class VerificationReportersExtensions
         return serviceCollection.AddSingleton<IVerificationReporter>(sp => new TextFileReporter(settings, sp));
     }
 
-    public static IServiceCollection RegisterConsoleReporter(this IServiceCollection serviceCollection, 
+    public static IServiceCollection RegisterConsoleReporter(
+        this IServiceCollection serviceCollection, 
         VerifyReportSettings settings,
         bool summaryOnly = false)
     {

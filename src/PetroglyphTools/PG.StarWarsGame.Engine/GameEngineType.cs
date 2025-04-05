@@ -1,6 +1,4 @@
-﻿using Vanara.PInvoke;
-
-namespace PG.StarWarsGame.Engine;
+﻿namespace PG.StarWarsGame.Engine;
 
 /// <summary>
 /// The type of engine can be either "Empire at War" of "Forces of Corruption"

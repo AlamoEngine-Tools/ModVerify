@@ -12,7 +12,6 @@ public abstract class ReporterBase<T>(T settings, IServiceProvider serviceProvid
 
     protected T Settings { get; } = settings ?? throw new ArgumentNullException(nameof(settings));
 
-
     public abstract Task ReportAsync(IReadOnlyCollection<VerificationError> errors);
 
     protected IEnumerable<VerificationError> FilteredErrors(IReadOnlyCollection<VerificationError> errors)

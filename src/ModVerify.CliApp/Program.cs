@@ -1,9 +1,12 @@
-﻿using AET.ModVerify.Reporting;
+﻿using AET.ModVerify;
+using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerifyTool.Options;
+using AET.ModVerifyTool.Options.CommandLine;
+using AET.ModVerifyTool.Updates;
 using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
@@ -14,10 +17,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.MEG;
 using PG.StarWarsGame.Files.MTD;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Parsers;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 using PG.StarWarsGame.Infrastructure.Services.Name;
@@ -26,30 +31,22 @@ using Serilog.Events;
 using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
-using System.Dynamic;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
-using AET.ModVerify;
-using AET.ModVerify.Pipeline;
-using AET.ModVerifyTool.Options.CommandLine;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
-using VerifyVerbOption = AET.ModVerifyTool.Options.CommandLine.VerifyVerbOption;
 
 namespace AET.ModVerifyTool;
 
 internal class Program
 {
-    private const string EngineParserNamespace = "PG.StarWarsGame.Engine.Xml.Parsers";
-    private const string ParserNamespace = "PG.StarWarsGame.Files.XML.Parsers";
-    private const string GameInfrastructureNamespace = "PG.StarWarsGame.Infrastructure";
-    private static readonly string GameVerifierStepNamespace = typeof(GameVerifierPipelineStep).FullName!;
-
+    private static readonly string EngineParserNamespace = typeof(XmlObjectParser<>).Namespace!;
+    private static readonly string ParserNamespace = typeof(PetroglyphXmlFileParser<>).Namespace!;
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
 
     private static async Task<int> Main(string[] args) 
     {
-        PrintHeader();
+        ConsoleUtilities.WriteHeader();
 
         var result = 0;
         
@@ -87,13 +84,17 @@ internal class Program
         {
             var settings = new SettingsBuilder(coreServices).BuildSettings(options);
             var services = CreateAppServices(coreServiceCollection, settings);
-            var verifier = new ModVerifyApp(settings, services);
 
+            if (!settings.Offline)
+                await CheckForUpdate(services, logger);
+
+
+            var verifier = new ModVerifyApp(settings, services);
             return await verifier.RunApplication().ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            PrintApplicationFailure();
+            ConsoleUtilities.WriteApplicationFailure();
             logger?.LogCritical(e, e.Message);
             return e.HResult;
         }
@@ -104,6 +105,36 @@ internal class Program
 #else
             Log.CloseAndFlush();
 #endif
+        }
+    }
+
+    private static async Task CheckForUpdate(IServiceProvider services, Microsoft.Extensions.Logging.ILogger? logger)
+    {
+        var updateChecker = new ModVerifyUpdaterChecker(services);
+
+        logger?.LogDebug("Checking for available update");
+
+        try
+        {
+            var updateInfo = await updateChecker.CheckForUpdateAsync().ConfigureAwait(false);
+            if (updateInfo.IsUpdateAvailable)
+            {
+                ConsoleUtilities.WriteHorizontalLine();
+                
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("New Update Available!");
+                Console.ResetColor();
+                
+                Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+                ConsoleUtilities.WriteHorizontalLine();
+                Console.WriteLine();
+
+            }
+        }
+        catch(Exception e)
+        {
+            logger?.LogWarning($"Unable to check for updates due to an internal error: {e.Message}");
+            logger?.LogTrace(e, "Checking for update failed: " + e.Message);
         }
     }
 
@@ -185,13 +216,14 @@ internal class Program
 #if DEBUG
         logLevel = LogEventLevel.Debug;
         loggingBuilder.AddDebug();
-#else
+#endif
+
         if (verbose)
         {
-            logLevel = LogLevel.Verbose;
+            logLevel = LogEventLevel.Verbose;
             loggingBuilder.AddDebug();
         }
-#endif
+
         var fileLogger = SetupFileLogging(fileSystem, logLevel);
         loggingBuilder.AddSerilog(fileLogger);
 
@@ -213,22 +245,6 @@ internal class Program
 
                 return false;
             })
-            //.Filter.ByExcluding(x =>
-            //{
-            //    if (!x.Properties.TryGetValue("SourceContext", out var value))
-            //        return true;
-            //    var source = value.ToString().AsSpan().Trim('\"');
-
-            //    if (source.StartsWith(EngineParserNamespace.AsSpan()))
-            //        return true;
-            //    if (source.StartsWith(ParserNamespace.AsSpan()))
-            //        return true;
-            //    if (source.StartsWith(GameInfrastructureNamespace.AsSpan()))
-            //        return true;
-            //    if (source.StartsWith(GameVerifierStepNamespace.AsSpan()))
-            //        return true;
-            //    return false;
-            //})
             .CreateLogger();
         loggingBuilder.AddSerilog(cLogger);
     }
@@ -254,30 +270,5 @@ internal class Program
     private static bool IsXmlParserLogging(LogEvent logEvent)
     {
         return Matching.FromSource(ParserNamespace)(logEvent) || Matching.FromSource(EngineParserNamespace)(logEvent);
-    }
-
-    private static void PrintHeader()
-    {
-        Console.WriteLine("***********************************");
-        Console.WriteLine("***********************************");
-        Console.WriteLine(Figgle.FiggleFonts.Standard.Render("Mod Verify"));
-        Console.WriteLine("***********************************");
-        Console.WriteLine("***********************************");
-        Console.WriteLine("                       by AnakinRaW");
-        Console.WriteLine();
-        Console.WriteLine();
-    }
-
-    private static void PrintApplicationFailure()
-    {
-        Console.WriteLine();
-        Console.WriteLine("********************");
-        Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.WriteLine(" ModVerify Failure! ");
-        Console.ResetColor();
-        Console.WriteLine("********************");
-        Console.WriteLine();
-        Console.WriteLine("The application encountered an unexpected error and will terminate now!");
-        Console.WriteLine();
     }
 }
