@@ -38,9 +38,9 @@ public sealed class TextureVeifier(
 
         if (tooLongPath)
         {
-            VerificationError.Create(VerifierChain, VerifierErrorCodes.FilePathTooLong, 
+            AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FilePathTooLong,
                 $"Could not find texture '{pathString}' because the engine resolved a path that is too long.",
-                VerificationSeverity.Error, contextInfo, pathString);
+                VerificationSeverity.Error, contextInfo, pathString));
             return;
         }
 
@@ -55,8 +55,8 @@ public sealed class TextureVeifier(
 
         messageBuilder.Append('.');
 
-        VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound, 
+        AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound, 
             messageBuilder.ToString(),
-            VerificationSeverity.Error, contextInfo, pathString);
+            VerificationSeverity.Error, contextInfo, pathString));
     }
 }
