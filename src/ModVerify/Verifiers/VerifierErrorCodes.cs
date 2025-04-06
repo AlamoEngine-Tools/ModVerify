@@ -19,11 +19,10 @@ public static class VerifierErrorCodes
 
     public const string DuplicateFound = "DUP00";
 
-    public const string SampleNotFound = "WAV00";
-    public const string SampleNotPCM = "WAV02";
-    public const string SampleNotMono = "WAV03";
-    public const string InvalidSampleRate = "WAV04";
-    public const string InvalidBitsPerSeconds = "WAV05";
+    public const string SampleNotPCM = "WAV00";
+    public const string SampleNotMono = "WAV01";
+    public const string InvalidSampleRate = "WAV02";
+    public const string InvalidBitsPerSeconds = "WAV03";
 
     public const string InvalidParticleName = "ALO01";
 

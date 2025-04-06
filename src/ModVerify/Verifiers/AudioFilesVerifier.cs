@@ -132,9 +132,10 @@ public class AudioFilesVerifier : GameVerifier
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 VerifierChain,
-                VerifierErrorCodes.SampleNotFound,
+                VerifierErrorCodes.FileNotFound,
                 $"Audio file '{sampleString}' could not be found.",
-                VerificationSeverity.Error,
+                VerificationSeverity.Error, 
+                [sfxEvent.Name],
                 sampleString));
             return;
         }
@@ -161,6 +162,7 @@ public class AudioFilesVerifier : GameVerifier
                 VerifierErrorCodes.SampleNotPCM,
                 $"Audio file '{sampleString}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
                 VerificationSeverity.Error,
+                [sfxEvent.Name],
                 sampleString));
         }
 
@@ -183,6 +185,7 @@ public class AudioFilesVerifier : GameVerifier
                 VerifierErrorCodes. InvalidSampleRate, 
                 $"Audio file '{sampleString}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
                 VerificationSeverity.Error,
+                [sfxEvent.Name],
                 sampleString));
         }
 
@@ -194,6 +197,7 @@ public class AudioFilesVerifier : GameVerifier
                 VerifierErrorCodes.InvalidBitsPerSeconds, 
                 $"Audio file '{sampleString}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
                 VerificationSeverity.Error,
+                [sfxEvent.Name],
                 sampleString));
         }
     }
