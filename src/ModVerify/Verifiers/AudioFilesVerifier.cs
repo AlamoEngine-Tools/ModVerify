@@ -132,7 +132,7 @@ public class AudioFilesVerifier : GameVerifier
             var sampleString = sample.ToString();
             AddError(VerificationError.Create(
                 VerifierChain,
-                VerifierErrorCodes.SampleNotFound,
+                VerifierErrorCodes.FileNotFound,
                 $"Audio file '{sampleString}' could not be found.",
                 VerificationSeverity.Error, 
                 [sfxEvent.Name],

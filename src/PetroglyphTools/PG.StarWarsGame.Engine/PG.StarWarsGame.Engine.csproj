@@ -18,6 +18,11 @@
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Database\**" />
+	  <EmbeddedResource Remove="Database\**" />
+	  <None Remove="Database\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.1.7" />
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.1.7" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.4" />
@@ -42,8 +47,5 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Database\" />
 	</ItemGroup>
 </Project>
