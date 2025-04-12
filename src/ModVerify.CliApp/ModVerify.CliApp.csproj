@@ -13,6 +13,11 @@
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.0.35" />
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.0.35" />
@@ -28,11 +33,11 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
 		<PackageReference Include="IsExternalInit" Version="1.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -53,7 +58,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <!--<ProjectReference Include="..\..\..\ModdingToolBase\src\Updater\AppUpdaterFramework\AppUpdaterFramework.csproj" />-->
 	  <ProjectReference Include="..\ModVerify\ModVerify.csproj" />
 	</ItemGroup>
 
