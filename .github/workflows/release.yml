@@ -25,9 +25,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
       - name: Create NetFramework Release
-        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net48 --output ./releases/net48
+        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
-        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net9.0 --output ./releases/net9.0
+        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net9.0 --output ./releases/net9.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
