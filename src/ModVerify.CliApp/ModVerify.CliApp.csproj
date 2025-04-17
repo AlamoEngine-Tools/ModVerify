@@ -6,10 +6,13 @@
 		<RootNamespace>AET.ModVerifyTool</RootNamespace>
 		<AssemblyName>ModVerify</AssemblyName>
 		<ApplicationIcon>$(RepoRootPath)aet.ico</ApplicationIcon>
-		<Title>AET.ModVerify.CommandLine</Title>
-		<Product>AET.ModVerify</Product>
-		<Description>Application that allows to verify to verify game modifications for Empire at War / Forces of Corruption against a set of common rules.</Description>
 		<PackageId>AlamoEngineTools.ModVerify.CliApp</PackageId>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Title>ModVerify Console Application</Title>
+		<Product>AET.ModVerify</Product>
+		<Description>Console application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 
@@ -22,6 +25,10 @@
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.0.35" />
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.0.35" />
 		<PackageReference Include="Figgle" Version="0.5.1" />
+		<PackageReference Include="IndexRange" Version="1.0.3" Condition="$(TargetFramework) == 'net48'">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Nullable" Version="1.3.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
