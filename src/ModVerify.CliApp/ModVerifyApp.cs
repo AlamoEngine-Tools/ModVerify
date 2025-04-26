@@ -72,7 +72,7 @@ internal class ModVerifyApp(ModVerifyAppSettings settings, IServiceProvider serv
                     initProgress,
                     false,
                     CancellationToken.None).ConfigureAwait(false);
-                _logger?.LogInformation($"Game Engine created");
+                _logger?.LogInformation("Game Engine created");
             }
             finally
             {
