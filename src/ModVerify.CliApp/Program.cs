@@ -236,7 +236,6 @@ internal class Program
         loggingBuilder.AddSerilog(fileLogger);
 
         var cLogger = new LoggerConfiguration()
-
             .WriteTo.Console(
                 logLevel, 
                 theme: AnsiConsoleTheme.Code, 
@@ -248,10 +247,7 @@ internal class Program
                 
                 var source = value.ToString().AsSpan().Trim('\"');
 
-                if (source.StartsWith(ModVerifyRootNameSpace.AsSpan()))
-                    return true;
-
-                return false;
+                return source.StartsWith(ModVerifyRootNameSpace.AsSpan());
             })
             .CreateLogger();
         loggingBuilder.AddSerilog(cLogger);
