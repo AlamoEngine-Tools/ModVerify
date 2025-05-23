@@ -5,6 +5,23 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to a release to"
+        required: true
+
+env:
+  TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
+  CREATOR_PROJ_PATH: ./Modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
+  UPLOADER_PROJ_PATH: ./Modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
+  TOOL_EXE: ModVerify.exe
+  UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
+  MANIFEST_CREATOR: AnakinRaW.ApplicationManifestCreator.dll
+  SFTP_UPLOADER: AnakinRaW.FtpUploader.dll
+  ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify
+  ORIGIN_BASE_PART: downloads/ModVerify/
+  BRANCH_NAME: ${{ github.event.inputs.branch || 'stable' }}
 
 jobs:
 
@@ -25,9 +42,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
       - name: Create NetFramework Release
-        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
+        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
-        run:  dotnet publish .\src\ModVerify.CliApp\ModVerify.CliApp.csproj --configuration Release -f net9.0 --output ./releases/net9.0 /p:DebugType=None /p:DebugSymbols=false
+        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net9.0 --output ./releases/net9.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -38,8 +55,9 @@ jobs:
 
   deploy:
     name: Deploy
+    # Deploy on push to main or manual trigger
     if: |
-      github.ref == 'refs/heads/main' &&  github.event_name == 'push'
+      (github.ref == 'refs/heads/main' &&  github.event_name == 'push') || github.event_name == 'workflow_dispatch'
     needs: [pack]
     runs-on: ubuntu-latest
     steps:
@@ -58,6 +76,9 @@ jobs:
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       - name: Create GitHub release
+        # Create a GitHub release on push to main only
+        if: |
+            github.ref == 'refs/heads/main' &&  github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           name: v${{ steps.nbgv.outputs.SemVer2 }}
