@@ -7,11 +7,11 @@ namespace AET.ModVerifyTool.Options.CommandLine;
 internal class VerifyVerbOption : BaseModVerifyOptions
 {
     [Option('o', "outDir", Required = false, HelpText = "Directory where result files shall be stored to.")]
-    public string? OutputDirectory { get; set; }
+    public string? OutputDirectory { get; init; }
 
     [Option("failFast", Required = false, Default = false,
         HelpText = "When set, the application will abort on the first failure. The option also recognized the 'MinimumFailureSeverity' setting.")]
-    public bool FailFast { get; set; }
+    public bool FailFast { get; init; }
 
     [Option("minFailSeverity", Required = false, Default = null,
         HelpText = "When set, the application return with an error, if any finding has at least the specified severity value.")]
@@ -19,8 +19,8 @@ internal class VerifyVerbOption : BaseModVerifyOptions
 
     [Option("ignoreAsserts", Required = false,
         HelpText = "When this flag is present, the application will not report engine assertions.")]
-    public bool IgnoreAsserts { get; set; }
+    public bool IgnoreAsserts { get; init; }
 
     [Option("baseline", Required = false, HelpText = "Path to a JSON baseline file.")]
-    public string? Baseline { get; set; }
+    public string? Baseline { get; init; }
 }

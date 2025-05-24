@@ -6,8 +6,11 @@ using AET.ModVerify.Reporting.Reporters.Text;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerifyTool.Options;
 using AET.ModVerifyTool.Options.CommandLine;
-using AET.ModVerifyTool.Updates;
 using AET.SteamAbstraction;
+using AnakinRaW.ApplicationBase;
+using AnakinRaW.ApplicationBase.Environment;
+using AnakinRaW.ApplicationBase.Update;
+using AnakinRaW.AppUpdaterFramework.Json;
 using AnakinRaW.CommonUtilities.Hashing;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Registry.Windows;
@@ -31,25 +34,101 @@ using Serilog.Events;
 using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Serilog.Expressions;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
 
 namespace AET.ModVerifyTool;
 
-internal class Program
+internal class Program : SelfUpdateableAppLifecycle
 {
     private static readonly string EngineParserNamespace = typeof(XmlObjectParser<>).Namespace!;
     private static readonly string ParserNamespace = typeof(PetroglyphXmlFileParser<>).Namespace!;
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
+    private static readonly CompiledExpression PrintToConsoleExpression = SerilogExpression.Compile($"EventId.Id = {ModVerifyConstants.ConsoleEventIdValue}");
+
+    private static ModVerifyAppSettings _modVerifySettings = null!;
 
     private static async Task<int> Main(string[] args) 
     {
-        ConsoleUtilities.WriteHeader();
+        ModVerifyConsoleUtilities.WriteHeader();
+        return await new Program().StartAsync(args);
+    }
 
-        var result = 0;
+    protected override async Task<int> InitializeAppAsync(IReadOnlyList<string> args)
+    {
+        await base.InitializeAppAsync(args);
+
+        try
+        {
+            var settings = ParseSettings(args);
+            if (settings is null)
+                return 0xA0;
+
+            _modVerifySettings = settings;
+            return 0;
+        }
+        catch (Exception e)
+        {
+            Logger?.LogCritical(e, $"Failed to create settings form commandline arguments: {e.Message}");
+            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
+            return e.HResult;
+        }
+    }
+
+    protected override void CreateAppServices(IServiceCollection services, IReadOnlyList<string> args)
+    {
+        base.CreateAppServices(services, args);
+
+        services.AddLogging(ConfigureLogging);
+
+        services.AddSingleton<IHashingService>(sp => new HashingService(sp));
+
         
+        if (IsUpdateableApplication)
+        {
+#if NET
+            throw new NotSupportedException();
+#endif
+            services.MakeAppUpdateable(
+                UpdatableApplicationEnvironment,
+                sp => new CosturaApplicationProductService(ApplicationEnvironment, sp),
+                sp => new JsonManifestLoader(sp));
+        }
+
+        SteamAbstractionLayer.InitializeServices(services);
+        PetroglyphGameInfrastructure.InitializeServices(services);
+
+        services.SupportMTD();
+        services.SupportMEG();
+        services.SupportALO();
+        services.SupportXML();
+        PetroglyphCommons.ContributeServices(services);
+
+        PetroglyphEngineServiceContribution.ContributeServices(services);
+        services.RegisterVerifierCache();
+
+
+        SetupVerifyReporting(services, _modVerifySettings);
+
+        if (_modVerifySettings.Offline)
+        {
+            services.AddSingleton<IModNameResolver>(sp => new OfflineModNameResolver(sp));
+            services.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
+        }
+        else
+        {
+            services.AddSingleton<IModNameResolver>(sp => new OnlineModNameResolver(sp));
+            services.AddSingleton<IModGameTypeResolver>(sp => new OnlineModGameTypeResolver(sp));
+        }
+    }
+
+    private ModVerifyAppSettings? ParseSettings(IReadOnlyList<string> args)
+    {
         Type[] programVerbs =
         [
             typeof(VerifyVerbOption),
@@ -58,137 +137,39 @@ internal class Program
 
         var parseResult = Parser.Default.ParseArguments(args, programVerbs);
 
-        await parseResult.WithParsedAsync(async o =>
+        ModVerifyAppSettings? settings = null;
+
+        parseResult.WithParsed<BaseModVerifyOptions>(o => settings = BuildSettings(o));
+
+        parseResult.WithNotParsed(_ =>
         {
-            result = await Run((BaseModVerifyOptions)o);
-        });
-        await parseResult.WithNotParsedAsync(e =>
-        {
+            Logger?.LogError("Unable to parse command line");
             Console.WriteLine(HelpText.AutoBuild(parseResult).ToString());
-            result = 0xA0;
-            return Task.CompletedTask;
         });
 
-        return result;
+        return settings;
     }
 
-    private static async Task<int> Run(BaseModVerifyOptions options)
+    protected override ApplicationEnvironment CreateAppEnvironment()
     {
-        var coreServiceCollection = CreateCoreServices(options.Verbose);
-        var coreServices = coreServiceCollection.BuildServiceProvider();
-        var logger = coreServices.GetService<ILoggerFactory>()?.CreateLogger(typeof(Program));
-
-        logger?.LogDebug($"Raw command line: {Environment.CommandLine}");
-
-        var interactive = false;
-        try
-        {
-            var settings = new SettingsBuilder(coreServices).BuildSettings(options);
-            interactive = settings.Interactive;
-            var services = CreateAppServices(coreServiceCollection, settings);
-
-            if (!settings.Offline)
-                await CheckForUpdate(services, logger);
-            
-            var verifier = new ModVerifyApp(settings, services);
-            return await verifier.RunApplication().ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            ConsoleUtilities.WriteApplicationFailure();
-            logger?.LogCritical(e, e.Message);
-            return e.HResult;
-        }
-        finally
-        {
-#if NET
-            await Log.CloseAndFlushAsync();
-#else
-            Log.CloseAndFlush();
-#endif
-            if (interactive)
-            {
-                Console.WriteLine();
-                ConsoleUtilities.WriteHorizontalLine('-');
-                Console.WriteLine("Press any key to exit");
-                Console.ReadLine();
-            }
-        }
+        return new ModVerifyAppEnvironment(typeof(Program).Assembly, FileSystem);
     }
 
-    private static async Task CheckForUpdate(IServiceProvider services, Microsoft.Extensions.Logging.ILogger? logger)
+    protected override IFileSystem CreateFileSystem()
     {
-        var updateChecker = new ModVerifyUpdaterChecker(services);
-
-        logger?.LogDebug("Checking for available update");
-
-        try
-        {
-            var updateInfo = await updateChecker.CheckForUpdateAsync().ConfigureAwait(false);
-            if (updateInfo.IsUpdateAvailable)
-            {
-                ConsoleUtilities.WriteHorizontalLine();
-                
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("New Update Available!");
-                Console.ResetColor();
-                
-                Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
-                ConsoleUtilities.WriteHorizontalLine();
-                Console.WriteLine();
-
-            }
-        }
-        catch(Exception e)
-        {
-            logger?.LogWarning($"Unable to check for updates due to an internal error: {e.Message}");
-            logger?.LogTrace(e, "Checking for update failed: " + e.Message);
-        }
+        return new RealFileSystem();
     }
 
-    private static IServiceCollection CreateCoreServices(bool verboseLogging)
+    protected override IRegistry CreateRegistry()
     {
-        var fileSystem = new RealFileSystem();
-        var serviceCollection = new ServiceCollection();
-
-        serviceCollection.AddSingleton<IRegistry>(new WindowsRegistry());
-        serviceCollection.AddSingleton<IFileSystem>(fileSystem);
-
-        serviceCollection.AddLogging(builder => ConfigureLogging(builder, fileSystem, verboseLogging));
-
-        return serviceCollection;
+        return !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? new InMemoryRegistry(InMemoryRegistryCreationFlags.WindowsLike)
+            : new WindowsRegistry();
     }
 
-    private static IServiceProvider CreateAppServices(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
+    protected override async Task<int> RunAppAsync(string[] args, IServiceProvider appServiceProvider)
     {
-        serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
-
-        SteamAbstractionLayer.InitializeServices(serviceCollection);
-        PetroglyphGameInfrastructure.InitializeServices(serviceCollection);
-
-        serviceCollection.SupportMTD();
-        serviceCollection.SupportMEG();
-        serviceCollection.SupportALO();
-        serviceCollection.SupportXML();
-        PetroglyphCommons.ContributeServices(serviceCollection);
-
-        PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
-        serviceCollection.RegisterVerifierCache();
-
-        SetupVerifyReporting(serviceCollection, settings);
-
-        if (settings.Offline)
-        {
-            serviceCollection.AddSingleton<IModNameResolver>(sp => new OfflineModNameResolver(sp));
-            serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
-        }
-        else
-        {
-            serviceCollection.AddSingleton<IModNameResolver>(sp => new OnlineModNameResolver(sp));
-            serviceCollection.AddSingleton<IModGameTypeResolver>(sp => new OnlineModGameTypeResolver(sp));
-        }
-        
-        return serviceCollection.BuildServiceProvider();
+        return await new ModVerifyApplication(_modVerifySettings, appServiceProvider).Run().ConfigureAwait(false);
     }
 
     private static void SetupVerifyReporting(IServiceCollection serviceCollection, ModVerifyAppSettings settings)
@@ -215,7 +196,12 @@ internal class Program
         });
     }
 
-    private static void ConfigureLogging(ILoggingBuilder loggingBuilder, IFileSystem fileSystem, bool verbose)
+    private ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
+    {
+        return new SettingsBuilder(FileSystem, BootstrapLoggerFactory).BuildSettings(options);
+    }
+
+    private void ConfigureLogging(ILoggingBuilder loggingBuilder)
     {
         loggingBuilder.ClearProviders();
 
@@ -226,13 +212,13 @@ internal class Program
         loggingBuilder.AddDebug();
 #endif
 
-        if (verbose)
+        if (_modVerifySettings.VerboseMode)
         {
             logLevel = LogEventLevel.Verbose;
             loggingBuilder.AddDebug();
         }
 
-        var fileLogger = SetupFileLogging(fileSystem, logLevel);
+        var fileLogger = SetupFileLogging(logLevel);
         loggingBuilder.AddSerilog(fileLogger);
 
         var cLogger = new LoggerConfiguration()
@@ -240,22 +226,36 @@ internal class Program
                 logLevel, 
                 theme: AnsiConsoleTheme.Code, 
                 outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .MinimumLevel.Is(logLevel)
             .Filter.ByIncludingOnly(x =>
             {
-                if (!x.Properties.TryGetValue("SourceContext", out var value))
-                    return true;
-                
-                var source = value.ToString().AsSpan().Trim('\"');
+                // Fatal errors are handled by a global exception handler
+                if (x.Level == LogEventLevel.Fatal)
+                    return false;
 
-                return source.StartsWith(ModVerifyRootNameSpace.AsSpan());
+                // Verbose should print everything we get
+                if (logLevel == LogEventLevel.Verbose)
+                    return true;
+
+                // Debug should print everything that has something to do with ModVerify
+                if (logLevel == LogEventLevel.Debug)
+                {
+                    if (!x.Properties.TryGetValue("SourceContext", out var value))
+                        return false;
+                    var source = value.ToString().AsSpan().Trim('\"');
+                    return source.StartsWith(ModVerifyRootNameSpace.AsSpan());
+                }
+
+                // In normal operation, we only print logs, which have the print-to-console EventId set.
+                return ExpressionResult.IsTrue(PrintToConsoleExpression(x));
             })
             .CreateLogger();
         loggingBuilder.AddSerilog(cLogger);
     }
 
-    private static ILogger SetupFileLogging(IFileSystem fileSystem, LogEventLevel minLevel)
+    private ILogger SetupFileLogging(LogEventLevel minLevel)
     {
-        var logPath = fileSystem.Path.Combine(fileSystem.Path.GetTempPath(), "ModVerify_log.txt");
+        var logPath = FileSystem.Path.Combine(ApplicationEnvironment.ApplicationLocalPath, "ModVerify_log.txt");
 
         return new LoggerConfiguration()
             .Enrich.FromLogContext()

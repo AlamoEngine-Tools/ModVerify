@@ -17,6 +17,34 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PG.StarWarsGame.Files.XML",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PG.StarWarsGame.Engine", "src\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj", "{DFD62F61-3455-44BE-BB7C-E954FF48534B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AnakinApps", "AnakinApps", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ModdingToolBase", "ModdingToolBase", "{E6AFA947-48BE-416A-BEB1-C76E9D0843A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationBase", "modules\ModdingToolBase\src\AnakinApps\ApplicationBase\ApplicationBase.csproj", "{92A18973-0EB9-120E-7850-B37A24189DA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationBase.CommandLine", "modules\ModdingToolBase\src\AnakinApps\ApplicationBase.CommandLine\ApplicationBase.CommandLine.csproj", "{E06AF71E-5BC3-6837-4B6F-19A153B48327}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ApplicationBase.Shared", "modules\ModdingToolBase\src\AnakinApps\ApplicationBase.Shared\ApplicationBase.Shared.shproj", "{B297A13A-8E3A-436C-BA97-8B5F57827FFE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployTools", "DeployTools", "{749BC149-9DBD-46CA-B039-DAEA4C05FD97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationManifestCreator", "modules\ModdingToolBase\src\AnakinApps\ApplicationManifestCreator\ApplicationManifestCreator.csproj", "{E8D2FB2D-8C9C-37D8-58AD-1A8F05E89999}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpUploader", "modules\ModdingToolBase\src\AnakinApps\FtpUploader\FtpUploader.csproj", "{4F70D564-DE7F-2101-EA21-B6B9398D13F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UpdateFrameworks", "UpdateFrameworks", "{C535EAD3-87C0-4C85-BBF6-03A8B3A3E389}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterFramework", "modules\ModdingToolBase\src\Updater\AppUpdaterFramework\AppUpdaterFramework.csproj", "{D7E1FA39-5484-B17A-2138-798858D5DA09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterFramework.Attributes", "modules\ModdingToolBase\src\Updater\AppUpdaterFramework.Attributes\AppUpdaterFramework.Attributes.csproj", "{7908FA18-0B16-B6E7-207F-077048A0CB63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterFramework.Manifest", "modules\ModdingToolBase\src\Updater\AppUpdaterFramework.Manifest\AppUpdaterFramework.Manifest.csproj", "{F1666AC0-2207-B91F-4369-7C8C38A4245D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalUpdater.App", "modules\ModdingToolBase\src\Updater\ExternalUpdater.App\ExternalUpdater.App.csproj", "{18C9D26C-6BBC-E3E0-25EF-D66762103B14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalUpdater.Core", "modules\ModdingToolBase\src\Updater\ExternalUpdater.Core\ExternalUpdater.Core.csproj", "{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +75,42 @@ Global
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92A18973-0EB9-120E-7850-B37A24189DA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92A18973-0EB9-120E-7850-B37A24189DA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92A18973-0EB9-120E-7850-B37A24189DA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92A18973-0EB9-120E-7850-B37A24189DA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E06AF71E-5BC3-6837-4B6F-19A153B48327}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E06AF71E-5BC3-6837-4B6F-19A153B48327}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E06AF71E-5BC3-6837-4B6F-19A153B48327}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E06AF71E-5BC3-6837-4B6F-19A153B48327}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8D2FB2D-8C9C-37D8-58AD-1A8F05E89999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8D2FB2D-8C9C-37D8-58AD-1A8F05E89999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8D2FB2D-8C9C-37D8-58AD-1A8F05E89999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8D2FB2D-8C9C-37D8-58AD-1A8F05E89999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F70D564-DE7F-2101-EA21-B6B9398D13F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F70D564-DE7F-2101-EA21-B6B9398D13F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F70D564-DE7F-2101-EA21-B6B9398D13F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F70D564-DE7F-2101-EA21-B6B9398D13F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7E1FA39-5484-B17A-2138-798858D5DA09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E1FA39-5484-B17A-2138-798858D5DA09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E1FA39-5484-B17A-2138-798858D5DA09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E1FA39-5484-B17A-2138-798858D5DA09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7908FA18-0B16-B6E7-207F-077048A0CB63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7908FA18-0B16-B6E7-207F-077048A0CB63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7908FA18-0B16-B6E7-207F-077048A0CB63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7908FA18-0B16-B6E7-207F-077048A0CB63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1666AC0-2207-B91F-4369-7C8C38A4245D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1666AC0-2207-B91F-4369-7C8C38A4245D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1666AC0-2207-B91F-4369-7C8C38A4245D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1666AC0-2207-B91F-4369-7C8C38A4245D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18C9D26C-6BBC-E3E0-25EF-D66762103B14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18C9D26C-6BBC-E3E0-25EF-D66762103B14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18C9D26C-6BBC-E3E0-25EF-D66762103B14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18C9D26C-6BBC-E3E0-25EF-D66762103B14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,8 +120,26 @@ Global
 		{DF76A383-C94E-4D03-A07C-22D61ED37059} = {15F8B753-814A-406E-9147-EB048DADAC96}
 		{418C68FA-531B-432E-8459-6433181C8AD3} = {15F8B753-814A-406E-9147-EB048DADAC96}
 		{DFD62F61-3455-44BE-BB7C-E954FF48534B} = {15F8B753-814A-406E-9147-EB048DADAC96}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {E6AFA947-48BE-416A-BEB1-C76E9D0843A8}
+		{92A18973-0EB9-120E-7850-B37A24189DA8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E06AF71E-5BC3-6837-4B6F-19A153B48327} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{B297A13A-8E3A-436C-BA97-8B5F57827FFE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{749BC149-9DBD-46CA-B039-DAEA4C05FD97} = {E6AFA947-48BE-416A-BEB1-C76E9D0843A8}
+		{E8D2FB2D-8C9C-37D8-58AD-1A8F05E89999} = {749BC149-9DBD-46CA-B039-DAEA4C05FD97}
+		{4F70D564-DE7F-2101-EA21-B6B9398D13F2} = {749BC149-9DBD-46CA-B039-DAEA4C05FD97}
+		{C535EAD3-87C0-4C85-BBF6-03A8B3A3E389} = {E6AFA947-48BE-416A-BEB1-C76E9D0843A8}
+		{D7E1FA39-5484-B17A-2138-798858D5DA09} = {C535EAD3-87C0-4C85-BBF6-03A8B3A3E389}
+		{7908FA18-0B16-B6E7-207F-077048A0CB63} = {C535EAD3-87C0-4C85-BBF6-03A8B3A3E389}
+		{F1666AC0-2207-B91F-4369-7C8C38A4245D} = {C535EAD3-87C0-4C85-BBF6-03A8B3A3E389}
+		{18C9D26C-6BBC-E3E0-25EF-D66762103B14} = {C535EAD3-87C0-4C85-BBF6-03A8B3A3E389}
+		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030} = {C535EAD3-87C0-4C85-BBF6-03A8B3A3E389}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D74A22E2-91F1-4BC7-9630-3CF930B45408}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		modules\ModdingToolBase\src\AnakinApps\ApplicationBase.Shared\ApplicationBase.Shared.projitems*{4f70d564-de7f-2101-ea21-b6b9398d13f2}*SharedItemsImports = 5
+		modules\ModdingToolBase\src\AnakinApps\ApplicationBase.Shared\ApplicationBase.Shared.projitems*{92a18973-0eb9-120e-7850-b37a24189da8}*SharedItemsImports = 5
+		modules\ModdingToolBase\src\AnakinApps\ApplicationBase.Shared\ApplicationBase.Shared.projitems*{e8d2fb2d-8c9c-37d8-58ad-1a8f05e89999}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

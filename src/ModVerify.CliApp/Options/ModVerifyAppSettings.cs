@@ -25,4 +25,6 @@ internal sealed class ModVerifyAppSettings
     public string? NewBaselinePath { get; init; }
 
     public bool Offline { get; init; }
+
+    public bool VerboseMode { get; init; }
 }

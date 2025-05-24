@@ -2,7 +2,6 @@
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 using AET.ModVerifyTool.Options;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,11 +12,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AET.ModVerifyTool;
 
-internal sealed class SettingsBuilder(IServiceProvider services)
+internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? loggerFactory)
 {
-    private readonly IFileSystem _fileSystem = services.GetRequiredService<IFileSystem>();
-    private readonly ILogger? _logger =
-        services.GetRequiredService<ILoggerFactory>()?.CreateLogger(typeof(SettingsBuilder));
+    private readonly ILogger? _logger = loggerFactory?.CreateLogger(typeof(SettingsBuilder));
 
     public ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
     {
@@ -37,7 +34,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
         var outDir = verifyOptions.OutputDirectory;
         
         if (!string.IsNullOrEmpty(outDir))
-            output = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(Environment.CurrentDirectory, outDir!));
+            output = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(Environment.CurrentDirectory, outDir!));
 
         return new ModVerifyAppSettings
         {
@@ -56,7 +53,8 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
             GlobalReportSettings = BuilderGlobalReportSettings(verifyOptions),
             ReportOutput = output,
-            Offline = verifyOptions.OfflineMode
+            Offline = verifyOptions.OfflineMode,
+            VerboseMode = verifyOptions.Verbose
         };
 
         VerificationSeverity? GetVerifierMinimumThrowSeverity()
@@ -66,8 +64,9 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             {
                 if (minFailSeverity == null)
                 {
-                    _logger?.LogWarning($"Verification is configured to fail fast but 'minFailSeverity' is not specified. " +
-                                        $"Using severity '{VerificationSeverity.Information}'.");
+                    _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, 
+                        $"Verification is configured to fail fast but 'minFailSeverity' is not specified. " +
+                        $"Using severity '{VerificationSeverity.Information}'.");
                     minFailSeverity = VerificationSeverity.Information;
                 }
 
@@ -100,7 +99,8 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             GlobalReportSettings = BuilderGlobalReportSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
             ReportOutput = null, 
-            Offline = baselineVerb.OfflineMode
+            Offline = baselineVerb.OfflineMode,
+            VerboseMode = baselineVerb.Verbose
         };
     }
 
@@ -119,7 +119,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             if (options is not VerifyVerbOption verifyOptions || string.IsNullOrEmpty(verifyOptions.Baseline))
                 return VerificationBaseline.Empty;
 
-            using var fs = _fileSystem.FileStream.New(verifyOptions.Baseline!, FileMode.Open, FileAccess.Read);
+            using var fs = fileSystem.FileStream.New(verifyOptions.Baseline!, FileMode.Open, FileAccess.Read);
 
             try
             {
@@ -138,7 +138,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
         {
             if (options.Suppressions is null) 
                 return SuppressionList.Empty;
-            using var fs = _fileSystem.FileStream.New(options.Suppressions, FileMode.Open, FileAccess.Read);
+            using var fs = fileSystem.FileStream.New(options.Suppressions, FileMode.Open, FileAccess.Read);
             return SuppressionList.FromJson(fs);
         }
     }
@@ -151,7 +151,7 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             foreach (var mod in options.ModPaths)
             {
                 if (!string.IsNullOrEmpty(mod))
-                    modPaths.Add(_fileSystem.Path.GetFullPath(mod));
+                    modPaths.Add(fileSystem.Path.GetFullPath(mod));
             }
         }
 
@@ -161,22 +161,22 @@ internal sealed class SettingsBuilder(IServiceProvider services)
             foreach (var fallback in options.AdditionalFallbackPath)
             {
                 if (!string.IsNullOrEmpty(fallback))
-                    fallbackPaths.Add(_fileSystem.Path.GetFullPath(fallback));
+                    fallbackPaths.Add(fileSystem.Path.GetFullPath(fallback));
             }
         }
 
         var gamePath = options.GamePath;
         if (!string.IsNullOrEmpty(gamePath))
-            gamePath = _fileSystem.Path.GetFullPath(gamePath);
+            gamePath = fileSystem.Path.GetFullPath(gamePath!);
 
 
         string? fallbackGamePath = null;
         if (!string.IsNullOrEmpty(gamePath) && !string.IsNullOrEmpty(options.FallbackGamePath))
-            fallbackGamePath = _fileSystem.Path.GetFullPath(options.FallbackGamePath);
+            fallbackGamePath = fileSystem.Path.GetFullPath(options.FallbackGamePath!);
 
         var autoPath = options.AutoPath;
         if (!string.IsNullOrEmpty(autoPath))
-            autoPath = _fileSystem.Path.GetFullPath(autoPath);
+            autoPath = fileSystem.Path.GetFullPath(autoPath!);
 
         return new GameInstallationsSettings
         {

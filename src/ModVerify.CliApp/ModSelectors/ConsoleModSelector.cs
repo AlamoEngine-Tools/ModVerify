@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AET.Modinfo.Spec;
 using AET.ModVerifyTool.GameFinder;
 using AET.ModVerifyTool.Options;
+using AnakinRaW.ApplicationBase;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
@@ -100,7 +101,7 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
                     if (!int.TryParse(input, out value))
                         return false;
                     
-                    return value <= list.Count;
+                    return value <= list.Count && value >= 0;
                 });
             return list[selected];
         }

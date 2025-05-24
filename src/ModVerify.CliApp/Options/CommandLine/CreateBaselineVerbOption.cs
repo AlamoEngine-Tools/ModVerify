@@ -6,5 +6,5 @@ namespace AET.ModVerifyTool.Options.CommandLine;
 internal class CreateBaselineVerbOption : BaseModVerifyOptions
 {
     [Option('o', "outFile", Required = true, HelpText = "The file path of the new baseline file.")]
-    public string OutputFile { get; set; }
+    public required string OutputFile { get; init; }
 }

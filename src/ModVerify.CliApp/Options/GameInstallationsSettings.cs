@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using PG.StarWarsGame.Engine;
 
@@ -17,13 +16,13 @@ internal record GameInstallationsSettings
 
     public string? AutoPath { get; init; }
 
-    public IList<string> ModPaths { get; init; } = Array.Empty<string>();
+    public IList<string> ModPaths { get; init; } = [];
 
     public string? GamePath { get; init; }
 
     public string? FallbackGamePath { get; init; }
 
-    public IList<string> AdditionalFallbackPaths { get; init; } = Array.Empty<string>();
+    public IList<string> AdditionalFallbackPaths { get; init; } = [];
 
     public GameEngineType? EngineType { get; init; }
 }

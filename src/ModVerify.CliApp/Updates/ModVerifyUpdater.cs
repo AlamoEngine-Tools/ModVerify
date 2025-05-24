@@ -10,11 +10,11 @@ using Semver;
 
 namespace AET.ModVerifyTool.Updates;
 
-internal sealed class ModVerifyUpdaterChecker
+internal sealed class ModVerifyUpdater
 {
     private readonly ILogger? _logger;
 
-    public ModVerifyUpdaterChecker(IServiceProvider serviceProvider)
+    public ModVerifyUpdater(IServiceProvider serviceProvider)
     {
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
     }
