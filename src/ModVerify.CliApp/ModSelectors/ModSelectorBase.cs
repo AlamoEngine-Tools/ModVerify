@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AET.ModVerifyTool.GameFinder;
-using AET.ModVerifyTool.Options;
+using AET.ModVerifyTool.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;

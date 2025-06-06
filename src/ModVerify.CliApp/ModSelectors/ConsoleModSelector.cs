@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using AET.Modinfo.Spec;
 using AET.ModVerifyTool.GameFinder;
-using AET.ModVerifyTool.Options;
+using AET.ModVerifyTool.Settings;
+using AET.ModVerifyTool.Utilities;
 using AnakinRaW.ApplicationBase;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;

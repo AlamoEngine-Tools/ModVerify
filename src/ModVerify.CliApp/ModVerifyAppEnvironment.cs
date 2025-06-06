@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
 using System.Reflection;
 using AnakinRaW.ApplicationBase.Environment;
+#if !NET
+using System;
+using System.Collections.Generic;
 using AnakinRaW.AppUpdaterFramework.Configuration;
 using AnakinRaW.CommonUtilities.DownloadManager.Configuration;
+#endif
 
 namespace AET.ModVerifyTool;
 

@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerifyTool.ModSelectors;
 
-internal sealed class VerifyInstallationInformation
+internal sealed class VerifyInstallationData
 {
     public required string Name { get; init; }
 

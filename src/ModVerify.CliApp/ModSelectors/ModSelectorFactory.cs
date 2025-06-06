@@ -1,5 +1,5 @@
 ﻿using System;
-using AET.ModVerifyTool.Options;
+using AET.ModVerifyTool.Settings;
 
 namespace AET.ModVerifyTool.ModSelectors;
 

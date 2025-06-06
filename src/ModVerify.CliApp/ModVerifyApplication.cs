@@ -1,7 +1,5 @@
 ﻿using AET.ModVerifyTool.ModSelectors;
-using AET.ModVerifyTool.Options;
 using AET.ModVerifyTool.Reporting;
-using AET.ModVerifyTool.Updates;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +15,7 @@ using System.Threading.Tasks;
 using AET.ModVerify;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
+using AET.ModVerifyTool.Settings;
 using PG.StarWarsGame.Engine;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -38,14 +37,9 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     {
        _logger?.LogDebug($"Raw command line: {Environment.CommandLine}");
 
-        var interactive = false;
+        var interactive = settings.Interactive;
         try
         {
-            interactive = settings.Interactive;
-
-            if (!settings.Offline)
-                await CheckForUpdate().ConfigureAwait(false);
-            
             return await RunVerify().ConfigureAwait(false);
         }
         catch (Exception e)
@@ -100,7 +94,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         return 0;
     }
 
-    private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyInstallationInformation installInformation)
+    private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyInstallationData installData)
     {
         var gameEngineService = services.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
         var engineErrorReporter = new ConcurrentGameEngineErrorReporter();
@@ -114,10 +108,10 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Creating Game Engine '{installInformation.EngineType}'");
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Creating Game Engine '{installData.EngineType}'");
                 gameEngine = await gameEngineService.InitializeAsync(
-                    installInformation.EngineType,
-                    installInformation.GameLocations,
+                    installData.EngineType,
+                    installData.GameLocations,
                     engineErrorReporter,
                     initProgress,
                     false,
@@ -135,7 +129,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             throw;
         }
 
-        var progressReporter = new VerifyConsoleProgressReporter(installInformation.Name);
+        var progressReporter = new VerifyConsoleProgressReporter(installData.Name);
 
         using var verifyPipeline = new GameVerifyPipeline(
             gameEngine,
@@ -149,7 +143,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         {
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Verifying '{installInformation.Name}'...");
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Verifying '{installData.Name}'...");
                 await verifyPipeline.RunAsync().ConfigureAwait(false);
                 progressReporter.Report(string.Empty, 1.0);
             }
@@ -201,36 +195,5 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
         await baseline.ToJsonAsync(fs);
-    }
-
-
-    private async Task CheckForUpdate()
-    {
-        var updateChecker = new ModVerifyUpdater(services);
-
-        _logger?.LogDebug("Checking for available update");
-
-        try
-        {
-            var updateInfo = await updateChecker.CheckForUpdateAsync().ConfigureAwait(false);
-            if (updateInfo.IsUpdateAvailable)
-            {
-                ConsoleUtilities.WriteHorizontalLine();
-
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("New Update Available!");
-                Console.ResetColor();
-
-                Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
-                ConsoleUtilities.WriteHorizontalLine();
-                Console.WriteLine();
-
-            }
-        }
-        catch (Exception e)
-        {
-            _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, $"Unable to check for updates due to an internal error: {e.Message}");
-            _logger?.LogTrace(e, "Checking for update failed: " + e.Message);
-        }
     }
 }

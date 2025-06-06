@@ -6,18 +6,75 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AnakinRaW.ApplicationBase.Update.Options;
 using Semver;
 
 namespace AET.ModVerifyTool.Updates;
 
 internal sealed class ModVerifyUpdater
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger? _logger;
+    private readonly ModVerifyAppEnvironment _appEnvironment;
 
-    public ModVerifyUpdater(IServiceProvider serviceProvider)
+    public ModVerifyUpdater(ApplicationUpdateOptions updateOptions, IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider;
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+        _appEnvironment = serviceProvider.GetRequiredService<ModVerifyAppEnvironment>();
     }
+
+
+
+    public async Task<int> RunUpdateProcedure(ModVerifyUpdateMode mode)
+    {
+        //if (_settings.Offline)
+        //{
+        //    _logger?.LogTrace("App is running in offline mode. Nothing to do here.");
+        //    return;
+        //}
+
+        //if (!IsUpdatable(out var updateEnv))
+        //{
+        //    await CheckUpdateGithub();
+        //    return;
+        //}
+
+
+
+        _logger?.LogDebug("Checking for available update");
+
+        //try
+        //{
+        //    var updateInfo = await updateChecker.CheckForUpdateAsync().ConfigureAwait(false);
+        //    if (updateInfo.IsUpdateAvailable)
+        //    {
+        //        ConsoleUtilities.WriteHorizontalLine();
+
+        //        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        //        Console.WriteLine("New Update Available!");
+        //        Console.ResetColor();
+
+        //        Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+        //        ConsoleUtilities.WriteHorizontalLine();
+        //        Console.WriteLine();
+
+        //    }
+        //}
+        //catch (Exception e)
+        //{
+        //    _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, $"Unable to check for updates due to an internal error: {e.Message}");
+        //    _logger?.LogTrace(e, "Checking for update failed: " + e.Message);
+        //}
+
+        return 0;
+    }
+
+    private async Task CheckUpdateGithub()
+    {
+        
+    }
+
 
     public async Task<UpdateInfo> CheckForUpdateAsync()
     {

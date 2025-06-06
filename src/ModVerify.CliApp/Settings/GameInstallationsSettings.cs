@@ -2,9 +2,9 @@
 using System.Diagnostics.CodeAnalysis;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerifyTool.Options;
+namespace AET.ModVerifyTool.Settings;
 
-internal record GameInstallationsSettings
+internal sealed record GameInstallationsSettings
 {
     public bool Interactive => string.IsNullOrEmpty(AutoPath) && ModPaths.Count == 0 && string.IsNullOrEmpty(GamePath);
 

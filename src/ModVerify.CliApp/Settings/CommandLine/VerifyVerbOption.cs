@@ -1,10 +1,10 @@
 ﻿using AET.ModVerify.Reporting;
 using CommandLine;
 
-namespace AET.ModVerifyTool.Options.CommandLine;
+namespace AET.ModVerifyTool.Settings.CommandLine;
 
-[Verb("verify", true, HelpText = "Verifies the specified game and reports the findings.")]
-internal class VerifyVerbOption : BaseModVerifyOptions
+[Verb("verify", HelpText = "Verifies the specified game and reports the findings.")]
+internal sealed class VerifyVerbOption : BaseModVerifyOptions
 {
     [Option('o', "outDir", Required = false, HelpText = "Directory where result files shall be stored to.")]
     public string? OutputDirectory { get; init; }

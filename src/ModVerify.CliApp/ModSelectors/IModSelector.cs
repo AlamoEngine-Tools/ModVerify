@@ -1,4 +1,4 @@
-﻿using AET.ModVerifyTool.Options;
+﻿using AET.ModVerifyTool.Settings;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 

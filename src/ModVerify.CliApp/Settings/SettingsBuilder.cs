@@ -1,16 +1,15 @@
-﻿using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Settings;
-using AET.ModVerify.Settings;
-using AET.ModVerifyTool.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using AET.ModVerify.Pipeline;
-using AET.ModVerifyTool.Options.CommandLine;
+using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Settings;
+using AET.ModVerify.Settings;
+using AET.ModVerifyTool.Settings.CommandLine;
 using Microsoft.Extensions.Logging;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerifyTool.Settings;
 
 internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? loggerFactory)
 {

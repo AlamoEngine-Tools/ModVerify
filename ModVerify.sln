@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalUpdater.App", "modu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalUpdater.Core", "modules\ModdingToolBase\src\Updater\ExternalUpdater.Core\ExternalUpdater.Core.csproj", "{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModVerify.CliApp.Test", "test\ModVerify.CliApp.Test\ModVerify.CliApp.Test.csproj", "{EBFFD896-7432-4199-A7A3-311839E67278}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,10 @@ Global
 		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D97BEDD9-E04C-8CBC-29CC-B34AF2E35030}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBFFD896-7432-4199-A7A3-311839E67278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBFFD896-7432-4199-A7A3-311839E67278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBFFD896-7432-4199-A7A3-311839E67278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBFFD896-7432-4199-A7A3-311839E67278}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
