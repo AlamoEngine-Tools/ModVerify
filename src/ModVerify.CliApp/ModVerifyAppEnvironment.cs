@@ -8,7 +8,7 @@ using AnakinRaW.AppUpdaterFramework.Configuration;
 using AnakinRaW.CommonUtilities.DownloadManager.Configuration;
 #endif
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerify.App;
 
 internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fileSystem)
 #if NET

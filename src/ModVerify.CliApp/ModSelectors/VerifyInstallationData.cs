@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal sealed class VerifyInstallationData
 {

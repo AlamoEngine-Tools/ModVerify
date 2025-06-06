@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net9.0;net481</TargetFrameworks>
 		<OutputType>Exe</OutputType>
-		<RootNamespace>AET.ModVerifyTool</RootNamespace>
+		<RootNamespace>AET.ModVerify.App</RootNamespace>
 		<AssemblyName>ModVerify</AssemblyName>
 		<ApplicationIcon>$(RepoRootPath)aet.ico</ApplicationIcon>
 		<PackageId>AlamoEngineTools.ModVerify.CliApp</PackageId>

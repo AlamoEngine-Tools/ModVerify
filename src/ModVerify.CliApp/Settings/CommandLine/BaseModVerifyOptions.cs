@@ -3,7 +3,7 @@ using AET.ModVerify.Reporting;
 using CommandLine;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerifyTool.Settings.CommandLine;
+namespace AET.ModVerify.App.Settings.CommandLine;
 
 internal abstract class BaseModVerifyOptions
 {

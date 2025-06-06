@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Reflection;
-using AET.ModVerifyTool.Settings.CommandLine;
+using AET.ModVerify.App.Settings.CommandLine;
 using AnakinRaW.ApplicationBase.Environment;
 using AnakinRaW.AppUpdaterFramework.Configuration;
 using Testably.Abstractions;

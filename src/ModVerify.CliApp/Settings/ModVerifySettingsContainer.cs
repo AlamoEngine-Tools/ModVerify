@@ -1,6 +1,6 @@
 ﻿using AnakinRaW.ApplicationBase.Update.Options;
 
-namespace AET.ModVerifyTool.Settings;
+namespace AET.ModVerify.App.Settings;
 
 internal sealed class ModVerifySettingsContainer
 {

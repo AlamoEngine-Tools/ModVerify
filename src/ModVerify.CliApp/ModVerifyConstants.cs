@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerify.App;
 
 internal static class ModVerifyConstants
 {

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
 
-namespace AET.ModVerifyTool.Updates;
+namespace AET.ModVerify.App.Updates;
 
 internal sealed class GithubReleaseList : List<GithubReleaseEntry>;

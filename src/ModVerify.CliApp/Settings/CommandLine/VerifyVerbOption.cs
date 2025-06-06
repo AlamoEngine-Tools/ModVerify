@@ -1,7 +1,7 @@
 ﻿using AET.ModVerify.Reporting;
 using CommandLine;
 
-namespace AET.ModVerifyTool.Settings.CommandLine;
+namespace AET.ModVerify.App.Settings.CommandLine;
 
 [Verb("verify", HelpText = "Verifies the specified game and reports the findings.")]
 internal sealed class VerifyVerbOption : BaseModVerifyOptions

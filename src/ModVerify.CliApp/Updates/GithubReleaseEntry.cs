@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AET.ModVerifyTool.Updates;
+namespace AET.ModVerify.App.Updates;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Skip)]
 [method: JsonConstructor]

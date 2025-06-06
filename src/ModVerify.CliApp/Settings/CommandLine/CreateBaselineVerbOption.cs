@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace AET.ModVerifyTool.Settings.CommandLine;
+namespace AET.ModVerify.App.Settings.CommandLine;
 
 [Verb("createBaseline", HelpText = "Verifies the specified game and creates a new baseline file at the specified location.")]
 internal sealed class CreateBaselineVerbOption : BaseModVerifyOptions

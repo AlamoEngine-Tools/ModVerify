@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Semver;
 
-namespace AET.ModVerifyTool.Updates;
+namespace AET.ModVerify.App.Updates;
 
 internal static class ModVerifyUpdaterInformation
 {

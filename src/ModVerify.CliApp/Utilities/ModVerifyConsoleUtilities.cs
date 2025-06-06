@@ -1,7 +1,7 @@
 ﻿using System;
 using AnakinRaW.ApplicationBase;
 
-namespace AET.ModVerifyTool.Utilities;
+namespace AET.ModVerify.App.Utilities;
 
 internal static class ModVerifyConsoleUtilities
 {

@@ -1,25 +1,24 @@
-﻿using AET.ModVerifyTool.ModSelectors;
-using AET.ModVerifyTool.Reporting;
-using AnakinRaW.ApplicationBase;
-using AnakinRaW.ApplicationBase.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AET.ModVerify;
+using AET.ModVerify.App.ModSelectors;
+using AET.ModVerify.App.Reporting;
+using AET.ModVerify.App.Settings;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
-using AET.ModVerifyTool.Settings;
+using AnakinRaW.ApplicationBase;
+using AnakinRaW.ApplicationBase.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
+using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerify.App;
 
 internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServiceProvider services)
 {

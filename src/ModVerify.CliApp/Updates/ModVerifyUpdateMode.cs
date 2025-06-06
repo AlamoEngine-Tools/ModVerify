@@ -1,4 +1,4 @@
-﻿namespace AET.ModVerifyTool.Updates;
+﻿namespace AET.ModVerify.App.Updates;
 
 public enum ModVerifyUpdateMode
 {

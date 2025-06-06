@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerifyTool.Settings;
+namespace AET.ModVerify.App.Settings;
 
 internal sealed record GameInstallationsSettings
 {

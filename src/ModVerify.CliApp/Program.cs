@@ -1,10 +1,18 @@
-﻿using AET.ModVerify;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Abstractions;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using AET.ModVerify.App.Settings;
+using AET.ModVerify.App.Settings.CommandLine;
+using AET.ModVerify.App.Updates;
+using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Reporters;
 using AET.ModVerify.Reporting.Reporters.JSON;
 using AET.ModVerify.Reporting.Reporters.Text;
 using AET.ModVerify.Reporting.Settings;
-using AET.ModVerifyTool.Updates;
 using AET.SteamAbstraction;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Environment;
@@ -32,19 +40,10 @@ using Serilog.Events;
 using Serilog.Expressions;
 using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Abstractions;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using AET.ModVerifyTool.Settings;
-using AET.ModVerifyTool.Settings.CommandLine;
-using AET.ModVerifyTool.Utilities;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
 
-namespace AET.ModVerifyTool;
+namespace AET.ModVerify.App;
 
 internal class MainClass
 {

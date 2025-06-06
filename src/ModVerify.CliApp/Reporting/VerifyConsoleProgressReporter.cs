@@ -1,11 +1,11 @@
-﻿using AnakinRaW.CommonUtilities;
-using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
-using ShellProgressBar;
-using System;
+﻿using System;
 using System.Threading;
 using AET.ModVerify.Pipeline.Progress;
+using AnakinRaW.CommonUtilities;
+using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
+using ShellProgressBar;
 
-namespace AET.ModVerifyTool.Reporting;
+namespace AET.ModVerify.App.Reporting;
 
 public sealed class VerifyConsoleProgressReporter(string toVerifyName) : DisposableObject, IVerifyProgressReporter
 {

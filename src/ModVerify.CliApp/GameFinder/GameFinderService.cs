@@ -10,7 +10,7 @@ using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace AET.ModVerifyTool.GameFinder;
+namespace AET.ModVerify.App.GameFinder;
 
 internal class GameFinderService
 {

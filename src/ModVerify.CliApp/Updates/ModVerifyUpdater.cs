@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AnakinRaW.ApplicationBase.Update.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Semver;
 
-namespace AET.ModVerifyTool.Updates;
+namespace AET.ModVerify.App.Updates;
 
 internal sealed class ModVerifyUpdater
 {

@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
-using AET.ModVerifyTool.Utilities;
+using AET.ModVerify.App.Utilities;
 using AnakinRaW.ApplicationBase.Environment;
 using AnakinRaW.ApplicationBase.Update.Options;
 using AnakinRaW.ExternalUpdater;
@@ -12,7 +12,7 @@ using CommandLine;
 using CommandLine.Text;
 using Microsoft.Extensions.Logging;
 
-namespace AET.ModVerifyTool.Settings.CommandLine;
+namespace AET.ModVerify.App.Settings.CommandLine;
 
 internal sealed class ModVerifyOptionsParser
 {

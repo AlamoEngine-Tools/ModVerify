@@ -3,7 +3,7 @@ using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 
-namespace AET.ModVerifyTool.Settings;
+namespace AET.ModVerify.App.Settings;
 
 internal sealed class ModVerifyAppSettings
 {

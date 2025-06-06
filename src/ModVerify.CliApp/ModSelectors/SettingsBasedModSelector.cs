@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using AET.ModVerifyTool.GameFinder;
-using AET.ModVerifyTool.Settings;
+using AET.ModVerify.App.GameFinder;
+using AET.ModVerify.App.Settings;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
 {

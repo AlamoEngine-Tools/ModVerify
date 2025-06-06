@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace AET.ModVerifyTool.Updates;
+namespace AET.ModVerify.App.Updates;
 
 internal readonly struct UpdateInfo
 {

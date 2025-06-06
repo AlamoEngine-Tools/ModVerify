@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
-using AET.ModVerifyTool.Settings.CommandLine;
 using Microsoft.Extensions.Logging;
 
-namespace AET.ModVerifyTool.Settings;
+namespace AET.ModVerify.App.Settings;
 
 internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? loggerFactory)
 {
