@@ -17,14 +17,8 @@ internal sealed class ModVerifyAppSettings
 
     public VerificationSeverity? AppThrowsOnMinimumSeverity { get; init; }
 
-    public string? ReportOutput { get; init; }
-
     [MemberNotNullWhen(true, nameof(NewBaselinePath))]
     public bool CreateNewBaseline => !string.IsNullOrEmpty(NewBaselinePath);
 
     public string? NewBaselinePath { get; init; }
-
-    public bool Offline { get; init; }
-
-    public bool VerboseMode { get; init; }
 }

@@ -23,4 +23,6 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
 
     [Option("baseline", Required = false, HelpText = "Path to a JSON baseline file.")]
     public string? Baseline { get; init; }
+
+    public bool IsRunningWithoutArguments { get; init; }
 }

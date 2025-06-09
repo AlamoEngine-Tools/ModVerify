@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using AET.ModVerify.App.Settings.CommandLine;
+using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace AET.ModVerify.App.Settings;
 
-internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? loggerFactory)
+internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 {
-    private readonly ILogger? _logger = loggerFactory?.CreateLogger(typeof(SettingsBuilder));
+    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(SettingsBuilder));
+    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
     public ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
     {
@@ -29,12 +32,6 @@ internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? lo
 
     private ModVerifyAppSettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
     {
-        var output = Environment.CurrentDirectory;
-        var outDir = verifyOptions.OutputDirectory;
-        
-        if (!string.IsNullOrEmpty(outDir))
-            output = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(Environment.CurrentDirectory, outDir!));
-
         return new ModVerifyAppSettings
         {
             VerifyPipelineSettings = new VerifyPipelineSettings
@@ -51,9 +48,6 @@ internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? lo
             AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
             GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
             GlobalReportSettings = BuilderGlobalReportSettings(verifyOptions),
-            ReportOutput = output,
-            Offline = verifyOptions.OfflineMode,
-            VerboseMode = verifyOptions.Verbose
         };
 
         VerificationSeverity? GetVerifierMinimumThrowSeverity()
@@ -97,47 +91,25 @@ internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? lo
             GameInstallationsSettings = BuildInstallationSettings(baselineVerb),
             GlobalReportSettings = BuilderGlobalReportSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
-            ReportOutput = null, 
-            Offline = baselineVerb.OfflineMode,
-            VerboseMode = baselineVerb.Verbose
         };
     }
 
     private GlobalVerifyReportSettings BuilderGlobalReportSettings(BaseModVerifyOptions options)
     {
+        var baseline = new BaselineFactory(serviceProvider).CreateBaseline(options);
+
         return new GlobalVerifyReportSettings
         {
-            Baseline = CreateBaseline(),
+            Baseline = baseline,
             Suppressions = CreateSuppressions(),
             MinimumReportSeverity = options.MinimumSeverity,
         };
-
-        VerificationBaseline CreateBaseline()
-        {
-            // It does not make sense to create a baseline on another baseline.
-            if (options is not VerifyVerbOption verifyOptions || string.IsNullOrEmpty(verifyOptions.Baseline))
-                return VerificationBaseline.Empty;
-
-            using var fs = fileSystem.FileStream.New(verifyOptions.Baseline!, FileMode.Open, FileAccess.Read);
-
-            try
-            {
-                return VerificationBaseline.FromJson(fs);
-            }
-            catch (IncompatibleBaselineException)
-            {
-                Console.WriteLine($"The baseline '{verifyOptions.Baseline}' is not compatible with with version of ModVerify." +
-                                  $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +
-                                  $"{Environment.NewLine}");
-                throw;
-            }
-        }
 
         SuppressionList CreateSuppressions()
         {
             if (options.Suppressions is null) 
                 return SuppressionList.Empty;
-            using var fs = fileSystem.FileStream.New(options.Suppressions, FileMode.Open, FileAccess.Read);
+            using var fs = _fileSystem.FileStream.New(options.Suppressions, FileMode.Open, FileAccess.Read);
             return SuppressionList.FromJson(fs);
         }
     }
@@ -150,7 +122,7 @@ internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? lo
             foreach (var mod in options.ModPaths)
             {
                 if (!string.IsNullOrEmpty(mod))
-                    modPaths.Add(fileSystem.Path.GetFullPath(mod));
+                    modPaths.Add(_fileSystem.Path.GetFullPath(mod));
             }
         }
 
@@ -160,22 +132,22 @@ internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? lo
             foreach (var fallback in options.AdditionalFallbackPath)
             {
                 if (!string.IsNullOrEmpty(fallback))
-                    fallbackPaths.Add(fileSystem.Path.GetFullPath(fallback));
+                    fallbackPaths.Add(_fileSystem.Path.GetFullPath(fallback));
             }
         }
 
         var gamePath = options.GamePath;
         if (!string.IsNullOrEmpty(gamePath))
-            gamePath = fileSystem.Path.GetFullPath(gamePath!);
+            gamePath = _fileSystem.Path.GetFullPath(gamePath!);
 
 
         string? fallbackGamePath = null;
         if (!string.IsNullOrEmpty(gamePath) && !string.IsNullOrEmpty(options.FallbackGamePath))
-            fallbackGamePath = fileSystem.Path.GetFullPath(options.FallbackGamePath!);
+            fallbackGamePath = _fileSystem.Path.GetFullPath(options.FallbackGamePath!);
 
         var autoPath = options.AutoPath;
         if (!string.IsNullOrEmpty(autoPath))
-            autoPath = fileSystem.Path.GetFullPath(autoPath!);
+            autoPath = _fileSystem.Path.GetFullPath(autoPath!);
 
         return new GameInstallationsSettings
         {
@@ -186,5 +158,46 @@ internal sealed class SettingsBuilder(IFileSystem fileSystem, ILoggerFactory? lo
             AdditionalFallbackPaths = fallbackPaths,
             EngineType = options.GameType
         };
+    }
+}
+
+internal sealed class BaselineFactory(IServiceProvider serviceProvider)
+{
+    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(BaselineFactory));
+    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+
+    public VerificationBaseline CreateBaseline(BaseModVerifyOptions options)
+    {
+        if (options.LaunchedWithoutArguments())
+            return SearchBaselineInKnownDirectories();
+
+        // It does not make sense to create a baseline on another baseline.
+        if (options is not VerifyVerbOption verifyOptions || string.IsNullOrEmpty(verifyOptions.Baseline))
+            return VerificationBaseline.Empty;
+
+        return CreateBaselineFromFilePath(verifyOptions.Baseline);
+    }
+
+    private VerificationBaseline SearchBaselineInKnownDirectories()
+    {
+        _logger?.LogTrace("Searching for nearby baseline files.");
+        // TODO
+        return VerificationBaseline.Empty;
+    }
+
+    private VerificationBaseline CreateBaselineFromFilePath(string baselineFile)
+    {
+        using var fs = _fileSystem.FileStream.New(baselineFile, FileMode.Open, FileAccess.Read);
+        try
+        {
+            return VerificationBaseline.FromJson(fs);
+        }
+        catch (IncompatibleBaselineException)
+        {
+            Console.WriteLine($"The baseline '{baselineFile}' is not compatible with this version of ModVerify." +
+                              $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +
+                              $"{Environment.NewLine}");
+            throw;
+        }
     }
 }

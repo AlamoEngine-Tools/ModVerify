@@ -25,8 +25,8 @@ public class ModVerifyOptionsParserTest_Updateable : ModVerifyOptionsParserTestB
 
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
-        Assert.True(settings.HasSettings);
-        Assert.Null(settings.ModVerifyAppSettings);
+        Assert.True(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
         Assert.NotNull(settings.UpdateOptions);
         Assert.Equal("test", settings.UpdateOptions.BranchName);
         Assert.Equal("https://examlple.com", settings.UpdateOptions.ManifestUrl);
@@ -52,8 +52,8 @@ public class ModVerifyOptionsParserTest_NotUpdateable : ModVerifyOptionsParserTe
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
-        Assert.False(settings.HasSettings);
-        Assert.Null(settings.ModVerifyAppSettings);
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
     }
 }
@@ -78,11 +78,11 @@ public abstract class ModVerifyOptionsParserTestBase
     {
         var settings = Parser.Parse([]);
 
-        Assert.True(settings.HasSettings);
-        Assert.NotNull(settings.ModVerifyAppSettings);
+        Assert.True(settings.HasOptions);
+        Assert.NotNull(settings.ModVerifyOptions);
 
-        Assert.False(settings.ModVerifyAppSettings.CreateNewBaseline);
-        Assert.True(settings.ModVerifyAppSettings.Interactive);
+        Assert.False(settings.ModVerifyOptions.CreateNewBaseline);
+        Assert.True(settings.ModVerifyOptions.Interactive);
 
         Assert.Null(settings.UpdateOptions);
     }
@@ -96,11 +96,11 @@ public abstract class ModVerifyOptionsParserTestBase
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
-        Assert.True(settings.HasSettings);
-        Assert.NotNull(settings.ModVerifyAppSettings);
+        Assert.True(settings.HasOptions);
+        Assert.NotNull(settings.ModVerifyOptions);
         
-        Assert.True(settings.ModVerifyAppSettings.Interactive);
-        Assert.Equal(createBaseLine, settings.ModVerifyAppSettings.CreateNewBaseline);
+        Assert.True(settings.ModVerifyOptions.Interactive);
+        Assert.Equal(createBaseLine, settings.ModVerifyOptions.CreateNewBaseline);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -113,11 +113,11 @@ public abstract class ModVerifyOptionsParserTestBase
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
-        Assert.True(settings.HasSettings);
-        Assert.NotNull(settings.ModVerifyAppSettings);
+        Assert.True(settings.HasOptions);
+        Assert.NotNull(settings.ModVerifyOptions);
 
-        Assert.False(settings.ModVerifyAppSettings.Interactive);
-        Assert.Equal(createBaseLine, settings.ModVerifyAppSettings.CreateNewBaseline);
+        Assert.False(settings.ModVerifyOptions.Interactive);
+        Assert.Equal(createBaseLine, settings.ModVerifyOptions.CreateNewBaseline);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -130,8 +130,8 @@ public abstract class ModVerifyOptionsParserTestBase
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
-        Assert.False(settings.HasSettings);
-        Assert.Null(settings.ModVerifyAppSettings);
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -152,8 +152,8 @@ public abstract class ModVerifyOptionsParserTestBase
     {
         var settings = Parser.Parse(argString.Split(' '));
 
-        Assert.False(settings.HasSettings);
-        Assert.Null(settings.ModVerifyAppSettings);
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -166,14 +166,14 @@ public abstract class ModVerifyOptionsParserTestBase
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
         if (!IsUpdatable)
-            Assert.False(settings.HasSettings);
+            Assert.False(settings.HasOptions);
         else
         {
-            Assert.True(settings.HasSettings);
-            Assert.NotNull(settings.ModVerifyAppSettings);
+            Assert.True(settings.HasOptions);
+            Assert.NotNull(settings.ModVerifyOptions);
 
-            Assert.False(settings.ModVerifyAppSettings.CreateNewBaseline);
-            Assert.True(settings.ModVerifyAppSettings.Interactive);
+            Assert.False(settings.ModVerifyOptions.CreateNewBaseline);
+            Assert.True(settings.ModVerifyOptions.Interactive);
 
             Assert.Null(settings.UpdateOptions);
         }
@@ -186,8 +186,8 @@ public abstract class ModVerifyOptionsParserTestBase
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
-        Assert.False(settings.HasSettings);
-        Assert.Null(settings.ModVerifyAppSettings);
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
     }
 }

@@ -61,7 +61,7 @@ internal class Program : SelfUpdateableAppLifecycle
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
     private static readonly CompiledExpression PrintToConsoleExpression = SerilogExpression.Compile($"EventId.Id = {ModVerifyConstants.ConsoleEventIdValue}");
 
-    private static ModVerifySettingsContainer _settingsContainer = null!;
+    private static ModVerifyOptionsContainer _optionsContainer = null!;
 
     protected override async Task<int> InitializeAppAsync(IReadOnlyList<string> args)
     {
@@ -71,10 +71,10 @@ internal class Program : SelfUpdateableAppLifecycle
 
         try
         {
-            var settings = new ModVerifyOptionsParser(ApplicationEnvironment, FileSystem, BootstrapLoggerFactory).Parse(args);
-            if (!settings.HasSettings)
+            var settings = new ModVerifyOptionsParser(ApplicationEnvironment, BootstrapLoggerFactory).Parse(args);
+            if (!settings.HasOptions)
                 return 0xA0;
-            _settingsContainer = settings;
+            _optionsContainer = settings;
             return 0;
         }
         catch (Exception e)
@@ -107,7 +107,7 @@ internal class Program : SelfUpdateableAppLifecycle
                 sp => new JsonManifestLoader(sp));
         }
 
-        if (_settingsContainer.ModVerifyAppSettings is null)
+        if (_optionsContainer.ModVerifyOptions is null)
             return;
 
         SteamAbstractionLayer.InitializeServices(services);
@@ -125,7 +125,7 @@ internal class Program : SelfUpdateableAppLifecycle
 
         SetupVerifyReporting(services);
 
-        if (_settingsContainer.ModVerifyAppSettings.Offline)
+        if (_optionsContainer.ModVerifyOptions.OfflineMode)
         {
             services.AddSingleton<IModNameResolver>(sp => new OfflineModNameResolver(sp));
             services.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
@@ -157,35 +157,48 @@ internal class Program : SelfUpdateableAppLifecycle
     protected override async Task<int> RunAppAsync(string[] args, IServiceProvider appServiceProvider)
     {
         var result = await HandleUpdate(appServiceProvider);
-        if (result != 0 || _settingsContainer.ModVerifyAppSettings is null)
+        if (result != 0 || _optionsContainer.ModVerifyOptions is null)
             return result;
-        return await new ModVerifyApplication(_settingsContainer.ModVerifyAppSettings, appServiceProvider).Run().ConfigureAwait(false);
+
+        var modVerifySettings = new SettingsBuilder(appServiceProvider).BuildSettings(_optionsContainer.ModVerifyOptions);
+
+        return await new ModVerifyApplication(modVerifySettings, appServiceProvider).Run().ConfigureAwait(false);
     }
 
-    private static void SetupVerifyReporting(IServiceCollection serviceCollection)
+    private void SetupVerifyReporting(IServiceCollection serviceCollection)
     {
-        var settings = _settingsContainer.ModVerifyAppSettings;
-        Debug.Assert(settings is not null);
+        var options = _optionsContainer.ModVerifyOptions;
+        Debug.Assert(options is not null);
 
-        var printOnlySummary = settings.CreateNewBaseline;
+
+        var verifyVerb = options as VerifyVerbOption;
+
+        // Console should be in minimal summary mode if we are not in verify mode.
+        var printOnlySummary = verifyVerb is null;
+        
         serviceCollection.RegisterConsoleReporter(new VerifyReportSettings
         {
             MinimumReportSeverity = VerificationSeverity.Error
         }, printOnlySummary);
 
-        if (string.IsNullOrEmpty(settings.ReportOutput))
+        if (verifyVerb == null)
             return;
+
+        var outputDirectory = Environment.CurrentDirectory;
+        
+        if (!string.IsNullOrEmpty(verifyVerb.OutputDirectory))
+            outputDirectory = FileSystem.Path.GetFullPath(FileSystem.Path.Combine(Environment.CurrentDirectory, verifyVerb.OutputDirectory!));
 
         serviceCollection.RegisterJsonReporter(new JsonReporterSettings
         {
-            OutputDirectory = settings.ReportOutput!,
-            MinimumReportSeverity = settings.GlobalReportSettings.MinimumReportSeverity
+            OutputDirectory = outputDirectory!,
+            MinimumReportSeverity = options.MinimumSeverity
         });
 
         serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
         {
-            OutputDirectory = settings.ReportOutput!,
-            MinimumReportSeverity = settings.GlobalReportSettings.MinimumReportSeverity
+            OutputDirectory = outputDirectory!,
+            MinimumReportSeverity = options.MinimumSeverity
         });
     }
 
@@ -200,7 +213,7 @@ internal class Program : SelfUpdateableAppLifecycle
         loggingBuilder.AddDebug();
 #endif
 
-        if (_settingsContainer.ModVerifyAppSettings?.VerboseMode == true || _settingsContainer.UpdateOptions?.Verbose == true)
+        if (_optionsContainer.ModVerifyOptions?.Verbose == true || _optionsContainer.UpdateOptions?.Verbose == true)
         {
             logLevel = LogEventLevel.Verbose;
             loggingBuilder.AddDebug();
@@ -273,18 +286,18 @@ internal class Program : SelfUpdateableAppLifecycle
 
     private async Task<int> HandleUpdate(IServiceProvider serviceProvider)
     {
-        var updateOptions = _settingsContainer.UpdateOptions ?? new ApplicationUpdateOptions();
+        var updateOptions = _optionsContainer.UpdateOptions ?? new ApplicationUpdateOptions();
         ModVerifyUpdateMode updateMode;
         
-        if (_settingsContainer.ModVerifyAppSettings is not null)
+        if (_optionsContainer.ModVerifyOptions is not null)
         {
-            if (_settingsContainer.ModVerifyAppSettings.Offline)
+            if (_optionsContainer.ModVerifyOptions.OfflineMode)
             {
                 Logger?.LogTrace("Running in offline mode. There will be nothing to update.");
                 return 0;
             }
 
-            updateMode = _settingsContainer.ModVerifyAppSettings.Interactive
+            updateMode = _optionsContainer.ModVerifyOptions.LaunchedWithoutArguments()
                 ? ModVerifyUpdateMode.InteractiveUpdate
                 : ModVerifyUpdateMode.CheckOnly;
         }

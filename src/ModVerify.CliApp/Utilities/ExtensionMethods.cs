@@ -1,4 +1,5 @@
-﻿using AnakinRaW.ApplicationBase.Environment;
+﻿using AET.ModVerify.App.Settings.CommandLine;
+using AnakinRaW.ApplicationBase.Environment;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure.Games;
 
@@ -25,5 +26,12 @@ internal static class ExtensionMethods
     {
         updatableEnvironment = applicationEnvironment as UpdatableApplicationEnvironment;
         return updatableEnvironment is not null;
+    }
+
+    public static bool LaunchedWithoutArguments(this BaseModVerifyOptions options)
+    {
+        if (options is VerifyVerbOption verifyOptions)
+            return verifyOptions.IsRunningWithoutArguments;
+        return false;
     }
 }

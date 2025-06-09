@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using AET.ModVerify.App.Utilities;
@@ -17,25 +16,18 @@ namespace AET.ModVerify.App.Settings.CommandLine;
 internal sealed class ModVerifyOptionsParser
 {
     private readonly ApplicationEnvironment _applicationEnvironment;
-    private readonly IFileSystem _fileSystem;
     private readonly ILogger? _logger;
-    private readonly ILoggerFactory? _loggerFactory;
 
     [field: AllowNull, MaybeNull]
     private Type[] AvailableVerbTypes => LazyInitializer.EnsureInitialized(ref field, GetAvailableVerbTypes)!;
 
-    public ModVerifyOptionsParser(
-        ApplicationEnvironment applicationEnvironment,
-        IFileSystem fileSystem,
-        ILoggerFactory? loggerFactory)
+    public ModVerifyOptionsParser(ApplicationEnvironment applicationEnvironment, ILoggerFactory? loggerFactory)
     {
         _applicationEnvironment = applicationEnvironment;
-        _fileSystem = fileSystem;
-        _loggerFactory = loggerFactory;
         _logger = loggerFactory?.CreateLogger(GetType());
     }
 
-    public ModVerifySettingsContainer Parse(IReadOnlyList<string> args)
+    public ModVerifyOptionsContainer Parse(IReadOnlyList<string> args)
     {
         // If the application is updatable (.NET Framework) we need to remove potential arguments from the external updater
         // in order to keep strict parsing rules enabled for better user error messages.
@@ -45,24 +37,24 @@ internal sealed class ModVerifyOptionsParser
         return ParseArguments(args);
     }
 
-    private ModVerifySettingsContainer ParseArguments(IReadOnlyList<string> args)
+    private ModVerifyOptionsContainer ParseArguments(IReadOnlyList<string> args)
     { 
         // Empty arguments means that we are "interactive" mode (user simply double-clicked the executable)
         if (args.Count == 0)
         {
-            return new ModVerifySettingsContainer
+            return new ModVerifyOptionsContainer
             {
-                ModVerifyAppSettings = BuildSettings(new VerifyVerbOption()),
+                ModVerifyOptions = new VerifyVerbOption(),
                 UpdateOptions = null
             };
         }
         
         var parseResult = Parser.Default.ParseArguments(args, AvailableVerbTypes);
 
-        ModVerifyAppSettings? settings = null;
+        BaseModVerifyOptions? modVerifyOptions = null;
         ApplicationUpdateOptions? updateOptions = null;
 
-        parseResult.WithParsed<BaseModVerifyOptions>(o => settings = BuildSettings(o));
+        parseResult.WithParsed<BaseModVerifyOptions>(o => modVerifyOptions = o);
         parseResult.WithParsed<ApplicationUpdateOptions>(o => updateOptions = o);
 
         parseResult.WithNotParsed(_ =>
@@ -71,9 +63,9 @@ internal sealed class ModVerifyOptionsParser
             Console.WriteLine(HelpText.AutoBuild(parseResult).ToString());
         });
 
-        return new ModVerifySettingsContainer
+        return new ModVerifyOptionsContainer
         {
-            ModVerifyAppSettings = settings,
+            ModVerifyOptions = modVerifyOptions,
             UpdateOptions = updateOptions,
         };
     }
@@ -92,12 +84,6 @@ internal sealed class ModVerifyOptionsParser
         return secondLast == ExternalUpdaterResultOptions.RawOptionString 
             ? [..args.Take(args.Count - 2)]
             : args;
-    }
-
-
-    private ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
-    {
-        return new SettingsBuilder(_fileSystem, _loggerFactory).BuildSettings(options);
     }
 
     private Type[] GetAvailableVerbTypes()
