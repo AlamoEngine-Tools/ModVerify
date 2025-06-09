@@ -1,9 +1,11 @@
-﻿using System;
-using AnakinRaW.ApplicationBase;
+﻿using AnakinRaW.ApplicationBase;
+using Figgle;
+using System;
 
 namespace AET.ModVerify.App.Utilities;
 
-internal static class ModVerifyConsoleUtilities
+[GenerateFiggleText("HeaderText", "standard", ModVerifyConstants.AppNameString)]
+internal static partial class ModVerifyConsoleUtilities
 {
     public static void WriteHeader(string? version = null)
     {
@@ -11,7 +13,7 @@ internal static class ModVerifyConsoleUtilities
         const string author = "by AnakinRaW";
 
         ConsoleUtilities.WriteHorizontalLine('*', lineLength);
-        Console.WriteLine(Figgle.FiggleFonts.Standard.Render(ModVerifyConstants.AppNameString));
+        Console.WriteLine(HeaderText);
         if (!string.IsNullOrEmpty(version))
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
