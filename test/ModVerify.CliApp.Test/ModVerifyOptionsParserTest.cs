@@ -70,7 +70,7 @@ public abstract class ModVerifyOptionsParserTestBase
 
     protected ModVerifyOptionsParserTestBase()
     {
-        Parser = new ModVerifyOptionsParser(CreateEnvironment(), FileSystem, null);
+        Parser = new ModVerifyOptionsParser(CreateEnvironment(), null);
     }
 
     [Fact]
@@ -79,11 +79,7 @@ public abstract class ModVerifyOptionsParserTestBase
         var settings = Parser.Parse([]);
 
         Assert.True(settings.HasOptions);
-        Assert.NotNull(settings.ModVerifyOptions);
-
-        Assert.False(settings.ModVerifyOptions.CreateNewBaseline);
-        Assert.True(settings.ModVerifyOptions.Interactive);
-
+        Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -97,10 +93,10 @@ public abstract class ModVerifyOptionsParserTestBase
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
         Assert.True(settings.HasOptions);
-        Assert.NotNull(settings.ModVerifyOptions);
-        
-        Assert.True(settings.ModVerifyOptions.Interactive);
-        Assert.Equal(createBaseLine, settings.ModVerifyOptions.CreateNewBaseline);
+        if (createBaseLine)
+            Assert.IsType<CreateBaselineVerbOption>(settings.ModVerifyOptions);
+        else
+            Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -116,8 +112,11 @@ public abstract class ModVerifyOptionsParserTestBase
         Assert.True(settings.HasOptions);
         Assert.NotNull(settings.ModVerifyOptions);
 
-        Assert.False(settings.ModVerifyOptions.Interactive);
-        Assert.Equal(createBaseLine, settings.ModVerifyOptions.CreateNewBaseline);
+        if (createBaseLine)
+            Assert.IsType<CreateBaselineVerbOption>(settings.ModVerifyOptions);
+        else
+            Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -169,12 +168,8 @@ public abstract class ModVerifyOptionsParserTestBase
             Assert.False(settings.HasOptions);
         else
         {
-            Assert.True(settings.HasOptions);
-            Assert.NotNull(settings.ModVerifyOptions);
-
-            Assert.False(settings.ModVerifyOptions.CreateNewBaseline);
-            Assert.True(settings.ModVerifyOptions.Interactive);
-
+            Assert.True(settings.HasOptions); 
+            Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
             Assert.Null(settings.UpdateOptions);
         }
     }
