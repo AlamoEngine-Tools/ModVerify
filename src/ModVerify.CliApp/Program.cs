@@ -160,7 +160,18 @@ internal class Program : SelfUpdateableAppLifecycle
         if (result != 0 || _optionsContainer.ModVerifyOptions is null)
             return result;
 
-        var modVerifySettings = new SettingsBuilder(appServiceProvider).BuildSettings(_optionsContainer.ModVerifyOptions);
+        ModVerifyAppSettings modVerifySettings;
+
+        try
+        {
+            modVerifySettings = new SettingsBuilder(appServiceProvider).BuildSettings(_optionsContainer.ModVerifyOptions);
+        }
+        catch (Exception e)
+        {
+            Logger?.LogCritical(e, $"Failed to create settings form commandline arguments: {e.Message}");
+            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
+            return e.HResult;
+        }
 
         return await new ModVerifyApplication(modVerifySettings, appServiceProvider).Run().ConfigureAwait(false);
     }
