@@ -24,16 +24,16 @@
 	<ItemGroup>
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.0.35" />
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.0.35" />
-		<PackageReference Include="Figgle" Version="0.6.2" />
-		<PackageReference Include="Figgle.Generator" Version="0.6.2" />
+		<PackageReference Include="Figgle" Version="0.6.5" />
+		<PackageReference Include="Figgle.Generator" Version="0.6.5" />
 		<PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
 		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="4.0.35" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.6" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />

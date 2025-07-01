@@ -26,7 +26,7 @@
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.1.7" />
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.1.7" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.8" />
-		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.1.4" />
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.1.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.15.0">
