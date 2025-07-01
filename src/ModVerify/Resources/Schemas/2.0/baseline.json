@@ -1,0 +1,70 @@
+{
+  "$id": "https://AlamoEngine-Tools.github.io/schemas/mod-verify/2.0/baseline",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Represents a baseline for AET ModVerify",
+  "type": "object",
+  "$defs": {
+    "severity": {
+      "enum": [ "Information", "Warning", "Error", "Critical" ]
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/severity"
+        },
+        "verifiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "message",
+        "asset",
+        "severity",
+        "verifiers",
+        "context"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "version": {
+      "const": "2.0"
+    },
+    "minSeverity": {
+      "$ref": "#/$defs/severity"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/error"
+      },
+      "additionalItems": false
+    }
+  },
+  "required": [
+    "version",
+    "minSeverity",
+    "errors"
+  ],
+  "additionalProperties": false
+}

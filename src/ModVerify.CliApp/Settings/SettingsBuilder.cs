@@ -192,7 +192,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
         {
             return VerificationBaseline.FromJson(fs);
         }
-        catch (IncompatibleBaselineException)
+        catch (InvalidBaselineException)
         {
             Console.WriteLine($"The baseline '{baselineFile}' is not compatible with this version of ModVerify." +
                               $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +

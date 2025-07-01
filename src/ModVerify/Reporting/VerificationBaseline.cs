@@ -11,7 +11,8 @@ namespace AET.ModVerify.Reporting;
 
 public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError>
 {
-    private static readonly Version LatestVersion = new(2, 0);
+    public static readonly Version LatestVersion = new(2, 0);
+    public static readonly string LatestVersionString = LatestVersion.ToString(2);
 
     public static readonly VerificationBaseline Empty = new(VerificationSeverity.Information, []);
 
@@ -60,14 +61,7 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
 
     public static VerificationBaseline FromJson(Stream stream)
     {
-        var baselineJson = JsonSerializer.Deserialize<JsonVerificationBaseline>(stream, JsonSerializerOptions.Default);
-        if (baselineJson is null)
-            throw new InvalidOperationException("Unable to deserialize baseline.");
-
-        if (baselineJson.Version is null || baselineJson.Version != LatestVersion)
-            throw new IncompatibleBaselineException();
-
-        return new VerificationBaseline(baselineJson);
+        return JsonBaselineParser.Parse(stream);
     }
 
     /// <inheritdoc />
