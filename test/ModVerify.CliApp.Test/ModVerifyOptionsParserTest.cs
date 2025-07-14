@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Reflection;
-using AET.ModVerify.App.Settings.CommandLine;
+﻿using AET.ModVerify.App.Settings.CommandLine;
 using AnakinRaW.ApplicationBase.Environment;
-using AnakinRaW.AppUpdaterFramework.Configuration;
+using System;
+using System.IO.Abstractions;
+using ModVerify.CliApp.Test.TestData;
 using Testably.Abstractions;
 
 namespace ModVerify.CliApp.Test;
@@ -79,7 +77,8 @@ public abstract class ModVerifyOptionsParserTestBase
         var settings = Parser.Parse([]);
 
         Assert.True(settings.HasOptions);
-        Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        Assert.True(verify.IsRunningWithoutArguments);
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -94,9 +93,14 @@ public abstract class ModVerifyOptionsParserTestBase
 
         Assert.True(settings.HasOptions);
         if (createBaseLine)
+        {
             Assert.IsType<CreateBaselineVerbOption>(settings.ModVerifyOptions);
+        }
         else
-            Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        {
+            var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+            Assert.False(verify.IsRunningWithoutArguments);
+        }
         Assert.Null(settings.UpdateOptions);
     }
 
@@ -115,7 +119,10 @@ public abstract class ModVerifyOptionsParserTestBase
         if (createBaseLine)
             Assert.IsType<CreateBaselineVerbOption>(settings.ModVerifyOptions);
         else
-            Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        {
+            var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+            Assert.False(verify.IsRunningWithoutArguments);
+        }
 
         Assert.Null(settings.UpdateOptions);
     }
@@ -168,8 +175,9 @@ public abstract class ModVerifyOptionsParserTestBase
             Assert.False(settings.HasOptions);
         else
         {
-            Assert.True(settings.HasOptions); 
-            Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+            Assert.True(settings.HasOptions);
+            var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+            Assert.True(verify.IsRunningWithoutArguments);
             Assert.Null(settings.UpdateOptions);
         }
     }
@@ -184,23 +192,5 @@ public abstract class ModVerifyOptionsParserTestBase
         Assert.False(settings.HasOptions);
         Assert.Null(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
-    }
-}
-
-internal class TestEnv(Assembly assembly, IFileSystem fileSystem) : ApplicationEnvironment(assembly, fileSystem)
-{
-    public override string ApplicationName => "TestEnv";
-    protected override string ApplicationLocalDirectoryName => ApplicationName;
-}
-
-internal class UpdatableEnv(Assembly assembly, IFileSystem fileSystem) : UpdatableApplicationEnvironment(assembly, fileSystem)
-{
-    public override string ApplicationName => "TestUpdateEnv";
-    protected override string ApplicationLocalDirectoryName => ApplicationName;
-    public override ICollection<Uri> UpdateMirrors => [];
-    public override string UpdateRegistryPath => ApplicationName;
-    protected override UpdateConfiguration CreateUpdateConfiguration()
-    {
-        return UpdateConfiguration.Default;
     }
 }

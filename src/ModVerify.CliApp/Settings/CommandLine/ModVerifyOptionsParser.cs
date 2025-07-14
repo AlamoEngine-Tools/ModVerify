@@ -44,7 +44,7 @@ internal sealed class ModVerifyOptionsParser
         {
             return new ModVerifyOptionsContainer
             {
-                ModVerifyOptions = new VerifyVerbOption(),
+                ModVerifyOptions = VerifyVerbOption.WithoutArguments,
                 UpdateOptions = null
             };
         }

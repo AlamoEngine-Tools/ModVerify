@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 
 namespace AET.ModVerify.App.Settings;
@@ -11,7 +10,7 @@ internal sealed class ModVerifyAppSettings
 
     public required VerifyPipelineSettings VerifyPipelineSettings { get; init; }
 
-    public required GlobalVerifyReportSettings GlobalReportSettings { get; init; }
+    public required ModVerifyReportSettings ReportSettings { get; init; }
 
     public required GameInstallationsSettings GameInstallationsSettings { get; init; }
 

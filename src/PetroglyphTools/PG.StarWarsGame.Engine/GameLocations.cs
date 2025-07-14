@@ -7,6 +7,11 @@ namespace PG.StarWarsGame.Engine;
 
 public sealed class GameLocations
 {
+    /// <summary>
+    /// Gets the path that represents the topmost playable target. This is typically the actual mod selected by the user.
+    /// </summary>
+    public string TargetPath { get; }
+
     public IReadOnlyList<string> ModPaths { get; }
 
     public string GamePath { get; }
@@ -38,5 +43,9 @@ public sealed class GameLocations
         ModPaths = modPaths.ToList();
         GamePath = gamePath;
         FallbackPaths = fallbackPaths.ToList();
+
+        TargetPath = ModPaths.Count > 0
+            ? ModPaths[0]
+            : GamePath;
     }
 }

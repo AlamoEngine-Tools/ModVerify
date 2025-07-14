@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -47,7 +45,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             },
             AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
             GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
-            GlobalReportSettings = BuilderGlobalReportSettings(verifyOptions),
+            ReportSettings = BuildReportSettings(verifyOptions),
         };
 
         VerificationSeverity? GetVerifierMinimumThrowSeverity()
@@ -89,28 +87,28 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             },
             AppThrowsOnMinimumSeverity = null,
             GameInstallationsSettings = BuildInstallationSettings(baselineVerb),
-            GlobalReportSettings = BuilderGlobalReportSettings(baselineVerb),
+            ReportSettings = BuildReportSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
         };
     }
 
-    private GlobalVerifyReportSettings BuilderGlobalReportSettings(BaseModVerifyOptions options)
+    private static ModVerifyReportSettings BuildReportSettings(BaseModVerifyOptions options)
     {
-        var baseline = new BaselineFactory(serviceProvider).CreateBaseline(options);
+        var baselinePath = (options as VerifyVerbOption)?.Baseline;
 
-        return new GlobalVerifyReportSettings
+        return new ModVerifyReportSettings
         {
-            Baseline = baseline,
-            Suppressions = CreateSuppressions(),
+            BaselinePath = baselinePath,
             MinimumReportSeverity = options.MinimumSeverity,
+            SearchBaselineLocally = SearchLocally(options),
+            SuppressionsPath = options.Suppressions
         };
 
-        SuppressionList CreateSuppressions()
+        static bool SearchLocally(BaseModVerifyOptions o)
         {
-            if (options.Suppressions is null) 
-                return SuppressionList.Empty;
-            using var fs = _fileSystem.FileStream.New(options.Suppressions, FileMode.Open, FileAccess.Read);
-            return SuppressionList.FromJson(fs);
+            if (o is not VerifyVerbOption v)
+                return false;
+            return v.SearchBaselineLocally || v.LaunchedWithoutArguments();
         }
     }
 
@@ -158,46 +156,5 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             AdditionalFallbackPaths = fallbackPaths,
             EngineType = options.GameType
         };
-    }
-}
-
-internal sealed class BaselineFactory(IServiceProvider serviceProvider)
-{
-    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(BaselineFactory));
-    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
-
-    public VerificationBaseline CreateBaseline(BaseModVerifyOptions options)
-    {
-        if (options.LaunchedWithoutArguments())
-            return SearchBaselineInKnownDirectories();
-
-        // It does not make sense to create a baseline on another baseline.
-        if (options is not VerifyVerbOption verifyOptions || string.IsNullOrEmpty(verifyOptions.Baseline))
-            return VerificationBaseline.Empty;
-
-        return CreateBaselineFromFilePath(verifyOptions.Baseline);
-    }
-
-    private VerificationBaseline SearchBaselineInKnownDirectories()
-    {
-        _logger?.LogTrace("Searching for nearby baseline files.");
-        // TODO
-        return VerificationBaseline.Empty;
-    }
-
-    private VerificationBaseline CreateBaselineFromFilePath(string baselineFile)
-    {
-        using var fs = _fileSystem.FileStream.New(baselineFile, FileMode.Open, FileAccess.Read);
-        try
-        {
-            return VerificationBaseline.FromJson(fs);
-        }
-        catch (InvalidBaselineException)
-        {
-            Console.WriteLine($"The baseline '{baselineFile}' is not compatible with this version of ModVerify." +
-                              $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +
-                              $"{Environment.NewLine}");
-            throw;
-        }
     }
 }

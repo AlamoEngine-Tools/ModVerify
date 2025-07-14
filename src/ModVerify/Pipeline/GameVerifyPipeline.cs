@@ -103,6 +103,7 @@ public sealed class GameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipelin
     {
         if (FailFast && e.Exception is GameVerificationException v)
         {
+            // TODO: Apply globalMinSeverity
             if (v.Errors.All(error => _reportSettings.Baseline.Contains(error) || _reportSettings.Suppressions.Suppresses(error)))
                 return;
         }

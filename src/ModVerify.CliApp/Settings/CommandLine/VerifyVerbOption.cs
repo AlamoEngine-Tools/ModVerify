@@ -6,6 +6,12 @@ namespace AET.ModVerify.App.Settings.CommandLine;
 [Verb("verify", HelpText = "Verifies the specified game and reports the findings.")]
 internal sealed class VerifyVerbOption : BaseModVerifyOptions
 {
+    internal static readonly VerifyVerbOption WithoutArguments = new()
+    {
+        IsRunningWithoutArguments = true,
+        SearchBaselineLocally = true,
+    };
+
     [Option('o', "outDir", Required = false, HelpText = "Directory where result files shall be stored to.")]
     public string? OutputDirectory { get; init; }
 
@@ -21,8 +27,13 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
         HelpText = "When this flag is present, the application will not report engine assertions.")]
     public bool IgnoreAsserts { get; init; }
 
-    [Option("baseline", Required = false, HelpText = "Path to a JSON baseline file.")]
+    [Option("baseline", SetName = "baselineSelection", Required = false, 
+        HelpText = "Path to a JSON baseline file. Cannot be used together with --searchBaseline.")]
     public string? Baseline { get; init; }
+
+    [Option("searchBaseline", SetName = "baselineSelection", Required = false,
+        HelpText = "When set, the application will search for baseline files and use them for verification. Cannot be used together with --baseline")]
+    public bool SearchBaselineLocally { get; init; }
 
     public bool IsRunningWithoutArguments { get; init; }
 }

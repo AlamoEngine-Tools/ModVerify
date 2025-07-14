@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AET.ModVerify.App.ModSelectors;
+﻿using AET.ModVerify.App.ModSelectors;
 using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Settings;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace AET.ModVerify.App;
@@ -70,10 +71,13 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         var installData = new SettingsBasedModSelector(services)
             .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
 
+        var reportSettings = CreateGlobalReportSettings(installData);
+
         _logger?.LogDebug($"Verify install data: {installData}");
         _logger?.LogTrace($"Verify settings: {settings}");
 
-        var allErrors = await Verify(installData).ConfigureAwait(false);
+        var allErrors = await Verify(installData, reportSettings)
+            .ConfigureAwait(false);
 
         try
         {
@@ -87,13 +91,15 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         if (!settings.CreateNewBaseline)
             return 0;
 
-        await WriteBaseline(allErrors, settings.NewBaselinePath).ConfigureAwait(false);
+        await WriteBaseline(reportSettings, allErrors, settings.NewBaselinePath).ConfigureAwait(false);
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Baseline successfully created.");
 
         return 0;
     }
 
-    private async Task<IReadOnlyCollection<VerificationError>> Verify(VerifyInstallationData installData)
+    private async Task<IReadOnlyCollection<VerificationError>> Verify(
+        VerifyInstallationData installData,
+        GlobalVerifyReportSettings reportSettings)
     {
         var gameEngineService = services.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
         var engineErrorReporter = new ConcurrentGameEngineErrorReporter();
@@ -134,7 +140,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             gameEngine,
             engineErrorReporter,
             settings.VerifyPipelineSettings,
-            settings.GlobalReportSettings,
+            reportSettings,
             progressReporter,
             services);
 
@@ -182,9 +188,12 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             throw new GameVerificationException(errors);
     }
 
-    private async Task WriteBaseline(IEnumerable<VerificationError> errors, string baselineFile)
+    private async Task WriteBaseline(
+        GlobalVerifyReportSettings reportSettings,
+        IEnumerable<VerificationError> errors, 
+        string baselineFile)
     {
-        var baseline = new VerificationBaseline(settings.GlobalReportSettings.MinimumReportSeverity, errors);
+        var baseline = new VerificationBaseline(reportSettings.MinimumReportSeverity, errors);
 
         var fullPath = _fileSystem.Path.GetFullPath(baselineFile);
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Writing Baseline to '{fullPath}'");
@@ -194,5 +203,30 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 #endif
         using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
         await baseline.ToJsonAsync(fs);
+    }
+
+    private GlobalVerifyReportSettings CreateGlobalReportSettings(VerifyInstallationData installData)
+    {
+        var baselineSelector = new BaselineSelector(settings, services);
+        var baseline = baselineSelector.SelectBaseline(installData);
+
+        var suppressionsFile = settings.ReportSettings.SuppressionsPath;
+        SuppressionList suppressions;
+
+        if (string.IsNullOrEmpty(suppressionsFile))
+            suppressions = SuppressionList.Empty;
+        else
+        {
+            using var fs = _fileSystem.File.OpenRead(suppressionsFile);
+            suppressions = SuppressionList.FromJson(fs);
+        }
+
+
+        return new GlobalVerifyReportSettings
+        {
+            Baseline = baseline,
+            Suppressions = suppressions,
+            MinimumReportSeverity = settings.ReportSettings.MinimumReportSeverity,
+        };
     }
 }
