@@ -103,13 +103,11 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         if (!ConsoleUtilities.UserYesNoQuestion($"Do you want to load the default baseline for game engine '{engineType}'?"))
             return VerificationBaseline.Empty;
 
-        var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
-        var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
-        baselinePath = $"{baselineFileName} (Default)";
+        baselinePath = $"{engineType} (Default)";
 
         try
         {
-            return LoadEmbeddedBaseline(resourcePath);
+            return LoadEmbeddedBaseline(engineType);
         }
         catch (InvalidBaselineException)
         {
@@ -118,8 +116,11 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         }
     }
 
-    internal VerificationBaseline LoadEmbeddedBaseline(string resourcePath)
+    internal VerificationBaseline LoadEmbeddedBaseline(GameEngineType engineType)
     {
+        var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
+        var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
+
         using var baselineStream = typeof(BaselineSelector).Assembly.GetManifestResourceStream(resourcePath)!;
         return VerificationBaseline.FromJson(baselineStream);
     }
