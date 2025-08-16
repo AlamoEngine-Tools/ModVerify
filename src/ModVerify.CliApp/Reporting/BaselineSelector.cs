@@ -26,11 +26,11 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
             {
                 return _baselineFactory.CreateBaseline(baselinePath!);
             }
-            catch (InvalidBaselineException)
+            catch (InvalidBaselineException e)
             {
                 using (ConsoleUtilities.HorizontalLineSeparatedBlock('*'))
                 {
-                    Console.WriteLine($"The baseline '{baselinePath}' is not compatible with this version of ModVerify." +
+                    Console.WriteLine($"The baseline '{baselinePath}' is not a valid baseline file: {e.Message}" +
                                       $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +
                                       $"{Environment.NewLine}");
                 }
@@ -100,7 +100,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
 
         try
         {
-            return VerificationBaseline.Empty;
+            return LoadEmbeddedBaseline(engineType);
         }
         catch (InvalidBaselineException)
         {

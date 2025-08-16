@@ -24,7 +24,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
         if (!_fileSystem.Directory.Exists(directory))
             return false;
 
-        _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, $"Searching for baseline file at '{directory}'");
+        _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, "Searching for baseline file at '{Directory}'", directory);
 
         var jsonFiles = _fileSystem.Directory.EnumerateFiles(
             directory,
@@ -44,11 +44,12 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
             {
                 baseline = CreateBaselineFromFilePath(jsonFile);
                 path = jsonFile;
+                _logger?.LogDebug("Create baseline from file: {JsonFile}", jsonFile);
                 return true;
             }
-            catch (InvalidBaselineException)
+            catch (InvalidBaselineException e)
             {
-                // TODO: Log
+                _logger?.LogDebug("'{JsonFile}' is not a valid baseline file: {EMessage}", jsonFile, e.Message);
                 // Ignore this exception
             }
         }

@@ -1,5 +1,9 @@
 {
   "profiles": {
+    "Run": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    },
     "Interactive Verify": {
       "commandName": "Project",
       "commandLineArgs": "verify  -o verifyResults --minFailSeverity Information --offline"

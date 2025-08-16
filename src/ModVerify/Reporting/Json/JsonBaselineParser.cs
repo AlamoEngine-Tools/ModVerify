@@ -19,9 +19,6 @@ public static class JsonBaselineParser
             if (jsonBaseline is null)
                 throw new InvalidBaselineException($"Unable to parse input from stream to {nameof(VerificationBaseline)}. Unknown Error!");
 
-            if (jsonBaseline.Version != VerificationBaseline.LatestVersion)
-                throw new InvalidBaselineException("The parsed baseline version does not match the version used by this version of ModVerify.");
-
             return new VerificationBaseline(jsonBaseline);
         }
         catch (JsonException cause)
