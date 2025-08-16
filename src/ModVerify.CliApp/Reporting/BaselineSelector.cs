@@ -51,7 +51,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
             return FindBaselineInteractive(installationData);
         
         // If the application is not interactive, we only use a baseline file present in the directory of the verification target.
-        return FindBaselineNonInteractive(installationData);
+        return FindBaselineNonInteractive(installationData.GameLocations.TargetPath);
 
     }
 
@@ -115,15 +115,14 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         return VerificationBaseline.FromJson(baselineStream);
     }
 
-    private VerificationBaseline FindBaselineNonInteractive(VerifyInstallationData installationData)
+    private VerificationBaseline FindBaselineNonInteractive(string targetPath)
     {
-        var targetPath = installationData.GameLocations.TargetPath;
         if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out var path))
         {
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Automatically applying local baseline file '{path}'.");
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", path);
             return baseline;
         }
-        _logger?.LogTrace($"No baseline file found in taget path '{targetPath}'.");
+        _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", targetPath);
         return VerificationBaseline.Empty;
     }
 }
