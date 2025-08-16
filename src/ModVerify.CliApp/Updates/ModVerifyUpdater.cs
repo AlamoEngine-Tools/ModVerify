@@ -1,13 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
+using AET.ModVerify.App.Updates.Github;
+using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Update.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Semver;
 
 namespace AET.ModVerify.App.Updates;
 
@@ -24,101 +21,45 @@ internal sealed class ModVerifyUpdater
         _appEnvironment = serviceProvider.GetRequiredService<ModVerifyAppEnvironment>();
     }
 
-
-
-    public async Task<int> RunUpdateProcedure(ModVerifyUpdateMode mode)
+    public async Task RunUpdateProcedure(ModVerifyUpdateMode mode)
     {
-        //if (_settings.Offline)
-        //{
-        //    _logger?.LogTrace("App is running in offline mode. Nothing to do here.");
-        //    return;
-        //}
+        _logger?.LogTrace("Running update procedure - '{mode}'", mode);
 
-        //if (!IsUpdatable(out var updateEnv))
-        //{
-        //    await CheckUpdateGithub();
-        //    return;
-        //}
-
-
-
-        _logger?.LogDebug("Checking for available update");
-
-        //try
-        //{
-        //    var updateInfo = await updateChecker.CheckForUpdateAsync().ConfigureAwait(false);
-        //    if (updateInfo.IsUpdateAvailable)
-        //    {
-        //        ConsoleUtilities.WriteHorizontalLine();
-
-        //        Console.ForegroundColor = ConsoleColor.DarkGreen;
-        //        Console.WriteLine("New Update Available!");
-        //        Console.ResetColor();
-
-        //        Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
-        //        ConsoleUtilities.WriteHorizontalLine();
-        //        Console.WriteLine();
-
-        //    }
-        //}
-        //catch (Exception e)
-        //{
-        //    _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, $"Unable to check for updates due to an internal error: {e.Message}");
-        //    _logger?.LogTrace(e, "Checking for update failed: " + e.Message);
-        //}
-
-        return 0;
-    }
-
-    private async Task CheckUpdateGithub()
-    {
-        
-    }
-
-
-    public async Task<UpdateInfo> CheckForUpdateAsync()
-    {
-        var githubReleases = await DownloadReleaseList().ConfigureAwait(false);
-
-        var branch = ModVerifyUpdaterInformation.BranchName;
-        var latestRelease = githubReleases.FirstOrDefault(r => r.Branch == branch);
-
-        if (latestRelease == null)
-            throw new InvalidOperationException($"Unable to find a release for branch '{branch}'.");
-
-        if (!SemVersion.TryParse(latestRelease.Tag, SemVersionStyles.Any, out var latestVersion))
-            throw new InvalidOperationException($"Cannot create a version from tag '{latestRelease.Tag}'.");
-
-        var currentVersion = ModVerifyUpdaterInformation.CurrentVersion;
-        if (currentVersion is null)
-            throw new InvalidOperationException("Unable to get current version.");
-
-        if (SemVersion.ComparePrecedence(currentVersion, latestVersion) >= 0)
+        // If we are in the check-only mode, GitHub check is sufficient.
+        if (mode == ModVerifyUpdateMode.CheckOnly)
         {
-            _logger?.LogDebug($"No update available - [Current Version = {currentVersion}], [Available Version = {latestVersion}]");
-            return default;
+            await CheckForUpdateAndReport().ConfigureAwait(false);
+            return;
         }
-
-        _logger?.LogDebug($"Update available - [Current Version = {currentVersion}], [Available Version = {latestVersion}]");
-        return new UpdateInfo
-        {
-            DownloadLink = ModVerifyUpdaterInformation.ModVerifyReleasesDownloadLink,
-            IsUpdateAvailable = true,
-            NewVersion = latestVersion.ToString()
-        };
     }
 
-    private static async Task<GithubReleaseList> DownloadReleaseList()
+    private async Task CheckForUpdateAndReport()
     {
-        using var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(ModVerifyUpdaterInformation.UserAgent);
-        using var downloadStream = await httpClient.GetStreamAsync(ModVerifyUpdaterInformation.GithubReleasesApiLink).ConfigureAwait(false);
+        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Checking for available update...");
+        try
+        {
+            var updateInfo = await new GithubUpdateChecker(_serviceProvider)
+                .CheckForUpdateAsync().ConfigureAwait(false);
 
-        using var jsonStream = new MemoryStream();
-        await downloadStream.CopyToAsync(jsonStream).ConfigureAwait(false);
-        jsonStream.Seek(0, SeekOrigin.Begin);
-
-        var releases = await JsonSerializer.DeserializeAsync<GithubReleaseList>(jsonStream).ConfigureAwait(false);
-        return releases ?? throw new InvalidOperationException("Unable to deserialize releases.");
+            if (updateInfo.IsUpdateAvailable)
+            {
+                using (ConsoleUtilities.HorizontalLineSeparatedBlock(startWithNewLine: true, newLineAtEnd: true))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine("New Update Available!");
+                    Console.ResetColor();
+                    Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+                }
+            }
+            else
+            {
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No update available.");
+            }
+        }
+        catch (Exception e)
+        {
+            _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, "Unable to check for updates due to an internal error: {message}", e.Message);
+            _logger?.LogTrace(e, "Checking for update failed: {message}", e.Message);
+        }
     }
 }

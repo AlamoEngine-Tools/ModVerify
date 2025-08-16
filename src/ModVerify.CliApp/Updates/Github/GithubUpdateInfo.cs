@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace AET.ModVerify.App.Updates;
+namespace AET.ModVerify.App.Updates.Github;
 
-internal readonly struct UpdateInfo
+internal readonly struct GithubUpdateInfo
 {
     public string DownloadLink { get; init; }
 

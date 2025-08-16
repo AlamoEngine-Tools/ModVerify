@@ -1,20 +1,19 @@
-﻿using System;
-using System.Diagnostics;
-using AET.ModVerify.App.ModSelectors;
+﻿using AET.ModVerify.App.ModSelectors;
+using AET.ModVerify.App.Resources.Baselines;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.Reporting;
 using AnakinRaW.ApplicationBase;
-using AnakinRaW.ApplicationBase.Environment;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
+using System;
+using System.Diagnostics;
 
 namespace AET.ModVerify.App.Reporting;
 
 internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServiceProvider services)
 {
     private readonly ILogger? _logger = services.GetService<ILoggerFactory>()?.CreateLogger(typeof(ModVerifyApplication));
-    private readonly ApplicationEnvironment _applicationEnvironment = services.GetRequiredService<ApplicationEnvironment>();
     private readonly BaselineFactory _baselineFactory = new(services);
 
     public VerificationBaseline SelectBaseline(VerifyInstallationData installationData)
@@ -73,10 +72,13 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
                 // It does not make sense to load the game's default baselines if the user wants to verify the game,
                 // as the verification result would always be empty (at least in a non-development scenario)
                 if (installationData.GameLocations.ModPaths.Count == 0)
-                    return TryGetDefaultBaseline(installationData.EngineType);
+                {
+                    _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No local baseline file found.");
+                    return VerificationBaseline.Empty;
+                }
 
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No local baseline file found.");
-                return VerificationBaseline.Empty;
+                Console.WriteLine("No baseline found locally.");
+                return TryGetDefaultBaseline(installationData.EngineType);
             }
         }
 
@@ -110,7 +112,9 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
 
     internal VerificationBaseline LoadEmbeddedBaseline(GameEngineType engineType)
     {
-        var resourcePath = $"{_applicationEnvironment.AssemblyInfo.Assembly.GetName().Name}.Resources.Baselines.{engineType}";
+        var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
+
+        var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
         using var baselineStream = typeof(BaselineSelector).Assembly.GetManifestResourceStream(resourcePath)!;
         return VerificationBaseline.FromJson(baselineStream);
     }
