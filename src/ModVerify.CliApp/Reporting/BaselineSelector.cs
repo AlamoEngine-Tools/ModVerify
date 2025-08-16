@@ -16,13 +16,14 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
     private readonly ILogger? _logger = services.GetService<ILoggerFactory>()?.CreateLogger(typeof(ModVerifyApplication));
     private readonly BaselineFactory _baselineFactory = new(services);
 
-    public VerificationBaseline SelectBaseline(VerifyInstallationData installationData)
+    public VerificationBaseline SelectBaseline(VerifyInstallationData installationData, out string? usedBaselinePath)
     {
         var baselinePath = settings.ReportSettings.BaselinePath;
         if (!string.IsNullOrEmpty(baselinePath))
         {
             try
             {
+                usedBaselinePath = baselinePath;
                 return _baselineFactory.CreateBaseline(baselinePath!);
             }
             catch (InvalidBaselineException e)
@@ -43,18 +44,19 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         if (!settings.ReportSettings.SearchBaselineLocally)
         {
             _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, "No baseline path specified and local search is not enabled. Using empty baseline.");
+            usedBaselinePath = null;
             return VerificationBaseline.Empty;
         }
 
         if (settings.Interactive) 
-            return FindBaselineInteractive(installationData);
-        
+            return FindBaselineInteractive(installationData, out usedBaselinePath);
+
         // If the application is not interactive, we only use a baseline file present in the directory of the verification target.
-        return FindBaselineNonInteractive(installationData.GameLocations.TargetPath);
+        return FindBaselineNonInteractive(installationData.GameLocations.TargetPath, out usedBaselinePath);
 
     }
 
-    private VerificationBaseline FindBaselineInteractive(VerifyInstallationData installationData)
+    private VerificationBaseline FindBaselineInteractive(VerifyInstallationData installationData, out string? baselinePath)
     {
         // The application is in interactive mode. We apply the following lookup: 
         // 1. Use a baseline found in the directory of the verification target.
@@ -65,7 +67,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Searching for local baseline files...");
 
         if (!_baselineFactory.TryCreateBaseline(installationData.GameLocations.TargetPath, out var baseline,
-                out var baselinePath))
+                out baselinePath))
         {
             if (!_baselineFactory.TryCreateBaseline(".", out baseline, out baselinePath))
             {
@@ -78,7 +80,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
                 }
 
                 Console.WriteLine("No baseline found locally.");
-                return TryGetDefaultBaseline(installationData.EngineType);
+                return TryGetDefaultBaseline(installationData.EngineType, out baselinePath);
             }
         }
 
@@ -89,8 +91,9 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
             : VerificationBaseline.Empty;
     }
 
-    private VerificationBaseline TryGetDefaultBaseline(GameEngineType engineType)
+    private VerificationBaseline TryGetDefaultBaseline(GameEngineType engineType, out string? baselinePath)
     {
+        baselinePath = null;
         if (engineType == GameEngineType.Eaw)
         {
             // TODO: EAW currently not implemented
@@ -100,33 +103,36 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         if (!ConsoleUtilities.UserYesNoQuestion($"Do you want to load the default baseline for game engine '{engineType}'?"))
             return VerificationBaseline.Empty;
 
+        var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
+        var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
+        baselinePath = $"{baselineFileName} (Default)";
+
         try
         {
-            return LoadEmbeddedBaseline(engineType);
+            return LoadEmbeddedBaseline(resourcePath);
         }
         catch (InvalidBaselineException)
         {
-            throw new InvalidOperationException("Invalid baseline packed along ModVerify App. Please reach out to the creators. Thanks!");
+            throw new InvalidOperationException(
+                "Invalid baseline packed along ModVerify App. Please reach out to the creators. Thanks!");
         }
     }
 
-    internal VerificationBaseline LoadEmbeddedBaseline(GameEngineType engineType)
+    internal VerificationBaseline LoadEmbeddedBaseline(string resourcePath)
     {
-        var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
-
-        var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
         using var baselineStream = typeof(BaselineSelector).Assembly.GetManifestResourceStream(resourcePath)!;
         return VerificationBaseline.FromJson(baselineStream);
     }
 
-    private VerificationBaseline FindBaselineNonInteractive(string targetPath)
+    private VerificationBaseline FindBaselineNonInteractive(string targetPath, out string? usedPath)
     {
-        if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out var path))
+        if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out usedPath))
         {
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", path);
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", usedPath);
             return baseline;
         }
         _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", targetPath);
+        usedPath = null;
         return VerificationBaseline.Empty;
     }
 }

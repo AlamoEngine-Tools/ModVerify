@@ -208,7 +208,10 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     private GlobalVerifyReportSettings CreateGlobalReportSettings(VerifyInstallationData installData)
     {
         var baselineSelector = new BaselineSelector(settings, services);
-        var baseline = baselineSelector.SelectBaseline(installData);
+        var baseline = baselineSelector.SelectBaseline(installData, out var baselinePath);
+
+        if (baseline.Count > 0) 
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Using baseline '{baselinePath}'");
 
         var suppressionsFile = settings.ReportSettings.SuppressionsPath;
         SuppressionList suppressions;
@@ -219,6 +222,9 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         {
             using var fs = _fileSystem.File.OpenRead(suppressionsFile);
             suppressions = SuppressionList.FromJson(fs);
+
+            if (suppressions.Count > 0)
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Using suppressions from '{suppressionsFile}'");
         }
 
 
