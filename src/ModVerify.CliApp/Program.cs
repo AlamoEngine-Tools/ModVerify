@@ -318,8 +318,8 @@ internal class Program : SelfUpdateableAppLifecycle
         try
         {
             Logger?.LogDebug("Running update with mode '{ModVerifyUpdateMode}'", updateMode);
-            var modVerifyUpdater = new ModVerifyUpdater(updateOptions, serviceProvider);
-            await modVerifyUpdater.RunUpdateProcedure(updateMode).ConfigureAwait(false);
+            var modVerifyUpdater = new ModVerifyUpdater(serviceProvider);
+            await modVerifyUpdater.RunUpdateProcedure(updateOptions, updateMode).ConfigureAwait(false);
             Logger?.LogDebug("Update procedure completed successfully.");
             return 0;
         }

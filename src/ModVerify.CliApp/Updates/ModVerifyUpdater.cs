@@ -1,10 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using AET.ModVerify.App.Updates.Github;
+﻿using AET.ModVerify.App.Updates.Github;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Update.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
+using AET.ModVerify.App.Updates.SelfUpdate;
+using AET.ModVerify.App.Utilities;
+using Vanara.PInvoke;
 
 namespace AET.ModVerify.App.Updates;
 
@@ -14,14 +17,14 @@ internal sealed class ModVerifyUpdater
     private readonly ILogger? _logger;
     private readonly ModVerifyAppEnvironment _appEnvironment;
 
-    public ModVerifyUpdater(ApplicationUpdateOptions updateOptions, IServiceProvider serviceProvider)
+    public ModVerifyUpdater(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
         _appEnvironment = serviceProvider.GetRequiredService<ModVerifyAppEnvironment>();
     }
 
-    public async Task RunUpdateProcedure(ModVerifyUpdateMode mode)
+    public async Task RunUpdateProcedure(ApplicationUpdateOptions updateOptions, ModVerifyUpdateMode mode)
     {
         _logger?.LogTrace("Running update procedure - '{mode}'", mode);
 
@@ -31,6 +34,64 @@ internal sealed class ModVerifyUpdater
             await CheckForUpdateAndReport().ConfigureAwait(false);
             return;
         }
+        
+        await UpdateApplication(updateOptions, mode).ConfigureAwait(false);
+    }
+
+    private async Task UpdateApplication(ApplicationUpdateOptions updateOptions, ModVerifyUpdateMode mode)
+    {
+        if (!_appEnvironment.IsUpdatable(out var updatableEnvironment))
+        {
+            _logger?.LogWarning("Application is not updatable, yet we entered the update path. Checking only.");
+            await CheckForUpdateAndReport().ConfigureAwait(false);
+            return;
+        }
+
+        var updater = new ModVerifyApplicationUpdater(mode, updatableEnvironment, _serviceProvider);
+
+        var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
+        var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
+
+        using (var block = ConsoleUtilities.CreateFixedHorizontalLineBlock('=', 40,
+                   startWithNewLine: true,
+                   newLineAtEnd: true))
+        {
+            block.WriteLine("This is inside the block.");
+            block.WriteLine("The bottom line will move down as you write more lines.");
+            // Simulate long-running output
+
+
+            for (var i = 0; i < 3; i++)
+            {
+                await Task.Delay(500);
+                await block.Writer.WriteAsync(i.ToString());
+            }
+
+            block.WriteLine();
+
+            for (var i = 0; i < 3; i++)
+            {
+                await Task.Delay(500);
+                block.WriteLine(i.ToString());
+            }
+
+            var spinnerOptions = new ConsoleSpinnerOptions
+            {
+                Writer = block.Writer,
+                CompletedMessage = "DONE",
+                RunningMessage = "Checking for update...",
+                FailedMessage = "Update check failed",
+                HideCursor = true
+            };
+            await ConsoleSpinner.Run(async () =>
+            {
+                await Task.Delay(2000); // Simulate some work
+            }, spinnerOptions);
+
+            block.WriteLine("456");
+        }
+
+        Console.WriteLine(123);
     }
 
     private async Task CheckForUpdateAndReport()

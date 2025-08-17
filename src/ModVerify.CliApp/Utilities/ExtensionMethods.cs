@@ -1,4 +1,5 @@
-﻿using AET.ModVerify.App.Settings.CommandLine;
+﻿using System.Diagnostics.CodeAnalysis;
+using AET.ModVerify.App.Settings.CommandLine;
 using AnakinRaW.ApplicationBase.Environment;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure.Games;
@@ -22,7 +23,9 @@ internal static class ExtensionMethods
         return modVerifyEnvironment.IsUpdatable(out _);
     }
 
-    public static bool IsUpdatable(this ApplicationEnvironment applicationEnvironment, out UpdatableApplicationEnvironment? updatableEnvironment)
+    public static bool IsUpdatable(
+        this ApplicationEnvironment applicationEnvironment,
+        [NotNullWhen(true)] out UpdatableApplicationEnvironment? updatableEnvironment)
     {
         updatableEnvironment = applicationEnvironment as UpdatableApplicationEnvironment;
         return updatableEnvironment is not null;
