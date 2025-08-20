@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using AET.ModVerify.App.Updates.SelfUpdate;
 using AET.ModVerify.App.Utilities;
-using Vanara.PInvoke;
 
 namespace AET.ModVerify.App.Updates;
 
@@ -52,27 +51,32 @@ internal sealed class ModVerifyUpdater
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
         var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
 
-        using (var block = ConsoleUtilities.CreateFixedHorizontalLineBlock('=', 40,
+        using (var block = ConsoleUtilities.CreateHorizontalFrame('=', 40,
                    startWithNewLine: true,
                    newLineAtEnd: true))
         {
             block.WriteLine("This is inside the block.");
             block.WriteLine("The bottom line will move down as you write more lines.");
-            // Simulate long-running output
 
-
+            var b = ConsoleUtilities.UserYesNoQuestion("a", frame: block);
+            block.WriteLine(b.ToString());
             for (var i = 0; i < 3; i++)
             {
                 await Task.Delay(500);
-                await block.Writer.WriteAsync(i.ToString());
+                block.Write(i.ToString());
             }
 
-            block.WriteLine();
+            
+            block.Write("YourInput:");
+            var a = block.ReadLine();
+
+            block.WriteLine(a);
+
 
             for (var i = 0; i < 3; i++)
             {
                 await Task.Delay(500);
-                block.WriteLine(i.ToString());
+                await block.Writer.WriteLineAsync(i.ToString());
             }
 
             var spinnerOptions = new ConsoleSpinnerOptions
@@ -91,7 +95,7 @@ internal sealed class ModVerifyUpdater
             block.WriteLine("456");
         }
 
-        Console.WriteLine(123);
+        //Console.WriteLine(123);
     }
 
     private async Task CheckForUpdateAndReport()
