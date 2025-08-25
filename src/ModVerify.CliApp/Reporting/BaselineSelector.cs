@@ -1,36 +1,36 @@
-﻿using System;
-using System.Diagnostics;
-using AET.ModVerify.App.ModSelectors;
+﻿using AET.ModVerify.App.ModSelectors;
+using AET.ModVerify.App.Resources.Baselines;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.Reporting;
 using AnakinRaW.ApplicationBase;
-using AnakinRaW.ApplicationBase.Environment;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
+using System;
+using System.Diagnostics;
 
 namespace AET.ModVerify.App.Reporting;
 
 internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServiceProvider services)
 {
     private readonly ILogger? _logger = services.GetService<ILoggerFactory>()?.CreateLogger(typeof(ModVerifyApplication));
-    private readonly ApplicationEnvironment _applicationEnvironment = services.GetRequiredService<ApplicationEnvironment>();
     private readonly BaselineFactory _baselineFactory = new(services);
 
-    public VerificationBaseline SelectBaseline(VerifyInstallationData installationData)
+    public VerificationBaseline SelectBaseline(VerifyInstallationData installationData, out string? usedBaselinePath)
     {
         var baselinePath = settings.ReportSettings.BaselinePath;
         if (!string.IsNullOrEmpty(baselinePath))
         {
             try
             {
+                usedBaselinePath = baselinePath;
                 return _baselineFactory.CreateBaseline(baselinePath!);
             }
-            catch (InvalidBaselineException)
+            catch (InvalidBaselineException e)
             {
                 using (ConsoleUtilities.HorizontalLineSeparatedBlock('*'))
                 {
-                    Console.WriteLine($"The baseline '{baselinePath}' is not compatible with this version of ModVerify." +
+                    Console.WriteLine($"The baseline '{baselinePath}' is not a valid baseline file: {e.Message}" +
                                       $"{Environment.NewLine}Please generate a new baseline file or download the latest version." +
                                       $"{Environment.NewLine}");
                 }
@@ -44,18 +44,19 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         if (!settings.ReportSettings.SearchBaselineLocally)
         {
             _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, "No baseline path specified and local search is not enabled. Using empty baseline.");
+            usedBaselinePath = null;
             return VerificationBaseline.Empty;
         }
 
         if (settings.Interactive) 
-            return FindBaselineInteractive(installationData);
-        
+            return FindBaselineInteractive(installationData, out usedBaselinePath);
+
         // If the application is not interactive, we only use a baseline file present in the directory of the verification target.
-        return FindBaselineNonInteractive(installationData);
+        return FindBaselineNonInteractive(installationData.GameLocations.TargetPath, out usedBaselinePath);
 
     }
 
-    private VerificationBaseline FindBaselineInteractive(VerifyInstallationData installationData)
+    private VerificationBaseline FindBaselineInteractive(VerifyInstallationData installationData, out string? baselinePath)
     {
         // The application is in interactive mode. We apply the following lookup: 
         // 1. Use a baseline found in the directory of the verification target.
@@ -66,17 +67,20 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Searching for local baseline files...");
 
         if (!_baselineFactory.TryCreateBaseline(installationData.GameLocations.TargetPath, out var baseline,
-                out var baselinePath))
+                out baselinePath))
         {
             if (!_baselineFactory.TryCreateBaseline(".", out baseline, out baselinePath))
             {
                 // It does not make sense to load the game's default baselines if the user wants to verify the game,
                 // as the verification result would always be empty (at least in a non-development scenario)
                 if (installationData.GameLocations.ModPaths.Count == 0)
-                    return TryGetDefaultBaseline(installationData.EngineType);
+                {
+                    _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No local baseline file found.");
+                    return VerificationBaseline.Empty;
+                }
 
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No local baseline file found.");
-                return VerificationBaseline.Empty;
+                Console.WriteLine("No baseline found locally.");
+                return TryGetDefaultBaseline(installationData.EngineType, out baselinePath);
             }
         }
 
@@ -87,8 +91,9 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
             : VerificationBaseline.Empty;
     }
 
-    private VerificationBaseline TryGetDefaultBaseline(GameEngineType engineType)
+    private VerificationBaseline TryGetDefaultBaseline(GameEngineType engineType, out string? baselinePath)
     {
+        baselinePath = null;
         if (engineType == GameEngineType.Eaw)
         {
             // TODO: EAW currently not implemented
@@ -98,32 +103,37 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         if (!ConsoleUtilities.UserYesNoQuestion($"Do you want to load the default baseline for game engine '{engineType}'?"))
             return VerificationBaseline.Empty;
 
+        baselinePath = $"{engineType} (Default)";
+
         try
         {
-            return VerificationBaseline.Empty;
+            return LoadEmbeddedBaseline(engineType);
         }
         catch (InvalidBaselineException)
         {
-            throw new InvalidOperationException("Invalid baseline packed along ModVerify App. Please reach out to the creators. Thanks!");
+            throw new InvalidOperationException(
+                "Invalid baseline packed along ModVerify App. Please reach out to the creators. Thanks!");
         }
     }
 
     internal VerificationBaseline LoadEmbeddedBaseline(GameEngineType engineType)
     {
-        var resourcePath = $"{_applicationEnvironment.AssemblyInfo.Assembly.GetName().Name}.Resources.Baselines.{engineType}";
+        var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
+        var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
+
         using var baselineStream = typeof(BaselineSelector).Assembly.GetManifestResourceStream(resourcePath)!;
         return VerificationBaseline.FromJson(baselineStream);
     }
 
-    private VerificationBaseline FindBaselineNonInteractive(VerifyInstallationData installationData)
+    private VerificationBaseline FindBaselineNonInteractive(string targetPath, out string? usedPath)
     {
-        var targetPath = installationData.GameLocations.TargetPath;
-        if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out var path))
+        if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out usedPath))
         {
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", path);
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", usedPath);
             return baseline;
         }
         _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", targetPath);
+        usedPath = null;
         return VerificationBaseline.Empty;
     }
 }

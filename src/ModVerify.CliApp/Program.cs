@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Abstractions;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using AET.ModVerify.App.Settings;
+﻿using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.App.Updates;
 using AET.ModVerify.App.Utilities;
@@ -40,6 +34,12 @@ using Serilog.Events;
 using Serilog.Expressions;
 using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Abstractions;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
 
@@ -79,7 +79,7 @@ internal class Program : SelfUpdateableAppLifecycle
         }
         catch (Exception e)
         {
-            Logger?.LogCritical(e, "Failed to create settings form commandline arguments: {EMessage}", e.Message);
+            Logger?.LogCritical(e, "Failed to parse commandline arguments: {Message}", e.Message);
             ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
             return e.HResult;
         }
@@ -315,6 +315,25 @@ internal class Program : SelfUpdateableAppLifecycle
         else
             updateMode = ModVerifyUpdateMode.AutoUpdate;
 
-        return await new ModVerifyUpdater(updateOptions, serviceProvider).RunUpdateProcedure(updateMode).ConfigureAwait(false);
+        try
+        {
+            Logger?.LogDebug("Running update with mode '{ModVerifyUpdateMode}'", updateMode);
+            var modVerifyUpdater = new ModVerifyUpdater(serviceProvider);
+            await modVerifyUpdater.RunUpdateProcedure(updateOptions, updateMode).ConfigureAwait(false);
+            Logger?.LogDebug("Update procedure completed successfully.");
+            return 0;
+        }
+        catch (Exception e)
+        {
+            Logger?.LogCritical(e, e.Message);
+            var action = updateMode switch
+            {
+                ModVerifyUpdateMode.CheckOnly => "checking for updates",
+                _ => "updating"
+            };
+            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, $"Error while {action}: {e.Message}", e.StackTrace);
+            return e.HResult;
+        }
+
     }
 }

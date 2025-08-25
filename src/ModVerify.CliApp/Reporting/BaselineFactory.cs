@@ -44,11 +44,12 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
             {
                 baseline = CreateBaselineFromFilePath(jsonFile);
                 path = jsonFile;
+                _logger?.LogDebug("Create baseline from file: {JsonFile}", jsonFile);
                 return true;
             }
-            catch (InvalidBaselineException)
+            catch (InvalidBaselineException e)
             {
-                // TODO: Log
+                _logger?.LogDebug("'{JsonFile}' is not a valid baseline file: {EMessage}", jsonFile, e.Message);
                 // Ignore this exception
             }
         }

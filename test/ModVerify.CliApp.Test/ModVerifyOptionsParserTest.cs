@@ -4,6 +4,7 @@ using System;
 using System.IO.Abstractions;
 using ModVerify.CliApp.Test.TestData;
 using Testably.Abstractions;
+using ModVerify.CliApp.Test.Utilities;
 
 namespace ModVerify.CliApp.Test;
 
@@ -29,6 +30,18 @@ public class ModVerifyOptionsParserTest_Updateable : ModVerifyOptionsParserTestB
         Assert.Equal("test", settings.UpdateOptions.BranchName);
         Assert.Equal("https://examlple.com", settings.UpdateOptions.ManifestUrl);
     }
+
+    [Fact]
+    public void Parse_CombinedIsNotAllowed()
+    {
+        const string argString = "verify --updateBranch test --updateManifestUrl https://examlple.com";
+
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
+        Assert.Null(settings.UpdateOptions);
+    }
 }
 
 public class ModVerifyOptionsParserTest_NotUpdateable : ModVerifyOptionsParserTestBase
@@ -46,6 +59,7 @@ public class ModVerifyOptionsParserTest_NotUpdateable : ModVerifyOptionsParserTe
     [InlineData("verify --junkOption")]
     [InlineData("createBaseline --junkOption")]
     [InlineData("updateApplication")]
+    [InlineData("updateApplication --updateBranch test --updateManifestUrl https://examlple.com")]
     public void Parse_InvalidArgs_NotUpdateable(string argString)
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
