@@ -12,7 +12,7 @@ using Testably.Abstractions;
 
 namespace ModVerify.CliApp.Test;
 
-public class EmbeddedBaselineTest
+public class BaselineSelectorTest
 {
     private static readonly IFileSystem FileSystem = new RealFileSystem();
     private static readonly ModVerifyAppSettings TestSettings = new()
@@ -28,7 +28,7 @@ public class EmbeddedBaselineTest
 
     private readonly IServiceProvider _serviceProvider;
 
-    public EmbeddedBaselineTest()
+    public BaselineSelectorTest()
     {
         var sc = new ServiceCollection();
         sc.AddSingleton(FileSystem);
@@ -39,7 +39,7 @@ public class EmbeddedBaselineTest
     [Theory]
     [InlineData(GameEngineType.Eaw)]
     [InlineData(GameEngineType.Foc)]
-    public void Foo(GameEngineType engineType)
+    public void LoadEmbeddedBaseline(GameEngineType engineType)
     {
         // Ensure this operation does not crash, meaning the embedded baseline is at least compatible.
         new BaselineSelector(TestSettings, _serviceProvider).LoadEmbeddedBaseline(engineType);

@@ -79,7 +79,7 @@ internal class GameFinderService
         catch (Exception e)
         {
             result = GameDetectionResult.NotInstalled(gameType);
-            _logger?.LogTrace($"Unable to find game installation: {e.Message}");
+            _logger?.LogTrace("Unable to find game installation: {EMessage}", e.Message);
             return false;
         }
     }
@@ -98,7 +98,7 @@ internal class GameFinderService
             throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
 
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-            $"Found game installation: {result.GameIdentity} at {result.GameLocation.FullName}");
+            "Found game installation: {ResultGameIdentity} at {GameLocationFullName}", result.GameIdentity, result.GameLocation.FullName);
 
         var game = _gameFactory.CreateGame(result, CultureInfo.InvariantCulture);
 
@@ -120,7 +120,7 @@ internal class GameFinderService
                 throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
 
             _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-                $"Found fallback game installation: {fallbackResult.GameIdentity} at {fallbackResult.GameLocation.FullName}");
+                "Found fallback game installation: {FallbackResultGameIdentity} at {GameLocationFullName}", fallbackResult.GameIdentity, fallbackResult.GameLocation.FullName);
 
             fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
 

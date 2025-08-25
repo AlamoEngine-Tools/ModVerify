@@ -168,7 +168,7 @@ internal class Program : SelfUpdateableAppLifecycle
         }
         catch (Exception e)
         {
-            Logger?.LogCritical(e, $"Failed to create settings form commandline arguments: {e.Message}");
+            Logger?.LogCritical(e, "Failed to create settings form commandline arguments: {EMessage}", e.Message);
             ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
             return e.HResult;
         }
