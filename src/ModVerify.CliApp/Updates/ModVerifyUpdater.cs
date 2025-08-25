@@ -51,7 +51,7 @@ internal sealed class ModVerifyUpdater
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
         var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
 
-        using (var block = ConsoleUtilities.CreateHorizontalFrame('=', 40,
+        using (var block = ConsoleUtilities.CreateHorizontalFrame(length: 40,
                    startWithNewLine: true,
                    newLineAtEnd: true))
         {
