@@ -17,6 +17,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AET.ModVerify.App.GameFinder;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace AET.ModVerify.App;
@@ -25,6 +26,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 {
     private readonly ILogger? _logger = services.GetService<ILoggerFactory>()?.CreateLogger(typeof(ModVerifyApplication));
     private readonly IFileSystem _fileSystem = services.GetRequiredService<IFileSystem>();
+    private readonly ModVerifyAppEnvironment _appEnvironment = services.GetRequiredService<ModVerifyAppEnvironment>();
 
     public async Task<int> Run()
     {
@@ -35,7 +37,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
     private async Task<int> RunCore()
     {
-       _logger?.LogDebug($"Raw command line: {Environment.CommandLine}");
+       _logger?.LogDebug("Raw command line: {CommandLine}", Environment.CommandLine);
 
         var interactive = settings.Interactive;
         try
@@ -68,13 +70,24 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
     private async Task<int> RunVerify()
     {
-        var installData = new SettingsBasedModSelector(services)
-            .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
+        VerifyInstallationData installData;
+        try
+        {
+            installData = new SettingsBasedModSelector(services)
+                .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
+        }
+        catch (GameNotFoundException ex)
+        {
+            ConsoleUtilities.WriteApplicationFatalError(_appEnvironment.ApplicationName, 
+                "Unable to find an installation of Empire at War or Forces of Corruption.");
+            _logger?.LogError(ex, "Game not found: {Message}", ex.Message);
+            return ex.HResult;
+        }
 
         var reportSettings = CreateGlobalReportSettings(installData);
 
-        _logger?.LogDebug($"Verify install data: {installData}");
-        _logger?.LogTrace($"Verify settings: {settings}");
+        _logger?.LogDebug("Verify install data: {VerifyInstallationData}", installData);
+        _logger?.LogTrace("Verify settings: {ModVerifyAppSettings}", settings);
 
         var allErrors = await Verify(installData, reportSettings)
             .ConfigureAwait(false);
@@ -113,7 +126,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Creating Game Engine '{installData.EngineType}'");
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Creating Game Engine '{InstallDataEngineType}'", installData.EngineType);
                 gameEngine = await gameEngineService.InitializeAsync(
                     installData.EngineType,
                     installData.GameLocations,
@@ -130,7 +143,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         }
         catch (Exception e)
         {
-            _logger?.LogError(e, $"Creating game engine failed: {e.Message}");
+            _logger?.LogError(e, "Creating game engine failed: {EMessage}", e.Message);
             throw;
         }
 
@@ -148,7 +161,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         {
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Verifying '{installData.Name}'...");
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{InstallDataName}'...", installData.Name);
                 await verifyPipeline.RunAsync().ConfigureAwait(false);
                 progressReporter.Report(string.Empty, 1.0);
             }
@@ -168,7 +181,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         }
         catch (Exception e)
         {
-            _logger?.LogError(e, $"Verification failed: {e.Message}");
+            _logger?.LogError(e, "Verification failed: {EMessage}", e.Message);
             throw;
         }
 
@@ -196,7 +209,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         var baseline = new VerificationBaseline(reportSettings.MinimumReportSeverity, errors);
 
         var fullPath = _fileSystem.Path.GetFullPath(baselineFile);
-        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Writing Baseline to '{fullPath}'");
+        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Writing Baseline to '{FullPath}'", fullPath);
 
 #if NET
         await 

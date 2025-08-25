@@ -120,10 +120,10 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         var targetPath = installationData.GameLocations.TargetPath;
         if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out var path))
         {
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Automatically applying local baseline file '{path}'.");
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", path);
             return baseline;
         }
-        _logger?.LogTrace($"No baseline file found in taget path '{targetPath}'.");
+        _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", targetPath);
         return VerificationBaseline.Empty;
     }
 }

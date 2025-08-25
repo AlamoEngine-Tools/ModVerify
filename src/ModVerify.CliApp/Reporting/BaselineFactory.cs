@@ -24,7 +24,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
         if (!_fileSystem.Directory.Exists(directory))
             return false;
 
-        _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, $"Searching for baseline file at '{directory}'");
+        _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, "Searching for baseline file at '{Directory}'", directory);
 
         var jsonFiles = _fileSystem.Directory.EnumerateFiles(
             directory,

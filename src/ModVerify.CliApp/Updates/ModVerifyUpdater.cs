@@ -95,11 +95,11 @@ internal sealed class ModVerifyUpdater
 
         if (SemVersion.ComparePrecedence(currentVersion, latestVersion) >= 0)
         {
-            _logger?.LogDebug($"No update available - [Current Version = {currentVersion}], [Available Version = {latestVersion}]");
+            _logger?.LogDebug("No update available - [Current Version = {CurrentVersion}], [Available Version = {LatestVersion}]", currentVersion, latestVersion);
             return default;
         }
 
-        _logger?.LogDebug($"Update available - [Current Version = {currentVersion}], [Available Version = {latestVersion}]");
+        _logger?.LogDebug("Update available - [Current Version = {CurrentVersion}], [Available Version = {LatestVersion}]", currentVersion, latestVersion);
         return new UpdateInfo
         {
             DownloadLink = ModVerifyUpdaterInformation.ModVerifyReleasesDownloadLink,
