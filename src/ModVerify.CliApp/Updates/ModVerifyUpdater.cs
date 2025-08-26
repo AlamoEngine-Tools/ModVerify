@@ -1,12 +1,12 @@
 ﻿using AET.ModVerify.App.Updates.Github;
+using AET.ModVerify.App.Updates.SelfUpdate;
+using AET.ModVerify.App.Utilities;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Update.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using AET.ModVerify.App.Updates.SelfUpdate;
-using AET.ModVerify.App.Utilities;
 
 namespace AET.ModVerify.App.Updates;
 
@@ -46,15 +46,17 @@ internal sealed class ModVerifyUpdater
             return;
         }
 
-        var updater = new ModVerifyApplicationUpdater(mode, updatableEnvironment, _serviceProvider);
+        var updater = new ModVerifyApplicationUpdater(updatableEnvironment, _serviceProvider);
 
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
         var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
-
+        
         using (var block = ConsoleUtilities.CreateHorizontalFrame(length: 40,
                    startWithNewLine: true,
                    newLineAtEnd: true))
         {
+
+
             block.WriteLine("This is inside the block.");
             block.WriteLine("The bottom line will move down as you write more lines.");
 
@@ -66,7 +68,7 @@ internal sealed class ModVerifyUpdater
                 block.Write(i.ToString());
             }
 
-            
+
             block.Write("YourInput:");
             var a = block.ReadLine();
 
@@ -92,10 +94,47 @@ internal sealed class ModVerifyUpdater
                 await Task.Delay(2000); // Simulate some work
             }, spinnerOptions);
 
-            block.WriteLine("456");
-        }
 
-        //Console.WriteLine(123);
+            //var currentAction = "checking for update";
+            //try
+            //{
+
+            //    var updateCheckSpinner = new ConsoleSpinnerOptions
+            //    {
+            //        Writer = block.Writer,
+            //        CompletedMessage = "Update check completed.",
+            //        RunningMessage = "Checking for update...",
+            //        FailedMessage = "Update check failed",
+            //        HideCursor = true
+            //    };
+                
+            //    var updateCatalog =
+            //        await ConsoleSpinner.Run(async () => await updater.CheckForUpdateAsync(branch, CancellationToken.None),
+            //            updateCheckSpinner);
+                
+
+            //    if (updateCatalog is null || updateCatalog.Action != UpdateCatalogAction.Update)
+            //        return;
+                
+                
+            //    if (mode == ModVerifyUpdateMode.InteractiveUpdate)
+            //    {
+                    
+            //    }
+
+            //    currentAction = "updating";
+            //    await updater.UpdateAsync(updateCatalog);
+            //}
+            //catch (Exception e)
+            //{
+            //    block.WriteLine("TEST");
+            //    Console.ForegroundColor = ConsoleColor.DarkRed;
+            //    block.WriteLine($"Error while {currentAction}: {e.Message}");
+            //    _logger?.LogError(e, "Unable to check for updates: {error}", e.Message);
+            //    Console.ResetColor();
+            //    block.WriteLine();
+            //}
+        }
     }
 
     private async Task CheckForUpdateAndReport()

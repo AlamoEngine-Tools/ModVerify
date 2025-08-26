@@ -9,21 +9,15 @@ using AnakinRaW.AppUpdaterFramework.Metadata.Update;
 namespace AET.ModVerify.App.Updates.SelfUpdate;
 
 
-internal class ModVerifyApplicationUpdater : ApplicationUpdater
+internal class ModVerifyApplicationUpdater(
+    UpdatableApplicationEnvironment environment,
+    IServiceProvider serviceProvider)
+    : ApplicationUpdater(environment, serviceProvider)
 {
-    public ModVerifyApplicationUpdater(
-        ModVerifyUpdateMode updateMode,
-        UpdatableApplicationEnvironment environment,
-        IServiceProvider serviceProvider) 
-        : base(environment, serviceProvider)
+    public override async Task<UpdateCatalog> CheckForUpdateAsync(ProductBranch branch, CancellationToken token = default)
     {
-        if (updateMode == ModVerifyUpdateMode.CheckOnly)
-            throw new ArgumentException("Check-only mode is not supported by this updater.", nameof(updateMode));
-    }
-
-    public override Task<UpdateCatalog> CheckForUpdateAsync(ProductBranch branch, CancellationToken token = default)
-    {
-        throw new NotImplementedException();
+        await Task.Delay(2000, token);
+        throw new Exception("Test");
     }
 
     public override Task UpdateAsync(UpdateCatalog updateCatalog, CancellationToken token = default)

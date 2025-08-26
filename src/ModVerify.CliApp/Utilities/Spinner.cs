@@ -24,12 +24,11 @@ public sealed class ConsoleSpinnerOptions
 
 
 
-internal sealed class ConsoleSpinner : IDisposable
+internal sealed class ConsoleSpinner : IAsyncDisposable
 {
     private readonly ConsoleSpinnerOptions _options;
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _observedTask;
-    private readonly TaskCompletionSource<bool> _cleanupCompleted = new();
     private readonly bool _origCursorVisibility;
     private readonly string[] _animation;
     private int _frame;
@@ -48,12 +47,19 @@ internal sealed class ConsoleSpinner : IDisposable
         SpinnerLoop().Forget();
     }
 
+    public static async Task<T> Run<T>(Task<T> task, ConsoleSpinnerOptions? options = null)
+    {
+        options ??= ConsoleSpinnerOptions.Default;
+        await using var spinner = new ConsoleSpinner(task, options);
+        var result = await task.ConfigureAwait(false);
+        return result;
+    }
+
     public static async Task Run(Task task, ConsoleSpinnerOptions? options = null)
     {
         options ??= ConsoleSpinnerOptions.Default;
-        using var spinner = new ConsoleSpinner(task, options);
+        await using var spinner = new ConsoleSpinner(task, options);
         await task.ConfigureAwait(false);
-        await spinner._cleanupCompleted.Task.ConfigureAwait(false);
     }
 
     public static Task Run(Func<Task> asyncAction, ConsoleSpinnerOptions? options = null)
@@ -63,17 +69,18 @@ internal sealed class ConsoleSpinner : IDisposable
         return Run(asyncAction(), options);
     }
 
+    public static Task<T> Run<T>(Func<Task<T>> asyncAction, ConsoleSpinnerOptions? options = null)
+    {
+        if (asyncAction is null)
+            throw new ArgumentNullException(nameof(asyncAction));
+        return Run(asyncAction(), options);
+    }
+
     public static ConsoleSpinner Endless(ConsoleSpinnerOptions? options = null)
     {
         options ??= ConsoleSpinnerOptions.Default;
         var tcs = new TaskCompletionSource<object?>();
         return new ConsoleSpinner(tcs.Task, options);
-    }
-
-    public void Dispose()
-    {
-        _cts.Cancel();
-        _cts.Dispose();
     }
 
     private async Task SpinnerLoop()
@@ -89,10 +96,6 @@ internal sealed class ConsoleSpinner : IDisposable
         catch (OperationCanceledException)
         {
             // Ignore
-        }
-        finally
-        {
-            await CleanupAndFinishAsync();
         }
     }
 
@@ -115,7 +118,7 @@ internal sealed class ConsoleSpinner : IDisposable
         _lastTextLength = text.Length;
     }
 
-    private async Task CleanupAndFinishAsync()
+    public async Task CleanupAndFinishAsync()
     {
         // Clear spinner content
         if (_lastTextLength > 0)
@@ -132,7 +135,6 @@ internal sealed class ConsoleSpinner : IDisposable
 
         await _options.Writer.FlushAsync();
         Console.CursorVisible = _origCursorVisibility;
-        _cleanupCompleted.SetResult(true);
     }
 
     private async Task ClearTextAsync(int length)
@@ -148,5 +150,23 @@ internal sealed class ConsoleSpinner : IDisposable
         return _observedTask.IsCompleted
             ? _observedTask.IsFaulted || _observedTask.IsCanceled ? _options.FailedMessage : _options.CompletedMessage
             : null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await CleanupAndFinishAsync();
+        
+        await CastAndDispose(_cts);
+        await CastAndDispose(_observedTask);
+
+        return;
+
+        static async ValueTask CastAndDispose(IDisposable resource)
+        {
+            if (resource is IAsyncDisposable resourceAsyncDisposable)
+                await resourceAsyncDisposable.DisposeAsync();
+            else
+                resource.Dispose();
+        }
     }
 }
