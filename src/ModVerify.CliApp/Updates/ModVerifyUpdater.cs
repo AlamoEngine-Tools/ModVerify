@@ -50,49 +50,61 @@ internal sealed class ModVerifyUpdater
 
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
         var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
+
+        {
+            var b = ConsoleUtilities.UserYesNoQuestion("a");
+            Console.WriteLine(b.ToString());
+        }
         
-        using (var block = ConsoleUtilities.CreateHorizontalFrame(length: 40,
+        using (ConsoleUtilities.CreateHorizontalFrame(length: 40,
                    startWithNewLine: true,
                    newLineAtEnd: true))
         {
+            Console.WriteLine("This is inside the block.");
+            Console.WriteLine("The bottom line will move down as you write more lines.");
 
-
-            block.WriteLine("This is inside the block.");
-            block.WriteLine("The bottom line will move down as you write more lines.");
-
-            var b = ConsoleUtilities.UserYesNoQuestion("a", frame: block);
-            block.WriteLine(b.ToString());
+            
+            var b = ConsoleUtilities.UserYesNoQuestion("a");
+            Console.WriteLine(b.ToString());
             for (var i = 0; i < 3; i++)
             {
                 await Task.Delay(500);
-                block.Write(i.ToString());
+                Console.Write(i.ToString());
             }
 
 
-            block.Write("YourInput:");
-            var a = block.ReadLine();
+            Console.Write("YourInput:");
+            var a = Console.ReadLine();
 
-            block.WriteLine(a);
+            Console.WriteLine(a);
 
 
             for (var i = 0; i < 3; i++)
             {
                 await Task.Delay(500);
-                await block.Writer.WriteLineAsync(i.ToString());
+                await Console.Out.WriteLineAsync(i.ToString());
             }
 
             var spinnerOptions = new ConsoleSpinnerOptions
             {
-                Writer = block.Writer,
                 CompletedMessage = "DONE",
                 RunningMessage = "Checking for update...",
                 FailedMessage = "Update check failed",
                 HideCursor = true
             };
-            await ConsoleSpinner.Run(async () =>
+
+            try
             {
-                await Task.Delay(2000); // Simulate some work
-            }, spinnerOptions);
+                await ConsoleSpinner.Run(async () =>
+                {
+                    await Task.Delay(2000); // Simulate some work
+                    throw new Exception("Test");
+                }, spinnerOptions);
+            }
+            catch (Exception e)
+            {
+                _logger?.LogError(e, e.Message);
+            }
 
 
             //var currentAction = "checking for update";
@@ -107,19 +119,19 @@ internal sealed class ModVerifyUpdater
             //        FailedMessage = "Update check failed",
             //        HideCursor = true
             //    };
-                
+
             //    var updateCatalog =
             //        await ConsoleSpinner.Run(async () => await updater.CheckForUpdateAsync(branch, CancellationToken.None),
             //            updateCheckSpinner);
-                
+
 
             //    if (updateCatalog is null || updateCatalog.Action != UpdateCatalogAction.Update)
             //        return;
-                
-                
+
+
             //    if (mode == ModVerifyUpdateMode.InteractiveUpdate)
             //    {
-                    
+
             //    }
 
             //    currentAction = "updating";
