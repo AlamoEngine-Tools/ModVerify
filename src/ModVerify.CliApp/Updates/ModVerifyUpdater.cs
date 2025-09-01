@@ -6,7 +6,9 @@ using AnakinRaW.ApplicationBase.Update.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using AnakinRaW.AppUpdaterFramework.Metadata.Update;
 
 namespace AET.ModVerify.App.Updates;
 
@@ -51,101 +53,53 @@ internal sealed class ModVerifyUpdater
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
         var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
 
+        using (ConsoleUtilities.CreateHorizontalFrame(length: 40, startWithNewLine: true, newLineAtEnd: true))
         {
-            var b = ConsoleUtilities.UserYesNoQuestion("a");
-            Console.WriteLine(b.ToString());
-        }
-        
-        using (ConsoleUtilities.CreateHorizontalFrame(length: 40,
-                   startWithNewLine: true,
-                   newLineAtEnd: true))
-        {
-            Console.WriteLine("This is inside the block.");
-            Console.WriteLine("The bottom line will move down as you write more lines.");
-
-            
-            var b = ConsoleUtilities.UserYesNoQuestion("a");
-            Console.WriteLine(b.ToString());
-            for (var i = 0; i < 3; i++)
-            {
-                await Task.Delay(500);
-                Console.Write(i.ToString());
-            }
-
-
-            Console.Write("YourInput:");
-            var a = Console.ReadLine();
-
-            Console.WriteLine(a);
-
-
-            for (var i = 0; i < 3; i++)
-            {
-                await Task.Delay(500);
-                await Console.Out.WriteLineAsync(i.ToString());
-            }
-
-            var spinnerOptions = new ConsoleSpinnerOptions
-            {
-                CompletedMessage = "DONE",
-                RunningMessage = "Checking for update...",
-                FailedMessage = "Update check failed",
-                HideCursor = true
-            };
-
+            var currentAction = "checking for update";
             try
             {
-                await ConsoleSpinner.Run(async () =>
+                var updateCheckSpinner = new ConsoleSpinnerOptions
                 {
-                    await Task.Delay(2000); // Simulate some work
-                    throw new Exception("Test");
-                }, spinnerOptions);
+                    CompletedMessage = "Update check completed.",
+                    RunningMessage = "Checking for update...",
+                    FailedMessage = "Update check failed",
+                    HideCursor = true
+                };
+
+                var updateCatalog =
+                    await ConsoleSpinner.Run(async () =>
+                            await updater.CheckForUpdateAsync(branch, CancellationToken.None),
+                        updateCheckSpinner);
+
+
+                if (updateCatalog.Action != UpdateCatalogAction.Update)
+                {
+                    Console.WriteLine("No update available.");
+                    return;
+                }
+
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine($"New update available: Version {updateCatalog.UpdateReference.Version}");
+                Console.ResetColor();
+
+                if (mode == ModVerifyUpdateMode.InteractiveUpdate)
+                {
+                    var shallUpdate = ConsoleUtilities.UserYesNoQuestion("Do you want to update now?");
+                    if (!shallUpdate)
+                        return;
+                }
+
+                currentAction = "updating";
+                await updater.UpdateAsync(updateCatalog);
             }
             catch (Exception e)
             {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine($"Error while {currentAction}: {e.Message}");
+                Console.ResetColor();
                 _logger?.LogError(e, e.Message);
             }
-
-
-            //var currentAction = "checking for update";
-            //try
-            //{
-
-            //    var updateCheckSpinner = new ConsoleSpinnerOptions
-            //    {
-            //        Writer = block.Writer,
-            //        CompletedMessage = "Update check completed.",
-            //        RunningMessage = "Checking for update...",
-            //        FailedMessage = "Update check failed",
-            //        HideCursor = true
-            //    };
-
-            //    var updateCatalog =
-            //        await ConsoleSpinner.Run(async () => await updater.CheckForUpdateAsync(branch, CancellationToken.None),
-            //            updateCheckSpinner);
-
-
-            //    if (updateCatalog is null || updateCatalog.Action != UpdateCatalogAction.Update)
-            //        return;
-
-
-            //    if (mode == ModVerifyUpdateMode.InteractiveUpdate)
-            //    {
-
-            //    }
-
-            //    currentAction = "updating";
-            //    await updater.UpdateAsync(updateCatalog);
-            //}
-            //catch (Exception e)
-            //{
-            //    block.WriteLine("TEST");
-            //    Console.ForegroundColor = ConsoleColor.DarkRed;
-            //    block.WriteLine($"Error while {currentAction}: {e.Message}");
-            //    _logger?.LogError(e, "Unable to check for updates: {error}", e.Message);
-            //    Console.ResetColor();
-            //    block.WriteLine();
-            //}
         }
     }
 

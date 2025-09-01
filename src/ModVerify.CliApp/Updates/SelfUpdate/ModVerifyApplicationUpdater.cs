@@ -16,8 +16,16 @@ internal class ModVerifyApplicationUpdater(
 {
     public override async Task<UpdateCatalog> CheckForUpdateAsync(ProductBranch branch, CancellationToken token = default)
     {
-        await Task.Delay(2000, token);
-        throw new Exception("Test");
+        var updateReference = ProductService.CreateProductReference(null, branch);
+
+        var updateCatalog = await UpdateService.CheckForUpdatesAsync(updateReference, token);
+
+        if (updateCatalog is null)
+            throw new InvalidOperationException("Update service was already doing something.");
+
+        return updateCatalog.Action is UpdateCatalogAction.Install or UpdateCatalogAction.Uninstall
+            ? throw new NotSupportedException("Install and Uninstall operations are not supported")
+            : updateCatalog;
     }
 
     public override Task UpdateAsync(UpdateCatalog updateCatalog, CancellationToken token = default)

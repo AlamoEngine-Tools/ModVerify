@@ -25,6 +25,9 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
 
     public override ICollection<Uri> UpdateMirrors { get; } = new List<Uri>
     {
+#if DEBUG
+        new("C:\\Test\\ModVerify"),    
+#endif
         new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}")
     };
 
@@ -37,11 +40,23 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
             DownloadLocation = FileSystem.Path.Combine(ApplicationLocalPath, "downloads"),
             BackupLocation = FileSystem.Path.Combine(ApplicationLocalPath, "backups"),
             BackupPolicy = BackupPolicy.Required,
-            DownloadConfiguration = new DownloadManagerConfiguration
+            ComponentDownloadConfiguration = new DownloadManagerConfiguration
             {
                 AllowEmptyFileDownload = false,
                 DownloadRetryDelay = 500,
                 ValidationPolicy = ValidationPolicy.Required
+            },
+            ManifestDownloadConfiguration = new DownloadManagerConfiguration
+            {
+                AllowEmptyFileDownload = false,
+                DownloadRetryDelay = 500,
+                ValidationPolicy = ValidationPolicy.Optional
+            },
+            BranchDownloadConfiguration = new DownloadManagerConfiguration
+            {
+                AllowEmptyFileDownload = false,
+                DownloadRetryDelay = 500,
+                ValidationPolicy = ValidationPolicy.NoValidation
             },
             DownloadRetryCount = 3,
             RestartConfiguration = new UpdateRestartConfiguration
