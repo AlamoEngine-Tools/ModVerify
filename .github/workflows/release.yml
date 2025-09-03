@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
