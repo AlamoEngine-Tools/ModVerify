@@ -90,7 +90,16 @@ internal sealed class ModVerifyUpdater
                 }
 
                 currentAction = "updating";
-                await updater.UpdateAsync(updateCatalog);
+
+
+                var updatingSpinner = new ConsoleSpinnerOptions
+                {
+                    RunningMessage = $"Updating {ModVerifyConstants.AppNameString}...",
+                    HideCursor = true
+                };
+                await ConsoleSpinner.Run(async () =>
+                        await updater.UpdateAsync(updateCatalog, CancellationToken.None),
+                    updatingSpinner);
             }
             catch (Exception e)
             {

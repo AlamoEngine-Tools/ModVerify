@@ -28,8 +28,13 @@ internal class ModVerifyApplicationUpdater(
             : updateCatalog;
     }
 
-    public override Task UpdateAsync(UpdateCatalog updateCatalog, CancellationToken token = default)
+    public override async Task UpdateAsync(UpdateCatalog updateCatalog, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        var updateResult = await UpdateService.UpdateAsync(updateCatalog, token).ConfigureAwait(false);
+        if (updateResult is null)
+            throw new InvalidOperationException("There is already an update running.");
+
+        var resultHandler = new ModVerifyUpdateResultHandler(Environment, ServiceProvider);
+        await resultHandler.Handle(updateResult).ConfigureAwait(false);
     }
 }
