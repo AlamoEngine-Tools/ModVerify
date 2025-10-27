@@ -40,13 +40,13 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net9.0 --output ./releases/net9.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Binary Releases
           path: ./releases
@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: Binary Releases
           path: ./releases
