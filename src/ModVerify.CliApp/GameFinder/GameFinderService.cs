@@ -79,7 +79,7 @@ internal class GameFinderService
         catch (Exception e)
         {
             result = GameDetectionResult.NotInstalled(gameType);
-            _logger?.LogTrace("Unable to find game installation: {EMessage}", e.Message);
+            _logger?.LogTrace("Unable to find game installation: {Message}", e.Message);
             return false;
         }
     }

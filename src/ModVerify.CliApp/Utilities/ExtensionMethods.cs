@@ -18,17 +18,18 @@ internal static class ExtensionMethods
         return type == GameEngineType.Foc ? GameType.Foc : GameType.Eaw;
     }
 
-    public static bool IsUpdatable(this ApplicationEnvironment modVerifyEnvironment)
+    extension(ApplicationEnvironment modVerifyEnvironment)
     {
-        return modVerifyEnvironment.IsUpdatable(out _);
-    }
+        public bool IsUpdatable()
+        {
+            return modVerifyEnvironment.IsUpdatable(out _);
+        }
 
-    public static bool IsUpdatable(
-        this ApplicationEnvironment applicationEnvironment,
-        [NotNullWhen(true)] out UpdatableApplicationEnvironment? updatableEnvironment)
-    {
-        updatableEnvironment = applicationEnvironment as UpdatableApplicationEnvironment;
-        return updatableEnvironment is not null;
+        public bool IsUpdatable([NotNullWhen(true)] out UpdatableApplicationEnvironment? updatableEnvironment)
+        {
+            updatableEnvironment = modVerifyEnvironment as UpdatableApplicationEnvironment;
+            return updatableEnvironment is not null;
+        }
     }
 
     public static bool LaunchedWithoutArguments(this BaseModVerifyOptions options)

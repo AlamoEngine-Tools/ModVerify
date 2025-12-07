@@ -56,8 +56,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 if (minFailSeverity == null)
                 {
                     _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, 
-                        $"Verification is configured to fail fast but 'minFailSeverity' is not specified. " +
-                        $"Using severity '{VerificationSeverity.Information}'.");
+                        "Verification is configured to fail fast but 'minFailSeverity' is not specified. Using severity '{Info}'.", VerificationSeverity.Information);
                     minFailSeverity = VerificationSeverity.Information;
                 }
 

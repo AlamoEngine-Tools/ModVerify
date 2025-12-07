@@ -7,49 +7,46 @@ namespace AET.ModVerify.Reporting.Reporters;
 
 public static class VerificationReportersExtensions
 {
-    public static IServiceCollection RegisterJsonReporter(this IServiceCollection serviceCollection)
+    extension(IServiceCollection serviceCollection)
     {
-        return RegisterJsonReporter(serviceCollection, new JsonReporterSettings
+        public IServiceCollection RegisterJsonReporter()
         {
-            OutputDirectory = "."
-        });
-    }
+            return RegisterJsonReporter(serviceCollection, new JsonReporterSettings
+            {
+                OutputDirectory = "."
+            });
+        }
 
-    public static IServiceCollection RegisterTextFileReporter(this IServiceCollection serviceCollection)
-    {
-        return RegisterTextFileReporter(serviceCollection, new TextFileReporterSettings
+        public IServiceCollection RegisterTextFileReporter()
         {
-            OutputDirectory = "."
-        });
-    }
+            return RegisterTextFileReporter(serviceCollection, new TextFileReporterSettings
+            {
+                OutputDirectory = "."
+            });
+        }
 
-    public static IServiceCollection RegisterConsoleReporter(this IServiceCollection serviceCollection, bool summaryOnly = false)
-    {
-        return RegisterConsoleReporter(serviceCollection, new VerifyReportSettings
+        public IServiceCollection RegisterConsoleReporter(bool summaryOnly = false)
         {
-            MinimumReportSeverity = VerificationSeverity.Error
-        }, summaryOnly);
-    }
+            return RegisterConsoleReporter(serviceCollection, new VerifyReportSettings
+            {
+                MinimumReportSeverity = VerificationSeverity.Error
+            }, summaryOnly);
+        }
 
-    public static IServiceCollection RegisterJsonReporter(
-        this IServiceCollection serviceCollection, 
-        JsonReporterSettings settings)
-    {
-        return serviceCollection.AddSingleton<IVerificationReporter>(sp => new JsonReporter(settings, sp));
-    }
+        public IServiceCollection RegisterJsonReporter(JsonReporterSettings settings)
+        {
+            return serviceCollection.AddSingleton<IVerificationReporter>(sp => new JsonReporter(settings, sp));
+        }
 
-    public static IServiceCollection RegisterTextFileReporter(
-        this IServiceCollection serviceCollection, 
-        TextFileReporterSettings settings)
-    {
-        return serviceCollection.AddSingleton<IVerificationReporter>(sp => new TextFileReporter(settings, sp));
-    }
+        public IServiceCollection RegisterTextFileReporter(TextFileReporterSettings settings)
+        {
+            return serviceCollection.AddSingleton<IVerificationReporter>(sp => new TextFileReporter(settings, sp));
+        }
 
-    public static IServiceCollection RegisterConsoleReporter(
-        this IServiceCollection serviceCollection, 
-        VerifyReportSettings settings,
-        bool summaryOnly = false)
-    {
-        return serviceCollection.AddSingleton<IVerificationReporter>(sp => new ConsoleReporter(settings, summaryOnly, sp));
+        public IServiceCollection RegisterConsoleReporter(VerifyReportSettings settings,
+            bool summaryOnly = false)
+        {
+            return serviceCollection.AddSingleton<IVerificationReporter>(sp => new ConsoleReporter(settings, summaryOnly, sp));
+        }
     }
 }

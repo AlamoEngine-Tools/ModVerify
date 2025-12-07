@@ -3,12 +3,12 @@ using AET.ModVerify.App.Updates.SelfUpdate;
 using AET.ModVerify.App.Utilities;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Update.Options;
+using AnakinRaW.AppUpdaterFramework.Metadata.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AnakinRaW.AppUpdaterFramework.Metadata.Update;
 
 namespace AET.ModVerify.App.Updates;
 
@@ -66,11 +66,10 @@ internal sealed class ModVerifyUpdater
                     HideCursor = true
                 };
 
-                var updateCatalog =
-                    await ConsoleSpinner.Run(async () =>
-                            await updater.CheckForUpdateAsync(branch, CancellationToken.None),
-                        updateCheckSpinner);
-
+                var updateCatalog = await ConsoleSpinner.Run(async () =>
+                        await updater.CheckForUpdateAsync(branch, CancellationToken.None),
+                    updateCheckSpinner);
+                
 
                 if (updateCatalog.Action != UpdateCatalogAction.Update)
                 {
@@ -103,11 +102,7 @@ internal sealed class ModVerifyUpdater
             }
             catch (Exception e)
             {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine($"Error while {currentAction}: {e.Message}");
-                Console.ResetColor();
-                _logger?.LogError(e, e.Message);
+                WriteError(e, $"Error while {currentAction}: {e.Message}");
             }
         }
     }
@@ -140,5 +135,15 @@ internal sealed class ModVerifyUpdater
             _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, "Unable to check for updates due to an internal error: {message}", e.Message);
             _logger?.LogTrace(e, "Checking for update failed: {message}", e.Message);
         }
+    }
+
+    private void WriteError(Exception e, string? customMessage)
+    {
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        if (!string.IsNullOrEmpty(customMessage))
+            Console.WriteLine(customMessage);
+        Console.ResetColor();
+        _logger?.LogError(e, e.Message);
     }
 }

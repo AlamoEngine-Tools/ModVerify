@@ -84,7 +84,7 @@ internal partial class GameRepository
 
         if (filePath.Length > PGConstants.MaxMegEntryPathLength)
         {
-            Logger.LogWarning($"Trying to open a MEG entry which is longer than 259 characters: '{filePath.ToString()}'");
+            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FilePath}'", filePath.ToString());
             return default;
         }
 
@@ -97,7 +97,7 @@ internal partial class GameRepository
 
         if (fileName.Length > PGConstants.MaxMegEntryPathLength)
         {
-            Logger.LogWarning($"Trying to open a MEG entry which is longer than 259 characters after normalization: '{fileName.ToString()}'");
+            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters after normalization: '{FileName}'", fileName.ToString());
             return default;
         }
 

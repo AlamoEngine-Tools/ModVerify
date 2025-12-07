@@ -65,7 +65,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
     {
         try
         {
-            _logger?.LogInformation($"Initializing game engine for type '{engineType}'.");
+            _logger?.LogInformation("Initializing game engine for type '{GameEngineType}'.", engineType);
 
             var repoFactory = _serviceProvider.GetRequiredService<IGameRepositoryFactory>();
             var repository = repoFactory.Create(engineType, gameLocations, errorReporter);

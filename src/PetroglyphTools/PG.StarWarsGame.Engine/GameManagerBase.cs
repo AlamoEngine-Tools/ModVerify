@@ -62,7 +62,7 @@ internal abstract class GameManagerBase
         }
         catch (Exception e)
         {
-            Logger?.LogError(e, $"Initialization of {this} failed: {e.Message}");
+            Logger?.LogError(e, "Initialization of {Class} failed: {Message}", this, e.Message);
             throw;
         }
         OnInitialized();
