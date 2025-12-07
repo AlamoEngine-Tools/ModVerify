@@ -35,18 +35,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
-        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net9.0 --output ./releases/net9.0 /p:DebugType=None /p:DebugSymbols=false
+        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Binary Releases
           path: ./releases
@@ -62,17 +62,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: Binary Releases
           path: ./releases
       - name: Create NET Core .zip
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
-        working-directory: ./releases/net9.0
-        run: zip -r ../ModVerify-Net9.zip .
+        working-directory: ./releases/net10.0
+        run: zip -r ../ModVerify-Net10.zip .
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       - name: Create GitHub release
@@ -87,4 +87,4 @@ jobs:
           generate_release_notes: true
           files: | 
             ./releases/net48/ModVerify.exe
-            ./releases/ModVerify-Net9.zip
+            ./releases/ModVerify-Net10.zip
