@@ -91,7 +91,7 @@ jobs:
       - name: Create Manifest
         run: dotnet ./dev/${{env.MANIFEST_CREATOR}} -a deploy/${{env.TOOL_EXE}} --appDataFiles deploy/${{env.UPDATER_EXE}} --origin ${{env.ORIGIN_BASE}} -o ./deploy -b ${{env.BRANCH_NAME}}
       - name: Upload Build
-        run: dotnet ./dev/${{env.SFTP_UPLOADER}} -h $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
+        run: dotnet ./dev/${{env.SFTP_UPLOADER}} ftp --host $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
         env:
           host: republicatwar.com
           port: 1579
