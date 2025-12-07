@@ -42,8 +42,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
-        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net481 --output ./releases/net481 /p:DebugType=None /p:DebugSymbols=false
+        # use build for .NET Framework to enusre external updatere .EXE is included
+        run:  dotnet build ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net481 --output ./releases/net481 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
+        # use publish for .NET Core
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v5
