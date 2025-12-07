@@ -78,6 +78,9 @@
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<CosturaRemoveCopyLocalFilesToPublish Condition="$(TargetFramework) == 'net481'">
+			false
+		</CosturaRemoveCopyLocalFilesToPublish>
 		<WeaverConfiguration>
 			<Weavers>
 				<Costura IncludeDebugSymbols="false" IgnoreSatelliteAssemblies="true" />
