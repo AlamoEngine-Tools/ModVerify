@@ -13,8 +13,8 @@ on:
 
 env:
   TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
-  CREATOR_PROJ_PATH: ./Modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
-  UPLOADER_PROJ_PATH: ./Modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
+  CREATOR_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
+  UPLOADER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
   TOOL_EXE: ModVerify.exe
   UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
   MANIFEST_CREATOR: AnakinRaW.ApplicationManifestCreator.dll
@@ -65,10 +65,38 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          submodules: recursive
       - uses: actions/download-artifact@v6
         with:
           name: Binary Releases
           path: ./releases
+
+      # Deploy .NET Framework self-update release
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+            dotnet-version: 10.0.x
+      - name: Build Creator
+        run: dotnet build ${{env.CREATOR_PROJ_PATH}} --configuration Release --output ./dev
+      - name: Build Uploader
+        run: dotnet build ${{env.UPLOADER_PROJ_PATH}} --configuration Release --output ./dev
+      - name: Create binaries directory
+        run: mkdir -p ./deploy
+      - name: Copy self-update files
+        run: |
+          cp ./releases/net481/${{env.TOOL_EXE}} ./deploy/
+          cp ./releases/net481/${{env.UPDATER_EXE}} ./deploy/
+      - name: Create Manifest
+        run: dotnet ./dev/${{env.MANIFEST_CREATOR}} -a deploy/${{env.TOOL_EXE}} --appDataFiles deploy/${{env.UPDATER_EXE}} --origin ${{env.ORIGIN_BASE}} -o ./deploy -b ${{env.BRANCH_NAME}}
+      - name: Upload Build
+        run: dotnet ./dev/${{env.SFTP_UPLOADER}} -h $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
+        env:
+          host: republicatwar.com
+          port: 1579
+          base_path: ${{env.ORIGIN_BASE_PART}}
+          source: ./deploy
+
+      # Deploy .NET Core and .NET Framework apps to Github
       - name: Create NET Core .zip
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
         working-directory: ./releases/net10.0
