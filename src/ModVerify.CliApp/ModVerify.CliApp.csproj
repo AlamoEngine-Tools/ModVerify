@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0;net481</TargetFrameworks>
+		<TargetFrameworks>net10.0;net481</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AET.ModVerify.App</RootNamespace>
 		<AssemblyName>ModVerify</AssemblyName>
@@ -34,15 +34,15 @@
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.0.35" />
 		<PackageReference Include="Figgle" Version="0.6.5" />
 		<PackageReference Include="Figgle.Generator" Version="0.6.5" />
-		<PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
 		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="4.0.35" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
 		<PackageReference Include="Serilog.Expressions" Version="5.0.0" />

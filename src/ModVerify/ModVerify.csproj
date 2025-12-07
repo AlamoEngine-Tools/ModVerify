@@ -35,7 +35,7 @@
 	<ItemGroup>
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.8" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.3.8" />
-		<PackageReference Include="System.Text.Json" Version="9.0.8" />
+		<PackageReference Include="System.Text.Json" Version="10.0.0" />
 		<PackageReference Include="JsonSchema.Net" Version="7.4.0" />
 	</ItemGroup>
 

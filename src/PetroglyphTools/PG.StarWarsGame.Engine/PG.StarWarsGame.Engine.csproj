@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net9.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net10.0</TargetFrameworks>
 		<Title>PG.StarWarsGame.Engine</Title>
 		<Product>PG.StarWarsGame.Engine</Product>
 		<PackageId>AlamoEngineTools.PG.StarWarsGame.Engine</PackageId>
@@ -26,7 +26,7 @@
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.1.7" />
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.1.7" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.8" />
-		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.1.6" />
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.2.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.15.0">
