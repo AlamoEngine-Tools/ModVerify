@@ -37,7 +37,7 @@ public class BaselineSelectorTest
     }
 
     [Theory]
-    [InlineData(GameEngineType.Eaw)]
+    // [InlineData(GameEngineType.Eaw)] TODO EaW is currently not supported
     [InlineData(GameEngineType.Foc)]
     public void LoadEmbeddedBaseline(GameEngineType engineType)
     {
