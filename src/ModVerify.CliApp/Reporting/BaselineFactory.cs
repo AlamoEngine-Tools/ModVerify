@@ -49,7 +49,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
             }
             catch (InvalidBaselineException e)
             {
-                _logger?.LogDebug("'{JsonFile}' is not a valid baseline file: {EMessage}", jsonFile, e.Message);
+                _logger?.LogDebug("'{JsonFile}' is not a valid baseline file: {Message}", jsonFile, e.Message);
                 // Ignore this exception
             }
         }

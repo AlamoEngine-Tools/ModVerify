@@ -69,7 +69,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         if (!_baselineFactory.TryCreateBaseline(installationData.GameLocations.TargetPath, out var baseline,
                 out baselinePath))
         {
-            if (!_baselineFactory.TryCreateBaseline(".", out baseline, out baselinePath))
+            if (!_baselineFactory.TryCreateBaseline("./", out baseline, out baselinePath))
             {
                 // It does not make sense to load the game's default baselines if the user wants to verify the game,
                 // as the verification result would always be empty (at least in a non-development scenario)
