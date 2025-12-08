@@ -161,7 +161,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         {
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{InstallDataName}'...", installData.Name);
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{Target}'...", installData.Name);
                 await verifyPipeline.RunAsync().ConfigureAwait(false);
                 progressReporter.Report(string.Empty, 1.0);
             }
@@ -224,7 +224,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         var baseline = baselineSelector.SelectBaseline(installData, out var baselinePath);
 
         if (baseline.Count > 0) 
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Using baseline '{baselinePath}'");
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using baseline '{UsedBaselinePath}'", baselinePath);
 
         var suppressionsFile = settings.ReportSettings.SuppressionsPath;
         SuppressionList suppressions;
@@ -237,7 +237,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             suppressions = SuppressionList.FromJson(fs);
 
             if (suppressions.Count > 0)
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, $"Using suppressions from '{suppressionsFile}'");
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using suppressions from '{SuppressionsFile}'", suppressionsFile);
         }
 
 
