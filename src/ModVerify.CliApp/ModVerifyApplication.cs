@@ -86,8 +86,8 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
         var reportSettings = CreateGlobalReportSettings(installData);
 
-        _logger?.LogDebug("Verify install data: {VerifyInstallationData}", installData);
-        _logger?.LogTrace("Verify settings: {ModVerifyAppSettings}", settings);
+        _logger?.LogDebug("Verify install data: {InstallData}", installData);
+        _logger?.LogTrace("Verify settings: {Settings}", settings);
 
         var allErrors = await Verify(installData, reportSettings)
             .ConfigureAwait(false);
@@ -126,7 +126,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Creating Game Engine '{InstallDataEngineType}'", installData.EngineType);
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Creating Game Engine '{Engine}'", installData.EngineType);
                 gameEngine = await gameEngineService.InitializeAsync(
                     installData.EngineType,
                     installData.GameLocations,
@@ -143,7 +143,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         }
         catch (Exception e)
         {
-            _logger?.LogError(e, "Creating game engine failed: {EMessage}", e.Message);
+            _logger?.LogError(e, "Creating game engine failed: {Message}", e.Message);
             throw;
         }
 
@@ -181,7 +181,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         }
         catch (Exception e)
         {
-            _logger?.LogError(e, "Verification failed: {EMessage}", e.Message);
+            _logger?.LogError(e, "Verification failed: {Message}", e.Message);
             throw;
         }
 
@@ -224,7 +224,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         var baseline = baselineSelector.SelectBaseline(installData, out var baselinePath);
 
         if (baseline.Count > 0) 
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using baseline '{UsedBaselinePath}'", baselinePath);
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using baseline '{Baseline}'", baselinePath);
 
         var suppressionsFile = settings.ReportSettings.SuppressionsPath;
         SuppressionList suppressions;
@@ -237,7 +237,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             suppressions = SuppressionList.FromJson(fs);
 
             if (suppressions.Count > 0)
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using suppressions from '{SuppressionsFile}'", suppressionsFile);
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using suppressions from '{Suppressions}'", suppressionsFile);
         }
 
 
