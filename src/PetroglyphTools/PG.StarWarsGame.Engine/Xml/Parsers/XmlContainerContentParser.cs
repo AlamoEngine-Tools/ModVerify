@@ -37,13 +37,13 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
         ValueListDictionary<Crc32, T> entries,
         Action<string>? onFileParseAction = null) where T : notnull
     {
-        Logger.LogDebug($"Parsing container data '{xmlFile}'");
+        Logger.LogDebug("Parsing container data '{XmlFile}'", xmlFile);
 
         using var containerStream = gameRepository.TryOpenFile(xmlFile);
         if (containerStream == null)
         {
             _reporter?.Report(this, XmlParseErrorEventArgs.FromMissingFile(xmlFile));
-            Logger.LogWarning($"Could not find XML file '{xmlFile}'");
+            Logger.LogWarning("Could not find XML file '{XmlFile}'", xmlFile);
 
             var args = new XmlContainerParserErrorEventArgs(xmlFile, null, true)
             {
@@ -89,7 +89,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
             if (fileStream is null)
             {
                 _reporter?.Report(parser, XmlParseErrorEventArgs.FromMissingFile(file));
-                Logger.LogWarning($"Could not find XML file '{file}'");
+                Logger.LogWarning("Could not find XML file '{File}'", file);
 
                 var args = new XmlContainerParserErrorEventArgs(file);
                 XmlParseError?.Invoke(this, args);
@@ -99,7 +99,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
                 return;
             }
 
-            Logger.LogDebug($"Parsing File '{file}'");
+            Logger.LogDebug("Parsing File '{File}'", file);
 
             try
             {

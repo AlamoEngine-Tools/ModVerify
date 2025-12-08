@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using AET.Modinfo.Spec;
-using AET.ModVerifyTool.GameFinder;
-using AET.ModVerifyTool.Options;
+using AET.ModVerify.App.GameFinder;
+using AET.ModVerify.App.Settings;
+using AET.ModVerify.App.Utilities;
+using AnakinRaW.ApplicationBase;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {
@@ -100,7 +102,7 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
                     if (!int.TryParse(input, out value))
                         return false;
                     
-                    return value <= list.Count;
+                    return value <= list.Count && value >= 0;
                 });
             return list[selected];
         }

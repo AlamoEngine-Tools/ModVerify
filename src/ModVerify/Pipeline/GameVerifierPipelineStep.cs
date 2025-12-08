@@ -26,13 +26,13 @@ public sealed class GameVerifierPipelineStep(
     {
         try
         {
-            Logger?.LogDebug($"Running verifier '{GameVerifier.FriendlyName}'...");
+            Logger?.LogDebug("Running verifier '{Name}'...", GameVerifier.FriendlyName);
             ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(0.0, "Started"));
             
             GameVerifier.Progress += OnVerifyProgress;
             GameVerifier.Verify(token);
 
-            Logger?.LogDebug($"Finished verifier '{GameVerifier.FriendlyName}'");
+            Logger?.LogDebug("Finished verifier '{Name}'", GameVerifier.FriendlyName);
             ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(1.0, "Finished"));
         }
         finally

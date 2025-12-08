@@ -1,5 +1,5 @@
 ﻿using PG.StarWarsGame.Infrastructure.Games;
 
-namespace AET.ModVerifyTool.GameFinder;
+namespace AET.ModVerify.App.GameFinder;
 
 internal record GameFinderResult(IGame Game, IGame? FallbackGame);

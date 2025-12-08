@@ -79,7 +79,7 @@ internal partial class GuiDialogGameManager(GameRepository repository, GameEngin
     {
         if (!_perComponentTextures.TryGetValue(component, out var textures))
         {
-            Logger?.LogDebug($"The component '{component}' has no overrides. Using default textures.");
+            Logger?.LogDebug("The component '{Component}' has no overrides. Using default textures.", component);
             componentExist = false;
             return DefaultTextureEntries;
         }
@@ -92,7 +92,7 @@ internal partial class GuiDialogGameManager(GameRepository repository, GameEngin
     {
         if (!_perComponentTextures.TryGetValue(component, out var textures))
         {
-            Logger?.LogDebug($"The component '{component}' has no overrides. Using default textures.");
+            Logger?.LogDebug("The component '{Component}' has no overrides. Using default textures.", component);
             textures = _defaultTextures;
         }
 

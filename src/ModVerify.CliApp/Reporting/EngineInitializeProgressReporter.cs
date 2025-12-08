@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AET.ModVerifyTool.Reporting;
+namespace AET.ModVerify.App.Reporting;
 
 internal sealed class EngineInitializeProgressReporter : IDisposable
 {

@@ -1,7 +1,7 @@
 ﻿using System;
-using AET.ModVerifyTool.Options;
+using AET.ModVerify.App.Settings;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal class ModSelectorFactory(IServiceProvider serviceProvider)
 {

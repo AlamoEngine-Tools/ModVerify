@@ -1,9 +1,9 @@
 ﻿using System;
-using AET.ModVerifyTool.Options;
+using AET.ModVerify.App.Settings;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal class ManualModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {

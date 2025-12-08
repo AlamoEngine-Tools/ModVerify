@@ -14,6 +14,7 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
 
     protected override ErrorData CreateError(EngineAssert assert)
     {
+        // TODO: Why is context not used atm?
         var context = new List<string>();
 
         if (assert.Value is not null)

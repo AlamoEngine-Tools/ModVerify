@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
-using AET.ModVerifyTool.Options;
+using AET.ModVerify.App.GameFinder;
+using AET.ModVerify.App.Settings;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
 {
-    public VerifyInstallationInformation CreateInstallationDataFromSettings(GameInstallationsSettings settings)
+    public VerifyInstallationData CreateInstallationDataFromSettings(GameInstallationsSettings settings)
     {
         var gameLocations = new ModSelectorFactory(serviceProvider)
             .CreateSelector(settings)
@@ -20,7 +21,7 @@ internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
         if (engineType is null)
             throw new InvalidOperationException("Engine type not specified.");
 
-        return new VerifyInstallationInformation
+        return new VerifyInstallationData
         {
             EngineType = engineType.Value,
             GameLocations = gameLocations,

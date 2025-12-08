@@ -2,8 +2,9 @@
 using System.Globalization;
 using System.IO.Abstractions;
 using System.Linq;
-using AET.ModVerifyTool.GameFinder;
-using AET.ModVerifyTool.Options;
+using AET.ModVerify.App.GameFinder;
+using AET.ModVerify.App.Settings;
+using AET.ModVerify.App.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
@@ -13,7 +14,7 @@ using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace AET.ModVerifyTool.ModSelectors;
+namespace AET.ModVerify.App.ModSelectors;
 
 internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {
@@ -37,7 +38,7 @@ internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelec
         }
         catch (GameNotFoundException)
         {
-            Logger?.LogError($"Unable to find games based of the given location '{settings.GamePath}'. Consider specifying all paths manually.");
+            Logger?.LogError(ModVerifyConstants.ConsoleEventId, "Unable to find games based of the given location '{SettingsGamePath}'. Consider specifying all paths manually.", settings.GamePath);
             targetObject = null!;
             return null;
         }
@@ -59,7 +60,7 @@ internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelec
         if (!settings.EngineType.HasValue)
             throw new ArgumentException("Unable to determine game type. Use --type argument to set the game type.");
 
-        Logger?.LogDebug($"The requested mod at '{pathToVerify}' is detached from its games.");
+        Logger?.LogDebug("The requested mod at '{PathToVerify}' is detached from its games.", pathToVerify);
 
         // The path is a detached mod, that exists on a different location than the game.
         var result = GetDetachedModLocations(pathToVerify, finderResult, settings, out var mod);
