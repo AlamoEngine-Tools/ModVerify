@@ -1,7 +1,9 @@
-﻿using System;
+﻿using AnakinRaW.CommonUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using AnakinRaW.CommonUtilities;
+using System.Text;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Engine;
 
@@ -47,5 +49,20 @@ public sealed class GameLocations
         TargetPath = ModPaths.Count > 0
             ? ModPaths[0]
             : GamePath;
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("GameLocation=[");
+        if (ModPaths.Count > 0)
+            sb.AppendLine($"Mods=[{string.Join(";", ModPaths)}];");
+        sb.AppendLine($"Game=[{GamePath}];");
+        if (FallbackPaths.Count > 0)
+            sb.AppendLine($"Fallbacks=[{string.Join(";", FallbackPaths)}];");
+        sb.AppendLine("]");
+
+        return sb.ToString();
     }
 }

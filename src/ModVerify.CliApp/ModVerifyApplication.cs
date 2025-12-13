@@ -8,14 +8,12 @@ using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.App.GameFinder;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -114,47 +112,15 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         VerifyInstallationData installData,
         GlobalVerifyReportSettings reportSettings)
     {
-        var gameEngineService = services.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
-        var engineErrorReporter = new ConcurrentGameEngineErrorReporter();
-
-        IStarWarsGameEngine gameEngine;
-
-        try
-        {
-            var initProgress = new Progress<string>();
-            var initProgressReporter = new EngineInitializeProgressReporter(initProgress);
-
-            try
-            {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Creating Game Engine '{Engine}'", installData.EngineType);
-                gameEngine = await gameEngineService.InitializeAsync(
-                    installData.EngineType,
-                    installData.GameLocations,
-                    engineErrorReporter,
-                    initProgress,
-                    false,
-                    CancellationToken.None).ConfigureAwait(false);
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Game Engine created");
-            }
-            finally
-            {
-                initProgressReporter.Dispose();
-            }
-        }
-        catch (Exception e)
-        {
-            _logger?.LogError(e, "Creating game engine failed: {Message}", e.Message);
-            throw;
-        }
-
+        var initProgressReporter = new EngineInitializeProgressReporter(null);
         var progressReporter = new VerifyConsoleProgressReporter(installData.Name);
 
-        using var verifyPipeline = new GameVerifyPipeline(
-            gameEngine,
-            engineErrorReporter,
+        using var verifyPipeline = new NewGameVerifyPipeline(
+            null,
             settings.VerifyPipelineSettings,
             reportSettings,
             progressReporter,
+            null,
             services);
 
         try
