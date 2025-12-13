@@ -68,10 +68,10 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
 
     private async Task<int> RunVerify()
     {
-        VerifyInstallationData installData;
+        VerificationTarget verificationTarget;
         try
         {
-            installData = new SettingsBasedModSelector(services)
+            verificationTarget = new SettingsBasedModSelector(services)
                 .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
         }
         catch (GameNotFoundException ex)
@@ -82,12 +82,12 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             return ex.HResult;
         }
 
-        var reportSettings = CreateGlobalReportSettings(installData);
+        var reportSettings = CreateGlobalReportSettings(verificationTarget);
 
-        _logger?.LogDebug("Verify install data: {InstallData}", installData);
+        _logger?.LogDebug("Verification taget: {Target}", verificationTarget);
         _logger?.LogTrace("Verify settings: {Settings}", settings);
 
-        var allErrors = await Verify(installData, reportSettings)
+        var allErrors = await Verify(verificationTarget, reportSettings)
             .ConfigureAwait(false);
 
         try
@@ -109,11 +109,11 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     }
 
     private async Task<IReadOnlyCollection<VerificationError>> Verify(
-        VerifyInstallationData installData,
+        VerificationTarget verificationTarget,
         GlobalVerifyReportSettings reportSettings)
     {
         var initProgressReporter = new EngineInitializeProgressReporter(null);
-        var progressReporter = new VerifyConsoleProgressReporter(installData.Name);
+        var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name);
 
         using var verifyPipeline = new NewGameVerifyPipeline(
             null,
@@ -127,7 +127,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         {
             try
             {
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{Target}'...", installData.Name);
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{Target}'...", verificationTarget.Name);
                 await verifyPipeline.RunAsync().ConfigureAwait(false);
                 progressReporter.Report(string.Empty, 1.0);
             }
@@ -184,10 +184,10 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         await baseline.ToJsonAsync(fs);
     }
 
-    private GlobalVerifyReportSettings CreateGlobalReportSettings(VerifyInstallationData installData)
+    private GlobalVerifyReportSettings CreateGlobalReportSettings(VerificationTarget verificationTarget)
     {
         var baselineSelector = new BaselineSelector(settings, services);
-        var baseline = baselineSelector.SelectBaseline(installData, out var baselinePath);
+        var baseline = baselineSelector.SelectBaseline(verificationTarget, out var baselinePath);
 
         if (baseline.Count > 0) 
             _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using baseline '{Baseline}'", baselinePath);

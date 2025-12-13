@@ -1,5 +1,4 @@
-﻿using AET.ModVerify.App.ModSelectors;
-using AET.ModVerify.App.Resources.Baselines;
+﻿using AET.ModVerify.App.Resources.Baselines;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.Reporting;
 using AnakinRaW.ApplicationBase;
@@ -16,7 +15,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
     private readonly ILogger? _logger = services.GetService<ILoggerFactory>()?.CreateLogger(typeof(ModVerifyApplication));
     private readonly BaselineFactory _baselineFactory = new(services);
 
-    public VerificationBaseline SelectBaseline(VerifyInstallationData installationData, out string? usedBaselinePath)
+    public VerificationBaseline SelectBaseline(VerificationTarget verificationTarget, out string? usedBaselinePath)
     {
         var baselinePath = settings.ReportSettings.BaselinePath;
         if (!string.IsNullOrEmpty(baselinePath))
@@ -49,14 +48,14 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         }
 
         if (settings.Interactive) 
-            return FindBaselineInteractive(installationData, out usedBaselinePath);
+            return FindBaselineInteractive(verificationTarget, out usedBaselinePath);
 
         // If the application is not interactive, we only use a baseline file present in the directory of the verification target.
-        return FindBaselineNonInteractive(installationData.GameLocations.TargetPath, out usedBaselinePath);
+        return FindBaselineNonInteractive(verificationTarget.Location.TargetPath, out usedBaselinePath);
 
     }
 
-    private VerificationBaseline FindBaselineInteractive(VerifyInstallationData installationData, out string? baselinePath)
+    private VerificationBaseline FindBaselineInteractive(VerificationTarget verificationTarget, out string? baselinePath)
     {
         // The application is in interactive mode. We apply the following lookup: 
         // 1. Use a baseline found in the directory of the verification target.
@@ -66,21 +65,21 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
 
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Searching for local baseline files...");
 
-        if (!_baselineFactory.TryCreateBaseline(installationData.GameLocations.TargetPath, out var baseline,
+        if (!_baselineFactory.TryCreateBaseline(verificationTarget.Location.TargetPath, out var baseline,
                 out baselinePath))
         {
             if (!_baselineFactory.TryCreateBaseline("./", out baseline, out baselinePath))
             {
                 // It does not make sense to load the game's default baselines if the user wants to verify the game,
                 // as the verification result would always be empty (at least in a non-development scenario)
-                if (installationData.GameLocations.ModPaths.Count == 0)
+                if (verificationTarget.Location.ModPaths.Count == 0)
                 {
                     _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No local baseline file found.");
                     return VerificationBaseline.Empty;
                 }
 
                 Console.WriteLine("No baseline found locally.");
-                return TryGetDefaultBaseline(installationData.EngineType, out baselinePath);
+                return TryGetDefaultBaseline(verificationTarget.Engine, out baselinePath);
             }
         }
 

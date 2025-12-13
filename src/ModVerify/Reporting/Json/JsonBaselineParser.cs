@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace AET.ModVerify.Reporting.Json;
 
@@ -13,7 +12,7 @@ public static class JsonBaselineParser
             throw new ArgumentNullException(nameof(dataStream));
         try
         {
-            var jsonNode = JsonNode.Parse(dataStream);
+            var jsonNode = JsonDocument.Parse(dataStream);
             var jsonBaseline = ParseCore(jsonNode);
 
             if (jsonBaseline is null)
@@ -27,12 +26,12 @@ public static class JsonBaselineParser
         }
     }
 
-    private static JsonVerificationBaseline? ParseCore(JsonNode? jsonData)
+    private static JsonVerificationBaseline? ParseCore(JsonDocument? json)
     {
-        if (jsonData is null)
+        if (json is null)
             return null;
 
-        JsonBaselineSchema.Evaluate(jsonData);
-        return jsonData.Deserialize<JsonVerificationBaseline>();
+        JsonBaselineSchema.Evaluate(json.RootElement);
+        return json.Deserialize<JsonVerificationBaseline>();
     }
 }
