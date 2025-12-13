@@ -112,15 +112,14 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         VerificationTarget verificationTarget,
         GlobalVerifyReportSettings reportSettings)
     {
-        var initProgressReporter = new EngineInitializeProgressReporter(null);
         var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name);
 
         using var verifyPipeline = new NewGameVerifyPipeline(
-            null,
+            verificationTarget,
             settings.VerifyPipelineSettings,
             reportSettings,
             progressReporter,
-            null,
+            new EngineInitializeProgressReporter(verificationTarget.Engine),
             services);
 
         try

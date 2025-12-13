@@ -1,30 +1,25 @@
 ﻿using System;
+using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.App.Reporting;
 
-internal sealed class EngineInitializeProgressReporter : IDisposable
-{
-    private Progress<string>? _progress;
-
-    public EngineInitializeProgressReporter(Progress<string>? progress)
-    {
-        if (progress is null)
-            return;
-        progress.ProgressChanged += OnProgress;
-    }
-
-    private void OnProgress(object sender, string e)
+internal sealed class EngineInitializeProgressReporter(GameEngineType engine) : IGameEngineInitializationReporter
+{ 
+    public void ReportProgress(string message)
     {
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine(e);
+        Console.WriteLine(message);
         Console.ResetColor();
     }
 
-    public void Dispose()
+    public void ReportStarted()
     {
+        Console.WriteLine($"Initializing game engine '{engine}'...");
+    }
+
+    public void ReportFinished()
+    {
+        Console.WriteLine($"Game engine initialized.");
         Console.WriteLine();
-        if (_progress is not null) 
-            _progress.ProgressChanged -= OnProgress;
-        _progress = null;
     }
 }
