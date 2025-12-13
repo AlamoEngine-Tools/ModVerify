@@ -25,11 +25,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Schemas\2.0\baseline.json" />
+	  <None Remove="Resources\Schemas\2.1\baseline.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Schemas\2.0\baseline.json" />
+	  <EmbeddedResource Include="Resources\Schemas\2.1\baseline.json" />
 	</ItemGroup>
 
 	<ItemGroup>

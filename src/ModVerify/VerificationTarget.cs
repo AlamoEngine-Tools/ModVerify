@@ -26,7 +26,7 @@ public sealed class VerificationTarget
     }
 
     public string? Version { get; init; }
-
+    
     public bool IsGame => Location.ModPaths.Count == 0;
 
     public override string ToString()
@@ -35,7 +35,7 @@ public sealed class VerificationTarget
         if (!string.IsNullOrEmpty(Version))
             sb.Append($"Version={Version};");
         sb.Append($"Location={Location};");
-        sb.Append("]");
+        sb.Append(']');
         return sb.ToString();
     }
 }

@@ -39,7 +39,7 @@ internal class AutomaticModSelector(IServiceProvider serviceProvider) : ModSelec
         catch (GameNotFoundException)
         {
             Logger?.LogError(ModVerifyConstants.ConsoleEventId, "Unable to find games based of the given location '{SettingsGamePath}'. Consider specifying all paths manually.", settings.GamePath);
-            targetObject = null!;
+            targetObject = null;
             return null;
         }
 

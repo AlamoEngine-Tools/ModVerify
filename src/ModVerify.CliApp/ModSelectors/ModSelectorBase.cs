@@ -34,7 +34,7 @@ internal abstract class ModSelectorBase : IModSelector
     {
         var fallbacks = GetFallbackPaths(finderResult, playableObject, additionalFallbackPaths);
         var modPaths = GetModPaths(playableObject);
-        return new GameLocations(modPaths, playableObject.Game.Directory.FullName, fallbacks);
+        return new GameLocations(modPaths.ToList(), playableObject.Game.Directory.FullName, fallbacks.ToList());
     }
 
     private static IList<string> GetFallbackPaths(GameFinderResult finderResult, IPlayableObject gameOrMod, IList<string> additionalFallbackPaths)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AET.ModVerify.App.Settings;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
@@ -22,8 +23,8 @@ internal class ManualModSelector(IServiceProvider serviceProvider) : ModSelector
             throw new ArgumentException("Argument --game must be set.");
 
         return new GameLocations(
-            settings.ModPaths,
+            settings.ModPaths.ToList(),
             settings.GamePath!,
-            GetFallbackPaths(settings.FallbackGamePath, settings.AdditionalFallbackPaths));
+            GetFallbackPaths(settings.FallbackGamePath, settings.AdditionalFallbackPaths).ToList());
     }
 }

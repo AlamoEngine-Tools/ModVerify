@@ -102,7 +102,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         if (!settings.CreateNewBaseline)
             return 0;
 
-        await WriteBaseline(reportSettings, allErrors, settings.NewBaselinePath).ConfigureAwait(false);
+        await WriteBaseline(verificationTarget, reportSettings, allErrors, settings.NewBaselinePath).ConfigureAwait(false);
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Baseline successfully created.");
 
         return 0;
@@ -167,11 +167,12 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     }
 
     private async Task WriteBaseline(
+        VerificationTarget target,
         GlobalVerifyReportSettings reportSettings,
         IEnumerable<VerificationError> errors, 
         string baselineFile)
     {
-        var baseline = new VerificationBaseline(reportSettings.MinimumReportSeverity, errors);
+        var baseline = new VerificationBaseline(reportSettings.MinimumReportSeverity, errors, target);
 
         var fullPath = _fileSystem.Path.GetFullPath(baselineFile);
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Writing Baseline to '{FullPath}'", fullPath);

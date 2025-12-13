@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
@@ -11,13 +12,15 @@ namespace AET.ModVerify.Reporting;
 
 public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError>
 {
-    public static readonly Version LatestVersion = new(2, 0);
+    public static readonly Version LatestVersion = new(2, 1);
     public static readonly string LatestVersionString = LatestVersion.ToString(2);
 
-    public static readonly VerificationBaseline Empty = new(VerificationSeverity.Information, []);
+    public static readonly VerificationBaseline Empty = new(VerificationSeverity.Information, [], null);
 
     private readonly HashSet<VerificationError> _errors;
 
+    public VerificationTarget? Target { get; }
+    
     public Version? Version { get; }
 
     public VerificationSeverity MinimumSeverity { get; }
@@ -30,13 +33,15 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
         _errors = [..baseline.Errors.Select(x => new VerificationError(x))];
         Version = baseline.Version;
         MinimumSeverity = baseline.MinimumSeverity;
+        Target = JsonVerificationTarget.ToTarget(baseline.Target);
     }
 
-    public VerificationBaseline(VerificationSeverity minimumSeverity, IEnumerable<VerificationError> errors)
+    public VerificationBaseline(VerificationSeverity minimumSeverity, IEnumerable<VerificationError> errors, VerificationTarget? target)
     {
         _errors = [..errors];
         Version = LatestVersion;
         MinimumSeverity = minimumSeverity;
+        Target = target;
     }
 
     public bool Contains(VerificationError error)
@@ -77,6 +82,10 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
 
     public override string ToString()
     {
-        return $"Baseline [Version={Version}, MinSeverity={MinimumSeverity}, NumErrors={Count}]";
+        var sb = new StringBuilder($"Baseline [Version={Version}, MinSeverity={MinimumSeverity}, NumErrors={Count}");
+        if (Target is not null)
+            sb.Append($", Target={Target}");
+        sb.Append(']');
+        return sb.ToString();
     }
 }

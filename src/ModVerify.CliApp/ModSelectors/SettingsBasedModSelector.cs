@@ -25,16 +25,23 @@ internal class SettingsBasedModSelector(IServiceProvider serviceProvider)
         {
             Engine = engineType.Value,
             Location = gameLocations,
-            Name = GetNameFromGameLocations(targetObject, gameLocations, engineType.Value)
+            Name = GetNameFromGameLocations(targetObject, gameLocations),
+            Version = GetTargetVersion(targetObject)
         };
     }
 
-    private static string GetNameFromGameLocations(IPlayableObject? targetObject, GameLocations gameLocations, GameEngineType engineType)
+    private static string GetNameFromGameLocations(IPlayableObject? targetObject, GameLocations gameLocations)
     {
         if (targetObject is not null)
             return targetObject.Name;
 
         var mod = gameLocations.ModPaths.FirstOrDefault();
         return mod ?? gameLocations.GamePath;
+    }
+
+    private static string? GetTargetVersion(IPlayableObject? targetObject)
+    {
+        // TODO: Implement version retrieval from targetObject if possible
+        return null;
     }
 }

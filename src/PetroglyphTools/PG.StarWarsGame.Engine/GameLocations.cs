@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Engine;
 
@@ -29,13 +28,13 @@ public sealed class GameLocations
         ThrowHelper.ThrowIfNullOrEmpty(modPath);
     }
 
-    public GameLocations(IList<string> modPaths, string gamePath, string fallbackGamePath) : this(modPaths,
-        gamePath, [fallbackGamePath])
+    public GameLocations(IReadOnlyList<string> modPaths, string gamePath, string fallbackGamePath)
+        : this(modPaths, gamePath, [fallbackGamePath])
     {
         ThrowHelper.ThrowIfNullOrEmpty(fallbackGamePath);
     }
 
-    public GameLocations(IList<string> modPaths, string gamePath, IList<string> fallbackPaths)
+    public GameLocations(IReadOnlyList<string> modPaths, string gamePath, IReadOnlyList<string> fallbackPaths)
     {
         if (modPaths == null)
             throw new ArgumentNullException(nameof(modPaths));

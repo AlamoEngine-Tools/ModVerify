@@ -14,7 +14,9 @@ namespace AET.ModVerify.App.ModSelectors;
 
 internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
 {
-    public override GameLocations Select(GameInstallationsSettings settings, out IPhysicalPlayableObject targetObject,
+    public override GameLocations Select(
+        GameInstallationsSettings settings, 
+        out IPhysicalPlayableObject targetObject,
         out GameEngineType? actualEngineType)
     {
         var gameResult = GameFinderService.FindGames();

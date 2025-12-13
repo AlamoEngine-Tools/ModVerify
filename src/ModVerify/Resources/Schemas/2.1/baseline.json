@@ -1,9 +1,58 @@
 {
-  "$id": "https://AlamoEngine-Tools.github.io/schemas/mod-verify/2.0/baseline",
+  "$id": "https://AlamoEngine-Tools.github.io/schemas/mod-verify/2.1/baseline",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Represents a baseline for AET ModVerify",
   "type": "object",
   "$defs": {
+    "location": {
+      "type": "object",
+      "properties": {
+        "modPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gamePath": {
+          "type": "string"
+        },
+        "fallbackPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "modPaths",
+        "gamePath",
+        "fallbackPaths"
+      ],
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "engine": {
+          "enum": [ "Eaw", "Foc" ]
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        }
+      },
+      "required": [
+        "name",
+        "engine",
+        "location"
+      ],
+      "additionalProperties": false
+    },
     "severity": {
       "enum": [ "Information", "Warning", "Error", "Critical" ]
     },
@@ -48,7 +97,7 @@
   },
   "properties": {
     "version": {
-      "const": "2.0"
+      "const": "2.1"
     },
     "minSeverity": {
       "$ref": "#/$defs/severity"
@@ -59,6 +108,9 @@
         "$ref": "#/$defs/error"
       },
       "additionalItems": false
+    },
+    "target": {
+      "$ref": "#/$defs/target"
     }
   },
   "required": [
