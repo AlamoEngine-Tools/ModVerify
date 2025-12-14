@@ -10,12 +10,12 @@ internal static class ExtensionMethods
 {
     public static GameEngineType ToEngineType(this GameType type)
     {
-        return type == GameType.Foc ? GameEngineType.Foc : GameEngineType.Eaw;
+        return (GameEngineType)(int)type;
     }
 
     public static GameType FromEngineType(this GameEngineType type)
     {
-        return type == GameEngineType.Foc ? GameType.Foc : GameType.Eaw;
+        return (GameType)(int)type;
     }
 
     extension(ApplicationEnvironment modVerifyEnvironment)

@@ -16,13 +16,13 @@ internal sealed record GameInstallationsSettings
 
     public string? AutoPath { get; init; }
 
-    public IList<string> ModPaths { get; init; } = [];
+    public IReadOnlyList<string> ModPaths { get; init; } = [];
 
     public string? GamePath { get; init; }
 
     public string? FallbackGamePath { get; init; }
 
-    public IList<string> AdditionalFallbackPaths { get; init; } = [];
+    public IReadOnlyList<string> AdditionalFallbackPaths { get; init; } = [];
 
-    public GameEngineType? EngineType { get; init; }
+    public GameEngineType? Engine { get; init; }
 }

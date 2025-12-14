@@ -15,7 +15,7 @@
 
     "FromModPath": {
       "commandName": "Project",
-      "commandLineArgs": "-o verifyResults --baseline focBaseline.json --path C:/test --type Foc"
+      "commandLineArgs": "verify -o verifyResults --path \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\corruption\""
     }
   }
 }

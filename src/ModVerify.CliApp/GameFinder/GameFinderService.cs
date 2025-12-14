@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure.Clients.Steam;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
@@ -11,6 +12,17 @@ using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
 namespace AET.ModVerify.App.GameFinder;
+
+internal class GameFinderSettings
+{
+    internal static readonly GameFinderSettings Default = new();
+    
+    public bool InitMods { get; init; } = true;
+    
+    public bool SearchFallbackGame { get; init; } = true;
+
+    public GameEngineType? Engine { get; init; } = null;
+}
 
 internal class GameFinderService
 {
@@ -29,7 +41,7 @@ internal class GameFinderService
         _logger = _serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
     }
 
-    public GameFinderResult FindGames()
+    public GameFinderResult FindGames(GameFinderSettings settings)
     {
         var detectors = new List<IGameDetector>
         {
@@ -37,10 +49,19 @@ internal class GameFinderService
             new SteamPetroglyphStarWarsGameDetector(_serviceProvider),
         };
 
-        return FindGames(detectors);
+        return FindGames(detectors, settings);
+    }
+    
+    public IGame FindGame(string gamePath, GameFinderSettings settings)
+    {
+        var detectors = new List<IGameDetector>
+        {
+            new DirectoryGameDetector(_fileSystem.DirectoryInfo.New(gamePath), _serviceProvider),
+        };
+        return FindGames(detectors, settings).Game;
     }
 
-    public GameFinderResult FindGamesFromPathOrGlobal(string path)
+    public GameFinderResult FindGamesFromPathOrGlobal(string path, GameFinderSettings settings)
     {
         // There are four common situations: 
         // 1. path points to the actual game directory
@@ -62,7 +83,58 @@ internal class GameFinderService
 
         // Cases 3 & 4
         detectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
-        return FindGames(detectors);
+        return FindGames(detectors, settings);
+    }
+    
+    private GameFinderResult FindGames(IList<IGameDetector> detectors, GameFinderSettings settings)
+    {
+        // FoC needs to be tried first
+        if (!TryDetectGame(GameType.Foc, detectors, out var result))
+        {
+            _logger?.LogTrace("Unable to find FoC installation. Trying again with EaW...");
+            if (!TryDetectGame(GameType.Eaw, detectors, out result))
+                throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
+        }
+
+        if (result.GameLocation is null)
+            throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
+
+        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
+            "Found game installation: {ResultGameIdentity} at {GameLocationFullName}", result.GameIdentity, result.GameLocation.FullName);
+
+        var game = _gameFactory.CreateGame(result, CultureInfo.InvariantCulture);
+
+        if (settings.InitMods) 
+            SetupMods(game);
+
+
+        IGame? fallbackGame = null;
+        if (settings.SearchFallbackGame)
+        {
+            // If the game is Foc we want to set up Eaw as well as the fallbackGame
+            if (game.Type == GameType.Foc)
+            {
+                var fallbackDetectors = new List<IGameDetector>();
+
+                if (game.Platform == GamePlatform.SteamGold)
+                    fallbackDetectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
+                else
+                    throw new NotImplementedException("Searching fallback game for non-Steam games is currently is not yet implemented.");
+
+                if (!TryDetectGame(GameType.Eaw, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
+                    throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
+
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+                    "Found fallback game installation: {FallbackResultGameIdentity} at {GameLocationFullName}", fallbackResult.GameIdentity, fallbackResult.GameLocation.FullName);
+
+                fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
+
+                if (settings.InitMods)
+                    SetupMods(fallbackGame);
+            }
+        }
+
+        return new GameFinderResult(game, fallbackGame);
     }
 
     private bool TryDetectGame(GameType gameType, IList<IGameDetector> detectors, out GameDetectionResult result)
@@ -82,52 +154,6 @@ internal class GameFinderService
             _logger?.LogTrace("Unable to find game installation: {Message}", e.Message);
             return false;
         }
-    }
-
-    private GameFinderResult FindGames(IList<IGameDetector> detectors)
-    {
-        // FoC needs to be tried first
-        if (!TryDetectGame(GameType.Foc, detectors, out var result))
-        {
-            _logger?.LogTrace("Unable to find FoC installation. Trying again with EaW...");
-            if (!TryDetectGame(GameType.Eaw, detectors, out result))
-                throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
-        }
-
-        if (result.GameLocation is null)
-            throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
-
-        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-            "Found game installation: {ResultGameIdentity} at {GameLocationFullName}", result.GameIdentity, result.GameLocation.FullName);
-
-        var game = _gameFactory.CreateGame(result, CultureInfo.InvariantCulture);
-
-        SetupMods(game);
-
-
-        IGame? fallbackGame = null;
-        // If the game is Foc we want to set up Eaw as well as the fallbackGame
-        if (game.Type == GameType.Foc)
-        {
-            var fallbackDetectors = new List<IGameDetector>();
-            
-            if (game.Platform == GamePlatform.SteamGold)
-                fallbackDetectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
-            else
-                throw new NotImplementedException("Searching fallback game for non-Steam games is currently is not yet implemented.");
-
-            if (!TryDetectGame(GameType.Eaw, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
-                throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
-
-            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-                "Found fallback game installation: {FallbackResultGameIdentity} at {GameLocationFullName}", fallbackResult.GameIdentity, fallbackResult.GameLocation.FullName);
-
-            fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
-
-            SetupMods(fallbackGame);
-        }
-
-        return new GameFinderResult(game, fallbackGame);
     }
 
     private void SetupMods(IGame game)

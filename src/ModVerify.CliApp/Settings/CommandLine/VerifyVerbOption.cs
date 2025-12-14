@@ -27,10 +27,12 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
         HelpText = "When this flag is present, the application will not report engine assertions.")]
     public bool IgnoreAsserts { get; init; }
 
+    
     [Option("baseline", SetName = "baselineSelection", Required = false, 
         HelpText = "Path to a JSON baseline file. Cannot be used together with --searchBaseline.")]
     public string? Baseline { get; init; }
 
+    // TODO: Ignore, if baseline is set
     [Option("searchBaseline", SetName = "baselineSelection", Required = false,
         HelpText = "When set, the application will search for baseline files and use them for verification. Cannot be used together with --baseline")]
     public bool SearchBaselineLocally { get; init; }

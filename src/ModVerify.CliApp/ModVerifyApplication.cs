@@ -71,8 +71,10 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         VerificationTarget verificationTarget;
         try
         {
-            verificationTarget = new SettingsBasedModSelector(services)
-                .CreateInstallationDataFromSettings(settings.GameInstallationsSettings);
+            var targetSettings = settings.GameInstallationsSettings;
+            verificationTarget = new VerificationTargetSelectorFactory(services)
+                .CreateSelector(targetSettings)
+                .Select(targetSettings);
         }
         catch (GameNotFoundException ex)
         {

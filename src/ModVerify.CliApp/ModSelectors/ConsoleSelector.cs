@@ -5,24 +5,29 @@ using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Utilities;
 using AnakinRaW.ApplicationBase;
-using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 
 namespace AET.ModVerify.App.ModSelectors;
 
-internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
+internal class ConsoleSelector(IServiceProvider serviceProvider) : VerificationTargetSelectorBase(serviceProvider)
 {
-    public override GameLocations Select(
-        GameInstallationsSettings settings, 
-        out IPhysicalPlayableObject targetObject,
-        out GameEngineType? actualEngineType)
+    public override VerificationTarget Select(GameInstallationsSettings settings)
     {
-        var gameResult = GameFinderService.FindGames();
-        targetObject = SelectPlayableObject(gameResult);
-        actualEngineType = targetObject.Game.Type.ToEngineType();
-        return GetLocations(targetObject, gameResult, settings.AdditionalFallbackPaths);
+        var gameResult = GameFinderService.FindGames(GameFinderSettings.Default);
+        var targetObject = SelectPlayableObject(gameResult);
+        var engine = targetObject.Game.Type.ToEngineType();
+        
+        var gameLocations = GetLocations(targetObject, gameResult.FallbackGame, settings.AdditionalFallbackPaths);
+
+        return new VerificationTarget
+        {
+            Engine = engine,
+            Location = gameLocations,
+            Name = GetTargetName(targetObject, gameLocations),
+            Version = GetTargetVersion(targetObject)
+        };
     }
 
     private static IPhysicalPlayableObject SelectPlayableObject(GameFinderResult finderResult)

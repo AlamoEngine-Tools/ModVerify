@@ -41,10 +41,10 @@ internal abstract class BaseModVerifyOptions
     public string? FallbackGamePath { get; init; }
 
 
-    [Option("type", Required = false, Default = null, 
-        HelpText = "The game type of the mod that shall be verified. Skip this value to auto-determine the type. Valid values are 'Eaw' and 'Foc'. " +
+    [Option("engine", Required = false, Default = null, 
+        HelpText = "The game engine of the target that shall be verified. Skip this value to auto-determine the type. Valid values are 'Eaw' and 'Foc'. " +
                    "This argument is required, if the first mod of '--mods' points to a directory outside of the common folder hierarchy (e.g, /MODS/MOD_NAME or /32470/WORKSHOP_ID")]
-    public GameEngineType? GameType { get; init; }
+    public GameEngineType? Engine { get; init; }
 
 
     [Option("additionalFallbackPaths", Required = false, Separator = ';',

@@ -107,7 +107,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         {
             if (o is not VerifyVerbOption v)
                 return false;
-            return v.SearchBaselineLocally || v.LaunchedWithoutArguments();
+            return v.SearchBaselineLocally;
         }
     }
 
@@ -153,7 +153,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             GamePath = gamePath,
             FallbackGamePath = fallbackGamePath,
             AdditionalFallbackPaths = fallbackPaths,
-            EngineType = options.GameType
+            Engine = options.Engine
         };
     }
 }
