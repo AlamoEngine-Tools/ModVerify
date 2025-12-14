@@ -6,13 +6,13 @@ namespace AET.ModVerify.App.Settings;
 
 internal sealed class ModVerifyAppSettings
 {
-    public bool Interactive => GameInstallationsSettings.Interactive;
+    public bool Interactive => VerificationTargetSettings.Interactive;
 
     public required VerifyPipelineSettings VerifyPipelineSettings { get; init; }
 
     public required ModVerifyReportSettings ReportSettings { get; init; }
 
-    public required GameInstallationsSettings GameInstallationsSettings { get; init; }
+    public required VerificationTargetSettings VerificationTargetSettings { get; init; }
 
     public VerificationSeverity? AppThrowsOnMinimumSeverity { get; init; }
 

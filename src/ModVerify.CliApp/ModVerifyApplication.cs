@@ -1,5 +1,4 @@
-﻿using AET.ModVerify.App.ModSelectors;
-using AET.ModVerify.App.Reporting;
+﻿using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
@@ -16,6 +15,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using AET.ModVerify.App.GameFinder;
+using AET.ModVerify.App.TargetSelectors;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace AET.ModVerify.App;
@@ -71,7 +71,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         VerificationTarget verificationTarget;
         try
         {
-            var targetSettings = settings.GameInstallationsSettings;
+            var targetSettings = settings.VerificationTargetSettings;
             verificationTarget = new VerificationTargetSelectorFactory(services)
                 .CreateSelector(targetSettings)
                 .Select(targetSettings);

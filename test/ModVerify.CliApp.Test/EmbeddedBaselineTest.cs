@@ -18,7 +18,7 @@ public class BaselineSelectorTest
     private static readonly ModVerifyAppSettings TestSettings = new()
     {
         ReportSettings = new(),
-        GameInstallationsSettings = new (),
+        VerificationTargetSettings = new (),
         VerifyPipelineSettings = new()
         {
             GameVerifySettings = new GameVerifySettings(),

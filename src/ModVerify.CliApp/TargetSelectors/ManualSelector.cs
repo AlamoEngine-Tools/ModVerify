@@ -10,11 +10,11 @@ using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace AET.ModVerify.App.ModSelectors;
+namespace AET.ModVerify.App.TargetSelectors;
 
 internal class ManualSelector(IServiceProvider serviceProvider) : VerificationTargetSelectorBase(serviceProvider)
 {
-    public override VerificationTarget Select(GameInstallationsSettings settings)
+    internal override SelectionResult SelectTarget(VerificationTargetSettings settings)
     {
         if (string.IsNullOrEmpty(settings.GamePath))
             throw new ArgumentException("Argument --game must be set.");
@@ -23,13 +23,13 @@ internal class ManualSelector(IServiceProvider serviceProvider) : VerificationTa
 
         var engine = settings.Engine.Value;
 
-        var gameLocations =  new GameLocations(
+        var gameLocations = new GameLocations(
             settings.ModPaths.ToList(),
             settings.GamePath!,
             GetFallbackPaths(settings.FallbackGamePath, settings.AdditionalFallbackPaths).ToList());
 
 
-        IPlayableObject? target = null;
+        IPhysicalPlayableObject? target = null;
 
         // For the manual selector the whole game and mod detection is optional.
         // This allows user to use the application for unusual scenarios,
@@ -54,7 +54,7 @@ internal class ManualSelector(IServiceProvider serviceProvider) : VerificationTa
         if (!string.IsNullOrEmpty(fallbackGamePath))
         {
             try
-            { 
+            {
                 GameFinderService.FindGame(fallbackGamePath, new GameFinderSettings
                 {
                     InitMods = false,
@@ -67,16 +67,10 @@ internal class ManualSelector(IServiceProvider serviceProvider) : VerificationTa
             }
         }
         
-        return new VerificationTarget
-        {
-            Engine = engine,
-            Location = gameLocations,
-            Name = GetTargetName(target, gameLocations),
-            Version = GetTargetVersion(target)
-        };
+        return new SelectionResult(gameLocations, engine, target);
     }
-    
-    private IPlayableObject TryGetPlayableObject(IGame game, string? modPath)
+
+    private IPhysicalPlayableObject TryGetPlayableObject(IGame game, string? modPath)
     {
         if (string.IsNullOrEmpty(modPath))
             return game;

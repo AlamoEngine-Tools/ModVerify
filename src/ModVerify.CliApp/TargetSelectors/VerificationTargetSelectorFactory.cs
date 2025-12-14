@@ -1,11 +1,11 @@
 ﻿using System;
 using AET.ModVerify.App.Settings;
 
-namespace AET.ModVerify.App.ModSelectors;
+namespace AET.ModVerify.App.TargetSelectors;
 
 internal sealed class VerificationTargetSelectorFactory(IServiceProvider serviceProvider)
 {
-    public IVerificationTargetSelector CreateSelector(GameInstallationsSettings settings)
+    public IVerificationTargetSelector CreateSelector(VerificationTargetSettings settings)
     {
         if (settings.Interactive)
             return new ConsoleSelector(serviceProvider);

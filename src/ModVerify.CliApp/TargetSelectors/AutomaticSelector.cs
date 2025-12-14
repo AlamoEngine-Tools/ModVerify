@@ -14,15 +14,16 @@ using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services;
 using PG.StarWarsGame.Infrastructure.Services.Detection;
 
-namespace AET.ModVerify.App.ModSelectors;
+namespace AET.ModVerify.App.TargetSelectors;
 
 internal class AutomaticSelector(IServiceProvider serviceProvider) : VerificationTargetSelectorBase(serviceProvider)
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public override VerificationTarget Select(GameInstallationsSettings settings)
+    internal override SelectionResult SelectTarget(
+        VerificationTargetSettings settings)
     {
-        var targetPath = settings.AutoPath;
+        var targetPath = settings.TargetPath;
         if (targetPath is null)
             throw new InvalidOperationException("path to verify cannot be null.");
 
@@ -44,7 +45,7 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
 
         var targetObject = GetAttachedModOrGame(finderResult, engine, targetPath);
 
-        
+
         if (targetObject is null)
         {
             if (!settings.Engine.HasValue)
@@ -64,15 +65,8 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
                 throw new ArgumentException($"The specified game type '{engine}' does not match the actual type of the game or mod to verify.");
             locations = GetLocations(targetObject, finderResult.FallbackGame, settings.AdditionalFallbackPaths);
         }
-
-        return new VerificationTarget
-        {
-            Engine = engine.Value,
-            Location = locations,
-            Name = GetTargetName(targetObject, locations),
-            Version = GetTargetVersion(targetObject)
-        };
-
+        
+        return new(locations, engine.Value, targetObject);
     }
 
     private IPhysicalPlayableObject? GetAttachedModOrGame(GameFinderResult finderResult, GameEngineType? requestedEngineType, string targetPath)
@@ -101,7 +95,7 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
                GetMatchingModFromGame(finderResult.FallbackGame, requestedEngineType, targetFullPath);
     }
 
-    private GameLocations GetDetachedModLocations(string modPath, GameFinderResult gameResult, GameInstallationsSettings settings, out IPhysicalMod mod)
+    private GameLocations GetDetachedModLocations(string modPath, GameFinderResult gameResult, VerificationTargetSettings settings, out IPhysicalMod mod)
     {
         IGame game = null!;
 

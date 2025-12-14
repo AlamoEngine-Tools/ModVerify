@@ -4,17 +4,17 @@ using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.App.Settings;
 
-internal sealed record GameInstallationsSettings
+internal sealed record VerificationTargetSettings
 {
-    public bool Interactive => string.IsNullOrEmpty(AutoPath) && ModPaths.Count == 0 && string.IsNullOrEmpty(GamePath);
+    public bool Interactive => string.IsNullOrEmpty(TargetPath) && ModPaths.Count == 0 && string.IsNullOrEmpty(GamePath) && string.IsNullOrEmpty(FallbackGamePath);
 
-    [MemberNotNullWhen(true, nameof(AutoPath))]
-    public bool UseAutoDetection => !string.IsNullOrEmpty(AutoPath);
+    [MemberNotNullWhen(true, nameof(TargetPath))]
+    public bool UseAutoDetection => !string.IsNullOrEmpty(TargetPath);
 
     [MemberNotNullWhen(true, nameof(GamePath))]
     public bool ManualSetup => !string.IsNullOrEmpty(GamePath);
 
-    public string? AutoPath { get; init; }
+    public string? TargetPath { get; init; }
 
     public IReadOnlyList<string> ModPaths { get; init; } = [];
 

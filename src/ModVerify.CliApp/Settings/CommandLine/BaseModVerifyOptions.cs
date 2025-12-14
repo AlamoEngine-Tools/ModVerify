@@ -21,9 +21,9 @@ internal abstract class BaseModVerifyOptions
     public string? Suppressions { get; init; }
 
     [Option("path", SetName = "autoDetection", Required = false, Default = null, 
-        HelpText = "Specifies the path to verify. The path may be a game or mod. The application will try to find all necessary sub-mods or base games itself. " +
+        HelpText = "Specifies the path to verify. The path may be a game or mod. The application will try to find all necessary sub-mods and base games itself. " +
                    "The argument cannot be combined with any of --mods, --game or --fallbackGame")]
-    public string? AutoPath { get; init; }
+    public string? TargetPath { get; init; }
 
     [Option("mods", SetName = "manualPaths", Required = false, Default = null, Separator = ';',
         HelpText = "The path of the mod to verify. To support submods, multiple paths can be separated using the ';' (semicolon) character. " +

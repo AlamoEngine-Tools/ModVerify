@@ -9,25 +9,17 @@ using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 
-namespace AET.ModVerify.App.ModSelectors;
+namespace AET.ModVerify.App.TargetSelectors;
 
 internal class ConsoleSelector(IServiceProvider serviceProvider) : VerificationTargetSelectorBase(serviceProvider)
 {
-    public override VerificationTarget Select(GameInstallationsSettings settings)
+    internal override SelectionResult SelectTarget(VerificationTargetSettings settings)
     {
         var gameResult = GameFinderService.FindGames(GameFinderSettings.Default);
-        var targetObject = SelectPlayableObject(gameResult);
+        var targetObject = SelectPlayableObject(gameResult); 
         var engine = targetObject.Game.Type.ToEngineType();
-        
-        var gameLocations = GetLocations(targetObject, gameResult.FallbackGame, settings.AdditionalFallbackPaths);
-
-        return new VerificationTarget
-        {
-            Engine = engine,
-            Location = gameLocations,
-            Name = GetTargetName(targetObject, gameLocations),
-            Version = GetTargetVersion(targetObject)
-        };
+        var locations = GetLocations(targetObject, gameResult.FallbackGame, settings.AdditionalFallbackPaths);
+        return new(locations, engine, targetObject);
     }
 
     private static IPhysicalPlayableObject SelectPlayableObject(GameFinderResult finderResult)

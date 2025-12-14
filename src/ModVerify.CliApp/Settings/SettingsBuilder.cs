@@ -44,7 +44,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 }
             },
             AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
-            GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
+            VerificationTargetSettings = BuildInstallationSettings(verifyOptions),
             ReportSettings = BuildReportSettings(verifyOptions),
         };
 
@@ -85,7 +85,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 FailFast = false,
             },
             AppThrowsOnMinimumSeverity = null,
-            GameInstallationsSettings = BuildInstallationSettings(baselineVerb),
+            VerificationTargetSettings = BuildInstallationSettings(baselineVerb),
             ReportSettings = BuildReportSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
         };
@@ -111,7 +111,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         }
     }
 
-    private GameInstallationsSettings BuildInstallationSettings(BaseModVerifyOptions options)
+    private VerificationTargetSettings BuildInstallationSettings(BaseModVerifyOptions options)
     {
         var modPaths = new List<string>();
         if (options.ModPaths is not null)
@@ -142,13 +142,13 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         if (!string.IsNullOrEmpty(gamePath) && !string.IsNullOrEmpty(options.FallbackGamePath))
             fallbackGamePath = _fileSystem.Path.GetFullPath(options.FallbackGamePath!);
 
-        var autoPath = options.AutoPath;
-        if (!string.IsNullOrEmpty(autoPath))
-            autoPath = _fileSystem.Path.GetFullPath(autoPath!);
+        var targetPath = options.TargetPath;
+        if (!string.IsNullOrEmpty(targetPath))
+            targetPath = _fileSystem.Path.GetFullPath(targetPath!);
 
-        return new GameInstallationsSettings
+        return new VerificationTargetSettings
         {
-            AutoPath = autoPath,
+            TargetPath = targetPath,
             ModPaths = modPaths,
             GamePath = gamePath,
             FallbackGamePath = fallbackGamePath,

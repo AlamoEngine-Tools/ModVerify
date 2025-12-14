@@ -12,10 +12,15 @@ using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
 
-namespace AET.ModVerify.App.ModSelectors;
+namespace AET.ModVerify.App.TargetSelectors;
 
 internal abstract class VerificationTargetSelectorBase : IVerificationTargetSelector
 {
+    internal sealed record SelectionResult(
+        GameLocations Locations,
+        GameEngineType Engine,
+        IPhysicalPlayableObject? Target);
+    
     protected readonly ILogger? Logger;
     protected readonly GameFinderService GameFinderService;
     protected readonly IServiceProvider ServiceProvider;
@@ -29,7 +34,22 @@ internal abstract class VerificationTargetSelectorBase : IVerificationTargetSele
         FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
     }
 
-    public abstract VerificationTarget Select(GameInstallationsSettings settings);
+    public VerificationTarget Select(VerificationTargetSettings settings)
+    {
+        var selectedTarget = SelectTarget(settings);
+
+        return new VerificationTarget
+        {
+            Location = selectedTarget.Locations,
+            Engine = selectedTarget.Engine,
+            Name = GetTargetName(selectedTarget.Target, selectedTarget.Locations),
+            Version = GetTargetVersion(selectedTarget.Target)
+        };
+    }
+
+
+    internal abstract SelectionResult SelectTarget(VerificationTargetSettings settings);
+    
     
     protected GameLocations GetLocations(
         IPhysicalPlayableObject target,
@@ -41,7 +61,7 @@ internal abstract class VerificationTargetSelectorBase : IVerificationTargetSele
         return new GameLocations(modPaths, target.Game.Directory.FullName, fallbacks);
     }
 
-    private static IReadOnlyList<string> GetFallbackPaths(IPlayableObject target, IGame? fallbackGame, IReadOnlyList<string> additionalFallbackPaths)
+    private static IReadOnlyList<string> GetFallbackPaths(IPhysicalPlayableObject target, IGame? fallbackGame, IReadOnlyList<string> additionalFallbackPaths)
     {
         var coercedFallbackGame = fallbackGame;
         if (target is IGame tGame && tGame.Equals(fallbackGame))
@@ -74,7 +94,7 @@ internal abstract class VerificationTargetSelectorBase : IVerificationTargetSele
             .ToList();
     }
 
-    protected static string GetTargetName(IPlayableObject? targetObject, GameLocations gameLocations)
+    protected static string GetTargetName(IPhysicalPlayableObject? targetObject, GameLocations gameLocations)
     {
         if (targetObject is not null)
             return targetObject.Name;
@@ -84,7 +104,7 @@ internal abstract class VerificationTargetSelectorBase : IVerificationTargetSele
         return mod ?? gameLocations.GamePath;
     }
 
-    protected static string? GetTargetVersion(IPlayableObject? targetObject)
+    protected static string? GetTargetVersion(IPhysicalPlayableObject? targetObject)
     {
         if (targetObject is null)
             return null;
