@@ -20,8 +20,7 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    internal override SelectionResult SelectTarget(
-        VerificationTargetSettings settings)
+    internal override SelectionResult SelectTarget(VerificationTargetSettings settings)
     {
         var targetPath = settings.TargetPath;
         if (targetPath is null)
@@ -76,7 +75,7 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
         // If the target is the game directory itself.
         if (targetFullPath.Equals(finderResult.Game.Directory.FullName, StringComparison.OrdinalIgnoreCase))
         {
-            if (finderResult.Game.Type.ToEngineType() != requestedEngineType)
+            if (!IsEngineTypeSupported(requestedEngineType, finderResult.Game))
                 throw new ArgumentException($"The specified game type '{requestedEngineType}' does not match the actual type of the game '{targetPath}' to verify.");
             return finderResult.Game;
         }
@@ -143,5 +142,10 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
         }
 
         return null;
+    }
+    
+    private static bool IsEngineTypeSupported(GameEngineType? requestedEngineType, IPhysicalPlayableObject target)
+    {
+        return !requestedEngineType.HasValue || target.Game.Type.ToEngineType() == requestedEngineType;
     }
 }
