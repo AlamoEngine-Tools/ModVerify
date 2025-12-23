@@ -76,6 +76,19 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
                 .CreateSelector(targetSettings)
                 .Select(targetSettings);
         }
+        catch (ArgumentException ex)
+        {
+            ConsoleUtilities.WriteApplicationFatalError(_appEnvironment.ApplicationName, 
+                $"The specified arguments are not correct: {ex.Message}");
+            _logger?.LogError(ex, "Invalid application arguments: {Message}", ex.Message);
+            return ex.HResult;
+        }
+        catch (TargetNotFoundException ex)
+        {
+            ConsoleUtilities.WriteApplicationFatalError(_appEnvironment.ApplicationName, ex.Message);
+            _logger?.LogError(ex, ex.Message);
+            return ex.HResult;
+        }
         catch (GameNotFoundException ex)
         {
             ConsoleUtilities.WriteApplicationFatalError(_appEnvironment.ApplicationName, 

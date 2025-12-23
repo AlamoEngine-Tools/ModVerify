@@ -3,31 +3,36 @@
 	<PropertyGroup>
 		<TargetFrameworks>net10.0</TargetFrameworks>
 		<TargetFrameworks Condition="!$([MSBuild]::IsOsUnixLike())">$(TargetFrameworks);net481</TargetFrameworks>
-		<IsPackable>false</IsPackable>
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<IsTestable>true</IsTestable>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="6.0.4">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Testing" Version="4.1.66-gb209787741" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction.Testing" Version="4.1.66-gb209787741" />
+		<PackageReference Include="AlamoEngineTools.Testing" Version="4.1.66-gb209787741" />
+		<PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-		<PackageReference Include="Testably.Abstractions" Version="10.0.0" />
-		<PackageReference Include="Testably.Abstractions.Testing" Version="5.0.1" />
-		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.v3.mtp-v2" Version="3.2.1" />
+		<PackageReference Include="Microsoft.Testing.Platform" Version="2.0.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="6.0.4">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\src\ModVerify.CliApp\ModVerify.CliApp.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Using Include="Xunit" />
 	</ItemGroup>
 
 </Project>

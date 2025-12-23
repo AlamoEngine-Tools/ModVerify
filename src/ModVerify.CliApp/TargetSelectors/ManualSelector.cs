@@ -20,7 +20,7 @@ internal class ManualSelector(IServiceProvider serviceProvider) : VerificationTa
             throw new ArgumentException("Argument --game must be set.");
         if (!settings.Engine.HasValue)
             throw new ArgumentException("Unable to determine game type. Use --engine argument to set the game type.");
-
+        
         var engine = settings.Engine.Value;
 
         var gameLocations = new GameLocations(
@@ -29,49 +29,37 @@ internal class ManualSelector(IServiceProvider serviceProvider) : VerificationTa
             GetFallbackPaths(settings.FallbackGamePath, settings.AdditionalFallbackPaths).ToList());
 
 
-        IPhysicalPlayableObject? target = null;
-
         // For the manual selector the whole game and mod detection is optional.
         // This allows user to use the application for unusual scenarios,
         // not known to the detection service.
-        try
-        {
-            var game = GameFinderService.FindGame(gameLocations.GamePath, new GameFinderSettings
-            {
-                Engine = engine,
-                InitMods = false,
-                SearchFallbackGame = false
-            });
-            target = TryGetPlayableObject(game, gameLocations.ModPaths.FirstOrDefault());
-        }
-        catch (GameNotFoundException e)
+        if (!GameFinderService.TryFindGame(gameLocations.GamePath,
+                new GameFinderSettings { Engine = engine, InitMods = false, SearchFallbackGame = false },
+                out var game))
         {
             // TODO: Log
         }
-
+        
         // If the fallback game path is specified we simply try to detect the game and report a warning to the user if not found.
         var fallbackGamePath = settings.FallbackGamePath;
         if (!string.IsNullOrEmpty(fallbackGamePath))
         {
-            try
-            {
-                GameFinderService.FindGame(fallbackGamePath, new GameFinderSettings
-                {
-                    InitMods = false,
-                    SearchFallbackGame = false
-                });
-            }
-            catch (GameNotFoundException e)
+
+            if (!GameFinderService.TryFindGame(fallbackGamePath,
+                    new GameFinderSettings { InitMods = false, SearchFallbackGame = false },
+                    out _))
             {
                 // TODO: Log
             }
         }
-        
+
+        var target = TryGetPlayableObject(game, gameLocations.ModPaths.FirstOrDefault());
         return new SelectionResult(gameLocations, engine, target);
     }
 
-    private IPhysicalPlayableObject TryGetPlayableObject(IGame game, string? modPath)
+    private IPhysicalPlayableObject? TryGetPlayableObject(IGame? game, string? modPath)
     {
+        if (game is null)
+            return null;
         if (string.IsNullOrEmpty(modPath))
             return game;
         

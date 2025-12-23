@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,7 +52,7 @@ internal class GameFinderService
 
         return FindGames(detectors, settings);
     }
-    
+
     public IGame FindGame(string gamePath, GameFinderSettings settings)
     {
         var detectors = new List<IGameDetector>
@@ -59,6 +60,25 @@ internal class GameFinderService
             new DirectoryGameDetector(_fileSystem.DirectoryInfo.New(gamePath), _serviceProvider),
         };
         return FindGames(detectors, settings).Game;
+    }
+
+    public bool TryFindGame(string gamePath, GameFinderSettings settings, [NotNullWhen(true)]out IGame? game)
+    {
+        var detectors = new List<IGameDetector>
+        {
+            new DirectoryGameDetector(_fileSystem.DirectoryInfo.New(gamePath), _serviceProvider),
+        };
+
+        try
+        {
+            game = FindGames(detectors, settings).Game;
+            return true;
+        }
+        catch (GameNotFoundException)
+        {
+            game = null;
+            return false;
+        }
     }
 
     public GameFinderResult FindGamesFromPathOrGlobal(string path, GameFinderSettings settings)
@@ -88,53 +108,77 @@ internal class GameFinderService
     
     private GameFinderResult FindGames(IList<IGameDetector> detectors, GameFinderSettings settings)
     {
-        // FoC needs to be tried first
-        if (!TryDetectGame(GameType.Foc, detectors, out var result))
+        GameDetectionResult? detectionResult = null;
+        if (settings.Engine is GameEngineType.Eaw)
         {
+            _logger?.LogTrace("Trying to find requested EaW installation.");
+            if (!TryDetectGame(GameType.Eaw, detectors, out detectionResult))
+            {
+                var e = new GameNotFoundException($"Unable to find requested game installation '{settings.Engine}'. Wrong install path?");
+                _logger?.LogTrace(e, e.Message);
+                throw e;
+            }
+        }
+        
+        if (detectionResult is null && !TryDetectGame(GameType.Foc, detectors, out detectionResult))
+        {
+            if (settings.Engine is GameEngineType.Foc)
+            {
+                var e = new GameNotFoundException($"Unable to find requested game installation '{settings.Engine}'. Wrong install path?");
+                _logger?.LogTrace(e, e.Message);
+                throw e;
+            }
+            
+            // If the engine is unspecified, we also need to check for EaW.
             _logger?.LogTrace("Unable to find FoC installation. Trying again with EaW...");
-            if (!TryDetectGame(GameType.Eaw, detectors, out result))
+            if (!TryDetectGame(GameType.Eaw, detectors, out detectionResult))
                 throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
         }
 
-        if (result.GameLocation is null)
+        if (detectionResult.GameLocation is null)
             throw new GameNotFoundException("Unable to find game installation: Wrong install path?");
 
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-            "Found game installation: {ResultGameIdentity} at {GameLocationFullName}", result.GameIdentity, result.GameLocation.FullName);
+            "Found game installation: {ResultGameIdentity} at {GameLocationFullName}", detectionResult.GameIdentity, detectionResult.GameLocation.FullName);
 
-        var game = _gameFactory.CreateGame(result, CultureInfo.InvariantCulture);
+        var game = _gameFactory.CreateGame(detectionResult, CultureInfo.InvariantCulture);
 
         if (settings.InitMods) 
             SetupMods(game);
 
 
         IGame? fallbackGame = null;
-        if (settings.SearchFallbackGame)
+        if (SearchForFallbackGame(settings, detectionResult))
         {
-            // If the game is Foc we want to set up Eaw as well as the fallbackGame
-            if (game.Type == GameType.Foc)
-            {
-                var fallbackDetectors = new List<IGameDetector>();
+            var fallbackDetectors = new List<IGameDetector>();
 
-                if (game.Platform == GamePlatform.SteamGold)
-                    fallbackDetectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
-                else
-                    throw new NotImplementedException("Searching fallback game for non-Steam games is currently is not yet implemented.");
+            if (game.Platform == GamePlatform.SteamGold)
+                fallbackDetectors.Add(new SteamPetroglyphStarWarsGameDetector(_serviceProvider));
+            else
+                throw new NotImplementedException("Searching fallback game for non-Steam games is currently is not yet implemented.");
 
-                if (!TryDetectGame(GameType.Eaw, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
-                    throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
+            if (!TryDetectGame(GameType.Eaw, fallbackDetectors, out var fallbackResult) || fallbackResult.GameLocation is null)
+                throw new GameNotFoundException("Unable to find fallback game installation: Wrong install path?");
 
-                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
-                    "Found fallback game installation: {FallbackResultGameIdentity} at {GameLocationFullName}", fallbackResult.GameIdentity, fallbackResult.GameLocation.FullName);
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+                "Found fallback game installation: {FallbackResultGameIdentity} at {GameLocationFullName}", fallbackResult.GameIdentity, fallbackResult.GameLocation.FullName);
 
-                fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
+            fallbackGame = _gameFactory.CreateGame(fallbackResult, CultureInfo.InvariantCulture);
 
-                if (settings.InitMods)
-                    SetupMods(fallbackGame);
-            }
+            if (settings.InitMods)
+                SetupMods(fallbackGame);
         }
 
         return new GameFinderResult(game, fallbackGame);
+    }
+
+    private static bool SearchForFallbackGame(GameFinderSettings settings, GameDetectionResult? foundGame)
+    {
+        if (settings.Engine is GameEngineType.Eaw)
+            return false;
+        if (foundGame is { Installed: true, GameIdentity.Type: GameType.Eaw })
+            return false;
+        return settings.SearchFallbackGame;
     }
 
     private bool TryDetectGame(GameType gameType, IList<IGameDetector> detectors, out GameDetectionResult result)

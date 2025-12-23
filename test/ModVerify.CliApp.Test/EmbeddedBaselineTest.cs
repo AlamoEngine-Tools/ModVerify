@@ -9,6 +9,7 @@ using System;
 using System.IO.Abstractions;
 using ModVerify.CliApp.Test.TestData;
 using Testably.Abstractions;
+using Xunit;
 
 namespace ModVerify.CliApp.Test;
 
