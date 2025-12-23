@@ -48,7 +48,7 @@ jobs:
         # use publish for .NET Core
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Binary Releases
           path: ./releases
@@ -68,7 +68,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Binary Releases
           path: ./releases
