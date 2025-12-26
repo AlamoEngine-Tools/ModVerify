@@ -51,7 +51,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IndexRange" Version="1.0.3" Condition="$(TargetFramework) == 'net481'">
+		<PackageReference Include="IndexRange" Version="1.1.0" Condition="$(TargetFramework) == 'net481'">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
