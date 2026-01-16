@@ -13,13 +13,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Testing" Version="4.1.66-gb209787741" />
-		<PackageReference Include="AlamoEngineTools.SteamAbstraction.Testing" Version="4.1.66-gb209787741" />
-		<PackageReference Include="AlamoEngineTools.Testing" Version="4.1.66-gb209787741" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Testing" Version="4.1.72-gea0bb05cb7" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction.Testing" Version="4.1.72-gea0bb05cb7" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.Testing" Version="13.0.3-g989307af40" />
 		<PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-		<PackageReference Include="xunit.v3.mtp-v2" Version="3.2.1" />
+		<PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
 		<PackageReference Include="Microsoft.Testing.Platform" Version="2.0.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
 		  <PrivateAssets>all</PrivateAssets>

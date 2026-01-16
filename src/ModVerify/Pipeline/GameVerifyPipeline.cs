@@ -47,7 +47,7 @@ public sealed class NewGameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunn
 
     //protected override bool FailFast { get; }
 
-    //public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
+    public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
 
     public NewGameVerifyPipeline(
         VerificationTarget verificationTarget,

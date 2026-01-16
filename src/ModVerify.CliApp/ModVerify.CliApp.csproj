@@ -21,6 +21,10 @@
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <None Remove="Resources\Baselines\baseline-foc.json" />
 	</ItemGroup>
@@ -30,18 +34,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.1.7" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.0.60" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="4.1.72-gea0bb05cb7" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="4.1.72-gea0bb05cb7" />
 		<PackageReference Include="Figgle" Version="0.6.5" />
 		<PackageReference Include="Figgle.Generator" Version="0.6.5" />
 		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="4.0.60" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="4.1.72-gea0bb05cb7" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
@@ -51,10 +55,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IndexRange" Version="1.0.3" Condition="$(TargetFramework) == 'net481'">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Costura.Fody" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -64,9 +64,18 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<PropertyGroup>
-		<NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
-	</PropertyGroup>
+	<!-- Exclude System.Index from all dependencies, excluding Microsoft.Bcl.Memory -->
+	<ItemGroup>
+		<PackageReference Include="Vanara.Core" Version="5.0.0" Condition="'$(TargetFramework)' == 'net481'">
+			<ExcludeAssets>compile</ExcludeAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="IndexRange" Version="1.0.3" Condition="'$(TargetFramework)' == 'net481'">
+			<ExcludeAssets>compile</ExcludeAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.2" Condition="'$(TargetFramework)' == 'net481'" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\modules\ModdingToolBase\src\AnakinApps\ApplicationBase.CommandLine\ApplicationBase.CommandLine.csproj" />

@@ -1,5 +1,6 @@
 ﻿using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
+using AnakinRaW.CommonUtilities.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons;
 using PG.StarWarsGame.Infrastructure;
@@ -7,7 +8,7 @@ using PG.StarWarsGame.Infrastructure.Clients.Steam;
 
 namespace ModVerify.CliApp.Test;
 
-public abstract class CommonTestBase : AET.Testing.TestBaseWithFileSystem
+public abstract class CommonTestBase : TestBaseWithFileSystem
 {
     protected override void SetupServices(IServiceCollection serviceCollection)
     {
