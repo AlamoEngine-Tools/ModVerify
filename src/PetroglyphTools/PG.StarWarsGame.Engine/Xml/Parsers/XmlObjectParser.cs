@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
+using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
-using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
@@ -9,7 +9,7 @@ using PG.StarWarsGame.Files.XML.Parsers;
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 public abstract class XmlObjectParser<TObject>(
-    IReadOnlyValueListDictionary<Crc32, TObject> parsedElements,
+    IReadOnlyFrugalValueListDictionary<Crc32, TObject> parsedElements,
     IServiceProvider serviceProvider,
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<TObject, EmptyParseState>(parsedElements, serviceProvider, errorReporter) where TObject : XmlObject
@@ -34,12 +34,12 @@ public readonly struct EmptyParseState
 
 
 public abstract class XmlObjectParser<TObject, TParseState>(
-    IReadOnlyValueListDictionary<Crc32, TObject> parsedElements,
+    IReadOnlyFrugalValueListDictionary<Crc32, TObject> parsedElements,
     IServiceProvider serviceProvider,
     IXmlParserErrorReporter? errorReporter = null)
     : PetroglyphXmlElementParser<TObject>(errorReporter) where TObject : XmlObject
 {
-    protected IReadOnlyValueListDictionary<Crc32, TObject> ParsedElements { get; } =
+    protected IReadOnlyFrugalValueListDictionary<Crc32, TObject> ParsedElements { get; } =
         parsedElements ?? throw new ArgumentNullException(nameof(parsedElements));
 
     protected ICrc32HashingService HashingService { get; } = serviceProvider.GetRequiredService<ICrc32HashingService>();

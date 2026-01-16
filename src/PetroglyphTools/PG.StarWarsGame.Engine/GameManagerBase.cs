@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
@@ -16,13 +15,13 @@ namespace PG.StarWarsGame.Engine;
 internal abstract class GameManagerBase<T>(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGameManager<T>
 {
-    protected readonly ValueListDictionary<Crc32, T> NamedEntries = new();
+    protected readonly FrugalValueListDictionary<Crc32, T> NamedEntries = new();
 
     public ICollection<T> Entries => NamedEntries.Values;
 
     public ICollection<Crc32> EntryKeys => NamedEntries.Keys;
 
-    public ReadOnlyFrugalList<T> GetEntries(Crc32 key)
+    public ImmutableFrugalList<T> GetEntries(Crc32 key)
     {
         return NamedEntries.GetValues(key);
     }

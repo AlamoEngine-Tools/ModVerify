@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Components;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
@@ -18,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AnakinRaW.CommonUtilities.Collections;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
@@ -77,7 +77,7 @@ internal class CommandBarGameManager(
         var contentParser = new XmlContainerContentParser(ServiceProvider, ErrorReporter);
         contentParser.XmlParseError += OnParseError;
 
-        var parsedCommandBarComponents = new ValueListDictionary<Crc32, CommandBarComponentData>();
+        var parsedCommandBarComponents = new FrugalValueListDictionary<Crc32, CommandBarComponentData>();
 
         try
         {

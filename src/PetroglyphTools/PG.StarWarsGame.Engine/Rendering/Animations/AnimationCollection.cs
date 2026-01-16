@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.Collections;
-using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.ALO.Files.Animations;
 
@@ -13,10 +12,10 @@ public sealed class AnimationCollection : DisposableObject, IEnumerable<IAloAnim
 {
     public static readonly AnimationCollection Empty = new();
 
-    private readonly ValueListDictionary<ModelAnimationType, IAloAnimationFile> _animations = new();
-    private readonly ValueListDictionary<ModelAnimationType, Crc32> _animationCrc = new();
+    private readonly FrugalValueListDictionary<ModelAnimationType, IAloAnimationFile> _animations = new();
+    private readonly FrugalValueListDictionary<ModelAnimationType, Crc32> _animationCrc = new();
 
-    public int Cout => _animations.Count;
+    public int Cout => _animations.ValueCount;
 
     public Crc32 GetAnimationCrc(ModelAnimationType type, int subIndex)
     {
@@ -28,12 +27,12 @@ public sealed class AnimationCollection : DisposableObject, IEnumerable<IAloAnim
         return checksumsForType[subIndex];
     }
 
-    public ReadOnlyFrugalList<IAloAnimationFile> GetAnimations(ModelAnimationType type)
+    public ImmutableFrugalList<IAloAnimationFile> GetAnimations(ModelAnimationType type)
     {
         return _animations.GetValues(type);
     }
 
-    public bool TryGetAnimations(ModelAnimationType type, out ReadOnlyFrugalList<IAloAnimationFile> animations)
+    public bool TryGetAnimations(ModelAnimationType type, out ImmutableFrugalList<IAloAnimationFile> animations)
     {
         return _animations.TryGetValues(type, out animations);
     }

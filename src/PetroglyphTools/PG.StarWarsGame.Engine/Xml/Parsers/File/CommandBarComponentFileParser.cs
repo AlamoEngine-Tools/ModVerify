@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
-using PG.Commons.Collections;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
@@ -12,7 +12,7 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers.File;
 internal class CommandBarComponentFileParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) 
     : PetroglyphXmlFileContainerParser<CommandBarComponentData>(serviceProvider, errorReporter)
 {
-    protected override void Parse(XElement element, IValueListDictionary<Crc32, CommandBarComponentData> parsedElements, string fileName)
+    protected override void Parse(XElement element, IFrugalValueListDictionary<Crc32, CommandBarComponentData> parsedElements, string fileName)
     {
         var parser = new CommandBarComponentParser(parsedElements, ServiceProvider, ErrorReporter);
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Xml;
+using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.IO;
@@ -34,7 +34,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
         string xmlFile,
         IGameRepository gameRepository,
         string lookupPath,
-        ValueListDictionary<Crc32, T> entries,
+        FrugalValueListDictionary<Crc32, T> entries,
         Action<string>? onFileParseAction = null) where T : notnull
     {
         Logger.LogDebug("Parsing container data '{XmlFile}'", xmlFile);
