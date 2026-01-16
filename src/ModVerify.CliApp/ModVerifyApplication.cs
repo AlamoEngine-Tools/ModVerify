@@ -129,7 +129,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     {
         var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name);
 
-        using var verifyPipeline = new NewGameVerifyPipeline(
+        using var verifyPipeline = new GameVerifyPipeline(
             verificationTarget,
             settings.VerifyPipelineSettings,
             reportSettings,
