@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using AET.ModVerify.App.Settings.CommandLine;
-using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;

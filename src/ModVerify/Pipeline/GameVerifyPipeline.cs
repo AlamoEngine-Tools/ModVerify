@@ -19,8 +19,8 @@ namespace AET.ModVerify.Pipeline;
 
 public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
 {
-    private readonly List<GameVerifier> _verifiers = new();
-    private readonly List<GameVerifierPipelineStep> _verificationSteps = new();
+    private readonly List<GameVerifier> _verifiers = [];
+    private readonly List<GameVerifierPipelineStep> _verificationSteps = [];
     private readonly ConcurrentGameEngineErrorReporter _engineErrorReporter = new();
 
     private readonly VerificationTarget _verificationTarget;

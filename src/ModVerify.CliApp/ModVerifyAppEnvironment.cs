@@ -1,4 +1,5 @@
-﻿using System.IO.Abstractions;
+﻿using System.IO;
+using System.IO.Abstractions;
 using System.Reflection;
 using AnakinRaW.ApplicationBase.Environment;
 #if !NET
@@ -26,10 +27,16 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
     public override ICollection<Uri> UpdateMirrors { get; } = new List<Uri>
     {
 #if DEBUG
-        new("C:\\Test\\ModVerify"),    
+        new(CreateDebugPath()),    
 #endif
         new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}")
     };
+
+    private static string CreateDebugPath()
+    {
+        var dir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../../.."));
+        return Path.Combine(dir, ".local_deploy/server");
+    }
 
     public override string UpdateRegistryPath => $@"SOFTWARE\{ModVerifyConstants.ModVerifyToolPath}\Update";
     

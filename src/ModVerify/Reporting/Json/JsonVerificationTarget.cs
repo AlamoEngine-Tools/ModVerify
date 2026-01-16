@@ -39,7 +39,7 @@ internal class JsonVerificationTarget
     public static VerificationTarget? ToTarget(JsonVerificationTarget? jsonTarget)
     {
         if (jsonTarget is null)
-            return null!;
+            return null;
         return new VerificationTarget
         {
             Engine = jsonTarget.Engine,

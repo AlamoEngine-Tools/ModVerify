@@ -23,27 +23,24 @@ public sealed class GameVerifierPipelineStep(
 
     public long Size => 1;
 
-    protected override async Task RunCoreAsync(CancellationToken token)
+    protected override Task RunCoreAsync(CancellationToken token)
     {
-        await Task.Run(() =>
+        try
         {
-            try
-            {
-                Logger?.LogDebug("Running verifier '{Name}'...", GameVerifier.FriendlyName);
-                ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(0.0, "Started"));
+            Logger?.LogDebug("Running verifier '{Name}'...", GameVerifier.FriendlyName);
+            ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(0.0, "Started"));
 
-                GameVerifier.Progress += OnVerifyProgress;
-                GameVerifier.Verify(token);
+            GameVerifier.Progress += OnVerifyProgress;
+            GameVerifier.Verify(token);
 
-                Logger?.LogDebug("Finished verifier '{Name}'", GameVerifier.FriendlyName);
-                ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(1.0, "Finished"));
-            }
-            finally
-            {
-                GameVerifier.Progress += OnVerifyProgress;
-            }
-        }, CancellationToken.None).ConfigureAwait(false);
-        
+            Logger?.LogDebug("Finished verifier '{Name}'", GameVerifier.FriendlyName);
+            ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(1.0, "Finished"));
+            return Task.CompletedTask;
+        }
+        finally
+        {
+            GameVerifier.Progress += OnVerifyProgress;
+        }
     }
 
     private void OnVerifyProgress(object _, ProgressEventArgs<VerifyProgressInfo> e)
