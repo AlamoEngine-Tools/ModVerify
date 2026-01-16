@@ -33,10 +33,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.9" />
-		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.3.9" />
-		<PackageReference Include="System.Text.Json" Version="10.0.1" />
-		<PackageReference Include="JsonSchema.Net" Version="8.0.3" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.3-g989307af40" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="13.0.3-g989307af40" />
+		<PackageReference Include="System.Text.Json" Version="10.0.2" />
+		<PackageReference Include="JsonSchema.Net" Version="8.0.5" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -49,10 +49,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj" />
 		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
 	</ItemGroup>
 
 </Project>

@@ -2,7 +2,6 @@
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
-using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
@@ -10,20 +9,19 @@ using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify.Pipeline;
 
-public sealed class NewGameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipeline.Pipeline
+public sealed class NewGameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
 {
     private readonly List<GameVerifier> _verifiers = new();
     private readonly List<GameVerifierPipelineStep> _verificationSteps = new();
     private readonly ConcurrentGameEngineErrorReporter _engineErrorReporter = new();
 
-    private readonly StepRunnerBase _verifyRunner;
+    private readonly AsyncStepRunner _verifyRunner;
     private readonly VerificationTarget _verificationTarget;
     private readonly VerifyPipelineSettings _pipelineSettings;
     private readonly GlobalVerifyReportSettings _reportSettings;
@@ -32,9 +30,24 @@ public sealed class NewGameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipe
     private readonly IPetroglyphStarWarsGameEngineService _gameEngineService;
     private readonly ILogger? _logger;
 
-    protected override bool FailFast { get; }
+    protected override Task PrepareCoreAsync(CancellationToken token)
+    {
+        throw new NotImplementedException();
+    }
 
-    public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
+    protected override AsyncStepRunner CreateRunner()
+    {
+        throw new NotImplementedException();
+    }
+
+    //protected override IStepRunner CreateRunner()
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //protected override bool FailFast { get; }
+
+    //public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
 
     public NewGameVerifyPipeline(
         VerificationTarget verificationTarget,
@@ -52,114 +65,119 @@ public sealed class NewGameVerifyPipeline : AnakinRaW.CommonUtilities.SimplePipe
         _gameEngineService = serviceProvider.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
 
-        _verifyRunner = pipelineSettings.ParallelVerifiers switch
-        {
-            < 0 or > 64 => throw new ArgumentException("_pipelineSettings has invalid parallel worker number.", 
-                nameof(pipelineSettings)),
-            1 => new SequentialStepRunner(serviceProvider),
-            _ => new ParallelStepRunner(pipelineSettings.ParallelVerifiers, serviceProvider)
-        };
+        //_verifyRunner = pipelineSettings.ParallelVerifiers switch
+        //{
+        //    < 0 or > 64 => throw new ArgumentException("_pipelineSettings has invalid parallel worker number.",
+        //        nameof(pipelineSettings)),
+        //    1 => new SequentialStepRunner(serviceProvider),
+        //    _ => new AsyncStepRunner(pipelineSettings.ParallelVerifiers, serviceProvider)
+        //};
 
-        FailFast = pipelineSettings.FailFast;
+        //FailFast = pipelineSettings.FailFast;
     }
 
-    protected override async Task<bool> PrepareCoreAsync()
-    {
-        _verifiers.Clear();
+    //protected override async Task<bool> PrepareCoreAsync()
+    //{
+    //    _verifiers.Clear();
 
 
-        IStarWarsGameEngine gameEngine;
+    //    IStarWarsGameEngine gameEngine;
 
-        try
-        {
-            gameEngine = await _gameEngineService.InitializeAsync(
-                _verificationTarget.Engine,
-                _verificationTarget.Location,
-                _engineErrorReporter,
-                _engineInitializationReporter,
-                false,
-                CancellationToken.None).ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            _logger?.LogError(e, "Creating game engine failed: {Message}", e.Message);
-            throw;
-        }
-
-
-        AddStep(new GameEngineErrorCollector(_engineErrorReporter, gameEngine, _pipelineSettings.GameVerifySettings, ServiceProvider));
-
-        foreach (var gameVerificationStep in CreateVerificationSteps(gameEngine))
-            AddStep(gameVerificationStep);
-
-        return true;
-    }
-
-    protected override async Task RunCoreAsync(CancellationToken token)
-    {
-        var aggregatedVerifyProgressReporter = new AggregatedVerifyProgressReporter(_progressReporter, _verificationSteps);
-
-        try
-        {
-            Logger?.LogInformation("Running game verifiers...");
-            _progressReporter.Report(0.0, $"Verifing {_verificationTarget.Name}...", VerifyProgress.ProgressType, default);
-            _verifyRunner.Error += OnError;
-            await _verifyRunner.RunAsync(token);
-        }
-        finally
-        {
-            aggregatedVerifyProgressReporter.Dispose();
-            _verifyRunner.Error -= OnError;
-            Logger?.LogDebug("Game verifiers finished.");
-        }
-
-        token.ThrowIfCancellationRequested();
-
-        var failedSteps = _verifyRunner.ExecutedSteps.Where(p =>
-            p.Error != null && !p.Error.IsExceptionType<OperationCanceledException>()).ToList();
-
-        if (failedSteps.Count != 0)
-            throw new StepFailureException(failedSteps);
-
-        FilteredErrors = GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)).ToList();
+    //    try
+    //    {
+    //        gameEngine = await _gameEngineService.InitializeAsync(
+    //            _verificationTarget.Engine,
+    //            _verificationTarget.Location,
+    //            _engineErrorReporter,
+    //            _engineInitializationReporter,
+    //            false,
+    //            CancellationToken.None).ConfigureAwait(false);
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        _logger?.LogError(e, "Creating game engine failed: {Message}", e.Message);
+    //        throw;
+    //    }
 
 
-        _progressReporter.Report(1.0, $"Finished Verifing {_verificationTarget.Name}", VerifyProgress.ProgressType, default);
-    }
+    //    AddStep(new GameEngineErrorCollector(_engineErrorReporter, gameEngine, _pipelineSettings.GameVerifySettings, ServiceProvider));
 
-    protected override void OnError(object sender, StepRunnerErrorEventArgs e)
-    {
-        if (FailFast && e.Exception is GameVerificationException v)
-        {
-            // TODO: Apply globalMinSeverity
-            if (v.Errors.All(error => _reportSettings.Baseline.Contains(error) || _reportSettings.Suppressions.Suppresses(error)))
-                return;
-        }
-        base.OnError(sender, e);
-    }
+    //    foreach (var gameVerificationStep in CreateVerificationSteps(gameEngine))
+    //        AddStep(gameVerificationStep);
 
-    private void AddStep(GameVerifier verifier)
-    {
-        var verificationStep = new GameVerifierPipelineStep(verifier, ServiceProvider);
-        _verifyRunner.AddStep(verificationStep);
-        _verificationSteps.Add(verificationStep);
-        _verifiers.Add(verifier);
-    }
+    //    return true;
+    //}
 
-    private IEnumerable<VerificationError> GetReportableErrors(IEnumerable<VerificationError> errors)
-    {
-        Logger?.LogDebug("Applying baseline and suppressions.");
-        // NB: We don't filter for severity here, as the individual reporters handle that. 
-        // This allows better control over what gets reported. 
-        return errors.ApplyBaseline(_reportSettings.Baseline)
-            .ApplySuppressions(_reportSettings.Suppressions);
-    }
+    //protected override Task<IList<IStep>> CreateRunnerSteps(CancellationToken token)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
-    private IEnumerable<GameVerifier> CreateVerificationSteps(IStarWarsGameEngine engine)
-    {
-        return _pipelineSettings.VerifiersProvider
-            .GetVerifiers(engine, _pipelineSettings.GameVerifySettings, ServiceProvider);
-    }
+    //protected override async Task RunCoreAsync(CancellationToken token)
+    //{
+    //    var aggregatedVerifyProgressReporter = new AggregatedVerifyProgressReporter(_progressReporter, _verificationSteps);
+
+    //    try
+    //    {
+    //        Logger?.LogInformation("Running game verifiers...");
+    //        _progressReporter.Report(0.0, $"Verifing {_verificationTarget.Name}...", VerifyProgress.ProgressType, default);
+    //        _verifyRunner.Error += OnError;
+    //        await _verifyRunner.RunAsync(token);
+    //    }
+    //    finally
+    //    {
+    //        aggregatedVerifyProgressReporter.Dispose();
+    //        _verifyRunner.Error -= OnError;
+    //        Logger?.LogDebug("Game verifiers finished.");
+    //    }
+
+    //    token.ThrowIfCancellationRequested();
+
+    //    var failedSteps = _verifyRunner.ExecutedSteps.Where(p =>
+    //        p.Error != null && !p.Error.IsExceptionType<OperationCanceledException>()).ToList();
+
+    //    if (failedSteps.Count != 0)
+    //        throw new StepFailureException(failedSteps);
+
+    //    FilteredErrors = GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)).ToList();
+
+
+    //    _progressReporter.Report(1.0, $"Finished Verifing {_verificationTarget.Name}", VerifyProgress.ProgressType, default);
+    //}
+
+    //protected override void OnError(object sender, StepRunnerErrorEventArgs e)
+    //{
+    //    if (FailFast && e.Exception is GameVerificationException v)
+    //    {
+    //        // TODO: Apply globalMinSeverity
+    //        if (v.Errors.All(error => _reportSettings.Baseline.Contains(error) || _reportSettings.Suppressions.Suppresses(error)))
+    //            return;
+    //    }
+    //    base.OnError(sender, e);
+    //}
+
+    //private void AddStep(GameVerifier verifier)
+    //{
+    //    var verificationStep = new GameVerifierPipelineStep(verifier, ServiceProvider);
+    //    _verifyRunner.AddStep(verificationStep);
+    //    _verificationSteps.Add(verificationStep);
+    //    _verifiers.Add(verifier);
+    //}
+
+    //private IEnumerable<VerificationError> GetReportableErrors(IEnumerable<VerificationError> errors)
+    //{
+    //    Logger?.LogDebug("Applying baseline and suppressions.");
+    //    // NB: We don't filter for severity here, as the individual reporters handle that. 
+    //    // This allows better control over what gets reported. 
+    //    return errors.ApplyBaseline(_reportSettings.Baseline)
+    //        .ApplySuppressions(_reportSettings.Suppressions);
+    //}
+
+    //private IEnumerable<GameVerifier> CreateVerificationSteps(IStarWarsGameEngine engine)
+    //{
+    //    return _pipelineSettings.VerifiersProvider
+    //        .GetVerifiers(engine, _pipelineSettings.GameVerifySettings, ServiceProvider);
+    //}
 }
 
 
