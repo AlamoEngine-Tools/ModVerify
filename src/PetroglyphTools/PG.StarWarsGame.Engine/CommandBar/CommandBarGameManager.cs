@@ -213,8 +213,8 @@ internal class CommandBarGameManager(
         if (_defaultFont is null)
         {
             // TODO: From GameConstants
-            string fontName = PGConstants.DefaultUnicodeFontName;
-            int size = 11;
+            var fontName = PGConstants.DefaultUnicodeFontName;
+            var size = 11;
             var font = fontManager.CreateFont(fontName, size, true, false, false, 1.0f);
             if (font is null)
                 ErrorReporter.Assert(EngineAssert.FromNullOrEmpty([ToString()], $"Unable to create Default from name {fontName}"));

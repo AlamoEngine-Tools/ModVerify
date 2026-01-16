@@ -30,6 +30,7 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
     private readonly IGameEngineInitializationReporter? _engineInitializationReporter;
     private readonly IPetroglyphStarWarsGameEngineService _gameEngineService;
     private readonly ILogger? _logger;
+    private AggregatedVerifyProgressReporter? _aggregatedVerifyProgressReporter;
 
     public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
 
@@ -92,37 +93,19 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
             AddStep(gameVerificationStep);
     }
 
-    //protected override async Task RunCoreAsync(CancellationToken token)
-    //{
-    //    var aggregatedVerifyProgressReporter = new AggregatedVerifyProgressReporter(_progressReporter, _verificationSteps);
-
-    //    try
-    //    {
-    //        Logger?.LogInformation("Running game verifiers...");
-    //        _progressReporter.Report(0.0, $"Verifing {_verificationTarget.Name}...", VerifyProgress.ProgressType, default);
-    //        _verifyRunner.Error += OnError;
-    //        await _verifyRunner.RunAsync(token);
-    //    }
-    //    finally
-    //    {
-    //        aggregatedVerifyProgressReporter.Dispose();
-    //        _verifyRunner.Error -= OnError;
-    //        Logger?.LogDebug("Game verifiers finished.");
-    //    }
-
-    //    token.ThrowIfCancellationRequested();
-
-    //    var failedSteps = _verifyRunner.ExecutedSteps.Where(p =>
-    //        p.Error != null && !p.Error.IsExceptionType<OperationCanceledException>()).ToList();
-
-    //    if (failedSteps.Count != 0)
-    //        throw new StepFailureException(failedSteps);
-
-    //    FilteredErrors = GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)).ToList();
-
-
-    //    _progressReporter.Report(1.0, $"Finished Verifing {_verificationTarget.Name}", VerifyProgress.ProgressType, default);
-    //}
+    protected override void OnExecuteStarted()
+    {
+        Logger?.LogInformation("Running game verifiers...");
+        _aggregatedVerifyProgressReporter = new AggregatedVerifyProgressReporter(_progressReporter, _verificationSteps);
+        _progressReporter.Report(0.0, $"Verifying {_verificationTarget.Name}...", VerifyProgress.ProgressType, default);
+    }
+    
+    protected override void OnExecuteCompleted()
+    {
+        Logger?.LogInformation("Game verifiers finished.");
+        FilteredErrors = GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)).ToList();
+        _progressReporter.Report(1.0, $"Finished Verifying {_verificationTarget.Name}", VerifyProgress.ProgressType, default);
+    }
 
     protected override void OnRunnerExecutionError(object sender, StepRunnerErrorEventArgs e)
     {
@@ -156,5 +139,11 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
     {
         return _pipelineSettings.VerifiersProvider
             .GetVerifiers(engine, _pipelineSettings.GameVerifySettings, ServiceProvider);
+    }
+
+    protected override void DisposeResources()
+    {
+        base.DisposeResources();
+        _aggregatedVerifyProgressReporter?.Dispose();
     }
 }
