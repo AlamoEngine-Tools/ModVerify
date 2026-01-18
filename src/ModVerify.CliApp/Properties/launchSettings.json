@@ -6,7 +6,7 @@
     },
     "Interactive Verify": {
       "commandName": "Project",
-      "commandLineArgs": "verify  -o verifyResults --minFailSeverity Information --offline"
+      "commandLineArgs": "verify  -o verifyResults --minFailSeverity Information --offline --failFast"
     },
     "Interactive Baseline": {
       "commandName": "Project",

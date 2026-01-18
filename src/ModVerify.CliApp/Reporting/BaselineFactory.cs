@@ -1,10 +1,13 @@
-﻿using System;
+﻿using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Settings;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
-using AET.ModVerify.Reporting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace AET.ModVerify.App.Reporting;
 
@@ -13,7 +16,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(BaselineFactory));
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public bool TryCreateBaseline(
+    public bool TryFindBaselineInDirectory(
         string directory,
         out VerificationBaseline baseline,
         [NotNullWhen(true)] out string? path)
@@ -58,9 +61,29 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
         return false;
     }
 
-    public VerificationBaseline CreateBaseline(string filePath)
+    public VerificationBaseline ParseBaseline(string filePath)
     { 
         return CreateBaselineFromFilePath(filePath);
+    }
+
+    public VerificationBaseline CreateBaseline(
+        VerificationTarget target, 
+        GlobalVerifyReportSettings reportSettings, 
+        IEnumerable<VerificationError> errors)
+    {
+        return new VerificationBaseline(reportSettings.MinimumReportSeverity, errors, target);
+    }
+
+    public async Task WriteBaselineAsync(VerificationBaseline baseline, string filePath)
+    {
+        var fullPath = _fileSystem.Path.GetFullPath(filePath);
+        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Writing Baseline to '{FullPath}'", fullPath);
+
+#if NET
+        await
+#endif
+            using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await baseline.ToJsonAsync(fs);
     }
 
     private VerificationBaseline CreateBaselineFromFilePath(string baselineFile)

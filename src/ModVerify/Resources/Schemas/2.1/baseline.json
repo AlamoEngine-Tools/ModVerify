@@ -48,8 +48,7 @@
       },
       "required": [
         "name",
-        "engine",
-        "location"
+        "engine"
       ],
       "additionalProperties": false
     },

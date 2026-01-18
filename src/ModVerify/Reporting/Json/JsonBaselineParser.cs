@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace AET.ModVerify.Reporting.Json;
 
-public static class JsonBaselineParser
+internal static class JsonBaselineParser
 {
     public static VerificationBaseline Parse(Stream dataStream)
     {
@@ -13,7 +13,7 @@ public static class JsonBaselineParser
         try
         {
             var jsonNode = JsonDocument.Parse(dataStream);
-            var jsonBaseline = ParseCore(jsonNode);
+            var jsonBaseline = EvaluateAndDeserialize(jsonNode);
 
             if (jsonBaseline is null)
                 throw new InvalidBaselineException($"Unable to parse input from stream to {nameof(VerificationBaseline)}. Unknown Error!");
@@ -26,11 +26,10 @@ public static class JsonBaselineParser
         }
     }
 
-    private static JsonVerificationBaseline? ParseCore(JsonDocument? json)
+    private static JsonVerificationBaseline? EvaluateAndDeserialize(JsonDocument? json)
     {
         if (json is null)
             return null;
-
         JsonBaselineSchema.Evaluate(json.RootElement);
         return json.Deserialize<JsonVerificationBaseline>();
     }

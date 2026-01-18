@@ -173,7 +173,7 @@ internal class Program : SelfUpdateableAppLifecycle
             return e.HResult;
         }
 
-        return await new ModVerifyApplication(modVerifySettings, appServiceProvider).Run().ConfigureAwait(false);
+        return await new ModVerifyApplication(modVerifySettings, appServiceProvider).RunAsync().ConfigureAwait(false);
     }
 
     private void SetupVerifyReporting(IServiceCollection serviceCollection)

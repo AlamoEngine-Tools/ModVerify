@@ -16,6 +16,7 @@ namespace ModVerify.CliApp.Test;
 public class BaselineSelectorTest
 {
     private static readonly IFileSystem FileSystem = new RealFileSystem();
+    private readonly IServiceProvider _serviceProvider;
     private static readonly ModVerifyAppSettings TestSettings = new()
     {
         ReportSettings = new(),
@@ -27,7 +28,6 @@ public class BaselineSelectorTest
         }
     };
 
-    private readonly IServiceProvider _serviceProvider;
 
     public BaselineSelectorTest()
     {
@@ -43,6 +43,6 @@ public class BaselineSelectorTest
     public void LoadEmbeddedBaseline(GameEngineType engineType)
     {
         // Ensure this operation does not crash, meaning the embedded baseline is at least compatible.
-        new BaselineSelector(TestSettings, _serviceProvider).LoadEmbeddedBaseline(engineType);
+        BaselineSelector.LoadEmbeddedBaseline(engineType);
     }
 }

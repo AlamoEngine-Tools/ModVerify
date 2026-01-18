@@ -23,7 +23,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
             try
             {
                 usedBaselinePath = baselinePath;
-                return _baselineFactory.CreateBaseline(baselinePath!);
+                return _baselineFactory.ParseBaseline(baselinePath!);
             }
             catch (InvalidBaselineException e)
             {
@@ -65,10 +65,10 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
 
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Searching for local baseline files...");
 
-        if (!_baselineFactory.TryCreateBaseline(verificationTarget.Location.TargetPath, out var baseline,
+        if (!_baselineFactory.TryFindBaselineInDirectory(verificationTarget.Location.TargetPath, out var baseline,
                 out baselinePath))
         {
-            if (!_baselineFactory.TryCreateBaseline("./", out baseline, out baselinePath))
+            if (!_baselineFactory.TryFindBaselineInDirectory("./", out baseline, out baselinePath))
             {
                 // It does not make sense to load the game's default baselines if the user wants to verify the game,
                 // as the verification result would always be empty (at least in a non-development scenario)
@@ -115,7 +115,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
         }
     }
 
-    internal VerificationBaseline LoadEmbeddedBaseline(GameEngineType engineType)
+    internal static VerificationBaseline LoadEmbeddedBaseline(GameEngineType engineType)
     {
         var baselineFileName = $"baseline-{engineType.ToString().ToLower()}.json";
         var resourcePath = $"{typeof(BaselineResources).Namespace}.{baselineFileName}";
@@ -126,7 +126,7 @@ internal sealed class BaselineSelector(ModVerifyAppSettings settings, IServicePr
 
     private VerificationBaseline FindBaselineNonInteractive(string targetPath, out string? usedPath)
     {
-        if (_baselineFactory.TryCreateBaseline(targetPath, out var baseline, out usedPath))
+        if (_baselineFactory.TryFindBaselineInDirectory(targetPath, out var baseline, out usedPath))
         {
             _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", usedPath);
             return baseline;

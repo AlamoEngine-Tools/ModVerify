@@ -20,7 +20,7 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
     public bool FailFast { get; init; }
 
     [Option("minFailSeverity", Required = false, Default = null,
-        HelpText = "When set, the application return with an error, if any finding has at least the specified severity value.")]
+        HelpText = "When set, the application returns with an error, if any finding has at least the specified severity value.")]
     public VerificationSeverity? MinimumFailureSeverity { get; set; }
 
     [Option("ignoreAsserts", Required = false,

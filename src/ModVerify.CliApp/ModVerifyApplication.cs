@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,21 +25,21 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     private readonly IFileSystem _fileSystem = services.GetRequiredService<IFileSystem>();
     private readonly ModVerifyAppEnvironment _appEnvironment = services.GetRequiredService<ModVerifyAppEnvironment>();
 
-    public async Task<int> Run()
+    public async Task<int> RunAsync()
     {
         using (new UnhandledExceptionHandler(services))
         using (new UnobservedTaskExceptionHandler(services))
-            return await RunCore().ConfigureAwait(false);
+            return await RunCoreAsync().ConfigureAwait(false);
     }
 
-    private async Task<int> RunCore()
+    private async Task<int> RunCoreAsync()
     {
        _logger?.LogDebug("Raw command line: {CommandLine}", Environment.CommandLine);
 
         var interactive = settings.Interactive;
         try
         {
-            return await RunVerify().ConfigureAwait(false);
+            return await RunModVerifyAsync().ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -66,7 +65,7 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
     }
 
 
-    private async Task<int> RunVerify()
+    private async Task<int> RunModVerifyAsync()
     {
         VerificationTarget verificationTarget;
         try
@@ -102,8 +101,11 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         _logger?.LogDebug("Verification taget: {Target}", verificationTarget);
         _logger?.LogTrace("Verify settings: {Settings}", settings);
 
-        var allErrors = await Verify(verificationTarget, reportSettings)
+        var allErrors = await VerifyTargetAsync(verificationTarget, reportSettings)
             .ConfigureAwait(false);
+
+        // TODO: Refactor method to represent "verify" and "baseline" mode of the app.
+        // Also display to user more prominently which mode is active.
 
         try
         {
@@ -111,19 +113,22 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
         }
         catch (GameVerificationException e)
         {
+            _logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+                "The verification of {Target} completed with findings of the specified failure severity {Severity}", 
+                verificationTarget.Name, settings.AppThrowsOnMinimumSeverity);
             return e.HResult;
         }
 
         if (!settings.CreateNewBaseline)
             return 0;
 
-        await WriteBaseline(verificationTarget, reportSettings, allErrors, settings.NewBaselinePath).ConfigureAwait(false);
+        await WriteBaselineAsync(verificationTarget, reportSettings, allErrors, settings.NewBaselinePath).ConfigureAwait(false);
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Baseline successfully created.");
 
         return 0;
     }
 
-    private async Task<IReadOnlyCollection<VerificationError>> Verify(
+    private async Task<IReadOnlyCollection<VerificationError>> VerifyTargetAsync(
         VerificationTarget verificationTarget,
         GlobalVerifyReportSettings reportSettings)
     {
@@ -181,22 +186,15 @@ internal sealed class ModVerifyApplication(ModVerifyAppSettings settings, IServi
             throw new GameVerificationException(errors);
     }
 
-    private async Task WriteBaseline(
+    private async Task WriteBaselineAsync(
         VerificationTarget target,
         GlobalVerifyReportSettings reportSettings,
         IEnumerable<VerificationError> errors, 
         string baselineFile)
     {
-        var baseline = new VerificationBaseline(reportSettings.MinimumReportSeverity, errors, target);
-
-        var fullPath = _fileSystem.Path.GetFullPath(baselineFile);
-        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Writing Baseline to '{FullPath}'", fullPath);
-
-#if NET
-        await 
-#endif
-        using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await baseline.ToJsonAsync(fs);
+        var baselineFactory = services.GetRequiredService<BaselineFactory>();
+        var baseline = baselineFactory.CreateBaseline(target, reportSettings, errors);
+        await baselineFactory.WriteBaselineAsync(baseline, baselineFile);
     }
 
     private GlobalVerifyReportSettings CreateGlobalReportSettings(VerificationTarget verificationTarget)

@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
+using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Reporting;
 
@@ -85,6 +86,26 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
         var sb = new StringBuilder($"Baseline [Version={Version}, MinSeverity={MinimumSeverity}, NumErrors={Count}");
         if (Target is not null)
             sb.Append($", Target={Target}");
+        sb.Append(']');
+        return sb.ToString();
+    }
+}
+
+public sealed class BaselineVerificationTarget
+{
+    public required GameEngineType Engine { get; init; }
+    public required string Name { get; init; }
+    public GameLocations? Location { get; init; }
+    public string? Version { get; init; }
+    public bool IsGame => Location.ModPaths.Count == 0;
+    
+    
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder($"[Name={Name};EngineType={Engine};");
+        if (!string.IsNullOrEmpty(Version)) sb.Append($"Version={Version};");
+        sb.Append($"Location={Location};");
         sb.Append(']');
         return sb.ToString();
     }
