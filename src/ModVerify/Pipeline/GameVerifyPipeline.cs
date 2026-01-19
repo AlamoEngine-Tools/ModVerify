@@ -118,6 +118,11 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
         base.OnRunnerExecutionError(sender, e);
     }
 
+    protected override IEnumerable<IStep> GetFailedSteps(IEnumerable<IStep> steps)
+    {
+        return base.GetFailedSteps(steps).Where(s => s.Error is not GameVerificationException);
+    }
+
     private void AddStep(GameVerifier verifier)
     {
         var verificationStep = new GameVerifierPipelineStep(verifier, ServiceProvider);
