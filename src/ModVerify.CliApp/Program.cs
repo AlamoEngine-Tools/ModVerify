@@ -184,12 +184,14 @@ internal class Program : SelfUpdateableAppLifecycle
 
         var verifyVerb = options as VerifyVerbOption;
 
-        // Console should be in minimal summary mode if we are not in verify mode.
+        // Console should be in minimal summary mode if we are in a different mode than verify.
         var printOnlySummary = verifyVerb is null;
         
         serviceCollection.RegisterConsoleReporter(new VerifyReportSettings
         {
-            MinimumReportSeverity = VerificationSeverity.Error
+            MinimumReportSeverity = verifyVerb?.FailFast is true 
+                ? VerificationSeverity.Information 
+                : VerificationSeverity.Error
         }, printOnlySummary);
 
         if (verifyVerb == null)
