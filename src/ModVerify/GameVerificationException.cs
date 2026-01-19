@@ -7,23 +7,21 @@ namespace AET.ModVerify;
 
 public sealed class GameVerificationException : Exception
 {
-    private readonly string? _errorMessage = null;
-    
     public IReadOnlyCollection<VerificationError> Errors { get; }
     
     private string ErrorMessage
     {
         get
         {
-            if (_errorMessage != null)
-                return _errorMessage;
+            if (field != null)
+                return field;
             var stringBuilder = new StringBuilder();
 
             foreach (var error in Errors)
                 stringBuilder.AppendLine($"Verification error: {error.Id}: {error.Message};");
             return stringBuilder.ToString().TrimEnd(';');
         }
-    }
+    } = null;
 
     /// <inheritdoc/>
     public override string Message => ErrorMessage;
