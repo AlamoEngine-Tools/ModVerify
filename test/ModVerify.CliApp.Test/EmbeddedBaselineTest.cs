@@ -1,13 +1,10 @@
 ﻿using AET.ModVerify.App;
 using AET.ModVerify.App.Reporting;
-using AET.ModVerify.App.Settings;
-using AET.ModVerify.Settings;
 using AnakinRaW.ApplicationBase.Environment;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
 using System;
 using System.IO.Abstractions;
-using ModVerify.CliApp.Test.TestData;
 using Testably.Abstractions;
 using Xunit;
 
@@ -17,17 +14,6 @@ public class BaselineSelectorTest
 {
     private static readonly IFileSystem FileSystem = new RealFileSystem();
     private readonly IServiceProvider _serviceProvider;
-    private static readonly ModVerifyAppSettings TestSettings = new()
-    {
-        ReportSettings = new(),
-        VerificationTargetSettings = new (),
-        VerifyPipelineSettings = new()
-        {
-            GameVerifySettings = new GameVerifySettings(),
-            VerifiersProvider = new NoVerifierProvider()
-        }
-    };
-
 
     public BaselineSelectorTest()
     {
