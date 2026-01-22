@@ -29,6 +29,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 
     private AppVerifySettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
     {
+        ValidateVerb();
         var failFastSetting = GetFailFastSetting();
         return new AppVerifySettings(BuildReportSettings(verifyOptions))
         {
@@ -49,6 +50,16 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             AppFailsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
             VerificationTargetSettings = BuildTargetSettings(verifyOptions),
         };
+
+        void ValidateVerb()
+        {
+            if (verifyOptions.SearchBaselineLocally && !string.IsNullOrEmpty(verifyOptions.Baseline))
+            {
+                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
+                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
+                throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
+            }
+        }
 
 
         FailFastSetting GetFailFastSetting()

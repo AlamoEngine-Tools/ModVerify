@@ -103,11 +103,18 @@ internal class Program : SelfUpdateableAppLifecycle
 
         try
         {
-            _modVerifyAppSettings = new SettingsBuilder(bootstrapServices).BuildSettings(parsedOptions.ModVerifyOptions);
+            _modVerifyAppSettings = new SettingsBuilder(bootstrapServices)
+                .BuildSettings(parsedOptions.ModVerifyOptions);
+        }
+        catch (AppArgumentException e)
+        {
+            Logger?.LogCritical(e, "Invalid arguments specified by the user: {Message}", e.Message);
+            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e.Message);
+            return e.HResult;
         }
         catch (Exception e)
         {
-            Logger?.LogCritical(e, "Failed to create settings form commandline arguments: {EMessage}", e.Message);
+            Logger?.LogCritical(e, "Failed to create settings form commandline arguments: {Message}", e.Message);
             ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
             return e.HResult;
         }
