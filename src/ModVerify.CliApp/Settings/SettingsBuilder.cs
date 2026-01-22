@@ -1,9 +1,7 @@
 ﻿using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.Pipeline;
-using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -12,7 +10,6 @@ namespace AET.ModVerify.App.Settings;
 
 internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 {
-    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(SettingsBuilder));
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
     public AppSettingsBase BuildSettings(BaseModVerifyOptions options)
@@ -31,7 +28,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
     {
         ValidateVerb();
         var failFastSetting = GetFailFastSetting();
-        return new AppVerifySettings(BuildReportSettings(verifyOptions))
+        return new AppVerifySettings(BuildReportSettings())
         {
             ReportDirectory = GetReportDirectory(),
             VerifyPipelineSettings = new VerifyPipelineSettings
@@ -43,8 +40,9 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 {
                     IgnoreAsserts = verifyOptions.IgnoreAsserts,
                     ThrowsOnMinimumSeverity = failFastSetting.IsFailFast 
-                        ? failFastSetting.MinumumSeverity 
-                        : verifyOptions.MinimumFailureSeverity
+                        ? failFastSetting.MinumumSeverity
+                        // The app shall not make a specific verifier throw, but it should always run to completion.
+                        : null 
                 }
             },
             AppFailsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
@@ -59,23 +57,20 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
                 throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
             }
-        }
 
+            if (verifyOptions is { FailFast: true, MinimumFailureSeverity: null })
+            {
+                var failFast = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.FailFast));
+                var minThrowSeverity = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.MinimumFailureSeverity));
+                throw new AppArgumentException($"Option {failFast} requires to set {minThrowSeverity}.");
+            }
+        }
 
         FailFastSetting GetFailFastSetting()
         {
-            if (!verifyOptions.FailFast)
-                return FailFastSetting.NoFailFast;
-
-            var minFailSeverity = verifyOptions.MinimumFailureSeverity;
-            if (!minFailSeverity.HasValue)
-            {
-                _logger?.LogWarning(ModVerifyConstants.ConsoleEventId,
-                    "Verification is configured to fail fast but 'minFailSeverity' is not specified. Using severity '{Severity}'.", VerificationSeverity.Information);
-                minFailSeverity = VerificationSeverity.Information;
-            }
-
-            return new FailFastSetting(minFailSeverity.Value);
+            return !verifyOptions.FailFast
+                ? FailFastSetting.NoFailFast 
+                : new FailFastSetting(verifyOptions.MinimumFailureSeverity!.Value);
         }
 
         string GetReportDirectory()
@@ -85,14 +80,15 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 verifyOptions.OutputDirectory ?? "ModVerifyResults"));
         }
 
-        VerifyReportSettings BuildReportSettings(VerifyVerbOption options)
+        VerifyReportSettings BuildReportSettings()
         {
             return new VerifyReportSettings
             {
-                BaselinePath = options.Baseline,
-                MinimumReportSeverity = options.MinimumSeverity,
-                SearchBaselineLocally = options.SearchBaselineLocally,
-                SuppressionsPath = options.Suppressions
+                BaselinePath = verifyOptions.Baseline,
+                MinimumReportSeverity = verifyOptions.MinimumSeverity,
+                SearchBaselineLocally = verifyOptions.SearchBaselineLocally,
+                SuppressionsPath = verifyOptions.Suppressions,
+                Verbose = verifyOptions.Verbose
             };
         }
     }
@@ -118,7 +114,8 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             return new AppReportSettings
             {
                 MinimumReportSeverity = baselineVerb.MinimumSeverity,
-                SuppressionsPath = baselineVerb.Suppressions
+                SuppressionsPath = baselineVerb.Suppressions,
+                Verbose = baselineVerb.Verbose
             };
         }
     }

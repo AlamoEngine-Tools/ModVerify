@@ -85,7 +85,7 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
 
     private async Task<IReadOnlyCollection<VerificationError>> VerifyTargetAsync(VerificationTarget verificationTarget)
     {
-        var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name);
+        var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name, Settings.ReportSettings);
 
         var baseline = GetBaseline(verificationTarget);
         var suppressions = GetSuppressions();

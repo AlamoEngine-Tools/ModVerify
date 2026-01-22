@@ -9,6 +9,8 @@ public class AppReportSettings
     public VerificationSeverity MinimumReportSeverity { get; init; }
     
     public string? SuppressionsPath { get; init; }
+
+    public bool Verbose { get; init; }
 }
 
 public sealed class VerifyReportSettings : AppReportSettings

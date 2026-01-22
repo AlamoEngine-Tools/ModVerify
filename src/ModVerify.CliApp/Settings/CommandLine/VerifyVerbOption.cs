@@ -16,7 +16,8 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
     public string? OutputDirectory { get; init; }
 
     [Option("failFast", Required = false, Default = false,
-        HelpText = "When set, the application will abort on the first failure. The option also recognized the 'MinimumFailureSeverity' setting.")]
+        HelpText = "When set, the application will abort on the first failure. " +
+                   "The option requires 'minFailSeverity' to be set.")]
     public bool FailFast { get; init; }
 
     [Option("minFailSeverity", Required = false, Default = null,
