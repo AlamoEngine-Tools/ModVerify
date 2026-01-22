@@ -14,18 +14,10 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
 
     protected override ErrorData CreateError(EngineAssert assert)
     {
-        // TODO: Why is context not used atm?
         var context = new List<string>();
-
-        if (assert.Value is not null)
-            context.Add($"value='{assert.Value}'");
-        if (assert.Context is not null)
-            context.Add($"context='{assert.Context}'");
-
-        // The location is the only identifiable thing of an assert. 'Value' might be null, thus we cannot use it. 
-        var asset = GetLocation(assert);
-
-        return new ErrorData(GetIdFromError(assert.Kind), assert.Message, asset, VerificationSeverity.Warning);
+        context.AddRange(assert.Context);
+        context.Add($"location='{GetLocation(assert)}'");
+        return new ErrorData(GetIdFromError(assert.Kind), assert.Message, context, assert.Value, VerificationSeverity.Warning);
     }
 
     private static string GetLocation(EngineAssert assert)

@@ -28,8 +28,8 @@ internal class WindowsFontManager : IOSFontManager
         return fonts;
     }
 
-    static IEnumerable<(Gdi32.ENUMLOGFONTEXDV lpelfe, Gdi32.ENUMTEXTMETRIC lpntme, Gdi32.FontType FontType)> GetFonts(Gdi32.SafeHDC hdc)
+    static IEnumerable<(Gdi32.ENUMLOGFONTEXDV lpelfe, Gdi32.ENUMTEXTMETRIC _, Gdi32.FontType __)> GetFonts(Gdi32.SafeHDC hdc)
     {
-        return Gdi32.EnumFontFamiliesEx(hdc, CharacterSet.DEFAULT_CHARSET);
+        return Gdi32.EnumFontFamiliesEx(hdc, lfCharSet: CharacterSet.DEFAULT_CHARSET);
     }
 }
