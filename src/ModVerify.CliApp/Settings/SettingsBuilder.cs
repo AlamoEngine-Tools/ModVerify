@@ -99,6 +99,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             },
             VerificationTargetSettings = BuildTargetSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
+            WriteLocations = !baselineVerb.SkipLocation
         };
 
         AppReportSettings BuildReportSettings()

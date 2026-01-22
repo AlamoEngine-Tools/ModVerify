@@ -10,7 +10,7 @@
     },
     "Interactive Baseline": {
       "commandName": "Project",
-      "commandLineArgs": "createBaseline -o focBaseline.json --offline"
+      "commandLineArgs": "createBaseline -o focBaseline.json --offline --skipLocation"
     },
 
     "FromModPath": {

@@ -70,4 +70,6 @@ internal sealed class AppBaselineSettings(AppReportSettings reportSettings) : Ap
             field = value;
         }
     }
+
+    public bool WriteLocations { get; init; } = true;
 }

@@ -7,7 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
+using PG.StarWarsGame.Engine;
+using AET.ModVerify.App.Utilities;
 
 namespace AET.ModVerify.App.Reporting;
 
@@ -68,21 +71,27 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider) : IBasel
     }
 
     public VerificationBaseline CreateBaseline(
-        VerificationTarget target, 
-        AppReportSettings reportSettings, 
+        VerificationTarget target,
+        AppBaselineSettings settings,
         IEnumerable<VerificationError> errors)
     {
-        // TODO: Add option to not write location
-        // TODO: Mask username in locations
         var baselineTarget = new BaselineVerificationTarget
         {
             Engine = target.Engine,
             Name = target.Name,
             Version = target.Version,
-            Location = target.Location
+            Location = settings.WriteLocations ? MaskUsername(target.Location) : null
         };
 
-        return new VerificationBaseline(reportSettings.MinimumReportSeverity, errors, baselineTarget);
+        return new VerificationBaseline(settings.ReportSettings.MinimumReportSeverity, errors, baselineTarget);
+    }
+
+    private static GameLocations MaskUsername(GameLocations targetLocation)
+    {
+        return new GameLocations(
+            targetLocation.ModPaths.Select(PathUtilities.MaskUsername).ToList(),
+            PathUtilities.MaskUsername(targetLocation.GamePath),
+            targetLocation.FallbackPaths.Select(PathUtilities.MaskUsername).ToList());
     }
 
     public async Task WriteBaselineAsync(VerificationBaseline baseline, string filePath)

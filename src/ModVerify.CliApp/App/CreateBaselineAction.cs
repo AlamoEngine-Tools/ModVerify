@@ -28,7 +28,7 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
         IReadOnlyCollection<VerificationError> allErrors)
     {
         var baselineFactory = ServiceProvider.GetRequiredService<IBaselineFactory>();
-        var baseline = baselineFactory.CreateBaseline(verificationTarget, Settings.ReportSettings, allErrors);
+        var baseline = baselineFactory.CreateBaseline(verificationTarget, Settings, allErrors);
 
         var fullPath = _fileSystem.Path.GetFullPath(Settings.NewBaselinePath);
         Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 

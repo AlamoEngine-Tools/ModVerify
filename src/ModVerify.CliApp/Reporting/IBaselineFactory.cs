@@ -19,6 +19,6 @@ internal interface IBaselineFactory
 
     VerificationBaseline CreateBaseline(
         VerificationTarget target, 
-        AppReportSettings reportSettings, 
+        AppBaselineSettings settings, 
         IEnumerable<VerificationError> errors);
 }
