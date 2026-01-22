@@ -1,5 +1,5 @@
-﻿using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Settings;
+﻿using AET.ModVerify.App.Settings;
+using AET.ModVerify.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,17 +11,17 @@ using System.Threading.Tasks;
 
 namespace AET.ModVerify.App.Reporting;
 
-internal sealed class BaselineFactory(IServiceProvider serviceProvider)
+internal sealed class BaselineFactory(IServiceProvider serviceProvider) : IBaselineFactory
 {
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(BaselineFactory));
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
     public bool TryFindBaselineInDirectory(
         string directory,
-        out VerificationBaseline baseline,
+        [NotNullWhen(true)] out VerificationBaseline? baseline,
         [NotNullWhen(true)] out string? path)
     {
-        baseline = VerificationBaseline.Empty;
+        baseline = null;
         path = null;
 
         if (!_fileSystem.Directory.Exists(directory))
@@ -46,7 +46,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
             try
             {
                 baseline = CreateBaselineFromFilePath(jsonFile);
-                path = jsonFile;
+                path = _fileSystem.Path.GetFullPath(jsonFile);
                 _logger?.LogDebug("Create baseline from file: {JsonFile}", jsonFile);
                 return true;
             }
@@ -57,6 +57,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
             }
         }
 
+        baseline = null;
         path = null;
         return false;
     }
@@ -68,21 +69,28 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
 
     public VerificationBaseline CreateBaseline(
         VerificationTarget target, 
-        GlobalVerifyReportSettings reportSettings, 
+        AppReportSettings reportSettings, 
         IEnumerable<VerificationError> errors)
     {
-        return new VerificationBaseline(reportSettings.MinimumReportSeverity, errors, target);
+        // TODO: Add option to not write location
+        // TODO: Mask username in locations
+        var baselineTarget = new BaselineVerificationTarget
+        {
+            Engine = target.Engine,
+            Name = target.Name,
+            Version = target.Version,
+            Location = target.Location
+        };
+
+        return new VerificationBaseline(reportSettings.MinimumReportSeverity, errors, baselineTarget);
     }
 
     public async Task WriteBaselineAsync(VerificationBaseline baseline, string filePath)
     {
-        var fullPath = _fileSystem.Path.GetFullPath(filePath);
-        _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Writing Baseline to '{FullPath}'", fullPath);
-
 #if NET
         await
 #endif
-            using var fs = _fileSystem.FileStream.New(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        using var fs = _fileSystem.FileStream.New(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
         await baseline.ToJsonAsync(fs);
     }
 

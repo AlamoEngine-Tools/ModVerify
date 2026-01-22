@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
-using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Reporting;
 
@@ -20,7 +19,7 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
 
     private readonly HashSet<VerificationError> _errors;
 
-    public VerificationTarget? Target { get; }
+    public BaselineVerificationTarget? Target { get; }
     
     public Version? Version { get; }
 
@@ -28,6 +27,8 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
 
     /// <inheritdoc />
     public int Count => _errors.Count;
+
+    public bool IsEmpty => Count == 0;
 
     internal VerificationBaseline(JsonVerificationBaseline baseline)
     {
@@ -37,7 +38,7 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
         Target = JsonVerificationTarget.ToTarget(baseline.Target);
     }
 
-    public VerificationBaseline(VerificationSeverity minimumSeverity, IEnumerable<VerificationError> errors, VerificationTarget? target)
+    public VerificationBaseline(VerificationSeverity minimumSeverity, IEnumerable<VerificationError> errors, BaselineVerificationTarget? target)
     {
         _errors = [..errors];
         Version = LatestVersion;
@@ -86,26 +87,6 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
         var sb = new StringBuilder($"Baseline [Version={Version}, MinSeverity={MinimumSeverity}, NumErrors={Count}");
         if (Target is not null)
             sb.Append($", Target={Target}");
-        sb.Append(']');
-        return sb.ToString();
-    }
-}
-
-public sealed class BaselineVerificationTarget
-{
-    public required GameEngineType Engine { get; init; }
-    public required string Name { get; init; }
-    public GameLocations? Location { get; init; }
-    public string? Version { get; init; }
-    public bool IsGame => Location.ModPaths.Count == 0;
-    
-    
-
-    public override string ToString()
-    {
-        var sb = new StringBuilder($"[Name={Name};EngineType={Engine};");
-        if (!string.IsNullOrEmpty(Version)) sb.Append($"Version={Version};");
-        sb.Append($"Location={Location};");
         sb.Append(']');
         return sb.ToString();
     }

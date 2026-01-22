@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using AET.ModVerify.App.Settings.CommandLine;
+﻿using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
 
 namespace AET.ModVerify.App.Settings;
 
@@ -15,7 +15,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(SettingsBuilder));
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
+    public AppSettingsBase BuildSettings(BaseModVerifyOptions options)
     {
         switch (options)
         {
@@ -27,90 +27,91 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         throw new NotSupportedException($"The option '{options.GetType().Name}' is not supported!");
     }
 
-    private ModVerifyAppSettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
+    private AppVerifySettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
     {
-        return new ModVerifyAppSettings
+        var failFastSetting = GetFailFastSetting();
+        return new AppVerifySettings(BuildReportSettings(verifyOptions))
         {
+            ReportDirectory = GetReportDirectory(),
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
                 ParallelVerifiers = verifyOptions.Parallel ? 4 : 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
-                FailFast = verifyOptions.FailFast,
+                FailFastSettings = failFastSetting,
                 GameVerifySettings = new GameVerifySettings
                 {
                     IgnoreAsserts = verifyOptions.IgnoreAsserts,
-                    ThrowsOnMinimumSeverity = GetVerifierMinimumThrowSeverity()
+                    ThrowsOnMinimumSeverity = failFastSetting.IsFailFast 
+                        ? failFastSetting.MinumumSeverity 
+                        : verifyOptions.MinimumFailureSeverity
                 }
             },
-            AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
-            VerificationTargetSettings = BuildInstallationSettings(verifyOptions),
-            ReportSettings = BuildReportSettings(verifyOptions),
+            AppFailsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
+            VerificationTargetSettings = BuildTargetSettings(verifyOptions),
         };
 
-        VerificationSeverity? GetVerifierMinimumThrowSeverity()
-        {
-            var minFailSeverity = verifyOptions.MinimumFailureSeverity;
-            if (verifyOptions.FailFast)
-            {
-                if (minFailSeverity == null)
-                {
-                    _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, 
-                        "Verification is configured to fail fast but 'minFailSeverity' is not specified. Using severity '{Severity}'.", VerificationSeverity.Information);
-                    minFailSeverity = VerificationSeverity.Information;
-                }
 
-                return minFailSeverity;
+        FailFastSetting GetFailFastSetting()
+        {
+            if (!verifyOptions.FailFast)
+                return FailFastSetting.NoFailFast;
+
+            var minFailSeverity = verifyOptions.MinimumFailureSeverity;
+            if (!minFailSeverity.HasValue)
+            {
+                _logger?.LogWarning(ModVerifyConstants.ConsoleEventId,
+                    "Verification is configured to fail fast but 'minFailSeverity' is not specified. Using severity '{Severity}'.", VerificationSeverity.Information);
+                minFailSeverity = VerificationSeverity.Information;
             }
 
-            // Only in a failFast scenario we want the verifier to throw.
-            // In a normal run, the verifier should simply store the error.
-            return null;
+            return new FailFastSetting(minFailSeverity.Value);
+        }
+
+        string GetReportDirectory()
+        {
+            return _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(
+                Environment.CurrentDirectory, 
+                verifyOptions.OutputDirectory ?? "ModVerifyResults"));
+        }
+
+        VerifyReportSettings BuildReportSettings(VerifyVerbOption options)
+        {
+            return new VerifyReportSettings
+            {
+                BaselinePath = options.Baseline,
+                MinimumReportSeverity = options.MinimumSeverity,
+                SearchBaselineLocally = options.SearchBaselineLocally,
+                SuppressionsPath = options.Suppressions
+            };
         }
     }
 
-    private ModVerifyAppSettings BuildFromCreateBaselineVerb(CreateBaselineVerbOption baselineVerb)
+    private AppBaselineSettings BuildFromCreateBaselineVerb(CreateBaselineVerbOption baselineVerb)
     {
-        return new ModVerifyAppSettings
+        return new AppBaselineSettings(BuildReportSettings())
         {
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
                 ParallelVerifiers = baselineVerb.Parallel ? 4 : 1,
-                GameVerifySettings = new GameVerifySettings
-                {
-                    IgnoreAsserts = false,
-                    ThrowsOnMinimumSeverity = null,
-                },
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
-                FailFast = false,
+                GameVerifySettings = GameVerifySettings.Default,
+                FailFastSettings = FailFastSetting.NoFailFast,
             },
-            AppThrowsOnMinimumSeverity = null,
-            VerificationTargetSettings = BuildInstallationSettings(baselineVerb),
-            ReportSettings = BuildReportSettings(baselineVerb),
+            VerificationTargetSettings = BuildTargetSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
         };
-    }
 
-    private static ModVerifyReportSettings BuildReportSettings(BaseModVerifyOptions options)
-    {
-        var baselinePath = (options as VerifyVerbOption)?.Baseline;
-
-        return new ModVerifyReportSettings
+        AppReportSettings BuildReportSettings()
         {
-            BaselinePath = baselinePath,
-            MinimumReportSeverity = options.MinimumSeverity,
-            SearchBaselineLocally = SearchLocally(options),
-            SuppressionsPath = options.Suppressions
-        };
-
-        static bool SearchLocally(BaseModVerifyOptions o)
-        {
-            if (o is not VerifyVerbOption v)
-                return false;
-            return v.SearchBaselineLocally;
+            return new AppReportSettings
+            {
+                MinimumReportSeverity = baselineVerb.MinimumSeverity,
+                SuppressionsPath = baselineVerb.Suppressions
+            };
         }
     }
 
-    private VerificationTargetSettings BuildInstallationSettings(BaseModVerifyOptions options)
+    private VerificationTargetSettings BuildTargetSettings(BaseModVerifyOptions options)
     {
         var modPaths = new List<string>();
         if (options.ModPaths is not null)

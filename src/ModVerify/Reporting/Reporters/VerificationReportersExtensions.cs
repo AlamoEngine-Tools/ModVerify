@@ -11,7 +11,7 @@ public static class VerificationReportersExtensions
     {
         public IServiceCollection RegisterJsonReporter()
         {
-            return RegisterJsonReporter(serviceCollection, new JsonReporterSettings
+            return serviceCollection.RegisterJsonReporter(new JsonReporterSettings
             {
                 OutputDirectory = "."
             });
@@ -19,7 +19,7 @@ public static class VerificationReportersExtensions
 
         public IServiceCollection RegisterTextFileReporter()
         {
-            return RegisterTextFileReporter(serviceCollection, new TextFileReporterSettings
+            return serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
             {
                 OutputDirectory = "."
             });
@@ -27,7 +27,7 @@ public static class VerificationReportersExtensions
 
         public IServiceCollection RegisterConsoleReporter(bool summaryOnly = false)
         {
-            return RegisterConsoleReporter(serviceCollection, new VerifyReportSettings
+            return serviceCollection.RegisterConsoleReporter(new ReporterSettings
             {
                 MinimumReportSeverity = VerificationSeverity.Error
             }, summaryOnly);
@@ -43,7 +43,7 @@ public static class VerificationReportersExtensions
             return serviceCollection.AddSingleton<IVerificationReporter>(sp => new TextFileReporter(settings, sp));
         }
 
-        public IServiceCollection RegisterConsoleReporter(VerifyReportSettings settings,
+        public IServiceCollection RegisterConsoleReporter(ReporterSettings settings,
             bool summaryOnly = false)
         {
             return serviceCollection.AddSingleton<IVerificationReporter>(sp => new ConsoleReporter(settings, summaryOnly, sp));

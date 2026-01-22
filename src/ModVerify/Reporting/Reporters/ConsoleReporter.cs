@@ -7,10 +7,10 @@ using AET.ModVerify.Reporting.Settings;
 namespace AET.ModVerify.Reporting.Reporters;
 
 internal class ConsoleReporter(
-    VerifyReportSettings settings, 
+    ReporterSettings settings, 
     bool summaryOnly,
     IServiceProvider serviceProvider) : 
-    ReporterBase<VerifyReportSettings>(settings, serviceProvider)
+    ReporterBase<ReporterSettings>(settings, serviceProvider)
 {
     public override Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {

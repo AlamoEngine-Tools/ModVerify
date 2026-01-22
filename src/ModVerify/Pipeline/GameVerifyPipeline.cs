@@ -1,6 +1,5 @@
 ﻿using AET.ModVerify.Pipeline.Progress;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Settings;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
@@ -25,7 +24,6 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
 
     private readonly VerificationTarget _verificationTarget;
     private readonly VerifyPipelineSettings _pipelineSettings;
-    private readonly GlobalVerifyReportSettings _reportSettings;
     private readonly IVerifyProgressReporter _progressReporter;
     private readonly IGameEngineInitializationReporter? _engineInitializationReporter;
     private readonly IPetroglyphStarWarsGameEngineService _gameEngineService;
@@ -33,24 +31,28 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
     private AggregatedVerifyProgressReporter? _aggregatedVerifyProgressReporter;
 
     public IReadOnlyCollection<VerificationError> FilteredErrors { get; private set; } = [];
+    public VerificationBaseline Baseline { get; }
+    public SuppressionList Suppressions { get; }
 
     public GameVerifyPipeline(
         VerificationTarget verificationTarget,
         VerifyPipelineSettings pipelineSettings,
-        GlobalVerifyReportSettings reportSettings,
         IVerifyProgressReporter progressReporter,
         IGameEngineInitializationReporter? engineInitializationReporter,
+        VerificationBaseline baseline,
+        SuppressionList suppressions,
         IServiceProvider serviceProvider) : base(serviceProvider)
     {
+        Baseline = baseline ?? throw new ArgumentNullException(nameof(baseline));
+        Suppressions = suppressions ?? throw new ArgumentNullException(nameof(suppressions));
         _verificationTarget = verificationTarget ?? throw new ArgumentNullException(nameof(verificationTarget));
         _pipelineSettings = pipelineSettings ?? throw new ArgumentNullException(nameof(pipelineSettings));
-        _reportSettings = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
         _progressReporter = progressReporter ?? throw new ArgumentNullException(nameof(progressReporter));
         _engineInitializationReporter = engineInitializationReporter;
         _gameEngineService = serviceProvider.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
 
-        FailFast = pipelineSettings.FailFast;
+        FailFast = pipelineSettings.FailFastSettings.IsFailFast;
     }
 
     protected override AsyncStepRunner CreateRunner()
@@ -109,10 +111,13 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
 
     protected override void OnRunnerExecutionError(object sender, StepRunnerErrorEventArgs e)
     {
-        if (FailFast && e.Exception is GameVerificationException v)
+        if (FailFast && e.Exception is GameVerificationException verificationException)
         {
-            // TODO: Apply globalMinSeverity
-            if (v.Errors.All(error => _reportSettings.Baseline.Contains(error) || _reportSettings.Suppressions.Suppresses(error)))
+            var minSeverity = _pipelineSettings.FailFastSettings.MinumumSeverity;
+            var ignoreError = verificationException.Errors
+                .Where(error => error.Severity >= minSeverity)
+                .All(error => Baseline.Contains(error) || Suppressions.Suppresses(error));
+            if (ignoreError)
                 return;
         }
         base.OnRunnerExecutionError(sender, e);
@@ -136,8 +141,7 @@ public sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
         Logger?.LogDebug("Applying baseline and suppressions.");
         // NB: We don't filter for severity here, as the individual reporters handle that. 
         // This allows better control over what gets reported. 
-        return errors.ApplyBaseline(_reportSettings.Baseline)
-            .ApplySuppressions(_reportSettings.Suppressions);
+        return errors.ApplyBaseline(Baseline).ApplySuppressions(Suppressions);
     }
 
     private IEnumerable<GameVerifier> CreateVerificationSteps(IStarWarsGameEngine engine)

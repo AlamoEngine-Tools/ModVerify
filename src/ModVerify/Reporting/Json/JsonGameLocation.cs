@@ -31,8 +31,10 @@ internal class JsonGameLocation
         FallbackPaths = location.FallbackPaths.ToArray();
     }
 
-    public static GameLocations ToLocation(JsonGameLocation jsonLocation)
+    public static GameLocations? ToLocation(JsonGameLocation? jsonLocation)
     {
-        return new GameLocations(jsonLocation.ModPaths, jsonLocation.GamePath, jsonLocation.FallbackPaths);
+        return jsonLocation is null
+            ? null
+            : new GameLocations(jsonLocation.ModPaths, jsonLocation.GamePath, jsonLocation.FallbackPaths);
     }
 }

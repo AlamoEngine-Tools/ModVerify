@@ -17,10 +17,11 @@ internal class JsonVerificationTarget
     public string? Version{ get; }
 
     [JsonPropertyName("location")]
-    public JsonGameLocation Location { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonGameLocation? Location { get; }
 
     [JsonConstructor]
-    private JsonVerificationTarget(string name, string? version, JsonGameLocation location, GameEngineType engine)
+    private JsonVerificationTarget(string name, string? version, JsonGameLocation? location, GameEngineType engine)
     {
         Name = name;
         Version = version;
@@ -28,19 +29,19 @@ internal class JsonVerificationTarget
         Location = location;
     }
 
-    public JsonVerificationTarget(VerificationTarget target)
+    public JsonVerificationTarget(BaselineVerificationTarget target)
     {
         Name = target.Name;
         Version = target.Version;
         Engine = target.Engine;
-        Location = new JsonGameLocation(target.Location);
+        Location = target.Location is null ? null : new JsonGameLocation(target.Location);
     }
 
-    public static VerificationTarget? ToTarget(JsonVerificationTarget? jsonTarget)
+    public static BaselineVerificationTarget? ToTarget(JsonVerificationTarget? jsonTarget)
     {
         if (jsonTarget is null)
             return null;
-        return new VerificationTarget
+        return new BaselineVerificationTarget
         {
             Engine = jsonTarget.Engine,
             Name = jsonTarget.Name,

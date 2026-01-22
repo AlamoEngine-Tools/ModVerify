@@ -1,49 +1,73 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 
 namespace AET.ModVerify.App.Settings;
 
-internal sealed class ModVerifyAppSettings
+public class AppReportSettings
 {
-    public bool Interactive => VerificationTargetSettings.Interactive;
-
-    public required VerifyPipelineSettings VerifyPipelineSettings { get; init; }
-
-    public required ModVerifyReportSettings ReportSettings { get; init; }
-
-    public required VerificationTargetSettings VerificationTargetSettings { get; init; }
-
-    public VerificationSeverity? AppThrowsOnMinimumSeverity { get; init; }
-
-    [MemberNotNullWhen(true, nameof(NewBaselinePath))]
-    public bool CreateNewBaseline => !string.IsNullOrEmpty(NewBaselinePath);
-
-    public string? NewBaselinePath { get; init; }
+    public VerificationSeverity MinimumReportSeverity { get; init; }
+    
+    public string? SuppressionsPath { get; init; }
 }
 
-
-internal enum AppMode
+public sealed class VerifyReportSettings : AppReportSettings
 {
-    Verify,
-    Baseline
+    public string? BaselinePath { get; init; }
+    public bool SearchBaselineLocally { get; init; }
 }
 
-internal abstract class ModVerifyAppSettingsBase
+internal abstract class AppSettingsBase(AppReportSettings reportSettings)
 {
-    public abstract AppMode Mode { get; }
     public bool IsInteractive => VerificationTargetSettings.Interactive;
-    public required VerificationTargetSettings VerificationTargetSettings { get; init; }
+
+    public required VerificationTargetSettings VerificationTargetSettings
+    {
+        get;
+        init => field = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public required VerifyPipelineSettings VerifyPipelineSettings
+    {
+        get;
+        init => field = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public AppReportSettings ReportSettings { get; } = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
 }
 
-internal sealed class VerifyAppSettings : ModVerifyAppSettingsBase
+internal abstract class AppSettingsBase<T>(T reportSettings) : AppSettingsBase(reportSettings)
+    where T : AppReportSettings
 {
-    public override AppMode Mode => AppMode.Verify;
-    public VerificationSeverity? AppThrowsOnMinimumSeverity { get; init; }
+    public new T ReportSettings { get; } = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
 }
 
-internal sealed class BaselineAppSettings : ModVerifyAppSettingsBase
+internal sealed class AppVerifySettings(VerifyReportSettings reportSettings) : AppSettingsBase<VerifyReportSettings>(reportSettings)
 {
-    public override AppMode Mode => AppMode.Baseline;
-    public required string NewBaselinePath { get; init; }
+    public VerificationSeverity? AppFailsOnMinimumSeverity { get; init; }
+
+    public required string ReportDirectory
+    {
+        get;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value));
+            field = value;
+        }
+    }
+}
+
+internal sealed class AppBaselineSettings(AppReportSettings reportSettings) : AppSettingsBase(reportSettings)
+{
+    public required string NewBaselinePath
+    {
+        get;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value));
+            field = value;
+        }
+    }
 }
