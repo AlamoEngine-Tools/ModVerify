@@ -12,6 +12,9 @@ internal class JsonVerificationTarget
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public GameEngineType Engine { get; }
 
+    [JsonPropertyName("isGame")]
+    public bool IsGame { get; }
+
     [JsonPropertyName("version")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Version{ get; }
@@ -21,12 +24,18 @@ internal class JsonVerificationTarget
     public JsonGameLocation? Location { get; }
 
     [JsonConstructor]
-    private JsonVerificationTarget(string name, string? version, JsonGameLocation? location, GameEngineType engine)
+    private JsonVerificationTarget(
+        string name, 
+        string? version, 
+        JsonGameLocation? location, 
+        GameEngineType engine,
+        bool isGame)
     {
         Name = name;
         Version = version;
         Engine = engine;
         Location = location;
+        IsGame = isGame;
     }
 
     public JsonVerificationTarget(BaselineVerificationTarget target)
@@ -35,6 +44,7 @@ internal class JsonVerificationTarget
         Version = target.Version;
         Engine = target.Engine;
         Location = target.Location is null ? null : new JsonGameLocation(target.Location);
+        IsGame = target.IsGame;
     }
 
     public static BaselineVerificationTarget? ToTarget(JsonVerificationTarget? jsonTarget)
@@ -46,7 +56,8 @@ internal class JsonVerificationTarget
             Engine = jsonTarget.Engine,
             Name = jsonTarget.Name,
             Location = JsonGameLocation.ToLocation(jsonTarget.Location),
-            Version = jsonTarget.Version
+            Version = jsonTarget.Version,
+            IsGame = jsonTarget.IsGame
         };
     }
 }

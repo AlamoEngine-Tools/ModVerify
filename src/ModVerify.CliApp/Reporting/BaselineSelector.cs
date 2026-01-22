@@ -25,7 +25,7 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
             try
             {
                 usedBaselinePath = baselinePath;
-                return _baselineFactory.ParseBaseline(baselinePath!);
+                return _baselineFactory.ParseBaseline(baselinePath);
             }
             catch (InvalidBaselineException e)
             {
@@ -44,7 +44,8 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
 
         if (!settings.ReportSettings.SearchBaselineLocally)
         {
-            _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, "No baseline path specified and local search is not enabled. Using empty baseline.");
+            _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, 
+                "No baseline path specified and local search is not enabled. Using empty baseline.");
             usedBaselinePath = null;
             return VerificationBaseline.Empty;
         }
@@ -53,7 +54,7 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
             return FindBaselineInteractive(verificationTarget, out usedBaselinePath);
 
         // If the application is not interactive, we only use a baseline file present in the directory of the verification target.
-        return FindBaselineNonInteractive(verificationTarget.Location.TargetPath, out usedBaselinePath);
+        return FindBaselineNonInteractive(verificationTarget, out usedBaselinePath);
 
     }
 
@@ -67,20 +68,20 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
 
         _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Searching for local baseline files...");
 
-        if (!_baselineFactory.TryFindBaselineInDirectory(verificationTarget.Location.TargetPath, out var baseline,
+        if (!_baselineFactory.TryFindBaselineInDirectory(
+                verificationTarget.Location.TargetPath,
+                b => IsBaselineCompatible(b, verificationTarget),
+                out var baseline,
                 out baselinePath))
         {
-            if (!_baselineFactory.TryFindBaselineInDirectory("./", out baseline, out baselinePath))
+            if (!_baselineFactory.TryFindBaselineInDirectory(
+                    Environment.CurrentDirectory,
+                    b => IsBaselineCompatible(b, verificationTarget), 
+                    out baseline, 
+                    out baselinePath))
             {
-                // It does not make sense to load the game's default baselines if the user wants to verify the game,
-                // as the verification result would always be empty (at least in a non-development scenario)
-                if (verificationTarget.Location.ModPaths.Count == 0)
-                {
-                    _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "No local baseline file found.");
-                    return VerificationBaseline.Empty;
-                }
-
                 Console.WriteLine("No baseline found locally.");
+                baselinePath = null;
                 TryGetDefaultBaseline(verificationTarget.Engine, out baseline);
                 return baseline ?? VerificationBaseline.Empty;
             }
@@ -88,18 +89,7 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
 
         Debug.Assert(baselinePath is not null && baseline is not null);
 
-        var sb = new StringBuilder("Found baseline ");
-        if (baseline.Target is not null)
-        {
-            sb.Append($"for '{baseline.Target.Name}' ");
-        }
-
-        sb.Append($"at '{baselinePath}'.");
-
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(sb.ToString());
-            
-        return ConsoleUtilities.UserYesNoQuestion("Do you want to use it?") 
+        return ShouldUseBaseline(baseline, baselinePath)
             ? baseline 
             : VerificationBaseline.Empty;
     }
@@ -139,15 +129,39 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
         return VerificationBaseline.FromJson(baselineStream);
     }
 
-    private VerificationBaseline FindBaselineNonInteractive(string targetPath, out string? usedPath)
+    private VerificationBaseline FindBaselineNonInteractive(VerificationTarget target, out string? usedPath)
     {
-        if (_baselineFactory.TryFindBaselineInDirectory(targetPath, out var baseline, out usedPath))
+        if (_baselineFactory.TryFindBaselineInDirectory(
+                target.Location.TargetPath, 
+                b => IsBaselineCompatible(b, target),
+                out var baseline,
+                out usedPath))
         {
             _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying local baseline file '{Path}'.", usedPath);
             return baseline;
         }
-        _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", targetPath);
+        _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", target.Location.TargetPath);
         usedPath = null;
         return VerificationBaseline.Empty;
+    }
+
+
+    private static bool IsBaselineCompatible(VerificationBaseline baseline, VerificationTarget target)
+    {
+        return baseline.Target?.Engine == target.Engine;
+    }
+
+    private static bool ShouldUseBaseline(VerificationBaseline baseline, string baselinePath)
+    {
+        var sb = new StringBuilder("Found baseline ");
+        if (baseline.Target is not null) 
+            sb.Append($"for '{baseline.Target.Name}' ");
+
+        sb.Append($"at '{baselinePath}'.");
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine(sb.ToString());
+
+        return ConsoleUtilities.UserYesNoQuestion("Do you want to use it?");
     }
 }

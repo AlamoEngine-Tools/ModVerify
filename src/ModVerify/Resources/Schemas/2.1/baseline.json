@@ -44,6 +44,9 @@
         },
         "location": {
           "$ref": "#/$defs/location"
+        },
+        "isGame": {
+          "type": "boolean"
         }
       },
       "required": [

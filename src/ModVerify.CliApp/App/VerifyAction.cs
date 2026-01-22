@@ -47,8 +47,27 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
         var baseline = baselineSelector.SelectBaseline(verificationTarget, out var baselinePath);
         if (!baseline.IsEmpty)
         {
-            // TODO: Handle nullable path
-            Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using baseline '{Baseline}'", baselinePath);
+            if (string.IsNullOrEmpty(baselinePath))
+            {
+                if (baseline.Target?.Engine is null)
+                    Logger?.LogDebug("Target for default baseline should not be null!");
+                Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+                    "Using default baseline for engine '{Engine}'",
+                    baseline.Target?.Engine);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(baseline.Target?.Name))
+                {
+                    Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+                        "Using baseline '{Baseline}'", baselinePath);
+                }
+                else
+                {
+                    Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+                        "Using baseline for target {Target} from location '{Baseline}'", baseline.Target.Name, baselinePath);
+                }
+            }
         }
         return baseline;
     }

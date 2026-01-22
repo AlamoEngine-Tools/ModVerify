@@ -21,6 +21,7 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider) : IBasel
 
     public bool TryFindBaselineInDirectory(
         string directory,
+        Predicate<VerificationBaseline> baselineSelector,
         [NotNullWhen(true)] out VerificationBaseline? baseline,
         [NotNullWhen(true)] out string? path)
     {
@@ -48,9 +49,17 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider) : IBasel
         {
             try
             {
-                baseline = CreateBaselineFromFilePath(jsonFile);
+                var parsedBaseline = CreateBaselineFromFilePath(jsonFile);
+                if (!baselineSelector(parsedBaseline))
+                {
+                    _logger?.LogDebug("Baseline '{JsonFile}' was denied by selector.", jsonFile);
+                    continue;
+                }
+
+                baseline = parsedBaseline;
                 path = _fileSystem.Path.GetFullPath(jsonFile);
-                _logger?.LogDebug("Create baseline from file: {JsonFile}", jsonFile);
+
+                _logger?.LogDebug("Create baseline from file '{JsonFile}'", jsonFile);
                 return true;
             }
             catch (InvalidBaselineException e)
@@ -80,7 +89,8 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider) : IBasel
             Engine = target.Engine,
             Name = target.Name,
             Version = target.Version,
-            Location = settings.WriteLocations ? MaskUsername(target.Location) : null
+            Location = settings.WriteLocations ? MaskUsername(target.Location) : null,
+            IsGame = target.IsGame,
         };
 
         return new VerificationBaseline(settings.ReportSettings.MinimumReportSeverity, errors, baselineTarget);
