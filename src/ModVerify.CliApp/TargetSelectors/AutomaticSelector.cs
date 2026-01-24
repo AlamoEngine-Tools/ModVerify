@@ -16,6 +16,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Abstractions;
 using System.Linq;
+using AnakinRaW.CommonUtilities.FileSystem;
 
 namespace AET.ModVerify.App.TargetSelectors;
 
@@ -54,30 +55,7 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
                 "Unable to find games based of the specified target path '{Path}'. Consider specifying all paths manually.", targetPath);
             throw;
         }
-
-        // In a Steam scenario, there is a chance that the user specified a FoC targetPath,
-        // but requested EaW engine. This does not make sense, and we need to check against this.
-        if (finderResult.Game.Platform == GamePlatform.SteamGold && engine is GameEngineType.Eaw)
-        {
-            var targetIsFoc = GameFinderService.TryFindGame(targetPath,
-                new GameFinderSettings { Engine = GameEngineType.Foc, InitMods = false, SearchFallbackGame = false },
-                out _);
-            if (targetIsFoc)
-                ThrowEngineNotSupported(engine.Value, targetPath);
-        }
-
-        if (engine.HasValue)
-        {
-            if (finderResult.Game.Type.ToEngineType() != engine.Value)
-            {
-                if (finderResult.FallbackGame?.Type.ToEngineType() != engine)
-                {
-                    throw new InvalidOperationException();
-                }
-            }
-        }
         
-
         GameLocations locations;
 
         var targetObject = GetAttachedModOrGame(finderResult, targetPath, engine);
@@ -113,24 +91,10 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
         // If the target is the game directory itself.
         if (targetFullPath.Equals(finderResult.Game.Directory.FullName, StringComparison.OrdinalIgnoreCase)) 
             target = finderResult.Game;
-        else if (finderResult.FallbackGame is not null && targetFullPath.Equals(finderResult.FallbackGame.Directory.FullName, StringComparison.OrdinalIgnoreCase))
-        {
-            // The game detection identified both Foc and Eaw because either Steam is installed or requestedEngineType was not specified.
-            // The requested path points to a EaW installation.
-            Debug.Assert(finderResult.FallbackGame.Type is GameType.Eaw);
-            target = finderResult.FallbackGame;
-        }
 
         target ??= GetMatchingModFromGame(finderResult.Game, targetFullPath, requestedEngineType) ??
                    GetMatchingModFromGame(finderResult.FallbackGame, targetFullPath, requestedEngineType);
-
-
-        if (target is not null)
-        {
-            if (!IsEngineTypeSupported(requestedEngineType, target.Game.Type))
-                ThrowEngineNotSupported(requestedEngineType.Value, targetPath);
-        }
-
+        
         return target;
     }
 
@@ -141,9 +105,9 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
         IReadOnlyList<string> additionalFallbackPaths,
         out IPhysicalMod mod)
     {
-        var game = GetTargetGame(gameResult, requestedGameEngine);
-        Debug.Assert(game is not null);
-
+        // Because requestedGameEngine must be set, GameFinderService already ensures
+        // gameResult.Game is the correct type.
+        var game = gameResult.Game;
         var modFinder = ServiceProvider.GetRequiredService<IModFinder>();
         var modRef = modFinder.FindMods(game, _fileSystem.DirectoryInfo.New(modPath)).FirstOrDefault();
 
@@ -160,7 +124,7 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
         return GetLocations(mod, gameResult.FallbackGame, additionalFallbackPaths);
     }
 
-    private static IPhysicalMod? GetMatchingModFromGame(IGame? game, string modPath, GameEngineType? requestedEngineType)
+    private IPhysicalMod? GetMatchingModFromGame(IGame? game, string modPath, GameEngineType? requestedEngineType)
     {
         if (game is null || !IsEngineTypeSupported(requestedEngineType, game.Type))
             return null;
@@ -169,9 +133,9 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
         {
             if (mod is not IPhysicalMod physicalMod) 
                 continue;
-            
-            if (physicalMod.Directory.FullName.Equals(modPath, StringComparison.OrdinalIgnoreCase))
-                return physicalMod;
+
+            if (_fileSystem.Path.AreEqual(modPath, physicalMod.Directory.FullName))
+                return  physicalMod;
         }
 
         return null;
@@ -179,8 +143,6 @@ internal class AutomaticSelector(IServiceProvider serviceProvider) : Verificatio
 
     private static IGame? GetTargetGame(GameFinderResult finderResult, GameEngineType? requestedEngine)
     {
-        if (!requestedEngine.HasValue)
-            return null;
         if (finderResult.Game.Type.ToEngineType() == requestedEngine)
             return finderResult.Game;
         if (finderResult.FallbackGame is not null && finderResult.FallbackGame.Type.ToEngineType() == requestedEngine)

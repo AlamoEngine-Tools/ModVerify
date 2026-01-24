@@ -80,30 +80,16 @@ public class AutomaticSelectorTest : CommonTestBase
 
     [Theory]
     [MemberData(nameof(GITestUtilities.RealGameIdentities), MemberType = typeof(GITestUtilities))]
-    public void Test_SelectTarget_FromGamePath_OppositeEngine(IGameIdentity identity)
+    public void Test_SelectTarget_FromGamePath_OppositeEngine_ThrowsGameNotFoundException(IGameIdentity identity)
     {
-        if (identity.Platform is GamePlatform.SteamGold)
-        {
-            TestSelectTarget(identity,
-                i => i,
-                gi => new VerificationTargetSettings
-                {
-                    TargetPath = gi.PlayableObject.Directory.FullName,
-                    Engine = gi.PlayableObject.Game.Type.Opposite().ToEngineType(),
-                },
-                typeof(ArgumentException));
-        }
-        else
-        {
-            TestSelectTarget(identity,
-                i => i,
-                gi => new VerificationTargetSettings
-                {
-                    TargetPath = gi.PlayableObject.Directory.FullName,
-                    Engine = gi.PlayableObject.Game.Type.Opposite().ToEngineType(),
-                },
-                typeof(GameNotFoundException));
-        }
+        TestSelectTarget(identity,
+            i => i,
+            gi => new VerificationTargetSettings
+            {
+                TargetPath = gi.PlayableObject.Directory.FullName,
+                Engine = gi.PlayableObject.Game.Type.Opposite().ToEngineType(),
+            },
+            typeof(GameNotFoundException));
     }
 
     [Theory]
@@ -132,10 +118,6 @@ public class AutomaticSelectorTest : CommonTestBase
     [MemberData(nameof(GITestUtilities.RealGameIdentities), MemberType = typeof(GITestUtilities))]
     public void Test_SelectTarget_ModInModsDir_WrongGameEngine_Throws(IGameIdentity identity)
     {
-        var expectedExceptionType = identity.Platform == GamePlatform.SteamGold
-            ? typeof(ArgumentException)
-            : typeof(GameNotFoundException);
-        
         TestSelectTarget(
             identity,
             gameInstallation => gameInstallation.InstallMod("MyMod", false),
@@ -143,7 +125,7 @@ public class AutomaticSelectorTest : CommonTestBase
             {
                 TargetPath = ti.PlayableObject.Directory.FullName,
                 Engine = ti.GameInstallation.Game.Type.Opposite().ToEngineType()
-            }, expectedExceptionType);
+            }, typeof(ArgumentException));
     }
 
 
@@ -277,10 +259,6 @@ public class AutomaticSelectorTest : CommonTestBase
     [MemberData(nameof(GITestUtilities.RealGameIdentities), MemberType = typeof(GITestUtilities))]
     public void Test_SelectTarget_DetachedMod_NoEngineSpecified_Throws(IGameIdentity identity)
     {
-        var exceptionType = identity.Platform is not GamePlatform.SteamGold
-            ? typeof(GameNotFoundException)
-            : typeof(ArgumentException);
-
         TestSelectTarget(
             identity,
             gameInstallation =>
@@ -294,18 +272,13 @@ public class AutomaticSelectorTest : CommonTestBase
                 TargetPath = ti.PlayableObject.Directory.FullName,
                 Engine = null // No Engine means we cannot proceed
             },
-            expectedExceptionType: exceptionType);
+            expectedExceptionType: typeof(ArgumentException));
     }
 
     [Theory]
     [MemberData(nameof(GITestUtilities.RealGameIdentities), MemberType = typeof(GITestUtilities))]
     public void Test_SelectTarget_DetachedMod(IGameIdentity identity)
     {
-        // Currently, only Steam is supported for detached mods.
-        var exceptionType = identity.Platform is not GamePlatform.SteamGold
-            ? typeof(GameNotFoundException)
-            : null;
-
         TestSelectTarget(
             identity,
             gameInstallation =>
@@ -318,8 +291,7 @@ public class AutomaticSelectorTest : CommonTestBase
             {
                 TargetPath = ti.PlayableObject.Directory.FullName,
                 Engine = identity.Type.ToEngineType()
-            },
-            expectedExceptionType: exceptionType);
+            });
     }
 
     [Theory]
@@ -390,20 +362,15 @@ public class AutomaticSelectorTest : CommonTestBase
             return;
         }
 
-        if (identity.Type == GameType.Foc && identity.Platform != GamePlatform.SteamGold)
-            Assert.Throws<NotImplementedException>(() => _selector.SelectTarget(settings));
+        var result = _selector.SelectTarget(settings);
+        Assert.Equal(overrideAssertData?.GameType ?? identity.Type, result.Engine.FromEngineType());
+        Assert.Equal(targetInstallation.PlayableObject.GetType(), result.Target!.GetType());
+        Assert.Equal(targetInstallation.PlayableObject.Directory.FullName, result.Locations.TargetPath);
+        
+        if (result.Engine == GameEngineType.Foc)
+            Assert.NotEmpty(result.Locations.FallbackPaths);
         else
-        {
-            var result = _selector.SelectTarget(settings);
-            Assert.Equal(overrideAssertData?.GameType ?? identity.Type, result.Engine.FromEngineType());
-            Assert.Equal(targetInstallation.PlayableObject.GetType(), result.Target!.GetType());
-            Assert.Equal(targetInstallation.PlayableObject.Directory.FullName, result.Locations.TargetPath);
-            
-            if (result.Engine == GameEngineType.Foc)
-                Assert.NotEmpty(result.Locations.FallbackPaths);
-            else
-                Assert.Empty(result.Locations.FallbackPaths);
-        }
+            Assert.Empty(result.Locations.FallbackPaths);
     }
 
     private (ITestingGameInstallation eaw, ITestingGameInstallation foc) InstallGames(GamePlatform platform)

@@ -3,13 +3,8 @@
   "target": {
     "name": "Forces of Corruption (SteamGold)",
     "engine": "Foc",
-    "location": {
-      "modPaths": [],
-      "gamePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\corruption",
-      "fallbackPaths": [
-        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\GameData"
-      ]
-    }
+    "isGame": true,
+    "version": "1.121.13.7360"
   },
   "minSeverity": "Information",
   "errors": [
