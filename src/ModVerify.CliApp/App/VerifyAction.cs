@@ -15,6 +15,7 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
 {
     protected override void PrintAction(VerificationTarget target)
     {
+        Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine($"Verifying {target.Name} for issues...");
         Console.WriteLine();

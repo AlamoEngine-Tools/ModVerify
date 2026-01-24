@@ -80,7 +80,9 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
                     out baseline, 
                     out baselinePath))
             {
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("No baseline found locally.");
+                Console.ResetColor();
                 baselinePath = null;
                 TryGetDefaultBaseline(verificationTarget.Engine, out baseline);
                 return baseline ?? VerificationBaseline.Empty;

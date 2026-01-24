@@ -18,6 +18,7 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
     
     protected override void PrintAction(VerificationTarget target)
     {
+        Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine($"Creating baseline for {target.Name}...");
         Console.WriteLine();

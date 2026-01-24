@@ -19,7 +19,7 @@ internal class ConsoleSelector(IServiceProvider serviceProvider) : VerificationT
         var targetObject = SelectPlayableObject(gameResult); 
         var engine = targetObject.Game.Type.ToEngineType();
         var locations = GetLocations(targetObject, gameResult.FallbackGame, settings.AdditionalFallbackPaths);
-        return new(locations, engine, targetObject);
+        return new SelectionResult(locations, engine, targetObject);
     }
 
     private static IPhysicalPlayableObject SelectPlayableObject(GameFinderResult finderResult)
@@ -30,6 +30,9 @@ internal class ConsoleSelector(IServiceProvider serviceProvider) : VerificationT
         list.Add(finderResult.Game);
 
         Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("Listing Games and Mods:");
+        Console.ResetColor();
         ConsoleUtilities.WriteHorizontalLine();
         Console.WriteLine($"0: {game.Name}");
 
