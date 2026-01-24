@@ -68,7 +68,7 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
             Logger?.LogError(ex, "Game not found: {Message}", ex.Message);
             return ex.HResult;
         }
-
+        
         PrintAction(verificationTarget);
 
         var allErrors = await VerifyTargetAsync(verificationTarget)

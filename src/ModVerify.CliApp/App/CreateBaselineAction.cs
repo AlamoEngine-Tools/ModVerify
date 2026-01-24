@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
-using AET.ModVerify.App.Reporting;
+﻿using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
+using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace AET.ModVerify.App;
 
@@ -19,7 +20,8 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
     {
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine($"Creating baseline for {target.Name}...");
-        Console.ResetColor();
+        Console.WriteLine();
+        ModVerifyConsoleUtilities.WriteSelectedTarget(target);
         Console.WriteLine();
     }
 

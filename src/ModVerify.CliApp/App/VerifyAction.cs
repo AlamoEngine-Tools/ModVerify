@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AET.ModVerify.App.Reporting;
+﻿using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.Reporting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AET.ModVerify.App.Utilities;
 
 namespace AET.ModVerify.App;
 
@@ -16,7 +17,8 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
     {
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine($"Verifying {target.Name} for issues...");
-        Console.ResetColor();
+        Console.WriteLine();
+        ModVerifyConsoleUtilities.WriteSelectedTarget(target);
         Console.WriteLine();
     }
 
@@ -47,27 +49,10 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
         var baseline = baselineSelector.SelectBaseline(verificationTarget, out var baselinePath);
         if (!baseline.IsEmpty)
         {
-            if (string.IsNullOrEmpty(baselinePath))
-            {
-                if (baseline.Target?.Engine is null)
-                    Logger?.LogDebug("Target for default baseline should not be null!");
-                Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
-                    "Using default baseline for engine '{Engine}'",
-                    baseline.Target?.Engine);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(baseline.Target?.Name))
-                {
-                    Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
-                        "Using baseline '{Baseline}'", baselinePath);
-                }
-                else
-                {
-                    Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
-                        "Using baseline for target {Target} from location '{Baseline}'", baseline.Target.Name, baselinePath);
-                }
-            }
+            Console.WriteLine();
+            ModVerifyConsoleUtilities.WriteBaselineInfo(baseline, baselinePath);
+            Logger?.LogDebug("Using baseline {Baseline} from location '{Path}'", baseline.ToString(), baselinePath);
+            Console.WriteLine();
         }
         return baseline;
     }

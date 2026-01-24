@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Runtime.InteropServices;
 using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
+using PG.StarWarsGame.Infrastructure.Clients;
+using PG.StarWarsGame.Infrastructure.Clients.Utilities;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 using PG.StarWarsGame.Infrastructure.Services.Dependencies;
@@ -104,13 +107,30 @@ internal abstract class VerificationTargetSelectorBase : IVerificationTargetSele
         return mod ?? gameLocations.GamePath;
     }
 
-    protected static string? GetTargetVersion(IPhysicalPlayableObject? targetObject)
+    protected string? GetTargetVersion(IPhysicalPlayableObject? targetObject)
     {
-        if (targetObject is null)
-            return null;
-        
-        // TODO: Implement version retrieval from targetObject if possible
-        return null;
+        return targetObject switch
+        {
+            IMod mod => mod.Version?.ToString(),
+            IGame game => GetVersionFromGame(game),
+            _ => null
+        };
     }
 
+    private string? GetVersionFromGame(IGame game)
+    { 
+        var exeFile = GameExecutableFileUtilities.GetExecutableForGame(game, GameBuildType.Release);
+        if (exeFile is null)
+        {
+            Logger?.LogWarning(ModVerifyConstants.ConsoleEventId, 
+                "Unable to get game version of target path '{Path}'. Is this a game directory?",
+                game.Directory.FullName);
+            return null;
+        }
+
+        var versionInfo = FileSystem.FileVersionInfo.GetVersionInfo(exeFile.FullName);
+        var version =
+            $"{versionInfo.FileMajorPart}.{versionInfo.FileMinorPart}.{versionInfo.FileBuildPart}.{versionInfo.FilePrivatePart}";
+        return version;
+    }
 }
