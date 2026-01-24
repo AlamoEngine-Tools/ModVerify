@@ -18,17 +18,6 @@ using PG.StarWarsGame.Infrastructure.Services.Detection;
 
 namespace AET.ModVerify.App.GameFinder;
 
-internal sealed class GameFinderSettings
-{
-    internal static readonly GameFinderSettings Default = new();
-    
-    public bool InitMods { get; init; } = true;
-    
-    public bool SearchFallbackGame { get; init; } = true;
-
-    public GameEngineType? Engine { get; init; } = null;
-}
-
 internal class GameFinderService
 {
     private readonly IServiceProvider _serviceProvider;
