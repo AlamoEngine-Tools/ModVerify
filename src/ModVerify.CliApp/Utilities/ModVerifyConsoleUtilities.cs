@@ -60,7 +60,7 @@ internal static partial class ModVerifyConsoleUtilities
             ("Version", baseline.Version?.ToString(2) ?? "n/a"),
             ("Is Default", filePath is null),
             ("Minimum Severity", baseline.MinimumSeverity.ToString()),
-            ("Entries", baseline.Count.ToString()),
+            ("Entries", baseline.Count.ToString())
         ];
         if (!string.IsNullOrEmpty(filePath))
             baselineData.Add(("File Path", filePath));
@@ -72,14 +72,18 @@ internal static partial class ModVerifyConsoleUtilities
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
             Console.WriteLine("Baseline Target:");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            ConsoleUtilities.PrintAsTable(
-            [
-                ("Name", baseline.Target.Name), 
+
+            IList<(string, object)> targetData = [
+                ("Name", baseline.Target.Name),
                 ("Type", baseline.Target.IsGame ? "Game" : "Mod"),
                 ("Engine", baseline.Target.Engine),
                 ("Version", baseline.Target.Version ?? "n/a"),
-                ("Location", baseline.Target.Location?.TargetPath ?? "n/a"),
-            ], 120);
+            ];
+
+            if (baseline.Target.Location is not null)
+                targetData.Add(("Location", baseline.Target.Location.TargetPath));
+
+            ConsoleUtilities.PrintAsTable(targetData, 120);
         }
         Console.ResetColor();
     }
