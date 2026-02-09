@@ -57,13 +57,13 @@ public class GameFinderServiceTest : CommonTestBase
         var eaw = GameInfrastructureTesting.Game(identity, ServiceProvider);
         GameInfrastructureTesting.Registry(ServiceProvider).CreateInstalled(eaw.Game);
 
-        Assert.DoesNotThrowException(() => _finderService.FindGame(eaw.Game.Directory.FullName, new GameFinderSettings
+        Assert.DoesNotThrow(() => _finderService.FindGame(eaw.Game.Directory.FullName, new GameFinderSettings
         {
             Engine = GameEngineType.Eaw,
             SearchFallbackGame = true
         }));
 
-        Assert.DoesNotThrowException(() => _finderService.FindGame(eaw.Game.Directory.FullName, new GameFinderSettings
+        Assert.DoesNotThrow(() => _finderService.FindGame(eaw.Game.Directory.FullName, new GameFinderSettings
         {
             Engine = null,
             SearchFallbackGame = true
