@@ -23,8 +23,8 @@
 	  <None Remove="Database\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="2.1.48-gc48d70085a" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="2.1.48-gc48d70085a" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="3.0.1" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="3.0.1" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.9-g8fbf933acf" />
 		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="5.0.0" />
 	</ItemGroup>
