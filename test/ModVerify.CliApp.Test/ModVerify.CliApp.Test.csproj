@@ -15,7 +15,7 @@
 	<ItemGroup>
 		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Testing" Version="5.0.1" />
 		<PackageReference Include="AlamoEngineTools.SteamAbstraction.Testing" Version="5.0.1" />
-		<PackageReference Include="AnakinRaW.CommonUtilities.Testing" Version="13.0.9-g8fbf933acf" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.Testing" Version="13.0.1" />
 		<PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
