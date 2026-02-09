@@ -1,4 +1,5 @@
-﻿using AET.ModVerify.App.GameFinder;
+﻿#if Windows
+using AET.ModVerify.App.GameFinder;
 using AnakinRaW.CommonUtilities.Registry;
 using AnakinRaW.CommonUtilities.Testing.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,3 +71,4 @@ public class GameFinderServiceTest : CommonTestBase
         }));
     }
 }
+#endif

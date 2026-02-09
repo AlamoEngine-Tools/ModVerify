@@ -1,4 +1,5 @@
-﻿using AET.Modinfo.Model;
+﻿#if Windows
+using AET.Modinfo.Model;
 using AET.Modinfo.Spec.Steam;
 using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Settings;
@@ -404,3 +405,4 @@ public class AutomaticSelectorTest : CommonTestBase
         public GameType? GameType { get; init; }
     }
 }
+#endif
