@@ -132,7 +132,7 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
             suppressions = SuppressionList.Empty;
         else
         {
-            using var fileStream = _fileSystem.File.OpenRead(suppressionsFile);
+            using var fileStream = _fileSystem.File.OpenRead(suppressionsFile!);
             suppressions = SuppressionList.FromJson(fileStream);
             if (suppressions.Count > 0)
                 Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Using suppressions from '{Suppressions}'", suppressionsFile);
