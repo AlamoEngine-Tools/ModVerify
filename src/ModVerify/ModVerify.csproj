@@ -35,7 +35,7 @@
 	<ItemGroup>
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.1" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="13.0.1" />
-		<PackageReference Include="System.Text.Json" Version="10.0.2" />
+		<PackageReference Include="System.Text.Json" Version="10.0.3" />
 		<PackageReference Include="JsonSchema.Net" Version="9.0.0" />
 	</ItemGroup>
 
@@ -49,6 +49,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj" />
 		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.103" />
 	</ItemGroup>
 
 </Project>
