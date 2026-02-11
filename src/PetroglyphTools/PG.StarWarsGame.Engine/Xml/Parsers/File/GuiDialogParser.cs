@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
-using PG.Commons.Collections;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
@@ -49,7 +49,7 @@ internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserError
     private XmlComponentTextureData ParseTexture(XElement texture)
     {
         var componentId = GetTagName(texture);
-        var textures = new ValueListDictionary<string, string>();
+        var textures = new FrugalValueListDictionary<string, string>();
 
         foreach (var entry in texture.Elements()) 
             textures.Add(entry.Name.ToString(), PetroglyphXmlStringParser.Instance.Parse(entry));

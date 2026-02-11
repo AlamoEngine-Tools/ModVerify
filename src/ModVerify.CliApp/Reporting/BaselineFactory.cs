@@ -1,24 +1,31 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.IO.Abstractions;
+﻿using AET.ModVerify.App.Settings;
 using AET.ModVerify.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Threading.Tasks;
+using PG.StarWarsGame.Engine;
+using AET.ModVerify.App.Utilities;
 
 namespace AET.ModVerify.App.Reporting;
 
-internal sealed class BaselineFactory(IServiceProvider serviceProvider)
+internal sealed class BaselineFactory(IServiceProvider serviceProvider) : IBaselineFactory
 {
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(BaselineFactory));
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public bool TryCreateBaseline(
+    public bool TryFindBaselineInDirectory(
         string directory,
-        out VerificationBaseline baseline,
+        Predicate<VerificationBaseline> baselineSelector,
+        [NotNullWhen(true)] out VerificationBaseline? baseline,
         [NotNullWhen(true)] out string? path)
     {
-        baseline = VerificationBaseline.Empty;
+        baseline = null;
         path = null;
 
         if (!_fileSystem.Directory.Exists(directory))
@@ -42,9 +49,17 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
         {
             try
             {
-                baseline = CreateBaselineFromFilePath(jsonFile);
-                path = jsonFile;
-                _logger?.LogDebug("Create baseline from file: {JsonFile}", jsonFile);
+                var parsedBaseline = CreateBaselineFromFilePath(jsonFile);
+                if (!baselineSelector(parsedBaseline))
+                {
+                    _logger?.LogDebug("Baseline '{JsonFile}' was denied by selector.", jsonFile);
+                    continue;
+                }
+
+                baseline = parsedBaseline;
+                path = _fileSystem.Path.GetFullPath(jsonFile);
+
+                _logger?.LogDebug("Create baseline from file '{JsonFile}'", jsonFile);
                 return true;
             }
             catch (InvalidBaselineException e)
@@ -54,13 +69,48 @@ internal sealed class BaselineFactory(IServiceProvider serviceProvider)
             }
         }
 
+        baseline = null;
         path = null;
         return false;
     }
 
-    public VerificationBaseline CreateBaseline(string filePath)
+    public VerificationBaseline ParseBaseline(string filePath)
     { 
         return CreateBaselineFromFilePath(filePath);
+    }
+
+    public VerificationBaseline CreateBaseline(
+        VerificationTarget target,
+        AppBaselineSettings settings,
+        IEnumerable<VerificationError> errors)
+    {
+        var baselineTarget = new BaselineVerificationTarget
+        {
+            Engine = target.Engine,
+            Name = target.Name,
+            Version = target.Version,
+            Location = settings.WriteLocations ? MaskUsername(target.Location) : null,
+            IsGame = target.IsGame,
+        };
+
+        return new VerificationBaseline(settings.ReportSettings.MinimumReportSeverity, errors, baselineTarget);
+    }
+
+    private static GameLocations MaskUsername(GameLocations targetLocation)
+    {
+        return new GameLocations(
+            targetLocation.ModPaths.Select(PathUtilities.MaskUsername).ToList(),
+            PathUtilities.MaskUsername(targetLocation.GamePath),
+            targetLocation.FallbackPaths.Select(PathUtilities.MaskUsername).ToList());
+    }
+
+    public async Task WriteBaselineAsync(VerificationBaseline baseline, string filePath)
+    {
+#if NET
+        await
+#endif
+        using var fs = _fileSystem.FileStream.New(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await baseline.ToJsonAsync(fs);
     }
 
     private VerificationBaseline CreateBaselineFromFilePath(string baselineFile)

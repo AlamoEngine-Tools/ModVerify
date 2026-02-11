@@ -4,7 +4,11 @@ using System;
 using System.IO.Abstractions;
 using ModVerify.CliApp.Test.TestData;
 using Testably.Abstractions;
+using Xunit;
+#if NETFRAMEWORK
 using ModVerify.CliApp.Test.Utilities;
+#endif
+
 
 namespace ModVerify.CliApp.Test;
 

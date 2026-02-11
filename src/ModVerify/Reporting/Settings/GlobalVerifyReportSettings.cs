@@ -1,8 +1,10 @@
 ﻿namespace AET.ModVerify.Reporting.Settings;
 
-public record GlobalVerifyReportSettings : VerifyReportSettings
-{
-    public VerificationBaseline Baseline { get; init; } = VerificationBaseline.Empty;
+//public record GlobalVerifyReportSettings
+//{
+//    //public VerificationSeverity MinimumReportSeverity { get; init; } = VerificationSeverity.Information;
 
-    public SuppressionList Suppressions { get; init; } = SuppressionList.Empty;
-}
+//    public VerificationBaseline Baseline { get; init; } = VerificationBaseline.Empty;
+
+//    public SuppressionList Suppressions { get; init; } = SuppressionList.Empty;
+//}

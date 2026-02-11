@@ -23,7 +23,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 {
     private readonly IMegFileService _megFileService;
     private readonly IMegFileExtractor _megExtractor;
-    private readonly PetroglyphDataEntryPathNormalizer _megPathNormalizer;
+    private readonly PetroglyphMegDataEntryPathNormalizer _megPathNormalizer;
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
@@ -56,7 +56,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         _megFileService = serviceProvider.GetRequiredService<IMegFileService>();
         _virtualMegBuilder = serviceProvider.GetRequiredService<IVirtualMegArchiveBuilder>();
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-        _megPathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
+        _megPathNormalizer = new EmpireAtWarMegDataEntryPathNormalizer();
         _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
         _errorReporter = errorReporter;
 

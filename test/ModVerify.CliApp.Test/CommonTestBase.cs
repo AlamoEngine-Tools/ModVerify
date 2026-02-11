@@ -1,29 +1,22 @@
-﻿using System;
-using System.IO.Abstractions;
+﻿using AET.SteamAbstraction;
 using AnakinRaW.CommonUtilities.Hashing;
+using AnakinRaW.CommonUtilities.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons;
-using Testably.Abstractions.Testing;
+using PG.StarWarsGame.Infrastructure;
+using PG.StarWarsGame.Infrastructure.Clients.Steam;
 
 namespace ModVerify.CliApp.Test;
 
-public abstract class CommonTestBase
+public abstract class CommonTestBase : TestBaseWithFileSystem
 {
-    protected readonly MockFileSystem FileSystem = new();
-    protected readonly IServiceProvider ServiceProvider;
-
-    protected CommonTestBase()
+    protected override void SetupServices(IServiceCollection serviceCollection)
     {
-        var sc = new ServiceCollection();
-        sc.AddSingleton<IHashingService>(sp => new HashingService(sp));
-        sc.AddSingleton<IFileSystem>(FileSystem);
-        PetroglyphCommons.ContributeServices(sc);
-        // ReSharper disable once VirtualMemberCallInConstructor
-        SetupServices(sc);
-        ServiceProvider = sc.BuildServiceProvider();
-    }
-
-    protected virtual void SetupServices(ServiceCollection serviceCollection)
-    {
+        base.SetupServices(serviceCollection);
+        serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
+        PetroglyphCommons.ContributeServices(serviceCollection);
+        PetroglyphGameInfrastructure.InitializeServices(serviceCollection);
+        SteamAbstractionLayer.InitializeServices(serviceCollection);
+        SteamPetroglyphStarWarsGameClients.InitializeServices(serviceCollection);
     }
 }

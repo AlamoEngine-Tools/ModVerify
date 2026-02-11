@@ -12,7 +12,6 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
 {
     public const string FileName = "VerificationResult.json";
 
-
     public override async Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
     {
         var report = new JsonVerificationReport(errors.Select(x => new JsonVerificationError(x)));

@@ -192,7 +192,7 @@ internal partial class GameRepository
             return null;
 
         if (fileFoundInfo.InMeg)
-            return _megExtractor.GetFileData(fileFoundInfo.MegDataEntryReference.Location);
+            return _megExtractor.GetData(fileFoundInfo.MegDataEntryReference.Location);
 
         return FileSystem.FileStream.New(fileFoundInfo.FilePath.ToString(), FileMode.Open, FileAccess.Read, FileShare.Read);
     }

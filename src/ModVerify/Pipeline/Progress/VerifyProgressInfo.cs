@@ -4,5 +4,5 @@ public struct VerifyProgressInfo
 {
     public bool IsDetailed { get; init; }
 
-    public int TotalVerifiers { get; internal set; }
+    public int TotalVerifiers { get; internal init; }
 }

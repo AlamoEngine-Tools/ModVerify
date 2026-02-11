@@ -3,6 +3,8 @@ using System.Reflection;
 using AnakinRaW.ApplicationBase.Environment;
 #if !NET
 using System;
+using System.IO;
+using System.Net;
 using System.Collections.Generic;
 using AnakinRaW.AppUpdaterFramework.Configuration;
 using AnakinRaW.CommonUtilities.DownloadManager.Configuration;
@@ -26,15 +28,31 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
     public override ICollection<Uri> UpdateMirrors { get; } = new List<Uri>
     {
 #if DEBUG
-        new("C:\\Test\\ModVerify"),    
+        new(CreateDebugPath()),    
 #endif
         new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}")
     };
 
-    public override string UpdateRegistryPath => $@"SOFTWARE\{ModVerifyConstants.ModVerifyToolPath}\Update";
-    
-    protected override UpdateConfiguration CreateUpdateConfiguration()
+    private static string CreateDebugPath()
     {
+        var dir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../../.."));
+        return Path.Combine(dir, ".local_deploy/server");
+    }
+
+    public override string UpdateRegistryPath => $@"SOFTWARE\{ModVerifyConstants.ModVerifyToolPath}\Update";
+
+#if NETFRAMEWORK
+    static ModVerifyAppEnvironment()
+    {
+        // For some unknown reason, packaging dependencies into the app, may alter the used security protocols...
+        // This reverts the changes and forces secure settings
+        if (ServicePointManager.SecurityProtocol != SecurityProtocolType.SystemDefault)
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls12;
+    }
+#endif
+
+    protected override UpdateConfiguration CreateUpdateConfiguration()
+    { 
         return new UpdateConfiguration
         {
             DownloadLocation = FileSystem.Path.Combine(ApplicationLocalPath, "downloads"),

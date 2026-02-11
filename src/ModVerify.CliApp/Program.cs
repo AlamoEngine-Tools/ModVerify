@@ -40,6 +40,7 @@ using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using AET.ModVerify.App.Reporting;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
 
@@ -61,21 +62,22 @@ internal class Program : SelfUpdateableAppLifecycle
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
     private static readonly CompiledExpression PrintToConsoleExpression = SerilogExpression.Compile($"EventId.Id = {ModVerifyConstants.ConsoleEventIdValue}");
 
-    private static ModVerifyOptionsContainer _optionsContainer = null!;
-
-    protected override async Task<int> InitializeAppAsync(IReadOnlyList<string> args)
+    private AppSettingsBase? _modVerifyAppSettings;
+    private ApplicationUpdateOptions _updateOptions = new();
+    private bool _offlineMode;
+    private bool _verboseMode;
+    private bool _isLaunchedWithoutArguments;
+    
+    protected override async Task<int> InitializeAppAsync(IReadOnlyList<string> args, IServiceProvider bootstrapServices)
     {
+        await base.InitializeAppAsync(args, bootstrapServices);
+        
         ModVerifyConsoleUtilities.WriteHeader(ApplicationEnvironment.AssemblyInfo.InformationalVersion);
 
-        await base.InitializeAppAsync(args);
-
+        ModVerifyOptionsContainer parsedOptions;
         try
         {
-            var settings = new ModVerifyOptionsParser(ApplicationEnvironment, BootstrapLoggerFactory).Parse(args);
-            if (!settings.HasOptions)
-                return 0xA0;
-            _optionsContainer = settings;
-            return 0;
+            parsedOptions = new ModVerifyOptionsParser(ApplicationEnvironment, BootstrapLoggerFactory).Parse(args);
         }
         catch (Exception e)
         {
@@ -83,6 +85,41 @@ internal class Program : SelfUpdateableAppLifecycle
             ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
             return e.HResult;
         }
+
+        if (!parsedOptions.HasOptions)
+            return ModVerifyConstants.ErrorBadArguments;
+
+        if (parsedOptions.UpdateOptions is not null)
+            _updateOptions = parsedOptions.UpdateOptions;
+
+        if (parsedOptions.ModVerifyOptions?.Verbose is true || parsedOptions.UpdateOptions?.Verbose is true)
+            _verboseMode = true;
+
+        if (parsedOptions.ModVerifyOptions is null)
+            return ModVerifyConstants.Success;
+
+        _offlineMode = parsedOptions.ModVerifyOptions.OfflineMode;
+        _isLaunchedWithoutArguments = parsedOptions.ModVerifyOptions.LaunchedWithoutArguments();
+
+        try
+        {
+            _modVerifyAppSettings = new SettingsBuilder(bootstrapServices)
+                .BuildSettings(parsedOptions.ModVerifyOptions);
+        }
+        catch (AppArgumentException e)
+        {
+            Logger?.LogCritical(e, "Invalid arguments specified by the user: {Message}", e.Message);
+            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e.Message);
+            return e.HResult;
+        }
+        catch (Exception e)
+        {
+            Logger?.LogCritical(e, "Failed to create settings form commandline arguments: {Message}", e.Message);
+            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
+            return e.HResult;
+        }
+
+        return ModVerifyConstants.Success;
     }
 
     protected override void CreateAppServices(IServiceCollection services, IReadOnlyList<string> args)
@@ -106,8 +143,8 @@ internal class Program : SelfUpdateableAppLifecycle
                 sp => new CosturaApplicationProductService(ApplicationEnvironment, sp),
                 sp => new JsonManifestLoader(sp));
         }
-
-        if (_optionsContainer.ModVerifyOptions is null)
+        
+        if (_modVerifyAppSettings is null)
             return;
 
         SteamAbstractionLayer.InitializeServices(services);
@@ -122,10 +159,11 @@ internal class Program : SelfUpdateableAppLifecycle
         PetroglyphEngineServiceContribution.ContributeServices(services);
         services.RegisterVerifierCache();
 
-
+        services.AddSingleton<IBaselineFactory>(sp => new BaselineFactory(sp));
+        
         SetupVerifyReporting(services);
 
-        if (_optionsContainer.ModVerifyOptions.OfflineMode)
+        if (_offlineMode)
         {
             services.AddSingleton<IModNameResolver>(sp => new OfflineModNameResolver(sp));
             services.AddSingleton<IModGameTypeResolver>(sp => new OfflineModGameTypeResolver(sp));
@@ -157,59 +195,39 @@ internal class Program : SelfUpdateableAppLifecycle
     protected override async Task<int> RunAppAsync(string[] args, IServiceProvider appServiceProvider)
     {
         var result = await HandleUpdate(appServiceProvider);
-        if (result != 0 || _optionsContainer.ModVerifyOptions is null)
+        if (result != 0 || _modVerifyAppSettings is null)
             return result;
-
-        ModVerifyAppSettings modVerifySettings;
-
-        try
-        {
-            modVerifySettings = new SettingsBuilder(appServiceProvider).BuildSettings(_optionsContainer.ModVerifyOptions);
-        }
-        catch (Exception e)
-        {
-            Logger?.LogCritical(e, "Failed to create settings form commandline arguments: {EMessage}", e.Message);
-            ConsoleUtilities.WriteApplicationFatalError(ModVerifyConstants.AppNameString, e);
-            return e.HResult;
-        }
-
-        return await new ModVerifyApplication(modVerifySettings, appServiceProvider).Run().ConfigureAwait(false);
+        return await new ModVerifyApplication(_modVerifyAppSettings, appServiceProvider).RunAsync().ConfigureAwait(false);
     }
 
     private void SetupVerifyReporting(IServiceCollection serviceCollection)
     {
-        var options = _optionsContainer.ModVerifyOptions;
-        Debug.Assert(options is not null);
+        Debug.Assert(_modVerifyAppSettings is not null);
 
+        var verifySettings = _modVerifyAppSettings as AppVerifySettings;
 
-        var verifyVerb = options as VerifyVerbOption;
-
-        // Console should be in minimal summary mode if we are not in verify mode.
-        var printOnlySummary = verifyVerb is null;
-        
-        serviceCollection.RegisterConsoleReporter(new VerifyReportSettings
+        // Console should be in minimal summary mode if we are in a different mode than verify.
+        serviceCollection.RegisterConsoleReporter(new ReporterSettings
         {
-            MinimumReportSeverity = VerificationSeverity.Error
-        }, printOnlySummary);
+            MinimumReportSeverity = verifySettings?.VerifyPipelineSettings.FailFastSettings.IsFailFast is true
+                ? VerificationSeverity.Information 
+                : VerificationSeverity.Error
+        }, summaryOnly: verifySettings is null);
 
-        if (verifyVerb == null)
+        if (verifySettings == null)
             return;
 
-        var outputDirectory = Environment.CurrentDirectory;
-        
-        if (!string.IsNullOrEmpty(verifyVerb.OutputDirectory))
-            outputDirectory = FileSystem.Path.GetFullPath(FileSystem.Path.Combine(Environment.CurrentDirectory, verifyVerb.OutputDirectory!));
-
+        var outputDirectory = verifySettings.ReportDirectory;
         serviceCollection.RegisterJsonReporter(new JsonReporterSettings
         {
             OutputDirectory = outputDirectory!,
-            MinimumReportSeverity = options.MinimumSeverity
+            MinimumReportSeverity = _modVerifyAppSettings.ReportSettings.MinimumReportSeverity
         });
 
         serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
         {
             OutputDirectory = outputDirectory!,
-            MinimumReportSeverity = options.MinimumSeverity
+            MinimumReportSeverity = _modVerifyAppSettings.ReportSettings.MinimumReportSeverity
         });
     }
 
@@ -224,7 +242,7 @@ internal class Program : SelfUpdateableAppLifecycle
         loggingBuilder.AddDebug();
 #endif
 
-        if (_optionsContainer.ModVerifyOptions?.Verbose == true || _optionsContainer.UpdateOptions?.Verbose == true)
+        if (_verboseMode)
         {
             logLevel = LogEventLevel.Verbose;
             loggingBuilder.AddDebug();
@@ -297,31 +315,30 @@ internal class Program : SelfUpdateableAppLifecycle
 
     private async Task<int> HandleUpdate(IServiceProvider serviceProvider)
     {
-        var updateOptions = _optionsContainer.UpdateOptions ?? new ApplicationUpdateOptions();
+        if (_offlineMode)
+        {
+            Logger?.LogTrace("Running in offline mode. There will be nothing to update.");
+            return ModVerifyConstants.Success;
+        }
+
         ModVerifyUpdateMode updateMode;
         
-        if (_optionsContainer.ModVerifyOptions is not null)
-        {
-            if (_optionsContainer.ModVerifyOptions.OfflineMode)
-            {
-                Logger?.LogTrace("Running in offline mode. There will be nothing to update.");
-                return 0;
-            }
-
-            updateMode = _optionsContainer.ModVerifyOptions.LaunchedWithoutArguments()
-                ? ModVerifyUpdateMode.InteractiveUpdate
-                : ModVerifyUpdateMode.CheckOnly;
-        }
+        if (_isLaunchedWithoutArguments)
+            updateMode = ModVerifyUpdateMode.InteractiveUpdate;
         else
-            updateMode = ModVerifyUpdateMode.AutoUpdate;
-
+        {
+            updateMode = _modVerifyAppSettings is not null 
+                ? ModVerifyUpdateMode.CheckOnly 
+                : ModVerifyUpdateMode.AutoUpdate;
+        }
+        
         try
         {
             Logger?.LogDebug("Running update with mode '{ModVerifyUpdateMode}'", updateMode);
             var modVerifyUpdater = new ModVerifyUpdater(serviceProvider);
-            await modVerifyUpdater.RunUpdateProcedure(updateOptions, updateMode).ConfigureAwait(false);
+            await modVerifyUpdater.RunUpdateProcedure(_updateOptions, updateMode).ConfigureAwait(false);
             Logger?.LogDebug("Update procedure completed successfully.");
-            return 0;
+            return ModVerifyConstants.Success;
         }
         catch (Exception e)
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
-using PG.Commons.Collections;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Tags;
@@ -12,7 +12,7 @@ using PG.StarWarsGame.Files.XML.Parsers;
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
 public sealed class CommandBarComponentParser(
-    IReadOnlyValueListDictionary<Crc32, CommandBarComponentData> parsedElements,
+    IReadOnlyFrugalValueListDictionary<Crc32, CommandBarComponentData> parsedElements,
     IServiceProvider serviceProvider,
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<CommandBarComponentData>(parsedElements, serviceProvider, errorReporter)

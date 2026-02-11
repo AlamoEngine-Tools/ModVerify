@@ -25,18 +25,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Schemas\2.0\baseline.json" />
+	  <None Remove="Resources\Schemas\2.1\baseline.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Schemas\2.0\baseline.json" />
+	  <EmbeddedResource Include="Resources\Schemas\2.1\baseline.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.9" />
-		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.3.9" />
-		<PackageReference Include="System.Text.Json" Version="10.0.0" />
-		<PackageReference Include="JsonSchema.Net" Version="7.4.0" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.1" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="13.0.1" />
+		<PackageReference Include="System.Text.Json" Version="10.0.2" />
+		<PackageReference Include="JsonSchema.Net" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -49,10 +49,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Engine\PG.StarWarsGame.Engine.csproj" />
 		<ProjectReference Include="..\PetroglyphTools\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
 	</ItemGroup>
 
 </Project>

@@ -21,9 +21,9 @@ internal abstract class BaseModVerifyOptions
     public string? Suppressions { get; init; }
 
     [Option("path", SetName = "autoDetection", Required = false, Default = null, 
-        HelpText = "Specifies the path to verify. The path may be a game or mod. The application will try to find all necessary sub-mods or base games itself. " +
+        HelpText = "Specifies the path to verify. The path may be a game or mod. The application will try to find all necessary sub-mods and base games itself. " +
                    "The argument cannot be combined with any of --mods, --game or --fallbackGame")]
-    public string? AutoPath { get; init; }
+    public string? TargetPath { get; init; }
 
     [Option("mods", SetName = "manualPaths", Required = false, Default = null, Separator = ';',
         HelpText = "The path of the mod to verify. To support submods, multiple paths can be separated using the ';' (semicolon) character. " +
@@ -41,10 +41,10 @@ internal abstract class BaseModVerifyOptions
     public string? FallbackGamePath { get; init; }
 
 
-    [Option("type", Required = false, Default = null, 
-        HelpText = "The game type of the mod that shall be verified. Skip this value to auto-determine the type. Valid values are 'Eaw' and 'Foc'. " +
+    [Option("engine", Required = false, Default = null, 
+        HelpText = "The game engine of the target that shall be verified. Skip this value to auto-determine the type. Valid values are 'Eaw' and 'Foc'. " +
                    "This argument is required, if the first mod of '--mods' points to a directory outside of the common folder hierarchy (e.g, /MODS/MOD_NAME or /32470/WORKSHOP_ID")]
-    public GameEngineType? GameType { get; init; }
+    public GameEngineType? Engine { get; init; }
 
 
     [Option("additionalFallbackPaths", Required = false, Separator = ';',

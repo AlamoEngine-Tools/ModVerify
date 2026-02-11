@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Json.Schema;
+using Json.Schema.Keywords;
 
 namespace AET.ModVerify.Reporting.Json;
 
@@ -12,18 +13,20 @@ public static class JsonBaselineSchema
 {
     private static readonly JsonSchema Schema;
     private static readonly EvaluationOptions EvaluationOptions;
-    
+    private static readonly BuildOptions BuildOptions;
+
     static JsonBaselineSchema()
     {
-        var evalvOptions = new EvaluationOptions
+        BuildOptions = new BuildOptions
         {
-            EvaluateAs = SpecVersion.Draft202012,
-            OutputFormat = OutputFormat.Hierarchical,
-            AllowReferencesIntoUnknownKeywords = false
+            Dialect = Dialect.Draft202012
         };
 
         Schema = GetCurrentSchema();
-        EvaluationOptions = evalvOptions;
+        EvaluationOptions = new EvaluationOptions
+        {
+            OutputFormat = OutputFormat.Hierarchical
+        };
     }
 
     /// <summary>
@@ -31,11 +34,8 @@ public static class JsonBaselineSchema
     /// </summary>
     /// <param name="json">The JSON node to evaluate.</param>
     /// <exception cref="InvalidBaselineException"><paramref name="json"/> is not valid against the baseline JSON schema.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="json"/> is <see langword="null"/>.</exception>
-    public static void Evaluate(JsonNode json)
+    public static void Evaluate(JsonElement json)
     {
-        if (json == null)
-            throw new ArgumentNullException(nameof(json));
         var result = Schema.Evaluate(json, EvaluationOptions);
         ThrowOnValidationError(result);
     }
@@ -58,13 +58,17 @@ public static class JsonBaselineSchema
 
     private static KeyValuePair<string, string>? GetFirstError(EvaluationResults result)
     {
-        if (result.HasErrors)
-            return result.Errors!.First();
-        foreach (var child in result.Details)
+        if (result.Errors is not null)
+            return result.Errors.First();
+
+        if (result.Details is not null)
         {
-            var error = GetFirstError(child);
-            if (error is not null)
-                return error;
+            foreach (var child in result.Details)
+            {
+                var error = GetFirstError(child);
+                if (error is not null)
+                    return error;
+            }
         }
         return null;
     }
@@ -75,10 +79,12 @@ public static class JsonBaselineSchema
             .Assembly.GetManifestResourceStream($"AET.ModVerify.Resources.Schemas.{GetVersionedPath()}.baseline.json");
 
         Debug.Assert(resourceStream is not null);
-        var schema = JsonSchema.FromStream(resourceStream!).GetAwaiter().GetResult();
+        var json = JsonDocument.Parse(resourceStream!).RootElement;
+        var schema = JsonSchema.Build(json, BuildOptions);
 
-        var id = schema.GetId();
-        if (id is null || !UriContainsVersion(id, VerificationBaseline.LatestVersionString))
+
+        if (schema.Root.Keywords.FirstOrDefault(x => x.Handler is IdKeyword)?.Value is not Uri id 
+            || !UriContainsVersion(id, VerificationBaseline.LatestVersionString))
             throw new InvalidOperationException("Internal error: The embedded schema version does not match the expected baseline version!");
 
         return schema;

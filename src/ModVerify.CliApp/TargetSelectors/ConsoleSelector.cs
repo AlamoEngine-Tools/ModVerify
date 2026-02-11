@@ -5,22 +5,21 @@ using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Utilities;
 using AnakinRaW.ApplicationBase;
-using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Infrastructure;
 using PG.StarWarsGame.Infrastructure.Games;
 using PG.StarWarsGame.Infrastructure.Mods;
 
-namespace AET.ModVerify.App.ModSelectors;
+namespace AET.ModVerify.App.TargetSelectors;
 
-internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelectorBase(serviceProvider)
+internal class ConsoleSelector(IServiceProvider serviceProvider) : VerificationTargetSelectorBase(serviceProvider)
 {
-    public override GameLocations Select(GameInstallationsSettings settings, out IPhysicalPlayableObject targetObject,
-        out GameEngineType? actualEngineType)
+    internal override SelectionResult SelectTarget(VerificationTargetSettings settings)
     {
-        var gameResult = GameFinderService.FindGames();
-        targetObject = SelectPlayableObject(gameResult);
-        actualEngineType = targetObject.Game.Type.ToEngineType();
-        return GetLocations(targetObject, gameResult, settings.AdditionalFallbackPaths);
+        var gameResult = GameFinderService.FindGames(GameFinderSettings.Default);
+        var targetObject = SelectPlayableObject(gameResult); 
+        var engine = targetObject.Game.Type.ToEngineType();
+        var locations = GetLocations(targetObject, gameResult.FallbackGame, settings.AdditionalFallbackPaths);
+        return new SelectionResult(locations, engine, targetObject);
     }
 
     private static IPhysicalPlayableObject SelectPlayableObject(GameFinderResult finderResult)
@@ -31,6 +30,9 @@ internal class ConsoleModSelector(IServiceProvider serviceProvider) : ModSelecto
         list.Add(finderResult.Game);
 
         Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("Listing Games and Mods:");
+        Console.ResetColor();
         ConsoleUtilities.WriteHorizontalLine();
         Console.WriteLine($"0: {game.Name}");
 

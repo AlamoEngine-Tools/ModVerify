@@ -8,7 +8,7 @@ public sealed class VerifyPipelineSettings
 
     public required IGameVerifiersProvider VerifiersProvider { get; init; }
 
-    public bool FailFast { get; init; }
+    public FailFastSetting FailFastSettings { get; init; } = FailFastSetting.NoFailFast;
 
     public int ParallelVerifiers { get; init; } = 4;
 }

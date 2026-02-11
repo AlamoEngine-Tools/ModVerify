@@ -8,16 +8,23 @@ namespace AET.ModVerify.App.Utilities;
 
 internal static class ExtensionMethods
 {
+    extension(GameEngineType type)
+    {
+        public GameType FromEngineType()
+        {
+            return (GameType)(int)type;
+        }
+
+        public GameEngineType Opposite()
+        {
+            return (GameEngineType)((int)type ^ 1);
+        }
+    }
+
     public static GameEngineType ToEngineType(this GameType type)
     {
-        return type == GameType.Foc ? GameEngineType.Foc : GameEngineType.Eaw;
+        return (GameEngineType)(int)type;
     }
-
-    public static GameType FromEngineType(this GameEngineType type)
-    {
-        return type == GameEngineType.Foc ? GameType.Foc : GameType.Eaw;
-    }
-
     extension(ApplicationEnvironment modVerifyEnvironment)
     {
         public bool IsUpdatable()

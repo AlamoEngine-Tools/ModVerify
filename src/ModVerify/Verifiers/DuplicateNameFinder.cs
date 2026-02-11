@@ -40,10 +40,10 @@ public sealed class DuplicateNameFinder(
         string sourceName,
         TSource source, 
         Func<TSource, IEnumerable<Crc32>> crcSelector, 
-        Func<TSource, Crc32, ReadOnlyFrugalList<TEntry>> entrySelector, 
+        Func<TSource, Crc32, ImmutableFrugalList<TEntry>> entrySelector, 
         Func<TEntry, string> entryToStringSelector,
-        Func<ReadOnlyFrugalList<TEntry>, IEnumerable<string>> contextSelector,
-        Func<ReadOnlyFrugalList<TEntry>, string, string> errorMessageCreator)
+        Func<ImmutableFrugalList<TEntry>, IEnumerable<string>> contextSelector,
+        Func<ImmutableFrugalList<TEntry>, string, string> errorMessageCreator)
     {
         foreach (var crc32 in crcSelector(source))
         {
@@ -87,13 +87,13 @@ public sealed class DuplicateNameFinder(
             CreateDuplicateXmlErrorMessage);
     }
 
-    private static string CreateDuplicateMtdErrorMessage(ReadOnlyFrugalList<MegaTextureFileIndex> entries, string fileName)
+    private static string CreateDuplicateMtdErrorMessage(ImmutableFrugalList<MegaTextureFileIndex> entries, string fileName)
     {
         var firstEntry = entries.First();
         return $"MTD File '{fileName}' has duplicate definitions for CRC ({firstEntry}): {string.Join(",", entries.Select(x => x.FileName))}";
     }
 
-    private static string CreateDuplicateXmlErrorMessage<T>(ReadOnlyFrugalList<T> entries, string databaseName) where T : NamedXmlObject
+    private static string CreateDuplicateXmlErrorMessage<T>(ImmutableFrugalList<T> entries, string databaseName) where T : NamedXmlObject
     {
         var firstEntry = entries.First();
         var message = $"{databaseName} '{firstEntry.Name}' ({firstEntry.Crc32}) has duplicate definitions: ";

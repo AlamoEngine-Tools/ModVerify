@@ -38,12 +38,13 @@ internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepositor
             ThrowHelper.ThrowIfNullOrEmpty(message);
             Identifier = identifier;
             Message = message;
-            Context = context;
+            Context = context ?? throw new ArgumentNullException(nameof(context));
             Asset = asset;
             Severity = severity;
         }
 
-        public ErrorData(string identifier, string message, string asset, VerificationSeverity severity) : this(identifier, message, [], asset, severity)
+        public ErrorData(string identifier, string message, string asset, VerificationSeverity severity) 
+            : this(identifier, message, [], asset, severity)
         {
         }
     }

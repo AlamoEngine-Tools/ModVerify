@@ -2,7 +2,7 @@
 
 namespace AET.ModVerify.Settings;
 
-public record GameVerifySettings
+public sealed record GameVerifySettings
 {
     public static readonly GameVerifySettings Default = new()
     {

@@ -1,21 +1,20 @@
 {
   "profiles": {
-    "Run": {
+    "Verify": {
       "commandName": "Project",
       "commandLineArgs": ""
     },
-    "Interactive Verify": {
+    "Verify (Interactive)": {
       "commandName": "Project",
-      "commandLineArgs": "verify  -o verifyResults --minFailSeverity Information --offline"
+      "commandLineArgs": "verify  -o verifyResults --offline --minFailSeverity Information"
     },
-    "Interactive Baseline": {
+    "Verify (Automatic Target Selection)": {
       "commandName": "Project",
-      "commandLineArgs": "createBaseline -o focBaseline.json --offline"
+      "commandLineArgs": "verify -o verifyResults --path \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\corruption\""
     },
-
-    "FromModPath": {
+    "Create Baseline Interactive": {
       "commandName": "Project",
-      "commandLineArgs": "-o verifyResults --baseline focBaseline.json --path C:/test --type Foc"
+      "commandLineArgs": "createBaseline -o baseline.json --offline --skipLocation"
     }
   }
 }

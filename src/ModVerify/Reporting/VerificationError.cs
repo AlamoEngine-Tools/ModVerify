@@ -117,6 +117,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
 
     public override string ToString()
     {
-        return $"[{Severity}] [{string.Join(" --> ", VerifierChain)}] {Id}: Message={Message}; Asset='{Asset}'; Context=[{string.Join(",", ContextEntries)}];";
+        return $"[{Severity}] [{string.Join(" --> ", VerifierChain)}] " +
+               $"{Id}: Message={Message}; Asset='{Asset}'; Context=[{string.Join(",", ContextEntries)}];";
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using PG.StarWarsGame.Engine.ErrorReporting;
 
@@ -11,7 +10,7 @@ public interface IPetroglyphStarWarsGameEngineService
         GameEngineType engineType,
         GameLocations gameLocations,
         IGameEngineErrorReporter? errorReporter = null,
-        IProgress<string>? initProgress = null, 
+        IGameEngineInitializationReporter? initReporter = null, 
         bool cancelOnInitializationError = false,
         CancellationToken cancellationToken = default);
 }

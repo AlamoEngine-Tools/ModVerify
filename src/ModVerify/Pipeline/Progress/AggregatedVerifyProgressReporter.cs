@@ -59,6 +59,7 @@ internal class AggregatedVerifyProgressReporter(
         var progressInfo = new VerifyProgressInfo
         {
             TotalVerifiers = TotalStepCount,
+            IsDetailed = true
         };
         return new ProgressEventArgs<VerifyProgressInfo>(totalProgress, progress.ProgressText, progressInfo);
     }

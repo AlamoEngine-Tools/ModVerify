@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using AET.ModVerify.App.Settings;
 using AET.ModVerify.Pipeline.Progress;
 using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
@@ -7,7 +8,8 @@ using ShellProgressBar;
 
 namespace AET.ModVerify.App.Reporting;
 
-public sealed class VerifyConsoleProgressReporter(string toVerifyName) : DisposableObject, IVerifyProgressReporter
+public sealed class VerifyConsoleProgressReporter(string toVerifyName, AppReportSettings reportSettings) 
+    : DisposableObject, IVerifyProgressReporter
 {
     private static readonly ProgressBarOptions ProgressBarOptions = new()
     {
@@ -17,6 +19,7 @@ public sealed class VerifyConsoleProgressReporter(string toVerifyName) : Disposa
         WriteQueuedMessage = WriteQueuedMessage,
     };
 
+    private readonly bool _verbose = reportSettings.Verbose;
     private ProgressBar? _progressBar;
 
     public void ReportError(string message, string? errorLine)
@@ -38,8 +41,8 @@ public sealed class VerifyConsoleProgressReporter(string toVerifyName) : Disposa
 
         var progressBar = EnsureProgressBar();
 
-        // TODO: Only recognize detailed mode
-        progressBar.Message = progressText;
+        if (detailedProgress.IsDetailed) 
+            progressBar.Message = progressText;
 
         if (progress >= 1.0)
             progressBar.Message = $"Verified '{toVerifyName}'";
@@ -47,8 +50,8 @@ public sealed class VerifyConsoleProgressReporter(string toVerifyName) : Disposa
         var cpb = progressBar.AsProgress<double>();
         cpb.Report(progress);
         
-        // TODO: Only in verbose mode
-        //progressBar.WriteLine(progressText);
+        if (_verbose) 
+            progressBar.WriteLine(progressText);
     }
 
     protected override void DisposeResources()

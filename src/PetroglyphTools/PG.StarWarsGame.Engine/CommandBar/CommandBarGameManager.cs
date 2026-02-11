@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PG.Commons.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.CommandBar.Components;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
@@ -18,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AnakinRaW.CommonUtilities.Collections;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
@@ -77,7 +77,7 @@ internal class CommandBarGameManager(
         var contentParser = new XmlContainerContentParser(ServiceProvider, ErrorReporter);
         contentParser.XmlParseError += OnParseError;
 
-        var parsedCommandBarComponents = new ValueListDictionary<Crc32, CommandBarComponentData>();
+        var parsedCommandBarComponents = new FrugalValueListDictionary<Crc32, CommandBarComponentData>();
 
         try
         {
@@ -213,8 +213,8 @@ internal class CommandBarGameManager(
         if (_defaultFont is null)
         {
             // TODO: From GameConstants
-            string fontName = PGConstants.DefaultUnicodeFontName;
-            int size = 11;
+            var fontName = PGConstants.DefaultUnicodeFontName;
+            var size = 11;
             var font = fontManager.CreateFont(fontName, size, true, false, false, 1.0f);
             if (font is null)
                 ErrorReporter.Assert(EngineAssert.FromNullOrEmpty([ToString()], $"Unable to create Default from name {fontName}"));

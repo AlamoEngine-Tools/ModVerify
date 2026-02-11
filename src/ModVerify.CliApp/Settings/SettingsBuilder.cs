@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using AET.ModVerify.App.Settings.CommandLine;
-using AET.ModVerify.App.Utilities;
+﻿using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.Pipeline;
-using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
 
 namespace AET.ModVerify.App.Settings;
 
 internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 {
-    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(SettingsBuilder));
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public ModVerifyAppSettings BuildSettings(BaseModVerifyOptions options)
+    public AppSettingsBase BuildSettings(BaseModVerifyOptions options)
     {
         switch (options)
         {
@@ -28,90 +24,103 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         throw new NotSupportedException($"The option '{options.GetType().Name}' is not supported!");
     }
 
-    private ModVerifyAppSettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
+    private AppVerifySettings BuildFromVerifyVerb(VerifyVerbOption verifyOptions)
     {
-        return new ModVerifyAppSettings
+        ValidateVerb();
+        var failFastSetting = GetFailFastSetting();
+        return new AppVerifySettings(BuildReportSettings())
         {
+            ReportDirectory = GetReportDirectory(),
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
                 ParallelVerifiers = verifyOptions.Parallel ? 4 : 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
-                FailFast = verifyOptions.FailFast,
+                FailFastSettings = failFastSetting,
                 GameVerifySettings = new GameVerifySettings
                 {
                     IgnoreAsserts = verifyOptions.IgnoreAsserts,
-                    ThrowsOnMinimumSeverity = GetVerifierMinimumThrowSeverity()
+                    ThrowsOnMinimumSeverity = failFastSetting.IsFailFast 
+                        ? failFastSetting.MinumumSeverity
+                        // The app shall not make a specific verifier throw, but it should always run to completion.
+                        : null 
                 }
             },
-            AppThrowsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
-            GameInstallationsSettings = BuildInstallationSettings(verifyOptions),
-            ReportSettings = BuildReportSettings(verifyOptions),
+            AppFailsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
+            VerificationTargetSettings = BuildTargetSettings(verifyOptions),
         };
 
-        VerificationSeverity? GetVerifierMinimumThrowSeverity()
+        void ValidateVerb()
         {
-            var minFailSeverity = verifyOptions.MinimumFailureSeverity;
-            if (verifyOptions.FailFast)
+            if (verifyOptions.SearchBaselineLocally && !string.IsNullOrEmpty(verifyOptions.Baseline))
             {
-                if (minFailSeverity == null)
-                {
-                    _logger?.LogWarning(ModVerifyConstants.ConsoleEventId, 
-                        "Verification is configured to fail fast but 'minFailSeverity' is not specified. Using severity '{Info}'.", VerificationSeverity.Information);
-                    minFailSeverity = VerificationSeverity.Information;
-                }
-
-                return minFailSeverity;
+                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
+                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
+                throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
             }
 
-            // Only in a failFast scenario we want the verifier to throw.
-            // In a normal run, the verifier should simply store the error.
-            return null;
+            if (verifyOptions is { FailFast: true, MinimumFailureSeverity: null })
+            {
+                var failFast = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.FailFast));
+                var minThrowSeverity = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.MinimumFailureSeverity));
+                throw new AppArgumentException($"Option {failFast} requires to set {minThrowSeverity}.");
+            }
+        }
+
+        FailFastSetting GetFailFastSetting()
+        {
+            return !verifyOptions.FailFast
+                ? FailFastSetting.NoFailFast 
+                : new FailFastSetting(verifyOptions.MinimumFailureSeverity!.Value);
+        }
+
+        string GetReportDirectory()
+        {
+            return _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(
+                Environment.CurrentDirectory, 
+                verifyOptions.OutputDirectory ?? "ModVerifyResults"));
+        }
+
+        VerifyReportSettings BuildReportSettings()
+        {
+            return new VerifyReportSettings
+            {
+                BaselinePath = verifyOptions.Baseline,
+                MinimumReportSeverity = verifyOptions.MinimumSeverity,
+                SearchBaselineLocally = verifyOptions.SearchBaselineLocally,
+                SuppressionsPath = verifyOptions.Suppressions,
+                Verbose = verifyOptions.Verbose
+            };
         }
     }
 
-    private ModVerifyAppSettings BuildFromCreateBaselineVerb(CreateBaselineVerbOption baselineVerb)
+    private AppBaselineSettings BuildFromCreateBaselineVerb(CreateBaselineVerbOption baselineVerb)
     {
-        return new ModVerifyAppSettings
+        return new AppBaselineSettings(BuildReportSettings())
         {
             VerifyPipelineSettings = new VerifyPipelineSettings
             {
                 ParallelVerifiers = baselineVerb.Parallel ? 4 : 1,
-                GameVerifySettings = new GameVerifySettings
-                {
-                    IgnoreAsserts = false,
-                    ThrowsOnMinimumSeverity = null,
-                },
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
-                FailFast = false,
+                GameVerifySettings = GameVerifySettings.Default,
+                FailFastSettings = FailFastSetting.NoFailFast,
             },
-            AppThrowsOnMinimumSeverity = null,
-            GameInstallationsSettings = BuildInstallationSettings(baselineVerb),
-            ReportSettings = BuildReportSettings(baselineVerb),
+            VerificationTargetSettings = BuildTargetSettings(baselineVerb),
             NewBaselinePath = baselineVerb.OutputFile,
-        };
-    }
-
-    private static ModVerifyReportSettings BuildReportSettings(BaseModVerifyOptions options)
-    {
-        var baselinePath = (options as VerifyVerbOption)?.Baseline;
-
-        return new ModVerifyReportSettings
-        {
-            BaselinePath = baselinePath,
-            MinimumReportSeverity = options.MinimumSeverity,
-            SearchBaselineLocally = SearchLocally(options),
-            SuppressionsPath = options.Suppressions
+            WriteLocations = !baselineVerb.SkipLocation
         };
 
-        static bool SearchLocally(BaseModVerifyOptions o)
+        AppReportSettings BuildReportSettings()
         {
-            if (o is not VerifyVerbOption v)
-                return false;
-            return v.SearchBaselineLocally || v.LaunchedWithoutArguments();
+            return new AppReportSettings
+            {
+                MinimumReportSeverity = baselineVerb.MinimumSeverity,
+                SuppressionsPath = baselineVerb.Suppressions,
+                Verbose = baselineVerb.Verbose
+            };
         }
     }
 
-    private GameInstallationsSettings BuildInstallationSettings(BaseModVerifyOptions options)
+    private VerificationTargetSettings BuildTargetSettings(BaseModVerifyOptions options)
     {
         var modPaths = new List<string>();
         if (options.ModPaths is not null)
@@ -142,18 +151,18 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         if (!string.IsNullOrEmpty(gamePath) && !string.IsNullOrEmpty(options.FallbackGamePath))
             fallbackGamePath = _fileSystem.Path.GetFullPath(options.FallbackGamePath!);
 
-        var autoPath = options.AutoPath;
-        if (!string.IsNullOrEmpty(autoPath))
-            autoPath = _fileSystem.Path.GetFullPath(autoPath!);
+        var targetPath = options.TargetPath;
+        if (!string.IsNullOrEmpty(targetPath))
+            targetPath = _fileSystem.Path.GetFullPath(targetPath!);
 
-        return new GameInstallationsSettings
+        return new VerificationTargetSettings
         {
-            AutoPath = autoPath,
+            TargetPath = targetPath,
             ModPaths = modPaths,
             GamePath = gamePath,
             FallbackGamePath = fallbackGamePath,
             AdditionalFallbackPaths = fallbackPaths,
-            EngineType = options.GameType
+            Engine = options.Engine
         };
     }
 }

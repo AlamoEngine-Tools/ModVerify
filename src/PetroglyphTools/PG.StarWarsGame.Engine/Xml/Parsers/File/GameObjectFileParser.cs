@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
-using PG.Commons.Collections;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Engine.Xml.Parsers.Data;
@@ -12,7 +12,7 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers.File;
 internal class GameObjectFileParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) 
     : PetroglyphXmlFileContainerParser<GameObject>(serviceProvider, errorReporter)
 {
-    protected override void Parse(XElement element, IValueListDictionary<Crc32, GameObject> parsedElements, string fileName)
+    protected override void Parse(XElement element, IFrugalValueListDictionary<Crc32, GameObject> parsedElements, string fileName)
     {
         var parser = new GameObjectParser(parsedElements, ServiceProvider, ErrorReporter);
 
