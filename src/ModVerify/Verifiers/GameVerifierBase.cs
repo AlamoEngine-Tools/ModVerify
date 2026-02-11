@@ -15,10 +15,8 @@ namespace AET.ModVerify.Verifiers;
 public abstract class GameVerifierBase : IGameVerifierInfo
 {
     public event EventHandler<VerificationErrorEventArgs>? Error;
-
     public event EventHandler<ProgressEventArgs<VerifyProgressInfo>>? Progress; 
 
-    private readonly IStarWarsGameEngine _gameEngine;
     private readonly ConcurrentDictionary<VerificationError, byte> _verifyErrors = new();
 
     protected readonly IFileSystem FileSystem;
@@ -35,7 +33,7 @@ public abstract class GameVerifierBase : IGameVerifierInfo
 
     protected IStarWarsGameEngine GameEngine { get; }
 
-    protected IGameRepository Repository => _gameEngine.GameRepository;
+    protected IGameRepository Repository => GameEngine.GameRepository;
 
     protected IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
 
@@ -49,7 +47,6 @@ public abstract class GameVerifierBase : IGameVerifierInfo
             throw new ArgumentNullException(nameof(serviceProvider));
         FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        _gameEngine = gameEngine ?? throw new ArgumentNullException(nameof(gameEngine)); 
         Parent = parent;
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         GameEngine = gameEngine ?? throw new ArgumentNullException(nameof(gameEngine));

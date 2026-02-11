@@ -27,7 +27,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
         GameEngineType engineType,
         GameLocations gameLocations,
         IGameEngineErrorReporter? errorReporter = null,
-        IProgress<string>? progress = null,
+        IGameEngineInitializationReporter? initReporter = null,
         bool cancelOnInitializationError = false,
         CancellationToken cancellationToken = default)
 
@@ -39,7 +39,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
 
         try
         {
-            return await InitializeEngine(engineType, gameLocations, errorListenerWrapper, progress, cts.Token)
+            return await InitializeEngineAsync(engineType, gameLocations, errorListenerWrapper, initReporter, cts.Token)
                 .ConfigureAwait(false);
         }
         finally
@@ -56,16 +56,17 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
         }
     }
 
-    private async Task<IStarWarsGameEngine> InitializeEngine(
+    private async Task<IStarWarsGameEngine> InitializeEngineAsync(
         GameEngineType engineType,
         GameLocations gameLocations,
         GameEngineErrorReporterWrapper errorReporter,
-        IProgress<string>? progress,
+        IGameEngineInitializationReporter? initReporter,
         CancellationToken token)
     {
         try
         {
-            _logger?.LogInformation($"Initializing game engine for type '{engineType}'.");
+            _logger?.LogInformation("Initializing game engine for type '{GameEngineType}'.", engineType);
+            initReporter?.ReportStarted();
 
             var repoFactory = _serviceProvider.GetRequiredService<IGameRepositoryFactory>();
             var repository = repoFactory.Create(engineType, gameLocations, errorReporter);
@@ -73,7 +74,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
             var pgRender = new PGRender(repository, errorReporter, serviceProvider);
 
             var gameConstants = new GameConstants.GameConstants(repository, errorReporter, serviceProvider);
-            progress?.Report("Initializing GameConstants");
+            initReporter?.ReportProgress("Initializing GameConstants");
             await gameConstants.InitializeAsync(token);
 
             // AudioConstants
@@ -81,23 +82,23 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
             // MousePointer
 
             var fontManger = new FontManager(repository, errorReporter, serviceProvider);
-            progress?.Report("Initializing FontManager");
+            initReporter?.ReportProgress("Initializing FontManager");
             await fontManger.InitializeAsync(token);
 
             var guiDialogs = new GuiDialogGameManager(repository, errorReporter, serviceProvider);
-            progress?.Report("Initializing GUIDialogManager");
+            initReporter?.ReportProgress("Initializing GUIDialogManager");
             await guiDialogs.InitializeAsync(token);
 
             var sfxGameManager = new SfxEventGameManager(repository, errorReporter, serviceProvider);
-            progress?.Report("Initializing SFXManager");
+            initReporter?.ReportProgress("Initializing SFXManager");
             await sfxGameManager.InitializeAsync(token);
 
             var commandBarManager = new CommandBarGameManager(repository, pgRender, gameConstants, fontManger, errorReporter, serviceProvider);
-            progress?.Report("Initializing CommandBar");
+            initReporter?.ReportProgress("Initializing CommandBar");
             await commandBarManager.InitializeAsync(token);
 
             var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorReporter, serviceProvider);
-            progress?.Report("Initializing GameObjectTypeManager");
+            initReporter?.ReportProgress("Initializing GameObjectTypeManager");
             await gameObjetTypeManager.InitializeAsync(token);
 
             token.ThrowIfCancellationRequested();
@@ -120,6 +121,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
         }
         finally
         {
+            initReporter?.ReportFinished();
             _logger?.LogDebug("Finished initializing game database.");
         }
     }

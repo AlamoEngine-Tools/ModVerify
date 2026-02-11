@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
-using PG.Commons.Collections;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;
@@ -26,7 +26,7 @@ public static class GameObjectXmlTags
 }
 
 public sealed class GameObjectParser(
-    IReadOnlyValueListDictionary<Crc32, GameObject> parsedElements,
+    IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedElements,
     IServiceProvider serviceProvider,
     IXmlParserErrorReporter? errorReporter = null)
     : XmlObjectParser<GameObject>(parsedElements, serviceProvider, errorReporter)

@@ -25,18 +25,25 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="12.3.8" />
-		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="12.3.8" />
-		<PackageReference Include="IsExternalInit" Version="1.0.3">
+	  <None Remove="Resources\Schemas\2.1\baseline.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Schemas\2.1\baseline.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.1" />
+		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="13.0.1" />
+		<PackageReference Include="System.Text.Json" Version="10.0.3" />
+		<PackageReference Include="JsonSchema.Net" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="PolySharp" Version="1.15.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Required" Version="1.0.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="System.Text.Json" Version="9.0.5" />
-		
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,7 +52,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.103" />
 	</ItemGroup>
 
 </Project>

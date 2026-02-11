@@ -6,7 +6,7 @@ using AET.ModVerify.Reporting.Settings;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
-public abstract class ReporterBase<T>(T settings, IServiceProvider serviceProvider) : IVerificationReporter where T : VerifyReportSettings
+public abstract class ReporterBase<T>(T settings, IServiceProvider serviceProvider) : IVerificationReporter where T : ReporterSettings
 {
     protected IServiceProvider ServiceProvider { get; } = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 

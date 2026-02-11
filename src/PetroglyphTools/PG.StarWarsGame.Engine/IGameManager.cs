@@ -10,5 +10,5 @@ public interface IGameManager<T>
 
     ICollection<Crc32> EntryKeys { get; }
 
-    ReadOnlyFrugalList<T> GetEntries(Crc32 key);
+    ImmutableFrugalList<T> GetEntries(Crc32 key);
 }

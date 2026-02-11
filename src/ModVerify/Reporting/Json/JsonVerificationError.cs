@@ -31,7 +31,7 @@ internal class JsonVerificationError
         string message,
         VerificationSeverity severity, 
         IEnumerable<string>? contextEntries, 
-        string asset)
+        string? asset)
     {
         Id = id;
         VerifierChain = verifierChain ?? [];

@@ -12,7 +12,7 @@
 	<PropertyGroup>
 		<Product>ModVerify</Product>
 		<Authors>Alamo Engine Tools and Contributors</Authors>
-		<Copyright>Copyright © 2025 Alamo Engine Tools and contributors. All rights reserved.</Copyright>
+		<Copyright>Copyright © 2026 Alamo Engine Tools and contributors. All rights reserved.</Copyright>
 		<PackageProjectUrl>https://github.com/AlamoEngine-Tools/ModVerify</PackageProjectUrl>
 		<LicenseFile>$(RepoRootPath)LICENSE</LicenseFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -24,7 +24,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<LangVersion>latest</LangVersion>
+		<LangVersion>preview</LangVersion>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
@@ -33,13 +33,13 @@
 
 	<ItemGroup>
 		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
 			<PrivateAssets>all</PrivateAssets>
-			<Version>3.7.115</Version>
+			<Version>3.9.50</Version>
 		</PackageReference>
 		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" />
 	</ItemGroup>

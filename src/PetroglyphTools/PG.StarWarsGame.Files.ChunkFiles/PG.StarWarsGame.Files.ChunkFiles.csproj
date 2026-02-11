@@ -14,11 +14,12 @@
 	<PropertyGroup>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files" Version="2.1.7" />
+	  <PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files" Version="3.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.103" />
 	</ItemGroup>
 </Project>

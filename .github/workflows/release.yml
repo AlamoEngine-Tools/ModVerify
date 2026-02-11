@@ -13,8 +13,8 @@ on:
 
 env:
   TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
-  CREATOR_PROJ_PATH: ./Modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
-  UPLOADER_PROJ_PATH: ./Modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
+  CREATOR_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
+  UPLOADER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
   TOOL_EXE: ModVerify.exe
   UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
   MANIFEST_CREATOR: AnakinRaW.ApplicationManifestCreator.dll
@@ -35,18 +35,20 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
-        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net48 --output ./releases/net48 /p:DebugType=None /p:DebugSymbols=false
+        # use build for .NET Framework to enusre external updatere .EXE is included
+        run:  dotnet build ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net481 --output ./releases/net481 /p:DebugType=None /p:DebugSymbols=false
       - name: Create Net Core Release
-        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net9.0 --output ./releases/net9.0 /p:DebugType=None /p:DebugSymbols=false
+        # use publish for .NET Core
+        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Binary Releases
           path: ./releases
@@ -62,17 +64,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+          submodules: recursive
+      - uses: actions/download-artifact@v7
         with:
           name: Binary Releases
           path: ./releases
+
+      # Deploy .NET Framework self-update release
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+            dotnet-version: 10.0.x
+      - name: Build Creator
+        run: dotnet build ${{env.CREATOR_PROJ_PATH}} --configuration Release --output ./dev
+      - name: Build Uploader
+        run: dotnet build ${{env.UPLOADER_PROJ_PATH}} --configuration Release --output ./dev
+      - name: Create binaries directory
+        run: mkdir -p ./deploy
+      - name: Copy self-update files
+        run: |
+          cp ./releases/net481/${{env.TOOL_EXE}} ./deploy/
+          cp ./releases/net481/${{env.UPDATER_EXE}} ./deploy/
+      - name: Create Manifest
+        run: dotnet ./dev/${{env.MANIFEST_CREATOR}} -a deploy/${{env.TOOL_EXE}} --appDataFiles deploy/${{env.UPDATER_EXE}} --origin ${{env.ORIGIN_BASE}} -o ./deploy -b ${{env.BRANCH_NAME}}
+      - name: Upload Build
+        run: dotnet ./dev/${{env.SFTP_UPLOADER}} ftp --host $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
+        env:
+          host: republicatwar.com
+          port: 1579
+          base_path: ${{env.ORIGIN_BASE_PART}}
+          source: ./deploy
+
+      # Deploy .NET Core and .NET Framework apps to Github
       - name: Create NET Core .zip
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
-        working-directory: ./releases/net9.0
-        run: zip -r ../ModVerify-Net9.zip .
+        working-directory: ./releases/net10.0
+        run: zip -r ../ModVerify-Net10.zip .
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       - name: Create GitHub release
@@ -86,5 +116,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
           files: | 
-            ./releases/net48/ModVerify.exe
-            ./releases/ModVerify-Net9.zip
+            ./releases/net481/ModVerify.exe
+            ./releases/ModVerify-Net10.zip

@@ -5,6 +5,7 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using AET.ModVerify.Pipeline.Progress;
 
 namespace AET.ModVerify.Pipeline;
@@ -22,18 +23,19 @@ public sealed class GameVerifierPipelineStep(
 
     public long Size => 1;
 
-    protected override void RunCore(CancellationToken token)
+    protected override Task RunCoreAsync(CancellationToken token)
     {
         try
         {
-            Logger?.LogDebug($"Running verifier '{GameVerifier.FriendlyName}'...");
+            Logger?.LogDebug("Running verifier '{Name}'...", GameVerifier.FriendlyName);
             ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(0.0, "Started"));
-            
+
             GameVerifier.Progress += OnVerifyProgress;
             GameVerifier.Verify(token);
 
-            Logger?.LogDebug($"Finished verifier '{GameVerifier.FriendlyName}'");
+            Logger?.LogDebug("Finished verifier '{Name}'", GameVerifier.FriendlyName);
             ReportProgress(new ProgressEventArgs<VerifyProgressInfo>(1.0, "Finished"));
+            return Task.CompletedTask;
         }
         finally
         {

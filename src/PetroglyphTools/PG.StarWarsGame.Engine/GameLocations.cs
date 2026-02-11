@@ -1,12 +1,18 @@
-﻿using System;
+﻿using AnakinRaW.CommonUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using AnakinRaW.CommonUtilities;
+using System.Text;
 
 namespace PG.StarWarsGame.Engine;
 
 public sealed class GameLocations
 {
+    /// <summary>
+    /// Gets the path that represents the topmost playable target. This is typically the actual mod selected by the user.
+    /// </summary>
+    public string TargetPath { get; }
+
     public IReadOnlyList<string> ModPaths { get; }
 
     public string GamePath { get; }
@@ -22,13 +28,13 @@ public sealed class GameLocations
         ThrowHelper.ThrowIfNullOrEmpty(modPath);
     }
 
-    public GameLocations(IList<string> modPaths, string gamePath, string fallbackGamePath) : this(modPaths,
-        gamePath, [fallbackGamePath])
+    public GameLocations(IReadOnlyList<string> modPaths, string gamePath, string fallbackGamePath)
+        : this(modPaths, gamePath, [fallbackGamePath])
     {
         ThrowHelper.ThrowIfNullOrEmpty(fallbackGamePath);
     }
 
-    public GameLocations(IList<string> modPaths, string gamePath, IList<string> fallbackPaths)
+    public GameLocations(IReadOnlyList<string> modPaths, string gamePath, IReadOnlyList<string> fallbackPaths)
     {
         if (modPaths == null)
             throw new ArgumentNullException(nameof(modPaths));
@@ -38,5 +44,24 @@ public sealed class GameLocations
         ModPaths = modPaths.ToList();
         GamePath = gamePath;
         FallbackPaths = fallbackPaths.ToList();
+
+        TargetPath = ModPaths.Count > 0
+            ? ModPaths[0]
+            : GamePath;
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("GameLocation=[");
+        if (ModPaths.Count > 0)
+            sb.AppendLine($"Mods=[{string.Join(";", ModPaths)}];");
+        sb.AppendLine($"Game=[{GamePath}];");
+        if (FallbackPaths.Count > 0)
+            sb.AppendLine($"Fallbacks=[{string.Join(";", FallbackPaths)}];");
+        sb.AppendLine("]");
+
+        return sb.ToString();
     }
 }

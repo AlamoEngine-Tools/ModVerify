@@ -23,7 +23,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 {
     private readonly IMegFileService _megFileService;
     private readonly IMegFileExtractor _megExtractor;
-    private readonly PetroglyphDataEntryPathNormalizer _megPathNormalizer;
+    private readonly PetroglyphMegDataEntryPathNormalizer _megPathNormalizer;
     private readonly ICrc32HashingService _crc32HashingService;
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
@@ -56,7 +56,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         _megFileService = serviceProvider.GetRequiredService<IMegFileService>();
         _virtualMegBuilder = serviceProvider.GetRequiredService<IVirtualMegArchiveBuilder>();
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-        _megPathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
+        _megPathNormalizer = new EmpireAtWarMegDataEntryPathNormalizer();
         _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
         _errorReporter = errorReporter;
 
@@ -116,9 +116,9 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         if (megArchive is null)
         {
             if (IsSpeechMeg(megFile))
-                Logger.LogDebug($"Unable to find Speech MEG file at '{megFile}'");
+                Logger.LogDebug("Unable to find Speech MEG file at '{MegFile}'", megFile);
             else
-                Logger.LogWarning($"Unable to find MEG file at '{megFile}'");
+                Logger.LogWarning("Unable to find MEG file at '{MegFile}'", megFile);
             return;
         }
 
@@ -217,7 +217,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
         if (xmlStream is null)
         {
-            Logger.LogWarning($"Unable to find MegaFiles.xml at '{lookupPath}'");
+            Logger.LogWarning("Unable to find MegaFiles.xml at '{LookupPath}'", lookupPath);
             return Array.Empty<IMegFile>();
         }
 
@@ -251,12 +251,12 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         if (megFileStream is not FileSystemStream fileSystemStream)
         {
             if (IsSpeechMeg(megPath))
-                Logger.LogDebug($"Unable to find Speech MEG file '{megPath}'");
+                Logger.LogDebug("Unable to find Speech MEG file '{MegPath}'", megPath);
             else
             {
                 var message = $"Unable to find MEG file '{megPath}'";
                 _errorReporter.Assert(EngineAssert.Create(EngineAssertKind.FileNotFound, megPath, [], message));
-                Logger.LogWarning($"Unable to find MEG file '{megPath}'");
+                Logger.LogWarning("Unable to find MEG file '{MegPath}'", megPath);
             }
             return null;
         }

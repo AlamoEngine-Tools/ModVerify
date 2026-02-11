@@ -14,7 +14,6 @@ using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Localization;
-using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
 #if NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
 #endif
@@ -30,7 +29,6 @@ public class AudioFilesVerifier : GameVerifier
         UnifyDirectorySeparators = true
     };
 
-    private readonly EmpireAtWarMegDataEntryPathNormalizer _pathNormalizer = EmpireAtWarMegDataEntryPathNormalizer.Instance;
     private readonly ICrc32HashingService _hashingService;
     private readonly IFileSystem _fileSystem;
     private readonly IGameLanguageManager _languageManager;
