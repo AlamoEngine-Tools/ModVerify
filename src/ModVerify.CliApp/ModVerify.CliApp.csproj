@@ -12,7 +12,7 @@
 	<PropertyGroup>
 		<Title>ModVerify Console Application</Title>
 		<Product>AET.ModVerify</Product>
-		<Description>Console application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
+		<Description>An application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 

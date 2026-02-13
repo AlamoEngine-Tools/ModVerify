@@ -10,23 +10,16 @@
 	<PropertyGroup>
 		<Title>ModVerify Core</Title>
 		<Product>AET.ModVerify</Product>
-		<Description>Provides interfaces and classes to verify Empire at War / Forces of Corruption game modifications.</Description>
+		<Description>A library that contains classes and methods to verify Empire at War / Forces of Corruption game modifications.</Description>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<InheritDocEnabled>true</InheritDocEnabled>
-	</PropertyGroup>
-
-	<PropertyGroup>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\Schemas\2.1\baseline.json" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Schemas\2.1\baseline.json" />
@@ -34,7 +27,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.1" />
-		<PackageReference Include="AnakinRaW.CommonUtilities.FileSystem" Version="13.0.1" />
 		<PackageReference Include="System.Text.Json" Version="10.0.3" />
 		<PackageReference Include="JsonSchema.Net" Version="9.1.0" />
 	</ItemGroup>
