@@ -1,5 +1,4 @@
 ﻿using AET.ModVerify.App.Settings.CommandLine;
-using AET.ModVerify.Pipeline;
 using AET.ModVerify.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -31,7 +30,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         return new AppVerifySettings(BuildReportSettings())
         {
             ReportDirectory = GetReportDirectory(),
-            VerifyPipelineSettings = new VerifyPipelineSettings
+            VerifierServiceSettings = new VerifierServiceSettings
             {
                 ParallelVerifiers = verifyOptions.Parallel ? 4 : 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
@@ -97,7 +96,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
     {
         return new AppBaselineSettings(BuildReportSettings())
         {
-            VerifyPipelineSettings = new VerifyPipelineSettings
+            VerifierServiceSettings = new VerifierServiceSettings
             {
                 ParallelVerifiers = baselineVerb.Parallel ? 4 : 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),

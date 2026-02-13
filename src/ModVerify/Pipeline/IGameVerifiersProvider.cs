@@ -4,7 +4,7 @@ using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerify.Pipeline;
+namespace AET.ModVerify;
 
 public interface IGameVerifiersProvider
 {

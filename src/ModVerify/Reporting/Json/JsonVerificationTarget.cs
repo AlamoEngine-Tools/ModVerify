@@ -38,6 +38,15 @@ internal class JsonVerificationTarget
         IsGame = isGame;
     }
 
+    public JsonVerificationTarget(VerificationTarget target)
+    {
+        Name = target.Name;
+        Version = target.Version;
+        Engine = target.Engine;
+        Location = new JsonGameLocation(target.Location);
+        IsGame = target.IsGame;
+    }
+
     public JsonVerificationTarget(BaselineVerificationTarget target)
     {
         Name = target.Name;

@@ -1,8 +1,6 @@
-﻿using AET.ModVerify.Pipeline;
+﻿namespace AET.ModVerify.Settings;
 
-namespace AET.ModVerify.Settings;
-
-public sealed class VerifyPipelineSettings
+public sealed class VerifierServiceSettings
 {
     public required GameVerifySettings GameVerifySettings { get; init; }
 

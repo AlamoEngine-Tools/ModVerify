@@ -1,12 +1,15 @@
 ﻿using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
+using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Reporters.JSON;
+using AET.ModVerify.Reporting.Reporters.Text;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AET.ModVerify.App.Utilities;
+using AET.ModVerify.Reporting.Reporters;
 
 namespace AET.ModVerify.App;
 
@@ -23,20 +26,27 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
         Console.WriteLine();
     }
 
-    protected override async Task<int> ProcessVerifyFindings(
-        VerificationTarget verificationTarget, 
-        IReadOnlyCollection<VerificationError> allErrors)
+    protected override async Task<int> ProcessResult(VerificationResult result)
     {
         Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Reporting Errors...");
-        var reportBroker = new VerificationReportBroker(ServiceProvider);
-        await reportBroker.ReportAsync(allErrors);
+        var reportBroker = new VerificationReportBroker(CreateReporters(), ServiceProvider);
+
+        result = result with
+        {
+            Target = result.Target with
+            {
+                Location = result.Target.Location.MaskUsername()
+            }
+        };
+
+        await reportBroker.ReportAsync(result);
 
         if (Settings.AppFailsOnMinimumSeverity.HasValue &&
-            allErrors.Any(x => x.Severity >= Settings.AppFailsOnMinimumSeverity))
+            result.Errors.Any(x => x.Severity >= Settings.AppFailsOnMinimumSeverity))
         {
             Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
                 "The verification of {Target} completed with findings of the specified failure severity {Severity}",
-                verificationTarget.Name, Settings.AppFailsOnMinimumSeverity);
+                result.Target.Name, Settings.AppFailsOnMinimumSeverity);
 
             return ModVerifyConstants.CompletedWithFindings;
         }
@@ -56,5 +66,32 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
             Console.WriteLine();
         }
         return baseline;
+    }
+
+    private IReadOnlyCollection<IVerificationReporter> CreateReporters()
+    {
+        var reporters = new List<IVerificationReporter>();
+
+        reporters.Add(IVerificationReporter.CreateConsole(new ConsoleReporterSettings
+        {
+            MinimumReportSeverity = Settings.VerifierServiceSettings.FailFastSettings.IsFailFast
+                ? VerificationSeverity.Information
+                : VerificationSeverity.Error
+        }, ServiceProvider));
+
+        var outputDirectory = Settings.ReportDirectory;
+        reporters.Add(IVerificationReporter.CreateJson(new JsonReporterSettings
+        {
+            OutputDirectory = outputDirectory,
+            MinimumReportSeverity = Settings.ReportSettings.MinimumReportSeverity
+        }, ServiceProvider));
+
+        reporters.Add(IVerificationReporter.CreateText(new TextFileReporterSettings
+        {
+            OutputDirectory = outputDirectory!,
+            MinimumReportSeverity = Settings.ReportSettings.MinimumReportSeverity
+        }, ServiceProvider));
+
+        return reporters;
     }
 }

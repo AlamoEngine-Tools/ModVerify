@@ -5,7 +5,7 @@ using AET.ModVerify.Verifiers;
 using AET.ModVerify.Verifiers.GuiDialogs;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerify.Pipeline;
+namespace AET.ModVerify;
 
 public sealed class DefaultGameVerifiersProvider : IGameVerifiersProvider
 {

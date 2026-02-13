@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using AET.ModVerify.Pipeline;
+using AET.ModVerify;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine;

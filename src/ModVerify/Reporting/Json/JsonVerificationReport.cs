@@ -3,8 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace AET.ModVerify.Reporting.Json;
 
-internal class JsonVerificationReport(IEnumerable<JsonVerificationError> errors)
+internal class JsonVerificationReport
 {
+    [JsonPropertyName("metadata")]
+    public required JsonVerificationReportMetadata Metadata { get; init; }
+
     [JsonPropertyName("errors")]
-    public IEnumerable<JsonVerificationError> Errors { get; } = errors;
+    public required IEnumerable<JsonVerificationError> Errors { get; init; }
 }

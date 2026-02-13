@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using AET.ModVerify.App.Settings;
-using AET.ModVerify.Pipeline.Progress;
+using AET.ModVerify.Progress;
 using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 using ShellProgressBar;

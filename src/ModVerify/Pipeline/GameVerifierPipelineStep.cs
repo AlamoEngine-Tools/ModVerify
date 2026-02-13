@@ -1,16 +1,16 @@
-﻿using AET.ModVerify.Verifiers;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AET.ModVerify.Progress;
+using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 using AnakinRaW.CommonUtilities.SimplePipeline.Steps;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AET.ModVerify.Pipeline.Progress;
 
-namespace AET.ModVerify.Pipeline;
+namespace AET.ModVerify;
 
-public sealed class GameVerifierPipelineStep(
+internal sealed class GameVerifierPipelineStep(
     GameVerifier verifier,
     IServiceProvider serviceProvider) 
     : PipelineStep(serviceProvider), IProgressStep<VerifyProgressInfo>

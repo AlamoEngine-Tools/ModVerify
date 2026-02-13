@@ -1,6 +1,6 @@
 ﻿using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 
-namespace AET.ModVerify.Pipeline.Progress;
+namespace AET.ModVerify.Progress;
 
 public static class VerifyProgress
 {

@@ -17,6 +17,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
 
     public string Message { get; }
 
+    // TODO: To IGameVerifierInfo
     public IReadOnlyList<string> VerifierChain { get; }
 
     public IReadOnlyCollection<string> ContextEntries { get; }

@@ -2,25 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AET.ModVerify.Reporting.Settings;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
-internal class ConsoleReporter(
-    ReporterSettings settings, 
-    bool summaryOnly,
-    IServiceProvider serviceProvider) : 
-    ReporterBase<ReporterSettings>(settings, serviceProvider)
+internal class ConsoleReporter(ConsoleReporterSettings settings, IServiceProvider serviceProvider) : 
+    ReporterBase<ConsoleReporterSettings>(settings, serviceProvider)
 {
-    public override Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
+    public override Task ReportAsync(VerificationResult verificationResult)
     {
-        var filteredErrors = FilteredErrors(errors).OrderByDescending(x => x.Severity).ToList();
-        PrintErrorStats(errors, filteredErrors);
+        var filteredErrors = FilteredErrors(verificationResult.Errors).OrderByDescending(x => x.Severity).ToList();
+        PrintErrorStats(verificationResult, filteredErrors);
         Console.WriteLine();
         return Task.CompletedTask;
     }
 
-    private void PrintErrorStats(IReadOnlyCollection<VerificationError> errors, List<VerificationError> filteredErrors)
+    private void PrintErrorStats(VerificationResult verificationResult, List<VerificationError> filteredErrors)
     {
         Console.WriteLine();
         Console.WriteLine();
@@ -28,9 +24,9 @@ internal class ConsoleReporter(
         Console.WriteLine("      Error Report     ");
         Console.WriteLine("***********************");
         Console.WriteLine();
-        if (errors.Count == 0)
+        if (verificationResult.Errors.Count == 0)
         {
-            if (summaryOnly)
+            if (Settings.SummaryOnly)
             {
                 Console.WriteLine("No errors found.");
             }
@@ -44,21 +40,21 @@ internal class ConsoleReporter(
             return;
         }
 
-        Console.WriteLine($"TOTAL Verification Errors: {errors.Count}");
+        Console.WriteLine($"TOTAL Verification Errors: {verificationResult.Errors.Count}");
 
-        var groupedBySeverity = errors.GroupBy(x => x.Severity);
+        var groupedBySeverity = verificationResult.Errors.GroupBy(x => x.Severity);
         foreach (var group in groupedBySeverity) 
             Console.WriteLine($"  Severity {group.Key}: {group.Count()}");
         Console.WriteLine();
 
         if (filteredErrors.Count == 0)
         {
-            if (errors.Count != 0)
+            if (verificationResult.Errors.Count != 0)
                 Console.WriteLine("Some errors are not displayed to the console. Please check the created output files.");
             return;
         }
 
-        if (summaryOnly)
+        if (Settings.SummaryOnly)
             return;
 
         Console.WriteLine($"Below the list of errors with severity '{Settings.MinimumReportSeverity}' or higher:");

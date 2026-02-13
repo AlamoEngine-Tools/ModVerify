@@ -6,19 +6,26 @@ using Microsoft.Extensions.Logging;
 
 namespace AET.ModVerify.Reporting;
 
-public sealed class VerificationReportBroker(IServiceProvider serviceProvider)
+public sealed class VerificationReportBroker
 {
-    private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(VerificationReportBroker));
+    private readonly ILogger? _logger;
+    private readonly IReadOnlyCollection<IVerificationReporter> _reporters;
 
-    public async Task ReportAsync(IReadOnlyCollection<VerificationError> errors)
+    public VerificationReportBroker(
+        IReadOnlyCollection<IVerificationReporter> reporters,
+        IServiceProvider serviceProvider)
     {
-        var reporters = serviceProvider.GetServices<IVerificationReporter>();
+        _reporters = reporters ?? throw new ArgumentNullException(nameof(reporters));
+        _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(VerificationReportBroker));
+    }
 
-        foreach (var reporter in reporters)
+    public async Task ReportAsync(VerificationResult result)
+    {
+        foreach (var reporter in _reporters)
         {
             try
             {
-                await reporter.ReportAsync(errors);
+                await reporter.ReportAsync(result);
             }
             catch (Exception e)
             {

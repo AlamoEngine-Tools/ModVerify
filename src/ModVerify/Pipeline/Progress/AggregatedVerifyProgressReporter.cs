@@ -1,8 +1,8 @@
-﻿using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using AnakinRaW.CommonUtilities.SimplePipeline.Progress;
 
-namespace AET.ModVerify.Pipeline.Progress;
+namespace AET.ModVerify.Progress;
 
 internal class AggregatedVerifyProgressReporter(
     IVerifyProgressReporter progressReporter,
