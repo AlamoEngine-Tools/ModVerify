@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PG.StarWarsGame.Engine.ErrorReporting;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Engine;
 
 public interface IGameEngineErrorCollection
 {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Reporters;
 
 public interface IVerificationReporter 
 {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using PG.StarWarsGame.Engine.ErrorReporting;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Engine;
 
-public sealed class ConcurrentGameEngineErrorReporter : GameEngineErrorReporter, IGameEngineErrorCollection
+public sealed class GameEngineErrorCollection : IGameEngineErrorCollection, IGameEngineErrorReporter
 {
     private readonly ConcurrentBag<XmlError> _xmlErrors = new();
     private readonly ConcurrentBag<InitializationError> _initializationErrors = new();
@@ -17,18 +17,36 @@ public sealed class ConcurrentGameEngineErrorReporter : GameEngineErrorReporter,
 
     public IEnumerable<EngineAssert> Asserts => _asserts.ToList();
 
-    public override void Report(XmlError error)
+    void IGameEngineErrorReporter.Report(XmlError error)
     {
         _xmlErrors.Add(error);
     }
 
-    public override void Report(InitializationError error)
+    void IGameEngineErrorReporter.Report(InitializationError error)
     {
         _initializationErrors.Add(error);
     }
 
-    public override void Assert(EngineAssert assert)
+    void IGameEngineErrorReporter.Assert(EngineAssert assert)
     {
         _asserts.Add(assert);
+    }
+
+    internal void Clear()
+    {
+#if !NETFRAMEWORK && !NETSTANDARD2_0
+        _xmlErrors.Clear();
+        _initializationErrors.Clear();
+        _asserts.Clear();
+#else
+        ClearUnsafe(_xmlErrors);
+        ClearUnsafe(_initializationErrors);
+        ClearUnsafe(_asserts);
+
+        static void ClearUnsafe<T>(ConcurrentBag<T> bag)
+        {
+            while (bag.TryTake(out _)) ;
+        }
+#endif
     }
 }

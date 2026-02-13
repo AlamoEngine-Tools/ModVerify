@@ -6,6 +6,8 @@ using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.TargetSelectors;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
+using AET.ModVerify.Reporting.Suppressions;
 using AnakinRaW.ApplicationBase;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

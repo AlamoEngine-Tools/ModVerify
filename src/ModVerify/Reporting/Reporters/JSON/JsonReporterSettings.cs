@@ -1,5 +1,3 @@
-﻿using AET.ModVerify.Reporting.Settings;
-
-namespace AET.ModVerify.Reporting.Reporters.JSON;
+﻿namespace AET.ModVerify.Reporting.Reporters;
 
 public record JsonReporterSettings : FileBasedReporterSettings;

@@ -1,10 +1,8 @@
 ﻿using System;
-using AET.ModVerify.Reporting.Reporters.JSON;
-using AET.ModVerify.Reporting.Reporters.Text;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
-public static class IVerificationReporterExtensions
+public static class ExtensionMethods
 {
     extension(IVerificationReporter)
     {

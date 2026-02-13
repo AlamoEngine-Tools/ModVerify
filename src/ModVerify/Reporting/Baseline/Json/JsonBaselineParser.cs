@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace AET.ModVerify.Reporting.Json;
+namespace AET.ModVerify.Reporting.Baseline.Json;
 
 internal static class JsonBaselineParser
 {

@@ -1,6 +1,4 @@
-﻿using AET.ModVerify.Reporting.Settings;
-
-namespace AET.ModVerify.Reporting.Reporters.Text;
+﻿namespace AET.ModVerify.Reporting.Reporters;
 
 public sealed record TextFileReporterSettings : FileBasedReporterSettings
 {

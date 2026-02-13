@@ -1,9 +1,10 @@
-﻿using System;
+﻿using AET.ModVerify.Reporting.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace AET.ModVerify.Reporting.Json;
+namespace AET.ModVerify.Reporting.Baseline.Json;
 
 internal class JsonVerificationBaseline
 {

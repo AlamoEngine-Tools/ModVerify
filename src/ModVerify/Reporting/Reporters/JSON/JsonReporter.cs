@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
 using AnakinRaW.CommonUtilities.FileSystem.Validation;
 
-namespace AET.ModVerify.Reporting.Reporters.JSON;
+namespace AET.ModVerify.Reporting.Reporters;
 
 internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serviceProvider) 
     : FileBasedReporter<JsonReporterSettings>(settings, serviceProvider)

@@ -5,7 +5,7 @@ using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 
-namespace AET.ModVerify.Reporting.Reporters.Engine;
+namespace AET.ModVerify.Reporting.Engine;
 
 internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider)
     : EngineErrorReporterBase<EngineAssert>(gameRepository, serviceProvider)

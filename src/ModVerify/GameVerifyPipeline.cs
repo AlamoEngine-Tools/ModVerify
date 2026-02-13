@@ -5,6 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Progress;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
+using AET.ModVerify.Reporting.Engine;
+using AET.ModVerify.Reporting.Suppressions;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
@@ -22,7 +25,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     private readonly List<VerificationError> _errors = [];
     private readonly List<GameVerifierPipelineStep> _verificationSteps = [];
     
-    private readonly ConcurrentGameEngineErrorReporter _engineErrorReporter = new();
+    private readonly GameEngineErrorCollection _engineErrorReporter = new();
     private readonly VerificationTarget _verificationTarget;
     private readonly VerifierServiceSettings _serviceSettings;
     private readonly IVerifyProgressReporter? _progressReporter;
@@ -139,6 +142,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     protected override void DisposeResources()
     {
         base.DisposeResources();
+        _engineErrorReporter.Clear();
         _aggregatedVerifyProgressReporter?.Dispose();
         _aggregatedVerifyProgressReporter = null;
     }

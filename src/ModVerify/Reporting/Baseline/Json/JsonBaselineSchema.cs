@@ -7,9 +7,9 @@ using System.Text.Json;
 using Json.Schema;
 using Json.Schema.Keywords;
 
-namespace AET.ModVerify.Reporting.Json;
+namespace AET.ModVerify.Reporting.Baseline.Json;
 
-public static class JsonBaselineSchema
+internal static class JsonBaselineSchema
 {
     private static readonly JsonSchema Schema;
     private static readonly EvaluationOptions EvaluationOptions;

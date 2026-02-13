@@ -2,14 +2,13 @@
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Reporters.JSON;
-using AET.ModVerify.Reporting.Reporters.Text;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Reporters;
+using AET.ModVerify.Reporting.Baseline;
 
 namespace AET.ModVerify.App;
 

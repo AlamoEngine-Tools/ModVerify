@@ -8,7 +8,7 @@ using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
-namespace AET.ModVerify.Reporting.Reporters.Engine;
+namespace AET.ModVerify.Reporting.Engine;
 
 internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider) :
     EngineErrorReporterBase<XmlError>(gameRepository, serviceProvider)

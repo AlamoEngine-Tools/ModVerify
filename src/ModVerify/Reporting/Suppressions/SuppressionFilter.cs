@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using AET.ModVerify.Reporting.Json;
+using AET.ModVerify.Reporting.Suppressions.Json;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Suppressions;
 
 public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
 {

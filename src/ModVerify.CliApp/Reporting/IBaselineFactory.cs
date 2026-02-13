@@ -1,5 +1,6 @@
 ﻿using AET.ModVerify.App.Settings;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

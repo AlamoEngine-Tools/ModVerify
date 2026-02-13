@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AET.ModVerify.Reporting.Json;
+namespace AET.ModVerify.Reporting.Suppressions.Json;
 
 internal class JsonSuppressionFilter(SuppressionFilter filter)
 {

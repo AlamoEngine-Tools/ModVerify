@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Reporters;
 
-public sealed class VerificationReportBroker
+public sealed class VerificationReportBroker : IVerificationReporter
 {
     private readonly ILogger? _logger;
     private readonly IReadOnlyCollection<IVerificationReporter> _reporters;

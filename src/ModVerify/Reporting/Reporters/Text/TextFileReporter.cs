@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AET.ModVerify.Reporting.Reporters.Text;
+namespace AET.ModVerify.Reporting.Reporters;
 
 internal sealed class TextFileReporter(TextFileReporterSettings settings, IServiceProvider serviceProvider) 
     : FileBasedReporter<TextFileReporterSettings>(settings, serviceProvider)

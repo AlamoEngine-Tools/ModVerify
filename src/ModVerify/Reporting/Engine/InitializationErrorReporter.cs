@@ -3,7 +3,7 @@ using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 
-namespace AET.ModVerify.Reporting.Reporters.Engine;
+namespace AET.ModVerify.Reporting.Engine;
 
 internal sealed class InitializationErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider) 
     : EngineErrorReporterBase<InitializationError>(gameRepository, serviceProvider)

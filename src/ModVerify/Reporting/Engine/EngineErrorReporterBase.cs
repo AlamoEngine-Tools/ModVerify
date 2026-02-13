@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AnakinRaW.CommonUtilities;
 using PG.StarWarsGame.Engine.IO;
 
-namespace AET.ModVerify.Reporting.Reporters.Engine;
+namespace AET.ModVerify.Reporting.Engine;
 
 internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepository, IServiceProvider serviceProvider)
 {

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using AET.ModVerify.Reporting.Baseline;
+using AET.ModVerify.Reporting.Suppressions;
 using AET.ModVerify.Verifiers;
 
 namespace AET.ModVerify.Reporting;

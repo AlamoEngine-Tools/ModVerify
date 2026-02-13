@@ -2,6 +2,7 @@
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;

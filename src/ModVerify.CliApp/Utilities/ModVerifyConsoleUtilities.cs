@@ -2,7 +2,7 @@
 using Figgle;
 using System;
 using System.Collections.Generic;
-using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
 
 namespace AET.ModVerify.App.Utilities;
 

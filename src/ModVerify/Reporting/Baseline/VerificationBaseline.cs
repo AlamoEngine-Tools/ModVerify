@@ -6,9 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AET.ModVerify.Reporting.Baseline.Json;
 using AET.ModVerify.Reporting.Json;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Baseline;
 
 public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError>
 {

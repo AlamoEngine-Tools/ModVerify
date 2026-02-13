@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Progress;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
+using AET.ModVerify.Reporting.Suppressions;
 using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 

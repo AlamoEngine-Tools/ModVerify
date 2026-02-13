@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using AET.ModVerify.Reporting.Suppressions.Json;
 
-namespace AET.ModVerify.Reporting;
+namespace AET.ModVerify.Reporting.Suppressions;
 
 public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
 {
