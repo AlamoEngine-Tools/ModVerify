@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace AET.ModVerify.Reporting.Json;
@@ -44,7 +45,7 @@ internal class JsonVerificationError
     public JsonVerificationError(VerificationError error)
     {
         Id = error.Id;
-        VerifierChain = error.VerifierChain;
+        VerifierChain = error.VerifierChain.Select(x => x.Name).ToList();
         Message = error.Message;
         Severity = error.Severity;
         ContextEntries = error.ContextEntries;

@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities;
 using PG.StarWarsGame.Engine.IO;
 
 namespace AET.ModVerify.Reporting.Engine;
 
-internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepository, IServiceProvider serviceProvider)
+internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepository, IServiceProvider serviceProvider) 
+    : IGameVerifierInfo
 {
     protected readonly IGameRepository GameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
     protected readonly IServiceProvider ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
-    public abstract string Name { get; }
+    public IGameVerifierInfo? Parent => null;
+
+    public string Name => GetType().FullName;
+
+    public abstract string FriendlyName { get; }
 
     public IEnumerable<VerificationError> GetErrors(IEnumerable<T> errors)
     {
@@ -18,7 +24,7 @@ internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepositor
         {
             var errorData = CreateError(error);
             yield return new VerificationError(
-                errorData.Identifier, errorData.Message, [Name], errorData.Context, errorData.Asset, errorData.Severity);
+                errorData.Identifier, errorData.Message, [this], errorData.Context, errorData.Asset, errorData.Severity);
         }
     }
 

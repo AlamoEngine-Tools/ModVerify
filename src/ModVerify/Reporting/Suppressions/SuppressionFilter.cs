@@ -42,7 +42,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
 
         if (Verifier is not null)
         {
-            if (error.VerifierChain.Contains(Verifier))
+            if (error.VerifierChain.Any(x => x.Name.Equals(Verifier)))
                 suppresses = true;
             else
                 return false;

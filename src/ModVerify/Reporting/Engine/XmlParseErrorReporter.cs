@@ -15,7 +15,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-    public override string Name => "XMLError";
+    public override string FriendlyName => "XML Errors";
     
     protected override ErrorData CreateError(XmlError error)
     {

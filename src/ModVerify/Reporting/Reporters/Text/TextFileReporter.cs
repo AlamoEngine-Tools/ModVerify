@@ -36,7 +36,7 @@ internal sealed class TextFileReporter(TextFileReporterSettings settings, IServi
     private async Task ReportByVerifier(VerificationResult result)
     {
         var time = DateTime.Now;
-        var grouped = result.Errors.GroupBy(x => x.VerifierChain.Last());
+        var grouped = result.Errors.GroupBy(x => x.VerifierChain.Last().Name);
         foreach (var group in grouped) 
             await ReportToSingleFile(group, result.Target, time);
     }

@@ -10,7 +10,7 @@ namespace AET.ModVerify.Reporting.Engine;
 internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider)
     : EngineErrorReporterBase<EngineAssert>(gameRepository, serviceProvider)
 {
-    public override string Name => "GameAsserts";
+    public override string FriendlyName => "Game Engine Asserts";
 
     protected override ErrorData CreateError(EngineAssert assert)
     {

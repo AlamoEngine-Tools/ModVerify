@@ -8,7 +8,7 @@ namespace AET.ModVerify.Reporting.Engine;
 internal sealed class InitializationErrorReporter(IGameRepository gameRepository, IServiceProvider serviceProvider) 
     : EngineErrorReporterBase<InitializationError>(gameRepository, serviceProvider)
 {
-    public override string Name => "InitializationErrors";
+    public override string FriendlyName => "Initialization Errors";
 
     protected override ErrorData CreateError(InitializationError error)
     {
