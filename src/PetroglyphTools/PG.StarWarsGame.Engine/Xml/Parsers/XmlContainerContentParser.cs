@@ -45,7 +45,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
             _reporter?.Report(this, XmlParseErrorEventArgs.FromMissingFile(xmlFile));
             Logger.LogWarning("Could not find XML file '{XmlFile}'", xmlFile);
 
-            var args = new XmlContainerParserErrorEventArgs(xmlFile, null, true)
+            var args = new XmlContainerParserErrorEventArgs(xmlFile, isXmlFileList: true)
             {
                 // No reason to continue
                 Continue = false
@@ -65,7 +65,10 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
         }
         catch (XmlException e)
         {
-            var args = new XmlContainerParserErrorEventArgs(xmlFile, e, true)
+            _reporter?.Report(this, 
+                new XmlParseErrorEventArgs(new XmlLocationInfo(xmlFile, e.LineNumber), XmlParseErrorKind.Unknown, e.Message));
+
+            var args = new XmlContainerParserErrorEventArgs(xmlFile, e, isXmlFileList: true)
             {
                 // No reason to continue
                 Continue = false
@@ -78,7 +81,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
         var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
         var parser = _fileParserFactory.CreateFileParser<T>(_reporter);
-
+        
         foreach (var file in xmlFiles)
         {
             if (onFileParseAction is not null)
@@ -91,7 +94,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
                 _reporter?.Report(parser, XmlParseErrorEventArgs.FromMissingFile(file));
                 Logger.LogWarning("Could not find XML file '{File}'", file);
 
-                var args = new XmlContainerParserErrorEventArgs(file);
+                var args = new XmlContainerParserErrorEventArgs(file, isXmlFileList: false);
                 XmlParseError?.Invoke(this, args);
 
                 if (args.Continue)
@@ -109,7 +112,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
             {
                 _reporter?.Report(parser, new XmlParseErrorEventArgs(new XmlLocationInfo(file, 0), XmlParseErrorKind.Unknown, e.Message));
 
-                var args = new XmlContainerParserErrorEventArgs(file, e);
+                var args = new XmlContainerParserErrorEventArgs(file, e, isXmlFileList: false);
                 XmlParseError?.Invoke(this, args);
 
                 if (!args.Continue)
