@@ -29,7 +29,7 @@ internal abstract class AppSettingsBase(AppReportSettings reportSettings)
         init => field = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public required VerifyPipelineSettings VerifyPipelineSettings
+    public required VerifierServiceSettings VerifierServiceSettings
     {
         get;
         init => field = value ?? throw new ArgumentNullException(nameof(value));

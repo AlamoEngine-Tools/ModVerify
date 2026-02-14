@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
-using AET.ModVerify.Reporting.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify.Reporting.Reporters;

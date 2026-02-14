@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Reporters.Engine;
+using AET.ModVerify.Reporting.Engine;
 using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 
@@ -12,7 +12,8 @@ public sealed class GameEngineErrorCollector(
     IGameEngineErrorCollection errorCollection,
     IStarWarsGameEngine gameEngine,
     GameVerifySettings settings,
-    IServiceProvider serviceProvider) : GameVerifier(null, gameEngine, settings, serviceProvider)
+    IServiceProvider serviceProvider)
+    : GameVerifier(null, gameEngine, settings, serviceProvider)
 {
     public override string FriendlyName => "Game Engine Initialization";
 

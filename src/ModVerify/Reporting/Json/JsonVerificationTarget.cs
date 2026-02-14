@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using AET.ModVerify.Reporting.Baseline;
 using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Reporting.Json;
@@ -36,6 +37,15 @@ internal class JsonVerificationTarget
         Engine = engine;
         Location = location;
         IsGame = isGame;
+    }
+
+    public JsonVerificationTarget(VerificationTarget target)
+    {
+        Name = target.Name;
+        Version = target.Version;
+        Engine = target.Engine;
+        Location = new JsonGameLocation(target.Location);
+        IsGame = target.IsGame;
     }
 
     public JsonVerificationTarget(BaselineVerificationTarget target)

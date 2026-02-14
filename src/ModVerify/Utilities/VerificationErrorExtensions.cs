@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
+using AET.ModVerify.Reporting.Suppressions;
 
 namespace AET.ModVerify.Utilities;
 

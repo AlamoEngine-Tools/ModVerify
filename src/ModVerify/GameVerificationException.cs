@@ -7,8 +7,11 @@ namespace AET.ModVerify;
 
 public sealed class GameVerificationException : Exception
 {
+    /// <inheritdoc/>
+    public override string Message => ErrorMessage;
+
     public IReadOnlyCollection<VerificationError> Errors { get; }
-    
+
     private string ErrorMessage
     {
         get
@@ -23,14 +26,11 @@ public sealed class GameVerificationException : Exception
         }
     } = null;
 
-    /// <inheritdoc/>
-    public override string Message => ErrorMessage;
-
-    public GameVerificationException(VerificationError error) : this([error])
+    internal GameVerificationException(VerificationError error) : this([error])
     {
     }
 
-    public GameVerificationException(IEnumerable<VerificationError> errors)
+    internal GameVerificationException(IEnumerable<VerificationError> errors)
     {
         if (errors is null)
             throw new ArgumentNullException(nameof(errors));

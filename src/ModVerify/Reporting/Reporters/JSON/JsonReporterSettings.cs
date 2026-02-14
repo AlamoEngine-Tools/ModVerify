@@ -1,5 +1,6 @@
-﻿using AET.ModVerify.Reporting.Settings;
+﻿namespace AET.ModVerify.Reporting.Reporters;
 
-namespace AET.ModVerify.Reporting.Reporters.JSON;
-
-public record JsonReporterSettings : FileBasedReporterSettings;
+public record JsonReporterSettings : FileBasedReporterSettings
+{
+    public bool AggregateResults { get; init; }
+}

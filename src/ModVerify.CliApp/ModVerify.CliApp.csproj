@@ -5,14 +5,14 @@
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AET.ModVerify.App</RootNamespace>
 		<AssemblyName>ModVerify</AssemblyName>
-		<ApplicationIcon>$(RepoRootPath)aet.ico</ApplicationIcon>
+		<ApplicationIcon>Resources/aet.ico</ApplicationIcon>
 		<PackageId>AlamoEngineTools.ModVerify.CliApp</PackageId>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Title>ModVerify Console Application</Title>
 		<Product>AET.ModVerify</Product>
-		<Description>Console application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
+		<Description>An application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 
@@ -24,10 +24,6 @@
 	<PropertyGroup>
 		<NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\Baselines\baseline-foc.json" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Baselines\baseline-foc.json" />
@@ -70,7 +66,7 @@
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="IndexRange" Version="1.0.3" Condition="'$(TargetFramework)' == 'net481'">
+		<PackageReference Include="IndexRange" Version="1.1.0" Condition="'$(TargetFramework)' == 'net481'">
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -84,10 +80,6 @@
 	  <ProjectReference Include="..\..\modules\ModdingToolBase\src\Updater\AppUpdaterFramework\AppUpdaterFramework.csproj" />
 	  <ProjectReference Include="..\..\modules\ModdingToolBase\src\Updater\ExternalUpdater.App\ExternalUpdater.App.csproj" Condition="$(TargetFramework) == 'net481'" />
 	  <ProjectReference Include="..\ModVerify\ModVerify.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.103" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">

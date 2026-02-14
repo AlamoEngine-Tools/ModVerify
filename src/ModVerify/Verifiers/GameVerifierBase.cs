@@ -7,7 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using AET.ModVerify.Pipeline.Progress;
+using AET.ModVerify.Progress;
 using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers;

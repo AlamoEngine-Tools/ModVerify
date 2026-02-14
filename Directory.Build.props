@@ -33,20 +33,17 @@
 
 	<ItemGroup>
 		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="All"/>
 		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
 			<PrivateAssets>all</PrivateAssets>
 			<Version>3.9.50</Version>
 		</PackageReference>
-		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(IsPackable)' == 'true'">
 		<None Include="$(LicenseFile)" Pack="true" PackagePath=""/>
 		<None Include="$(RepoRootPath)aet.png" Pack="true" PackagePath=""/>
+		<None Include="$(RepoRootPath)README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 </Project>
