@@ -17,24 +17,37 @@ public sealed class ReferencedModelsVerifier(
 
     public override void Verify(CancellationToken token)
     {
-        var models = GameEngine.GameObjectTypeManager.Entries
-            .SelectMany(x => x.Models)
-            .Concat(FocHardcodedConstants.HardcodedModels).ToList();
+        var gameObjectEntries = GameEngine.GameObjectTypeManager.Entries.ToList();
+        var hardcodedModels = FocHardcodedConstants.HardcodedModels.ToList();
 
-        if (models.Count == 0)
+        var totalModelsCount = gameObjectEntries.Sum(x => x.Models.Count()) + hardcodedModels.Count;
+
+        if (totalModelsCount == 0)
             return;
 
-        var numModels = models.Count;
         var counter = 0;
 
         var inner = new SingleModelVerifier(this, GameEngine, Settings, Services);
         try
         {
             inner.Error += OnModelError;
-            foreach (var model in models)
+
+            var context = new string[1];
+            foreach (var gameObject in gameObjectEntries)
             {
-                OnProgress((double)++counter / numModels, $"Model - '{model}'");
-                inner.Verify(model, [], token);
+                context[0] = $"GameObject: {gameObject.Name}";
+                foreach (var model in gameObject.Models)
+                {
+                    OnProgress((double)++counter / totalModelsCount, $"Model - '{model}'");
+                    inner.Verify(model, context, token);
+                }
+            }
+
+            context[0] = "Hardcoded Model";
+            foreach (var hardcodedModel in hardcodedModels)
+            {
+                OnProgress((double)++counter / totalModelsCount, $"Model - '{hardcodedModel}'");
+                inner.Verify(hardcodedModel, context, token);
             }
         }
         finally
