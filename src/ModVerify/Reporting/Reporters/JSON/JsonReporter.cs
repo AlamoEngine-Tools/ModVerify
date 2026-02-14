@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Json;
+using AET.ModVerify.Verifiers;
 using AnakinRaW.CommonUtilities.FileSystem.Validation;
 
 namespace AET.ModVerify.Reporting.Reporters;
@@ -22,8 +24,28 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
         await JsonSerializer.SerializeAsync(fs, report, ModVerifyJsonSettings.JsonSettings);
     }
 
-    private static JsonVerificationReport CreateJsonReport(VerificationResult result)
+    private JsonVerificationReport CreateJsonReport(VerificationResult result)
     {
+        IEnumerable<JsonVerificationErrorBase> errors;
+        if (Settings.AggregateResults)
+        {
+            errors = result.Errors
+                .GroupBy(x => new GroupKey(x.Asset, x.Id, x.VerifierChain))
+                .Select<IGrouping<GroupKey, VerificationError>, JsonVerificationErrorBase>(g =>
+                {
+                    var first = g.First();
+                    var contexts = g.Select(x => x.ContextEntries).ToList();
+
+                    if (contexts.Count == 1)
+                        return new JsonVerificationError(first);
+                    return new JsonAggregatedVerificationError(first, contexts);
+                });
+        }
+        else
+        {
+            errors = result.Errors.Select(x => new JsonVerificationError(x));
+        }
+
         return new JsonVerificationReport
         {
             Metadata = new JsonVerificationReportMetadata
@@ -33,7 +55,7 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
                 Status = result.Status,
                 Verifiers = result.Verifiers.Select(x => x.Name).ToList()
             },
-            Errors = result.Errors.Select(x => new JsonVerificationError(x))
+            Errors = errors
         };
     }
 
@@ -46,5 +68,24 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
         // Thus, we simply use the current date and accept the fact that files may get overwritten for different targets.
         return $"VerificationResult_{DateTime.Now:yyyy_mm_dd}.json";
 
+    }
+
+    private readonly record struct GroupKey(string Asset, string Id, IReadOnlyList<IGameVerifierInfo> VerifierChain)
+    {
+        public bool Equals(GroupKey other)
+        {
+            return Asset == other.Asset
+                   && Id == other.Id
+                   && VerifierChainEqualityComparer.Instance.Equals(VerifierChain, other.VerifierChain);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(Asset);
+            hashCode.Add(Id);
+            hashCode.Add(VerifierChain, VerifierChainEqualityComparer.Instance);
+            return hashCode.ToHashCode();
+        }
     }
 }

@@ -82,7 +82,8 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
         reporters.Add(IVerificationReporter.CreateJson(new JsonReporterSettings
         {
             OutputDirectory = outputDirectory,
-            MinimumReportSeverity = Settings.ReportSettings.MinimumReportSeverity
+            MinimumReportSeverity = Settings.ReportSettings.MinimumReportSeverity,
+            AggregateResults = true
         }, ServiceProvider));
 
         reporters.Add(IVerificationReporter.CreateText(new TextFileReporterSettings

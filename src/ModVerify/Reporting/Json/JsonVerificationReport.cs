@@ -9,5 +9,5 @@ internal class JsonVerificationReport
     public required JsonVerificationReportMetadata Metadata { get; init; }
 
     [JsonPropertyName("errors")]
-    public required IEnumerable<JsonVerificationError> Errors { get; init; }
+    public required IEnumerable<JsonVerificationErrorBase> Errors { get; init; }
 }
