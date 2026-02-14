@@ -2,4 +2,4 @@
 
 namespace PG.StarWarsGame.Files.XML.ErrorHandling;
 
-public delegate void XmlErrorEventHandler(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error);
+public delegate void XmlErrorEventHandler(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error);

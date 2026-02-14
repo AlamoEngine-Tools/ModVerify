@@ -14,7 +14,7 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlParser
+internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlParserInfo
 {
     public event EventHandler<XmlContainerParserErrorEventArgs>? XmlParseError;
 
@@ -54,7 +54,7 @@ internal sealed class XmlContainerContentParser : ServiceBase, IPetroglyphXmlPar
             return;
         }
 
-        XmlFileListContainer? container;
+        XmlFileList? container;
 
         try
         {

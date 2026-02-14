@@ -33,7 +33,7 @@ internal sealed class GameEngineErrorReporterWrapper : XmlErrorReporter, IGameEn
         _errorReporter?.Assert(assert);
     }
 
-    public override void Report(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
+    public override void Report(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
     {
         if (_errorReporter is null)
             return;

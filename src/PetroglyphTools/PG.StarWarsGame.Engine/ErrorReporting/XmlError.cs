@@ -9,7 +9,7 @@ public sealed class XmlError
 {
     public required XmlLocationInfo FileLocation { get; init; }
 
-    public required IPetroglyphXmlParser Parser { get; init; }
+    public required IPetroglyphXmlParserInfo Parser { get; init; }
 
     public XElement? Element { get; init; }
 

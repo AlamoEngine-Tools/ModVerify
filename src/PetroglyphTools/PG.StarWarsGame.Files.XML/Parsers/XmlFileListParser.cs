@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
@@ -7,11 +8,11 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) :
-    PetroglyphXmlFileParser<XmlFileListContainer>(serviceProvider, errorReporter)
+    PetroglyphXmlFileParser<XmlFileList>(serviceProvider, errorReporter)
 {
     protected override bool LoadLineInfo => false;
 
-    protected override XmlFileListContainer Parse(XElement element, string fileName)
+    protected override XmlFileList Parse(XElement element, string fileName)
     {
         var files = new List<string>();
         foreach (var child in element.Elements())
@@ -33,6 +34,6 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
                         $"Tag '<{tagName}>' is not supported. Only '<File>' is supported."));
             }
         }
-        return new XmlFileListContainer(files);
+        return new XmlFileList(new ReadOnlyCollection<string>(files));
     }
 }

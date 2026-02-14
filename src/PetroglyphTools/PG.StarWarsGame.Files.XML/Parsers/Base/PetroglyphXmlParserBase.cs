@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParser
+public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
 {
     protected readonly IXmlParserErrorReporter? ErrorReporter;
 

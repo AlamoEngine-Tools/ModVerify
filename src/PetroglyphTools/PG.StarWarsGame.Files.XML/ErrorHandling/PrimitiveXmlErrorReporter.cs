@@ -15,7 +15,7 @@ internal sealed class PrimitiveXmlErrorReporter : IXmlParserErrorReporter, IXmlP
     {
     }
 
-    public void Report(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
+    public void Report(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
     {
         XmlParseError?.Invoke(parser, error);
     }

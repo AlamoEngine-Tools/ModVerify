@@ -12,7 +12,7 @@ public class XmlErrorReporter : DisposableObject, IXmlParserErrorReporter, IXmlP
         PrimitiveXmlErrorReporter.Instance.XmlParseError += OnPrimitiveError;
     }
 
-    public virtual void Report(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
+    public virtual void Report(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
     {
         XmlParseError?.Invoke(parser, error);
     }
@@ -22,7 +22,7 @@ public class XmlErrorReporter : DisposableObject, IXmlParserErrorReporter, IXmlP
         PrimitiveXmlErrorReporter.Instance.XmlParseError -= OnPrimitiveError;
     }
 
-    private void OnPrimitiveError(IPetroglyphXmlParser parser, XmlParseErrorEventArgs error)
+    private void OnPrimitiveError(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
     {
         Report(parser, error);
     }
