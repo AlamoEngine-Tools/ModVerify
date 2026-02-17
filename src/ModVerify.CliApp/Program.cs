@@ -15,7 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.MEG;
 using PG.StarWarsGame.Files.MTD;
@@ -35,6 +34,7 @@ using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AET.ModVerify.App.Reporting;
+using PG.StarWarsGame.Engine.Xml;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
 

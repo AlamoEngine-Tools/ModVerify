@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.Collections;
+using PG.StarWarsGame.Engine.Xml;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers;
 using System;
 using System.Linq;

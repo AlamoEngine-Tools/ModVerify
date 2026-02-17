@@ -1,21 +1,18 @@
-﻿using AnakinRaW.CommonUtilities.Collections;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Xml.Linq;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Xml.Linq;
-using AnakinRaW.CommonUtilities;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
-    : NamedXmlObjectParser<SfxEvent>(serviceProvider, errorReporter)
+    : NamedXmlObjectParser<SfxEvent>(serviceProvider, new SfxEventXmlTagMapper(serviceProvider), errorReporter)
 {
     protected override SfxEvent CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
     {
@@ -192,6 +189,17 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
                 sfxEvent.VolumeSaturationDistance = PetroglyphXmlFloatParser.Instance.ParseAtLeast(tag, SfxEvent.MinVolumeSaturation);
                 return true;
             default: return false;
+        }
+    }
+
+    private sealed class SfxEventXmlTagMapper(IServiceProvider serviceProvider) : XmlTagMapper<SfxEvent>(serviceProvider)
+    {
+        protected override void BuildMappings()
+        {
+            AddMapping(
+                "OverlapTestName",
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.OverlapTestName = val);
         }
     }
 }

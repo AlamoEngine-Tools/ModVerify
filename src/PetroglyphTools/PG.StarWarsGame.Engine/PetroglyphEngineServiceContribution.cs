@@ -2,6 +2,7 @@
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 
 namespace PG.StarWarsGame.Engine;
 

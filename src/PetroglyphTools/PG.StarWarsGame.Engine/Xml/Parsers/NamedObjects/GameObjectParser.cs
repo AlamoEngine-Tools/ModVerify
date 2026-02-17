@@ -1,13 +1,13 @@
-﻿using AnakinRaW.CommonUtilities.Collections;
+﻿using System;
+using System.Xml.Linq;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
-using System;
-using System.Xml.Linq;
 using Crc32 = PG.Commons.Hashing.Crc32;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 public static class GameObjectXmlTags
 {
@@ -26,7 +26,7 @@ public static class GameObjectXmlTags
 }
 
 internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
-    : NamedXmlObjectParser<GameObject>(serviceProvider, errorReporter)
+    : NamedXmlObjectParser<GameObject>(serviceProvider, new GameObjectXmlTagMapper(serviceProvider), errorReporter)
 { 
     protected override GameObject CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
     {
@@ -134,5 +134,12 @@ internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErro
             "UpgradeObject" => GameObjectType.UpgradeUnit,
             _ => GameObjectType.Unknown
         };
+    }
+
+    private sealed class GameObjectXmlTagMapper(IServiceProvider serviceProvider) : XmlTagMapper<GameObject>(serviceProvider)
+    {
+        protected override void BuildMappings()
+        {
+        }
     }
 }

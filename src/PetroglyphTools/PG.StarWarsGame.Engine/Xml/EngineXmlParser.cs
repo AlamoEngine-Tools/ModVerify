@@ -1,22 +1,31 @@
-﻿using AnakinRaW.CommonUtilities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
+using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
-using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.IO;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers;
+namespace PG.StarWarsGame.Engine.Xml;
+
+
+public sealed record EngineXmlParseSettings
+{
+    public bool InvalidFilesListXmlFailsInitialization { get; init; } = true;
+
+    public bool InvalidContainerXmlFailsInitialization { get; init; } = false;
+}
+
 
 public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 {
@@ -26,7 +35,12 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
     private readonly IXmlParserErrorReporter? _reporter;
     private readonly IPetroglyphXmlFileParserFactory _fileParserFactory;
 
-    public EngineXmlParser(IGameRepository gameRepository, IServiceProvider serviceProvider, IXmlParserErrorReporter? reporter) 
+    public string Name { get; }
+
+    public EngineXmlParser(
+        IGameRepository gameRepository, 
+        IServiceProvider serviceProvider, 
+        IXmlParserErrorReporter? reporter) 
         : base(serviceProvider)
     {
         _gameRepository = gameRepository;
@@ -34,8 +48,6 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         _fileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
         Name = GetType().FullName!;
     }
-
-    public string Name { get; }
 
     public XmlFileList ParseFileList(string xmlFile)
     {
@@ -77,13 +89,14 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         string xmlFile,
         string lookupPath,
         FrugalValueListDictionary<Crc32, T> entries,
-        Action<string>? onFileParseAction = null) where T : XmlObject
+        Action<string>? onFileParseAction = null) where T : NamedXmlObject
     {
         var container = ParseFileList(xmlFile);
 
         var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
-        var parser = _fileParserFactory.CreateFileContainerParser<T>(_reporter);
+        var parser = new PetroglyphXmlFileContainerParser<T>(Services,
+            _fileParserFactory.CreateNamedXmlObjectParser<T>(_reporter), _reporter);
 
         foreach (var file in xmlFiles)
         {
@@ -129,48 +142,16 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
     }
 }
 
-
-internal partial class XmlTagMapperDatabase
+public interface IXmlTagMapper<TObject> where TObject : XmlObject
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public XmlTagMapperDatabase(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-        SfxEventMap = CreateSfxEventMap();
-    }
+    bool TryParseEntry(XElement element, TObject target);
 }
 
-internal partial class XmlTagMapperDatabase
-{
-    private XmlTagMapper<SfxEvent> CreateSfxEventMap()
-    {
-        return new SfxEventXmlTagMapper(_serviceProvider);
-    }
-
-    private sealed class SfxEventXmlTagMapper(IServiceProvider serviceProvider) : XmlTagMapper<SfxEvent>(serviceProvider)
-    {
-        protected override void BuildMappings()
-        {
-            AddMapping(
-                "OverlapTestName",
-                PetroglyphXmlStringParser.Instance.Parse,
-                (obj, val) => obj.OverlapTestName = val);
-        }
-    }
-}
-
-
-internal partial class XmlTagMapperDatabase
-{
-    public XmlTagMapper<SfxEvent> SfxEventMap { get; }
-}
-
-internal abstract class XmlTagMapper<TClass> where TClass : notnull
+public abstract class XmlTagMapper<TObject> : IXmlTagMapper<TObject> where TObject : XmlObject
 {
     private const int MaxTagLength = 256;
 
-    private delegate void ParserValueAction(TClass target, XElement element);
+    private delegate void ParserValueAction(TObject target, XElement element);
 
     private readonly Dictionary<Crc32, ParserValueAction> _tagMappings = new();
     private readonly ICrc32HashingService _crcService;
@@ -187,7 +168,7 @@ internal abstract class XmlTagMapper<TClass> where TClass : notnull
 
     protected abstract void BuildMappings();
 
-    protected void AddMapping<TValue>(string tagName, Func<XElement, TValue> parser, Action<TClass, TValue> setter)
+    protected void AddMapping<TValue>(string tagName, Func<XElement, TValue> parser, Action<TObject, TValue> setter)
     {
         ThrowHelper.ThrowIfNullOrEmpty(tagName);
         if (tagName.Length >= MaxTagLength)
@@ -208,7 +189,7 @@ internal abstract class XmlTagMapper<TClass> where TClass : notnull
         };
     }
 
-    public bool TryParseEntry(XElement element, TClass target)
+    public bool TryParseEntry(XElement element, TObject target)
     {
         var tagName = element.Name.LocalName;
         if (tagName.Length >= MaxTagLength)

@@ -7,7 +7,7 @@ using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers.File;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) : 
     PetroglyphXmlFileParser<GuiDialogsXml>(serviceProvider, errorReporter)

@@ -8,7 +8,7 @@ using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.GuiDialog.Xml;
-using PG.StarWarsGame.Engine.Xml.Parsers.File;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.Binary;
 

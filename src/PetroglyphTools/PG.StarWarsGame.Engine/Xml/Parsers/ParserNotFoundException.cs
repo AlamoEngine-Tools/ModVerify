@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PG.StarWarsGame.Engine.Xml;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal sealed class ParserNotFoundException : Exception
 {

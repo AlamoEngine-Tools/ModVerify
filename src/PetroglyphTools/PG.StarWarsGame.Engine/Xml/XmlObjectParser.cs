@@ -9,12 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using Crc32 = PG.Commons.Hashing.Crc32;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers;
+namespace PG.StarWarsGame.Engine.Xml;
 
-internal abstract class XmlObjectParserBase<TObject, TParseState>(IXmlParserErrorReporter? errorReporter)
-    : PetroglyphXmlParserBase(errorReporter)
-    where TObject : XmlObject
+public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TObject> tagMapper, IXmlParserErrorReporter? errorReporter)
+    : PetroglyphXmlParserBase(errorReporter) where TObject : XmlObject
 {
+    protected readonly IXmlTagMapper<TObject> TagMapper = tagMapper ?? throw new ArgumentNullException(nameof(tagMapper));
+
     protected virtual void ValidateValues(TObject namedXmlObject, XElement element)
     {
     }
@@ -35,8 +36,11 @@ internal abstract class XmlObjectParserBase<TObject, TParseState>(IXmlParserErro
 }
 
 
-internal abstract class NamedXmlObjectParser<TObject>(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter)
-    : XmlObjectParserBase<TObject, IReadOnlyFrugalValueListDictionary<Crc32, TObject>>(errorReporter),
+public abstract class NamedXmlObjectParser<TObject>(
+    IServiceProvider serviceProvider,
+    IXmlTagMapper<TObject> tagMapper,
+    IXmlParserErrorReporter? errorReporter)
+    : XmlObjectParserBase<TObject, IReadOnlyFrugalValueListDictionary<Crc32, TObject>>(tagMapper, errorReporter), 
         IPetroglyphXmlNamedElementParser<TObject>
     where TObject : NamedXmlObject
 {
@@ -71,8 +75,8 @@ internal abstract class NamedXmlObjectParser<TObject>(IServiceProvider servicePr
     }
 }
 
-internal abstract class XmlObjectParser<TObject>(IXmlParserErrorReporter? errorReporter = null)
-    : XmlObjectParserBase<TObject, EmptyParseState>(errorReporter), IPetroglyphXmlElementParser<TObject>
+public abstract class XmlObjectParser<TObject>(IXmlTagMapper<TObject> tagMapper, IXmlParserErrorReporter? errorReporter = null)
+    : XmlObjectParserBase<TObject, EmptyParseState>(tagMapper, errorReporter), IPetroglyphXmlElementParser<TObject>
     where TObject : XmlObject
 {
     public TObject Parse(XElement element)
@@ -94,7 +98,7 @@ internal abstract class XmlObjectParser<TObject>(IXmlParserErrorReporter? errorR
     protected abstract bool ParseTag(XElement tag, TObject xmlObject);
 }
 
-internal readonly struct EmptyParseState
+public readonly struct EmptyParseState
 {
     public static readonly EmptyParseState Instance = new();
 }

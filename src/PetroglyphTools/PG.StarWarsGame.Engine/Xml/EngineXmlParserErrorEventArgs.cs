@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers;
+namespace PG.StarWarsGame.Engine.Xml;
 
 public class EngineXmlParserErrorEventArgs(string file, XmlException? exception = null, bool isXmlFileList = false)
 {

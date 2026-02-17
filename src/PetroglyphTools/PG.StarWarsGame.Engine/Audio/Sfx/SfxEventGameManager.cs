@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Localization;
-using PG.StarWarsGame.Engine.Xml.Parsers;
+using PG.StarWarsGame.Engine.Xml;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 

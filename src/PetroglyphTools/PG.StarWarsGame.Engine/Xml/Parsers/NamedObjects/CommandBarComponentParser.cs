@@ -1,20 +1,19 @@
-﻿using AnakinRaW.CommonUtilities.Collections;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Xml.Linq;
+using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
-using System;
-using System.Collections.ObjectModel;
-using System.Xml.Linq;
 using Crc32 = PG.Commons.Hashing.Crc32;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
+namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
-    : NamedXmlObjectParser<CommandBarComponentData>(serviceProvider, errorReporter)
+    : NamedXmlObjectParser<CommandBarComponentData>(serviceProvider, new CommandBarComponentDataXmlTagMapper(serviceProvider), errorReporter)
 {
-
     protected override CommandBarComponentData CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
     {
         return new CommandBarComponentData(name, nameCrc, location);
@@ -351,6 +350,14 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
                 $"CommandbarComponent name '{xmlData.Name}' is too long."));
+        }
+    }
+
+    private sealed class CommandBarComponentDataXmlTagMapper(IServiceProvider serviceProvider) 
+        : XmlTagMapper<CommandBarComponentData>(serviceProvider)
+    {
+        protected override void BuildMappings()
+        {
         }
     }
 }
