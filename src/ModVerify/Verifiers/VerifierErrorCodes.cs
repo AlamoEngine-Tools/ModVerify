@@ -36,4 +36,5 @@ public static class VerifierErrorCodes
     public const string XmlDataBeforeHeader = "XML08";
     public const string XmlMissingNode = "XML09";
     public const string XmlUnsupportedTag = "XML10";
+    public const string XmlElementsInTag = "XML11";
 }

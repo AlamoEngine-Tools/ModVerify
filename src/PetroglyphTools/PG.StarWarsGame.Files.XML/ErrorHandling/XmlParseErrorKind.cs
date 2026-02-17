@@ -50,5 +50,9 @@ public enum XmlParseErrorKind
     /// <summary>
     /// The XML tag name is null or empty.
     /// </summary>
-    EmptyNodeName
+    EmptyNodeName = 11,
+    /// <summary>
+    /// The XML tag has child elements.
+    /// </summary>
+    TagHasElements = 12
 }

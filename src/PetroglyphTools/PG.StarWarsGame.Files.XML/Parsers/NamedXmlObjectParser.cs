@@ -9,18 +9,18 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class NamedXmlObjectParser<TObject>(
+public abstract class NamedXmlObjectParser<T>(
     IServiceProvider serviceProvider,
-    IXmlTagMapper<TObject> tagMapper,
+    IXmlTagMapper<T> tagMapper,
     IXmlParserErrorReporter? errorReporter)
-    : XmlObjectParserBase<TObject, IReadOnlyFrugalValueListDictionary<Crc32, TObject>>(tagMapper, errorReporter)
-    where TObject : NamedXmlObject
+    : XmlObjectParserBase<T, IReadOnlyFrugalValueListDictionary<Crc32, T>>(tagMapper, errorReporter)
+    where T : NamedXmlObject
 {
     protected virtual bool UpperCaseNameForCrc => true;
 
     protected readonly ICrc32HashingService HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    public TObject Parse(XElement element, IReadOnlyFrugalValueListDictionary<Crc32, TObject> parsedEntries, out Crc32 nameCrc)
+    public T Parse(XElement element, IReadOnlyFrugalValueListDictionary<Crc32, T> parsedEntries, out Crc32 nameCrc)
     {
         var name = GetXmlObjectName(element, out nameCrc);
         var namedXmlObject = CreateXmlObject(name, nameCrc, element, XmlLocationInfo.FromElement(element));
@@ -30,7 +30,7 @@ public abstract class NamedXmlObjectParser<TObject>(
         return namedXmlObject;
     }
 
-    protected abstract TObject CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location);
+    protected abstract T CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location);
 
     private string GetXmlObjectName(XElement element, out Crc32 crc32)
     {
@@ -43,7 +43,7 @@ public abstract class NamedXmlObjectParser<TObject>(
         {
             ErrorReporter?.Report(new XmlError(this, element)
             {
-                Message = $"Name for XML object of type {typeof(TObject).Name} cannot be empty.",
+                Message = $"Name for XML object of type {typeof(T).Name} cannot be empty.",
                 ErrorKind = XmlParseErrorKind.InvalidValue
             });
         }

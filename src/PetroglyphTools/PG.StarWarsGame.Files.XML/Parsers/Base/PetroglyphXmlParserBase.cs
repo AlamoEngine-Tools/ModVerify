@@ -17,6 +17,15 @@ public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
 
     protected bool IsTagValid(XElement element)
     {
+        if (element.HasElements)
+        {
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.TagHasElements,
+                Message = "A tag cannot have elements.",
+            });
+            return false;
+        }
         var tagName = element.Name.LocalName;
         if (string.IsNullOrEmpty(tagName))
         {

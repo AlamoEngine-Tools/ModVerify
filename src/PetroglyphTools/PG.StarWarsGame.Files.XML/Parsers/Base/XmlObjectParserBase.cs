@@ -10,6 +10,8 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
 {
     protected readonly IXmlTagMapper<TObject> XmlTagMapper = tagMapper ?? throw new ArgumentNullException(nameof(tagMapper));
 
+    protected virtual bool IgnoreEmptyValue => true;
+
     protected virtual void ValidateValues(TObject namedXmlObject, XElement element)
     {
     }
@@ -18,6 +20,12 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
     {
         foreach (var tag in element.Elements())
         {
+            if (string.IsNullOrEmpty(tag.Value) && IgnoreEmptyValue)
+                continue;
+
+            if (tag.HasElements) 
+                Parse(xmlObject, tag, in state);
+
             if (!ParseTag(tag, xmlObject, state))
             {
                 ErrorReporter?.Report(new XmlError(this, element)

@@ -7,7 +7,6 @@ using AET.ModVerify.Settings;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.MTD.Data;
 using PG.StarWarsGame.Files.MTD.Files;
 using PG.StarWarsGame.Files.XML.Data;
