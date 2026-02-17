@@ -15,6 +15,32 @@ public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
         return Name;
     }
 
+    protected bool IsTagValid(XElement element)
+    {
+        var tagName = element.Name.LocalName;
+        if (string.IsNullOrEmpty(tagName))
+        {
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.EmptyNodeName,
+                Message = "A tag name cannot be null or empty.",
+            });
+            return false;
+        }
+
+        if (tagName.Length > XmlFileConstants.MaxTagNameLength)
+        {
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.TooLongData,
+                Message = $"A tag name can be only {XmlFileConstants.MaxTagNameLength} chars long.",
+            });
+            return false;
+        }
+
+        return true;
+    }
+
     protected PetroglyphXmlParserBase(IXmlParserErrorReporter? errorReporter)
     {
         Name = GetType().FullName!;

@@ -31,6 +31,6 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
 
     protected virtual bool ParseTag(XElement tag, TObject xmlObject, in TParseState parseState)
     {
-        return XmlTagMapper.TryParseEntry(tag, xmlObject);
+        return IsTagValid(tag) && XmlTagMapper.TryParseEntry(tag, xmlObject);
     }
 }

@@ -16,20 +16,7 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
         foreach (var child in element.Elements())
         {
             var tagName = GetTagName(child);
-            if (tagName == "File")
-            {
-                var file = PetroglyphXmlStringParser.Instance.Parse(child);
-                if (file.Length == 0)
-                {
-                    ErrorReporter?.Report(new XmlError(this, child)
-                    {
-                        ErrorKind = XmlParseErrorKind.InvalidValue,
-                        Message = "Empty value in <File> tag",
-                    });
-                }
-                files.Add(file);
-            }
-            else
+            if (tagName != "File")
             {
                 ErrorReporter?.Report(new XmlError(this, child)
                 {
@@ -37,6 +24,22 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
                     Message = $"Tag '<{tagName}>' is not supported. Only '<File>' is supported.",
                 });
             }
+
+            // NB: There intentionally is not else branch here, because that's how the engine behaves.
+            // It checks whether the tag is called "File" and reports an assert if not.
+            // However, it still consumes the value and treats it as file.
+
+            var file = PetroglyphXmlStringParser.Instance.Parse(child);
+            if (file.Length == 0)
+            {
+                ErrorReporter?.Report(new XmlError(this, child)
+                {
+                    ErrorKind = XmlParseErrorKind.InvalidValue,
+                    Message = "Empty value in <File> tag",
+                });
+            }
+
+            files.Add(file);
         }
         return new XmlFileList(new ReadOnlyCollection<string>(files), new XmlLocationInfo(fileName, null));
     }
