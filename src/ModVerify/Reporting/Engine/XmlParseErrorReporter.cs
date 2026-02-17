@@ -28,7 +28,8 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
         
         var context = new List<string>
         {
-            strippedFileName
+            $"Parser: {error.Parser.Name}",
+            $"File: {strippedFileName}" 
         };
 
         var xmlElement = error.Element;

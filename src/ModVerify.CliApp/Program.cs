@@ -51,7 +51,7 @@ internal class MainClass
 
 internal class Program : SelfUpdateableAppLifecycle
 {
-    private static readonly string EngineParserNamespace = typeof(EngineXmlParser).Namespace!;
+    private static readonly string EngineParserNamespace = typeof(PetroglyphStarWarsGameXmlParser).Namespace!;
     private static readonly string ParserNamespace = typeof(XmlFileParser<>).Namespace!;
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
     private static readonly CompiledExpression PrintToConsoleExpression = SerilogExpression.Compile($"EventId.Id = {ModVerifyConstants.ConsoleEventIdValue}");
