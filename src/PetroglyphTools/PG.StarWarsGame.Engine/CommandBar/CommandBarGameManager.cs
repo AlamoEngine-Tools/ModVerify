@@ -8,7 +8,6 @@ using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Rendering;
 using PG.StarWarsGame.Engine.Rendering.Font;
-using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.Binary;
 using PG.StarWarsGame.Files.MTD.Files;
 using PG.StarWarsGame.Files.MTD.Services;
@@ -75,24 +74,21 @@ internal class CommandBarGameManager(
     {
         Logger?.LogInformation("Creating command bar components...");
 
-        var contentParser = new EngineXmlParser(GameRepository, ServiceProvider, ErrorReporter);
-        contentParser.XmlParseError += OnParseError;
+        var contentParser = new PetroglyphStarWarsGameXmlParser(GameRepository, new PetroglyphStarWarsGameXmlParseSettings
+        {
+            GameManager = ToString(),
+            InvalidContainerXmlFailsInitialization = true,
+            InvalidFilesListXmlFailsInitialization = true
+        }, ServiceProvider, ErrorReporter);
 
         var parsedCommandBarComponents = new FrugalValueListDictionary<Crc32, CommandBarComponentData>();
 
-        try
-        {
-            await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
-                    "DATA\\XML\\CommandBarComponentFiles.XML",
-                    ".\\DATA\\XML",
-                    parsedCommandBarComponents,
-                    VerifyFilePathLength),
-                token);
-        }
-        finally
-        {
-            contentParser.XmlParseError -= OnParseError;
-        }
+        await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
+                "DATA\\XML\\CommandBarComponentFiles.XML",
+                ".\\DATA\\XML",
+                parsedCommandBarComponents,
+                VerifyFilePathLength),
+            token);
 
         // Create Scene
         // Create Camera
@@ -257,26 +253,6 @@ internal class CommandBarGameManager(
             foreach (var component in grouping) 
                 component.Group = group;
         }
-    }
-
-    private void OnParseError(object sender, EngineXmlParserErrorEventArgs e)
-    {
-        if (e.ErrorInXmlFileList || e.HasException)
-        {
-            e.Continue = false;
-            ErrorReporter.Report(new InitializationError
-            {
-                GameManager = ToString(),
-                Message = GetMessage(e)
-            });
-        }
-    }
-
-    private static string GetMessage(EngineXmlParserErrorEventArgs errorEventArgs)
-    {
-        if (errorEventArgs.HasException)
-            return $"Error while parsing CommandBar XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";
-        return "Could not find CommandBarComponentFiles.xml";
     }
 
     private void VerifyFilePathLength(string filePath)

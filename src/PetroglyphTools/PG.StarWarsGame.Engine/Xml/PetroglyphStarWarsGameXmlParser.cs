@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.Commons.Services;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.XML;
@@ -15,32 +16,24 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml;
 
-
-public sealed record EngineXmlParseSettings
+public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 {
-    public bool InvalidFilesListXmlFailsInitialization { get; init; } = true;
-
-    public bool InvalidContainerXmlFailsInitialization { get; init; } = false;
-}
-
-
-public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
-{
-    public event EventHandler<EngineXmlParserErrorEventArgs>? XmlParseError;
-
     private readonly IGameRepository _gameRepository;
-    private readonly IXmlParserErrorReporter? _reporter;
+    private readonly PetroglyphStarWarsGameXmlParseSettings _settings;
+    private readonly IGameEngineErrorReporter _reporter;
     private readonly IPetroglyphXmlFileParserFactory _fileParserFactory;
 
     public string Name { get; }
 
-    public EngineXmlParser(
-        IGameRepository gameRepository, 
+    public PetroglyphStarWarsGameXmlParser(
+        IGameRepository gameRepository,
+        PetroglyphStarWarsGameXmlParseSettings settings,
         IServiceProvider serviceProvider, 
-        IXmlParserErrorReporter? reporter) 
+        IGameEngineErrorReporter reporter) 
         : base(serviceProvider)
     {
         _gameRepository = gameRepository;
+        _settings = settings;
         _reporter = reporter;
         _fileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
         Name = GetType().FullName!;
@@ -53,15 +46,25 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         using var containerStream = _gameRepository.TryOpenFile(xmlFile);
         if (containerStream == null)
         {
-            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
+            var message = $"Could not find XML file '{xmlFile}'";
+           
+            Logger.LogWarning(message);
+
+            _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
             {
-                Message = "Xml file not found",
+                Message = message,
                 ErrorKind = XmlParseErrorKind.MissingFile
             });
-            Logger.LogWarning("Could not find XML file '{XmlFile}'", xmlFile);
+            
+            if (_settings.InvalidFilesListXmlFailsInitialization)
+            {
+                _reporter.Report(new InitializationError
+                {
+                    GameManager = _settings.GameManager,
+                    Message = message, 
+                });
+            }
 
-            var args = new EngineXmlParserErrorEventArgs(xmlFile, isXmlFileList: true);
-            XmlParseError?.Invoke(this, args);
             return XmlFileList.Empty(new XmlLocationInfo(xmlFile, null));
         }
 
@@ -76,14 +79,21 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         }
         catch (XmlException e)
         {
-            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
+            _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
             {
                 ErrorKind = XmlParseErrorKind.Unknown,
                 Message = e.Message,
             });
 
-            var args = new EngineXmlParserErrorEventArgs(xmlFile, e, isXmlFileList: true);
-            XmlParseError?.Invoke(this, args);
+            if (_settings.InvalidFilesListXmlFailsInitialization)
+            {
+                _reporter.Report(new InitializationError
+                {
+                    GameManager = _settings.GameManager,
+                    Message = e.Message,
+                });
+            }
+
             return XmlFileList.Empty(new XmlLocationInfo(xmlFile, null));
         }
 
@@ -120,16 +130,25 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 
         if (fileStream is null)
         {
-            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
+            var message = $"Could not find XML file '{xmlFile}'";
+            Logger.LogWarning(message);
+
+            _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
             {
-                Message = "Xml file not found",
+                Message = message,
                 ErrorKind = XmlParseErrorKind.MissingFile
             });
-            Logger.LogWarning("Could not find XML file '{File}'", xmlFile);
+            
+            if (_settings.InvalidContainerXmlFailsInitialization)
+            {
+                _reporter.Report(new InitializationError
+                {
+                    GameManager = _settings.GameManager,
+                    Message = message,
+                });
+            }
 
-            var args = new EngineXmlParserErrorEventArgs(xmlFile, isXmlFileList: false);
-            XmlParseError?.Invoke(this, args);
-            return args.Continue;
+            return _settings.InvalidContainerXmlFailsInitialization;
         }
 
         Logger.LogDebug("Parsing File '{File}'", xmlFile);
@@ -141,14 +160,20 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         }
         catch (XmlException e)
         {
-            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
+            _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
             {
                 ErrorKind = XmlParseErrorKind.Unknown,
                 Message = e.Message,
             });
-            var args = new EngineXmlParserErrorEventArgs(xmlFile, e, isXmlFileList: false);
-            XmlParseError?.Invoke(this, args);
-            return args.Continue;
+            if (_settings.InvalidContainerXmlFailsInitialization)
+            {
+                _reporter.Report(new InitializationError
+                {
+                    GameManager = _settings.GameManager,
+                    Message = e.Message,
+                });
+            }
+            return _settings.InvalidContainerXmlFailsInitialization;
         }
     }
 }

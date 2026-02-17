@@ -22,48 +22,47 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
 
     private void ParseGameObjectDatabases()
     {
-        var parser = new EngineXmlParser(GameRepository, ServiceProvider, ErrorReporter);
-        parser.XmlParseError += OnParseError;
-        try
-        {
-            var xmlFileList = parser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files
-                .Select(x =>
-                {
-                    var filePath = FileSystem.Path.Combine(@".\DATA\XML\", x);
-                    VerifyFilePathLength(filePath);
-                    return filePath;
-                }).ToList();
-
-
-            //var gameObjectFileParser = new GameObjectFileParser(serviceProvider, errorReporter);
-            
-            var allLoaded = false;
-            for (var passNumber = 0; !allLoaded && passNumber < 10; passNumber++)
+        var parser = new PetroglyphStarWarsGameXmlParser(GameRepository, 
+            new PetroglyphStarWarsGameXmlParseSettings
             {
-                foreach (var gameObjectXmlFile in xmlFileList)
-                {
-                    if (passNumber == 0)
-                    {
-                        //ParseSingleGameObjectFile(gameObjectXmlFile, parser, gameObjectFileParser);
-                    }
-                    else
-                    {
-                    }
-                }
+                GameManager = ToString(),
+                InvalidFilesListXmlFailsInitialization = true,
+                InvalidContainerXmlFailsInitialization = false,
+            }, ServiceProvider, ErrorReporter);
+
+        var xmlFileList = parser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files
+            .Select(x =>
+            {
+                var filePath = FileSystem.Path.Combine(@".\DATA\XML\", x);
+                VerifyFilePathLength(filePath);
+                return filePath;
+            }).ToList();
 
 
+        //var gameObjectFileParser = new GameObjectFileParser(serviceProvider, errorReporter);
 
-                //GameObjectTypeClass::Static_Post_Load_Fixup();
-                //SFXEventReferenceClass::Static_Post_Load_Fixup();
-                //SpeechEventReferenceClass::Static_Post_Load_Fixup();
-                //MusicEventReferenceClass::Static_Post_Load_Fixup();
-                //FactionReferenceClass::Static_Post_Load_Fixup();
-                //...
-            }
-        }
-        finally
+        var allLoaded = false;
+        for (var passNumber = 0; !allLoaded && passNumber < 10; passNumber++)
         {
-            parser.XmlParseError -= OnParseError;
+            foreach (var gameObjectXmlFile in xmlFileList)
+            {
+                if (passNumber == 0)
+                {
+                    //ParseSingleGameObjectFile(gameObjectXmlFile, parser, gameObjectFileParser);
+                }
+                else
+                {
+                }
+            }
+
+
+
+            //GameObjectTypeClass::Static_Post_Load_Fixup();
+            //SFXEventReferenceClass::Static_Post_Load_Fixup();
+            //SpeechEventReferenceClass::Static_Post_Load_Fixup();
+            //MusicEventReferenceClass::Static_Post_Load_Fixup();
+            //FactionReferenceClass::Static_Post_Load_Fixup();
+            //...
         }
     }
 
@@ -71,26 +70,6 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
     //{
     //    engineParser.ParseEntriesFromContainerFile(gameObjectFileParser, file, NamedEntries);
     //}
-
-
-    private void OnParseError(object sender, EngineXmlParserErrorEventArgs e)
-    {
-        if (e.ErrorInXmlFileList)
-        {
-            ErrorReporter.Report(new InitializationError
-            {
-                GameManager = ToString(),
-                Message = GetMessage(e)
-            });
-        }
-    }
-
-    private static string GetMessage(EngineXmlParserErrorEventArgs errorEventArgs)
-    {
-        if (errorEventArgs.HasException)
-            return $"Error while parsing XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";
-        return "Could not find GameObjectFiles.xml";
-    }
 
     private void VerifyFilePathLength(string filePath)
     {

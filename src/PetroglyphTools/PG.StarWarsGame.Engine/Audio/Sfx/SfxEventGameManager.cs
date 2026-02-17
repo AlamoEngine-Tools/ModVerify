@@ -24,41 +24,20 @@ internal class SfxEventGameManager(GameRepository repository, GameEngineErrorRep
 
         Logger?.LogInformation("Parsing SFXEvents...");
 
-        var contentParser = new EngineXmlParser(GameRepository, ServiceProvider, ErrorReporter);
-        contentParser.XmlParseError += OnParseError;
-        try
-        {
-            await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
-                    "DATA\\XML\\SFXEventFiles.XML",
-                    "DATA\\XML",
-                    NamedEntries,
-                    VerifyFilePathLength),
-                token);
-        }
-        finally
-        {
-            contentParser.XmlParseError -= OnParseError;
-        }
-    }
-
-    private void OnParseError(object sender, EngineXmlParserErrorEventArgs e)
-    {
-        if (e.ErrorInXmlFileList || e.HasException)
-        {
-            e.Continue = false;
-            ErrorReporter.Report(new InitializationError
+        var contentParser = new PetroglyphStarWarsGameXmlParser(GameRepository,
+            new PetroglyphStarWarsGameXmlParseSettings
             {
                 GameManager = ToString(),
-                Message = GetMessage(e)
-            });
-        }
-    }
+                InvalidContainerXmlFailsInitialization = true,
+                InvalidFilesListXmlFailsInitialization = true
+            }, ServiceProvider, ErrorReporter);
 
-    private static string GetMessage(EngineXmlParserErrorEventArgs errorEventArgs)
-    {
-        if (errorEventArgs.HasException)
-            return $"Error while parsing SFXEvent XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";
-        return "Could not find SFXEventFiles.xml";
+        await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
+                "DATA\\XML\\SFXEventFiles.XML",
+                "DATA\\XML",
+                NamedEntries,
+                VerifyFilePathLength),
+            token);
     }
 
     private void VerifyFilePathLength(string filePath)
