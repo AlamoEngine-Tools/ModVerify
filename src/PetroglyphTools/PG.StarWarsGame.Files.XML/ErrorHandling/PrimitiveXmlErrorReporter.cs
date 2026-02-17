@@ -1,13 +1,14 @@
 ﻿using System;
-using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Files.XML.ErrorHandling;
 
-internal sealed class PrimitiveXmlErrorReporter : IXmlParserErrorReporter, IXmlParserErrorProvider
+internal sealed class PrimitiveXmlErrorReporter : IXmlParserErrorReporter
 {
-    public event XmlErrorEventHandler? XmlParseError;
+    internal delegate void XmlErrorEventHandler(XmlError error);
 
-    private static readonly Lazy<PrimitiveXmlErrorReporter> LazyInstance = new(() => new PrimitiveXmlErrorReporter());
+    public event XmlErrorEventHandler? PrimitiveParseError;
+
+    private static readonly Lazy<PrimitiveXmlErrorReporter> LazyInstance = new(() => new PrimitiveXmlErrorReporter(), true);
 
     public static PrimitiveXmlErrorReporter Instance => LazyInstance.Value;
 
@@ -15,8 +16,8 @@ internal sealed class PrimitiveXmlErrorReporter : IXmlParserErrorReporter, IXmlP
     {
     }
 
-    public void Report(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
+    public void Report(XmlError error)
     {
-        XmlParseError?.Invoke(parser, error);
+        PrimitiveParseError?.Invoke(error);
     }
 }

@@ -21,8 +21,11 @@ public sealed class PetroglyphXmlByteParser : PetroglyphPrimitiveXmlParser<byte>
         var asByte = (byte)intValue;
         if (intValue != asByte)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected a byte value (0 - 255) but got value '{intValue}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected a byte value (0 - 255) but got value '{intValue}'.",
+            });
         }
 
         return asByte;

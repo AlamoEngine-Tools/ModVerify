@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PG.StarWarsGame.Engine.ErrorReporting;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace AET.ModVerify.Reporting.Engine;
 
@@ -17,7 +18,7 @@ public sealed class GameEngineErrorCollection : IGameEngineErrorCollection, IGam
 
     public IEnumerable<EngineAssert> Asserts => _asserts.ToList();
 
-    void IGameEngineErrorReporter.Report(XmlError error)
+    void IXmlParserErrorReporter.Report(XmlError error)
     {
         _xmlErrors.Add(error);
     }

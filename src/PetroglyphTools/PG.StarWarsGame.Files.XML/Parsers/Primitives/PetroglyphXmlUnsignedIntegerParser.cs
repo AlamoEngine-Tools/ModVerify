@@ -21,8 +21,11 @@ public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphPrimitiveXmlP
         var asUint = (uint)intValue;
         if (intValue != asUint)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected unsigned integer but got '{intValue}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected unsigned integer but got '{intValue}'.",
+            });
         }
 
         return asUint;

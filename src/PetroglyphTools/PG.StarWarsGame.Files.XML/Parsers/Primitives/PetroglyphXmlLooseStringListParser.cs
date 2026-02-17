@@ -29,8 +29,11 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlP
     {
         if (trimmedValue.Length > 0x2000)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
-                $"Input value is too long '{trimmedValue.Length}' at {XmlLocationInfo.FromElement(element)}"));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.TooLongData,
+                Message = $"Input value is too long '{trimmedValue.Length}' at {XmlLocationInfo.FromElement(element)}",
+            });
             return DefaultValue;
         }
 

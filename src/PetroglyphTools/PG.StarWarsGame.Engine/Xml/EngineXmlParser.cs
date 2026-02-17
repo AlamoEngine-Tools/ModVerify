@@ -56,7 +56,11 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         using var containerStream = _gameRepository.TryOpenFile(xmlFile);
         if (containerStream == null)
         {
-            _reporter?.Report(this, XmlParseErrorEventArgs.FromMissingFile(xmlFile));
+            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
+            {
+                Message = "Xml file not found",
+                ErrorKind = XmlParseErrorKind.MissingFile
+            });
             Logger.LogWarning("Could not find XML file '{XmlFile}'", xmlFile);
 
             var args = new EngineXmlParserErrorEventArgs(xmlFile, isXmlFileList: true);
@@ -75,8 +79,12 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         }
         catch (XmlException e)
         {
-            _reporter?.Report(containerParser, new XmlParseErrorEventArgs(new XmlLocationInfo(xmlFile, e.LineNumber),
-                XmlParseErrorKind.Unknown, e.Message));
+            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
+            {
+                ErrorKind = XmlParseErrorKind.Unknown,
+                Message = e.Message,
+            });
+
             var args = new EngineXmlParserErrorEventArgs(xmlFile, e, isXmlFileList: true);
             XmlParseError?.Invoke(this, args);
             return XmlFileList.Empty;
@@ -115,7 +123,11 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 
         if (fileStream is null)
         {
-            _reporter?.Report(this, XmlParseErrorEventArgs.FromMissingFile(xmlFile));
+            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
+            {
+                Message = "Xml file not found",
+                ErrorKind = XmlParseErrorKind.MissingFile
+            });
             Logger.LogWarning("Could not find XML file '{File}'", xmlFile);
 
             var args = new EngineXmlParserErrorEventArgs(xmlFile, isXmlFileList: false);
@@ -132,9 +144,11 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
         }
         catch (XmlException e)
         {
-            _reporter?.Report(parser,
-                new XmlParseErrorEventArgs(new XmlLocationInfo(xmlFile, 0), XmlParseErrorKind.Unknown, e.Message));
-
+            _reporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
+            {
+                ErrorKind = XmlParseErrorKind.Unknown,
+                Message = e.Message,
+            });
             var args = new EngineXmlParserErrorEventArgs(xmlFile, e, isXmlFileList: false);
             XmlParseError?.Invoke(this, args);
             return args.Continue;

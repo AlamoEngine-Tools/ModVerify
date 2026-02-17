@@ -45,7 +45,22 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
             options |= LoadOptions.SetLineInfo;
 
         var doc = XDocument.Load(xmlReader, options);
-        return doc.Root ?? throw new XmlException("No root node found.");
+
+        var root = doc.Root;
+
+        if (root is null)
+            throw new XmlException("No root node found.");
+
+        if (!root.HasElements)
+        {
+            ErrorReporter?.Report(new XmlError(this, root)
+            {
+                ErrorKind = XmlParseErrorKind.EmptyRoot,
+                Message = "XML file has an empty root node.",
+            });
+        }
+
+        return root;
     }
 
     private string GetStrippedFileName(string filePath)
@@ -77,8 +92,12 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
         if (count != 0)
         {
-            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0),
-                XmlParseErrorKind.DataBeforeHeader, $"XML header is not the first entry of the XML file."));}
+            ErrorReporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(fileName, 0))
+            {
+                ErrorKind = XmlParseErrorKind.DataBeforeHeader,
+                Message = "XML header is not the first entry of the XML file.",
+            });
+        }
 
         stream.Position = count;
     }

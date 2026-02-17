@@ -21,8 +21,11 @@ public sealed class PetroglyphXmlFloatParser : PetroglyphPrimitiveXmlParser<floa
         var corrected = Math.Max(value, minValue);
         if (corrected != value)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected float to be at least {minValue} but got value '{value}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected float to be at least {minValue} but got value '{value}'.",
+            });
         }
 
         return corrected;
@@ -37,8 +40,11 @@ public sealed class PetroglyphXmlFloatParser : PetroglyphPrimitiveXmlParser<floa
 #endif
                 , NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
-                $"Expected double but got value '{trimmedValue.ToString()}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.MalformedValue,
+                Message = $"Expected double but got value '{trimmedValue.ToString()}'.",
+            });
             return 0.0f;
         }
 

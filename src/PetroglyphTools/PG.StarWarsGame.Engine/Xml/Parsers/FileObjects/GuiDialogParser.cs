@@ -22,8 +22,11 @@ internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserError
     {
         if (element is null)
         {
-            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, null), XmlParseErrorKind.MissingNode,
-                "Expected node <Textures> is missing."));
+            ErrorReporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(fileName, null))
+            {
+                 ErrorKind = XmlParseErrorKind.MissingNode,
+                 Message = "Expected node <Textures> is missing."
+            });
             return new GuiDialogsXmlTextureData([], new XmlLocationInfo(fileName, null));
         }
 
@@ -36,8 +39,13 @@ internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserError
             textures.Add(ParseTexture(texture));
 
         if (textures.Count == 0)
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MissingNode,
-                "Textures must contain at least one child node."));
+        {
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                Message = "Textures must contain at least one child node.",
+                ErrorKind = XmlParseErrorKind.MissingNode
+            });
+        }
         
         return new GuiDialogsXmlTextureData(textures, XmlLocationInfo.FromElement(element))
         {

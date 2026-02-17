@@ -19,12 +19,6 @@ public sealed class PetroglyphXmlFileContainerParser<T>(
     {
         var root = GetRootElement(xmlStream, out _);
         
-        if (!root.HasElements)
-        {
-            OnParseError(XmlParseErrorEventArgs.FromEmptyRoot(root));
-            return;
-        }
-
         foreach (var xElement in root.Elements())
         {
             var parsedElement = ElementParser.Parse(xElement, parsedEntries, out var entryCrc);

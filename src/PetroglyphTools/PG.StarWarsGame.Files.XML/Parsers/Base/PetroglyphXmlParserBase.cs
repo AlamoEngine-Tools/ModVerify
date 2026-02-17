@@ -40,22 +40,22 @@ public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
 
     protected bool GetAttributeValue(XElement element, string attribute, out string? value, string? defaultValue = null)
     {
+        // In this engine, this is actually case-sensitive
         var nameAttribute = element.Attributes()
             .FirstOrDefault(a => a.Name.LocalName == attribute);
-
+        
         if (nameAttribute is null)
         {
             value = defaultValue;
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MissingAttribute, $"Missing attribute '{attribute}'"));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.MissingAttribute,
+                Message = $"Missing attribute '{attribute}'",
+            });
             return false;
         }
 
         value = nameAttribute.Value;
         return true;
-    }
-
-    protected virtual void OnParseError(XmlParseErrorEventArgs error)
-    {
-        ErrorReporter?.Report(this, error);
     }
 }

@@ -25,15 +25,21 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphPrimitiveXmlParser
         var asByte = (byte)intValue;
         if (intValue != asByte)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected a byte value (0 - 255) but got value '{intValue}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected a byte value (0 - 255) but got value '{intValue}'.",
+            });
         }
 
         // Add additional check, cause the PG implementation is broken, but we need to stay "bug-compatible".
         if (asByte > 100)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected a byte value (0 - 100) but got value '{asByte}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected a byte value (0 - 100) but got value '{asByte}'.",
+            });
         }
 
         return asByte;
@@ -43,9 +49,11 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphPrimitiveXmlParser
     {
         if (maxValue > 100)
         {
-            OnParseError(new XmlParseErrorEventArgs(
-                element, XmlParseErrorKind.InvalidValue, 
-                $"The provided maxValue '{maxValue}' is above 100."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"The provided maxValue '{maxValue}' is above 100.",
+            });
         }
 
         // TODO: Do we need to coerce maxValue???
@@ -55,8 +63,11 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphPrimitiveXmlParser
         var clamped = PGMath.Clamp(value, minValue, maxValue);
         if (value != clamped)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected byte between {minValue} and {maxValue} but got value '{value}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected byte between {minValue} and {maxValue} but got value '{value}'.",
+            });
         }
         return clamped;
     }

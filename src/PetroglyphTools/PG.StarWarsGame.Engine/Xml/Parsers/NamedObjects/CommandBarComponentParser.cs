@@ -348,8 +348,11 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
     {
         if (xmlData.Name.Length > PGConstants.MaxCommandBarComponentName)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
-                $"CommandbarComponent name '{xmlData.Name}' is too long."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                Message = $"CommandbarComponent name '{xmlData.Name}' is too long.",
+                ErrorKind = XmlParseErrorKind.TooLongData
+            });
         }
     }
 

@@ -7,6 +7,9 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
+
+// TODO: To XmlObjectParser
+
 public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) :
     PetroglyphXmlFileParser<XmlFileList>(serviceProvider, errorReporter)
 {
@@ -23,15 +26,21 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
                 var file = PetroglyphXmlStringParser.Instance.Parse(child);
                 if (file.Length == 0)
                 {
-                    ErrorReporter?.Report(this, 
-                        new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue, "Empty value in <File> tag."));
+                    ErrorReporter?.Report(new XmlError(this, child)
+                    {
+                        ErrorKind = XmlParseErrorKind.InvalidValue,
+                        Message = "Empty value in <File> tag",
+                    });
                 }
                 files.Add(file);
             }
             else
             {
-                ErrorReporter?.Report(this, new XmlParseErrorEventArgs(child, XmlParseErrorKind.UnknownNode, 
-                        $"Tag '<{tagName}>' is not supported. Only '<File>' is supported."));
+                ErrorReporter?.Report(new XmlError(this, child)
+                {
+                    ErrorKind = XmlParseErrorKind.UnknownNode,
+                    Message = $"Tag '<{tagName}>' is not supported. Only '<File>' is supported.",
+                });
             }
         }
         return new XmlFileList(new ReadOnlyCollection<string>(files));

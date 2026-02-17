@@ -21,47 +21,47 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
 
     protected override void ValidateValues(SfxEvent sfxEvent, XElement element)
     {
-        if (sfxEvent.Name.Length > PGConstants.MaxSFXEventName)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
-                $"SFXEvent name '{sfxEvent.Name}' is too long."));
-        }
+        //if (sfxEvent.Name.Length > PGConstants.MaxSFXEventName)
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData,
+        //        $"SFXEvent name '{sfxEvent.Name}' is too long."));
+        //}
 
-        if (sfxEvent is { Is2D: true, Is3D: true })
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"SFXEvent '{sfxEvent.Name}' is defined as 2D and 3D."));
-        }
+        //if (sfxEvent is { Is2D: true, Is3D: true })
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+        //        $"SFXEvent '{sfxEvent.Name}' is defined as 2D and 3D."));
+        //}
 
-        if (sfxEvent.MinVolume > sfxEvent.MaxVolume)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue, 
-                $"{SfxEventXmlTags.MinVolume} should not be higher than {SfxEventXmlTags.MaxVolume} for SFXEvent '{sfxEvent.Name}'"));
-        }
+        //if (sfxEvent.MinVolume > sfxEvent.MaxVolume)
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue, 
+        //        $"{SfxEventXmlTags.MinVolume} should not be higher than {SfxEventXmlTags.MaxVolume} for SFXEvent '{sfxEvent.Name}'"));
+        //}
 
-        if (sfxEvent.MinPitch > sfxEvent.MaxPitch)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"{SfxEventXmlTags.MinPitch} should not be higher than {SfxEventXmlTags.MaxPitch} for SFXEvent '{sfxEvent.Name}'"));
-        }
+        //if (sfxEvent.MinPitch > sfxEvent.MaxPitch)
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+        //        $"{SfxEventXmlTags.MinPitch} should not be higher than {SfxEventXmlTags.MaxPitch} for SFXEvent '{sfxEvent.Name}'"));
+        //}
 
-        if (sfxEvent.MinPan2D > sfxEvent.MaxPan2D)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"{SfxEventXmlTags.MinPan2D} should not be higher than {SfxEventXmlTags.MaxPan2D} for SFXEvent '{sfxEvent.Name}'"));
-        }
+        //if (sfxEvent.MinPan2D > sfxEvent.MaxPan2D)
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+        //        $"{SfxEventXmlTags.MinPan2D} should not be higher than {SfxEventXmlTags.MaxPan2D} for SFXEvent '{sfxEvent.Name}'"));
+        //}
 
-        if (sfxEvent.MinPredelay > sfxEvent.MaxPredelay)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"{SfxEventXmlTags.MinPredelay} should not be higher than {SfxEventXmlTags.MaxPredelay} for SFXEvent '{sfxEvent.Name}'"));
-        }
+        //if (sfxEvent.MinPredelay > sfxEvent.MaxPredelay)
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+        //        $"{SfxEventXmlTags.MinPredelay} should not be higher than {SfxEventXmlTags.MaxPredelay} for SFXEvent '{sfxEvent.Name}'"));
+        //}
 
-        if (sfxEvent.MinPostdelay > sfxEvent.MaxPostdelay)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"{SfxEventXmlTags.MinPostdelay} should not be higher than {SfxEventXmlTags.MaxPostdelay} for SFXEvent '{sfxEvent.Name}'"));
-        }
+        //if (sfxEvent.MinPostdelay > sfxEvent.MaxPostdelay)
+        //{
+        //    OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
+        //        $"{SfxEventXmlTags.MinPostdelay} should not be higher than {SfxEventXmlTags.MaxPostdelay} for SFXEvent '{sfxEvent.Name}'"));
+        //}
     }
 
     protected override bool ParseTag(XElement tag, SfxEvent sfxEvent, in IReadOnlyFrugalValueListDictionary<Crc32, SfxEvent> parsedEntries)
@@ -82,8 +82,11 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
                     sfxEvent.ApplyPreset(preset);
                 else
                 {
-                    OnParseError(new XmlParseErrorEventArgs(tag, 
-                        XmlParseErrorKind.MissingReference, $"Cannot to find preset '{presetName}' for SFXEvent '{sfxEvent.Name}'"));
+                    ErrorReporter?.Report(new XmlError(this, tag)
+                    {
+                        Message = $"Cannot to find preset '{presetName}' for SFXEvent '{sfxEvent.Name}'",
+                        ErrorKind = XmlParseErrorKind.MissingReference
+                    });
                 }
                 return true;
             }

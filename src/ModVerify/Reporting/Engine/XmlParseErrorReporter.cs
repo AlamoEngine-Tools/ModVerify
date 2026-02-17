@@ -4,7 +4,6 @@ using System.IO.Abstractions;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 

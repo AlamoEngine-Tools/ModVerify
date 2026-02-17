@@ -1,29 +1,25 @@
 ﻿using AnakinRaW.CommonUtilities;
-using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Files.XML.ErrorHandling;
 
-public class XmlErrorReporter : DisposableObject, IXmlParserErrorReporter, IXmlParserErrorProvider
+public class XmlErrorReporter : DisposableObject, IXmlParserErrorReporter
 {
-    public event XmlErrorEventHandler? XmlParseError;
-
     public XmlErrorReporter()
     {
-        PrimitiveXmlErrorReporter.Instance.XmlParseError += OnPrimitiveError;
+        PrimitiveXmlErrorReporter.Instance.PrimitiveParseError += OnPrimitiveError;
     }
 
-    public virtual void Report(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
+    public virtual void Report(XmlError error)
     {
-        XmlParseError?.Invoke(parser, error);
     }
 
     protected override void DisposeResources()
     {
-        PrimitiveXmlErrorReporter.Instance.XmlParseError -= OnPrimitiveError;
+        PrimitiveXmlErrorReporter.Instance.PrimitiveParseError -= OnPrimitiveError;
     }
 
-    private void OnPrimitiveError(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
+    private void OnPrimitiveError(XmlError error)
     {
-        Report(parser, error);
+        Report(error);
     }
 }

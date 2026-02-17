@@ -1,6 +1,5 @@
 ﻿using System;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.ErrorReporting;
 
@@ -17,7 +16,7 @@ internal sealed class GameEngineErrorReporterWrapper : XmlErrorReporter, IGameEn
         _errorReporter = errorReporter;
     }
 
-    public void Report(XmlError error)
+    public override void Report(XmlError error)
     {
         _errorReporter?.Report(error);
     }
@@ -31,20 +30,5 @@ internal sealed class GameEngineErrorReporterWrapper : XmlErrorReporter, IGameEn
     public void Assert(EngineAssert assert)
     {
         _errorReporter?.Assert(assert);
-    }
-
-    public override void Report(IPetroglyphXmlParserInfo parser, XmlParseErrorEventArgs error)
-    {
-        if (_errorReporter is null)
-            return;
-
-        Report(new XmlError
-        {
-            FileLocation = error.Location,
-            Parser = parser,
-            Message = error.Message,
-            ErrorKind = error.ErrorKind,
-            Element = error.Element
-        });
     }
 }

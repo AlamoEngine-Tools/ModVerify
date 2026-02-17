@@ -17,11 +17,23 @@ public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlElementPars
         var tagName = element.Name.LocalName;
         if (string.IsNullOrEmpty(tagName))
         {
-            ErrorReporter?.Report(this, new XmlParseErrorEventArgs(element, XmlParseErrorKind.EmptyNodeName, "A tag name cannot be null or empty."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.EmptyNodeName,
+                Message = "A tag name cannot be null or empty.",
+            });
             return DefaultValue;
         }
-        if (tagName.Length >= 256) 
-            ErrorReporter?.Report(this, new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData, "A tag name cannot be null or empty."));
+
+        if (tagName.Length > XmlFileConstants.MaxTagNameLength)
+        {
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.TooLongData,
+                Message = $"A tag name can be only {XmlFileConstants.MaxTagNameLength} chars long.",
+            });
+            return DefaultValue;
+        }
 
         var value = element.Value.AsSpan().Trim();
         return value.Length == 0 ? DefaultValue : ParseCore(value, element);

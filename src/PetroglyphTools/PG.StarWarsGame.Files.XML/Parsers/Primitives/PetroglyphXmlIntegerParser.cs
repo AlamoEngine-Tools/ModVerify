@@ -27,8 +27,11 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphPrimitiveXmlParser<in
 
                 , out var i))
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
-                $"Expected integer but got '{trimmedValue.ToString()}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.MalformedValue,
+                Message = $"Expected integer but got '{trimmedValue.ToString()}'.",
+            });
             return 0;
         }
 
@@ -41,8 +44,11 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphPrimitiveXmlParser<in
         var clamped =  PGMath.Clamp(value, minValue, maxValue);
         if (value != clamped)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected integer between {minValue} and {maxValue} but got value '{value}'."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.InvalidValue,
+                Message = $"Expected integer between {minValue} and {maxValue} but got value '{value}'.",
+            });
         }
         return clamped;
     }

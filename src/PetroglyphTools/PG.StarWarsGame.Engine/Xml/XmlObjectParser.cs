@@ -26,8 +26,11 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
         {
             if (!ParseTag(tag, xmlObject, state))
             {
-                OnParseError(new XmlParseErrorEventArgs(tag, XmlParseErrorKind.UnknownNode,
-                    $"The node '{tag.Name}' is not supported."));
+                ErrorReporter?.Report(new XmlError(this, element)
+                {
+                    Message = $"The node '{tag.Name}' is not supported.",
+                    ErrorKind = XmlParseErrorKind.UnknownNode
+                });
             }
         }
     }
@@ -67,8 +70,11 @@ public abstract class NamedXmlObjectParser<TObject>(
 
         if (crc32 == default)
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                "Name for XmlObject cannot be empty."));
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                Message = "Name for XmlObject cannot be empty.",
+                ErrorKind = XmlParseErrorKind.InvalidValue
+            });
         }
 
         return name;
