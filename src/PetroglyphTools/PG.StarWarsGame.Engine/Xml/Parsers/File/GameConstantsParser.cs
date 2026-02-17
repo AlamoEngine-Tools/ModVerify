@@ -4,7 +4,7 @@ using PG.StarWarsGame.Engine.GameConstants;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 
-namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
+namespace PG.StarWarsGame.Engine.Xml.Parsers.File;
 
 internal class GameConstantsParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) :
     PetroglyphXmlFileParser<GameConstantsXml>(serviceProvider, errorReporter)

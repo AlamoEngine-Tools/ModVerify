@@ -10,7 +10,7 @@
     },
     "Verify (Automatic Target Selection)": {
       "commandName": "Project",
-      "commandLineArgs": "verify -o verifyResults --path \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Star Wars Empire at War\\corruption\""
+      "commandLineArgs": "verify --offline -o verifyResults --path \"C:/Program Files (x86)/Steam/steamapps/common/Star Wars Empire at War/corruption/Mods/Test\""
     },
     "Create Baseline Interactive": {
       "commandName": "Project",

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Xml.Linq;
-using AnakinRaW.CommonUtilities.Collections;
-using PG.Commons.Hashing;
+﻿using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
+using System;
+using System.Xml.Linq;
+using Crc32 = PG.Commons.Hashing.Crc32;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
@@ -25,25 +25,17 @@ public static class GameObjectXmlTags
     public const string DamagedSmokeAssetName = "Damaged_Smoke_Asset_Name";
 }
 
-public sealed class GameObjectParser(
-    IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedElements,
-    IServiceProvider serviceProvider,
-    IXmlParserErrorReporter? errorReporter = null)
-    : XmlObjectParser<GameObject>(parsedElements, serviceProvider, errorReporter)
+internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
+    : NamedXmlObjectParser<GameObject>(serviceProvider, errorReporter)
 { 
-    public override GameObject Parse(XElement element, out Crc32 crc32)
+    protected override GameObject CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
     {
-        var name = GetXmlObjectName(element, out crc32, true);
         var type = GetTagName(element);
         var objectType = EstimateType(type);
-        var gameObject = new GameObject(type, name, crc32, objectType, XmlLocationInfo.FromElement(element));
-
-        Parse(gameObject, element, default);
-
-        return gameObject;
+        return new GameObject(type, name, nameCrc, objectType, location);
     }
 
-    protected override bool ParseTag(XElement tag, GameObject xmlObject)
+    protected override bool ParseTag(XElement tag, GameObject xmlObject, in IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parseState)
     {
         switch (tag.Name.LocalName)
         {
@@ -143,6 +135,4 @@ public sealed class GameObjectParser(
             _ => GameObjectType.Unknown
         };
     }
-
-    public override GameObject Parse(XElement element) => throw new NotSupportedException();
 }

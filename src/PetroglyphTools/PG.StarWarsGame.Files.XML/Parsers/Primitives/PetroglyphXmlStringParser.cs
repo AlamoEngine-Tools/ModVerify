@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -12,8 +13,8 @@ public sealed class PetroglyphXmlStringParser : PetroglyphPrimitiveXmlParser<str
 
     private protected override string DefaultValue => string.Empty;
 
-    protected internal override string ParseCore(string trimmedValue, XElement element)
+    protected internal override string ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
-        return trimmedValue;
+        return trimmedValue.ToString();
     }
 }

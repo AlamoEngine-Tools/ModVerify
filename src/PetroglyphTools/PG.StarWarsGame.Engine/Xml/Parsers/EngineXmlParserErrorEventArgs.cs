@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal class XmlContainerParserErrorEventArgs(string file, XmlException? exception = null, bool isXmlFileList = false)
+public class EngineXmlParserErrorEventArgs(string file, XmlException? exception = null, bool isXmlFileList = false)
 {
     public bool Continue
     {

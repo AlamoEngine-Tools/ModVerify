@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
@@ -17,7 +18,7 @@ public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphPrimitive
 
     private protected override IList<(string key, string value)> DefaultValue => [];
 
-    protected internal override IList<(string key, string value)> ParseCore(string trimmedValue, XElement element)
+    protected internal override IList<(string key, string value)> ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         var values = element.Value.Split(',');
 

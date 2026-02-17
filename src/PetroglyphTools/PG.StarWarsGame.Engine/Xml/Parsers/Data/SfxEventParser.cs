@@ -1,33 +1,28 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Xml.Linq;
-using AnakinRaW.CommonUtilities.Collections;
+﻿using AnakinRaW.CommonUtilities.Collections;
+using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Xml.Linq;
+using AnakinRaW.CommonUtilities;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
-public sealed class SfxEventParser(
-    IReadOnlyFrugalValueListDictionary<Crc32, SfxEvent> parsedElements,
-    IServiceProvider serviceProvider,
-    IXmlParserErrorReporter? errorReporter = null)
-    : XmlObjectParser<SfxEvent>(parsedElements, serviceProvider, errorReporter)
-{ 
-    public override SfxEvent Parse(XElement element, out Crc32 crc32)
+internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
+    : NamedXmlObjectParser<SfxEvent>(serviceProvider, errorReporter)
+{
+    protected override SfxEvent CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
     {
-        var name = GetXmlObjectName(element, out crc32, true);
-        var sfxEvent = new SfxEvent(name, crc32, XmlLocationInfo.FromElement(element));
-        Parse(sfxEvent, element, default);
-        ValidateValues(sfxEvent, element);
-        sfxEvent.CoerceValues();
-        return sfxEvent;
+        return new SfxEvent(name, nameCrc, location);
     }
 
-    private void ValidateValues(SfxEvent sfxEvent, XElement element)
+    protected override void ValidateValues(SfxEvent sfxEvent, XElement element)
     {
         if (sfxEvent.Name.Length > PGConstants.MaxSFXEventName)
         {
@@ -72,7 +67,7 @@ public sealed class SfxEventParser(
         }
     }
 
-    protected override bool ParseTag(XElement tag, SfxEvent sfxEvent)
+    protected override bool ParseTag(XElement tag, SfxEvent sfxEvent, in IReadOnlyFrugalValueListDictionary<Crc32, SfxEvent> parsedEntries)
     {
         switch (tag.Name.LocalName)
         {
@@ -86,7 +81,7 @@ public sealed class SfxEventParser(
             {
                 var presetName = PetroglyphXmlStringParser.Instance.Parse(tag);
                 var presetNameCrc = HashingService.GetCrc32Upper(presetName.AsSpan(), PGConstants.DefaultPGEncoding);
-                if (presetNameCrc != default && ParsedElements.TryGetFirstValue(presetNameCrc, out var preset))
+                if (presetNameCrc != default && parsedEntries.TryGetFirstValue(presetNameCrc, out var preset))
                     sfxEvent.ApplyPreset(preset);
                 else
                 {
@@ -199,6 +194,4 @@ public sealed class SfxEventParser(
             default: return false;
         }
     }
-
-    public override SfxEvent Parse(XElement element) => throw new NotSupportedException();
 }

@@ -23,7 +23,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
     protected virtual bool LoadLineInfo => true;
 
-    protected XElement? GetRootElement(Stream xmlStream, out string fileName)
+    protected XElement GetRootElement(Stream xmlStream, out string fileName)
     {
         fileName = GetStrippedFileName(xmlStream.GetFilePath());
 
@@ -32,11 +32,13 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
         SkipLeadingWhiteSpace(fileName, xmlStream);
 
-        var xmlReader = XmlReader.Create(xmlStream, new XmlReaderSettings
+        var asciiStreamReader = new StreamReader(xmlStream, XmlFileConstants.XmlEncoding, false, 1024, leaveOpen: true);
+        using var xmlReader = XmlReader.Create(asciiStreamReader, new XmlReaderSettings
         {
             IgnoreWhitespace = true,
             IgnoreComments = true,
-            IgnoreProcessingInstructions = true
+            IgnoreProcessingInstructions = true,
+            CloseInput = true
         }, fileName);
 
         var options = LoadOptions.SetBaseUri;
@@ -44,7 +46,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
             options |= LoadOptions.SetLineInfo;
 
         var doc = XDocument.Load(xmlReader, options);
-        return doc.Root;
+        return doc.Root ?? throw new XmlException("No root node found.");
     }
 
     private string GetStrippedFileName(string filePath)
@@ -63,7 +65,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
     private void SkipLeadingWhiteSpace(string fileName, Stream stream)
     {
-        using var r = new StreamReader(stream, Encoding.ASCII, false, 10, true);
+        using var r = new StreamReader(stream, XmlFileConstants.XmlEncoding, false, 10, true);
         var count = 0;
 
         while (true)

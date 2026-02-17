@@ -1,6 +1,7 @@
-﻿using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
+﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Utilities;
+using System;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -14,7 +15,7 @@ public sealed class PetroglyphXmlMax100ByteParser : PetroglyphPrimitiveXmlParser
     {
     }
 
-    protected internal override byte ParseCore(string trimmedValue, XElement element)
+    protected internal override byte ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         var intValue = PetroglyphXmlIntegerParser.Instance.ParseCore(trimmedValue, element);
 

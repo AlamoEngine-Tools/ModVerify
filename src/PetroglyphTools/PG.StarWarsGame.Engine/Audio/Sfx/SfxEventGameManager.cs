@@ -24,13 +24,12 @@ internal class SfxEventGameManager(GameRepository repository, GameEngineErrorRep
 
         Logger?.LogInformation("Parsing SFXEvents...");
 
-        var contentParser = new XmlContainerContentParser(ServiceProvider, ErrorReporter);
+        var contentParser = new EngineXmlParser(GameRepository, ServiceProvider, ErrorReporter);
         contentParser.XmlParseError += OnParseError;
         try
         {
             await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
                     "DATA\\XML\\SFXEventFiles.XML",
-                    GameRepository,
                     "DATA\\XML",
                     NamedEntries,
                     VerifyFilePathLength),
@@ -42,7 +41,7 @@ internal class SfxEventGameManager(GameRepository repository, GameEngineErrorRep
         }
     }
 
-    private void OnParseError(object sender, XmlContainerParserErrorEventArgs e)
+    private void OnParseError(object sender, EngineXmlParserErrorEventArgs e)
     {
         if (e.ErrorInXmlFileList || e.HasException)
         {
@@ -55,7 +54,7 @@ internal class SfxEventGameManager(GameRepository repository, GameEngineErrorRep
         }
     }
 
-    private static string GetMessage(XmlContainerParserErrorEventArgs errorEventArgs)
+    private static string GetMessage(EngineXmlParserErrorEventArgs errorEventArgs)
     {
         if (errorEventArgs.HasException)
             return $"Error while parsing SFXEvent XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";

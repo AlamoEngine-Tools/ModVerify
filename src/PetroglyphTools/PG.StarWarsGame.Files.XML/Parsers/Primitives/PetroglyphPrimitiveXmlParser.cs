@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
@@ -22,9 +23,9 @@ public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlElementPars
         if (tagName.Length >= 256) 
             ErrorReporter?.Report(this, new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData, "A tag name cannot be null or empty."));
 
-        var value = element.Value.Trim();
+        var value = element.Value.AsSpan().Trim();
         return value.Length == 0 ? DefaultValue : ParseCore(value, element);
     }
 
-    protected internal abstract T ParseCore(string trimmedValue, XElement element);
+    protected internal abstract T ParseCore(ReadOnlySpan<char> trimmedValue, XElement element);
 }

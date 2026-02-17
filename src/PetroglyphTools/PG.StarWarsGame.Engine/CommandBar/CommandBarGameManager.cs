@@ -74,7 +74,7 @@ internal class CommandBarGameManager(
     {
         Logger?.LogInformation("Creating command bar components...");
 
-        var contentParser = new XmlContainerContentParser(ServiceProvider, ErrorReporter);
+        var contentParser = new EngineXmlParser(GameRepository, ServiceProvider, ErrorReporter);
         contentParser.XmlParseError += OnParseError;
 
         var parsedCommandBarComponents = new FrugalValueListDictionary<Crc32, CommandBarComponentData>();
@@ -83,7 +83,6 @@ internal class CommandBarGameManager(
         {
             await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
                     "DATA\\XML\\CommandBarComponentFiles.XML",
-                    GameRepository,
                     ".\\DATA\\XML",
                     parsedCommandBarComponents,
                     VerifyFilePathLength),
@@ -259,7 +258,7 @@ internal class CommandBarGameManager(
         }
     }
 
-    private void OnParseError(object sender, XmlContainerParserErrorEventArgs e)
+    private void OnParseError(object sender, EngineXmlParserErrorEventArgs e)
     {
         if (e.ErrorInXmlFileList || e.HasException)
         {
@@ -272,7 +271,7 @@ internal class CommandBarGameManager(
         }
     }
 
-    private static string GetMessage(XmlContainerParserErrorEventArgs errorEventArgs)
+    private static string GetMessage(EngineXmlParserErrorEventArgs errorEventArgs)
     {
         if (errorEventArgs.HasException)
             return $"Error while parsing CommandBar XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";

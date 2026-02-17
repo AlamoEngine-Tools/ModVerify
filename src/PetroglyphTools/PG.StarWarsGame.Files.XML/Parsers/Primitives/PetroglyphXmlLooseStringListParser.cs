@@ -25,7 +25,7 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlP
     {
     }
 
-    protected internal override IList<string> ParseCore(string trimmedValue, XElement element)
+    protected internal override IList<string> ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         if (trimmedValue.Length > 0x2000)
         {
@@ -34,7 +34,7 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlP
             return DefaultValue;
         }
 
-        var entries = trimmedValue.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
+        var entries = trimmedValue.ToString().Split(Separators, StringSplitOptions.RemoveEmptyEntries);
         return entries;
     }
 }

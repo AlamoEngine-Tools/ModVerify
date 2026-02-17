@@ -28,13 +28,17 @@ public sealed class PetroglyphXmlFloatParser : PetroglyphPrimitiveXmlParser<floa
         return corrected;
     }
 
-    protected internal override float ParseCore(string trimmedValue, XElement element)
+    protected internal override float ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         // The engine always loads FP numbers a long double and then converts that result to float
-        if (!double.TryParse(trimmedValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
+        if (!double.TryParse(trimmedValue
+#if NETSTANDARD2_0
+                    .ToString()
+#endif
+                , NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
-                $"Expected double but got value '{trimmedValue}'."));
+                $"Expected double but got value '{trimmedValue.ToString()}'."));
             return 0.0f;
         }
 

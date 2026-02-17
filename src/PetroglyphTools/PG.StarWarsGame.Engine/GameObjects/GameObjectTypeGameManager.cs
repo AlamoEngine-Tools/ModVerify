@@ -1,10 +1,11 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Xml.Parsers;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
@@ -14,31 +15,67 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
     protected override async Task InitializeCoreAsync(CancellationToken token)
     {
         Logger?.LogInformation("Parsing GameObjects...");
+        await Task.Run(ParseGameObjectDatabases, token);
+    }
 
-        var contentParser = new XmlContainerContentParser(ServiceProvider, ErrorReporter);
 
-        contentParser.XmlParseError += OnParseError;
-
+    private void ParseGameObjectDatabases()
+    {
+        var parser = new EngineXmlParser(GameRepository, ServiceProvider, ErrorReporter);
+        parser.XmlParseError += OnParseError;
         try
         {
-            await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
-                "DATA\\XML\\GAMEOBJECTFILES.XML",
-                GameRepository,
-                ".\\DATA\\XML\\",
-                NamedEntries,
-                VerifyFilePathLength), token);
+            var xmlFileList = parser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files
+                .Select(x =>
+                {
+                    var filePath = FileSystem.Path.Combine(@".\DATA\XML\", x);
+                    VerifyFilePathLength(filePath);
+                    return filePath;
+                }).ToList();
+
+
+            //var gameObjectFileParser = new GameObjectFileParser(serviceProvider, errorReporter);
+            
+            var allLoaded = false;
+            for (var passNumber = 0; !allLoaded && passNumber < 10; passNumber++)
+            {
+                foreach (var gameObjectXmlFile in xmlFileList)
+                {
+                    if (passNumber == 0)
+                    {
+                        //ParseSingleGameObjectFile(gameObjectXmlFile, parser, gameObjectFileParser);
+                    }
+                    else
+                    {
+                    }
+                }
+
+
+
+                //GameObjectTypeClass::Static_Post_Load_Fixup();
+                //SFXEventReferenceClass::Static_Post_Load_Fixup();
+                //SpeechEventReferenceClass::Static_Post_Load_Fixup();
+                //MusicEventReferenceClass::Static_Post_Load_Fixup();
+                //FactionReferenceClass::Static_Post_Load_Fixup();
+                //...
+            }
         }
         finally
         {
-            contentParser.XmlParseError -= OnParseError;
+            parser.XmlParseError -= OnParseError;
         }
     }
 
-    private void OnParseError(object sender, XmlContainerParserErrorEventArgs e)
+    //private void ParseSingleGameObjectFile(string file, EngineXmlParser engineParser, GameObjectFileParser gameObjectFileParser)
+    //{
+    //    engineParser.ParseEntriesFromContainerFile(gameObjectFileParser, file, NamedEntries);
+    //}
+
+
+    private void OnParseError(object sender, EngineXmlParserErrorEventArgs e)
     {
         if (e.ErrorInXmlFileList)
         {
-            e.Continue = false;
             ErrorReporter.Report(new InitializationError
             {
                 GameManager = ToString(),
@@ -47,7 +84,7 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
         }
     }
 
-    private static string GetMessage(XmlContainerParserErrorEventArgs errorEventArgs)
+    private static string GetMessage(EngineXmlParserErrorEventArgs errorEventArgs)
     {
         if (errorEventArgs.HasException)
             return $"Error while parsing XML file '{errorEventArgs.File}': {errorEventArgs.Exception.Message}";

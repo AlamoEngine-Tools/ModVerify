@@ -5,5 +5,5 @@ namespace PG.StarWarsGame.Engine.Xml;
 
 public interface IPetroglyphXmlFileParserFactory
 {
-    IPetroglyphXmlFileContainerParser<T> CreateFileParser<T>(IXmlParserErrorReporter? errorReporter) where T : notnull;
+    IPetroglyphXmlFileContainerParser<T> CreateFileContainerParser<T>(IXmlParserErrorReporter? errorReporter) where T : XmlObject;
 }

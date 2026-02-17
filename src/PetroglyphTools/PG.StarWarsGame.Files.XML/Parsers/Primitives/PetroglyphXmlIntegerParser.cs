@@ -1,6 +1,7 @@
-﻿using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
+﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Utilities;
+using System;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -14,15 +15,20 @@ public sealed class PetroglyphXmlIntegerParser : PetroglyphPrimitiveXmlParser<in
     {
     }
 
-    protected internal override int ParseCore(string trimmedValue, XElement element)
+    protected internal override int ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         // The engines uses the C++ function std::atoi which is a little more loose.
         // For example the value '123d' get parsed to 123,
         // whereas in C# int.TryParse returns (false, 0)
-        if (!int.TryParse(trimmedValue, out var i))
+        if (!int.TryParse(trimmedValue
+#if NETSTANDARD2_0
+                    .ToString()
+#endif
+
+                , out var i))
         {
             OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
-                $"Expected integer but got '{trimmedValue}'."));
+                $"Expected integer but got '{trimmedValue.ToString()}'."));
             return 0;
         }
 

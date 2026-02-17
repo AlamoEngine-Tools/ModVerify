@@ -14,7 +14,7 @@ using PG.StarWarsGame.Files.Binary;
 
 namespace PG.StarWarsGame.Engine.GuiDialog;
 
-partial class GuiDialogGameManager
+internal partial class GuiDialogGameManager
 {
     public const int MegaTextureMaxFilePathLength = 255;
 

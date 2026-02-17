@@ -2,7 +2,7 @@
 
 namespace PG.StarWarsGame.Engine.Xml;
 
-public sealed class ParserNotFoundException : Exception
+internal sealed class ParserNotFoundException : Exception
 {
     public override string Message { get; }
 

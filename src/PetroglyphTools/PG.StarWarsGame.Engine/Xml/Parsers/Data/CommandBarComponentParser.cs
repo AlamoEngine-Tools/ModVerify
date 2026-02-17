@@ -1,33 +1,26 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Xml.Linq;
-using AnakinRaW.CommonUtilities.Collections;
-using PG.Commons.Hashing;
+﻿using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.Xml.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
+using System;
+using System.Collections.ObjectModel;
+using System.Xml.Linq;
+using Crc32 = PG.Commons.Hashing.Crc32;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers.Data;
 
-public sealed class CommandBarComponentParser(
-    IReadOnlyFrugalValueListDictionary<Crc32, CommandBarComponentData> parsedElements,
-    IServiceProvider serviceProvider,
-    IXmlParserErrorReporter? errorReporter = null)
-    : XmlObjectParser<CommandBarComponentData>(parsedElements, serviceProvider, errorReporter)
+internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
+    : NamedXmlObjectParser<CommandBarComponentData>(serviceProvider, errorReporter)
 {
-    public override CommandBarComponentData Parse(XElement element, out Crc32 crc32)
+
+    protected override CommandBarComponentData CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
     {
-        var name = GetXmlObjectName(element, out crc32, true);
-        var component = new CommandBarComponentData(name, crc32, XmlLocationInfo.FromElement(element));
-        Parse(component, element, default);
-        ValidateValues(component, element);
-        component.CoerceValues();
-        return component;
+        return new CommandBarComponentData(name, nameCrc, location);
     }
-    
-    protected override bool ParseTag(XElement tag, CommandBarComponentData componentData)
+
+    protected override bool ParseTag(XElement tag, CommandBarComponentData componentData, in IReadOnlyFrugalValueListDictionary<Crc32, CommandBarComponentData> parseState)
     {
         switch (tag.Name.LocalName)
         {
@@ -352,7 +345,7 @@ public sealed class CommandBarComponentParser(
         }
     }
 
-    private void ValidateValues(CommandBarComponentData xmlData, XElement element)
+    protected override void ValidateValues(CommandBarComponentData xmlData, XElement element)
     {
         if (xmlData.Name.Length > PGConstants.MaxCommandBarComponentName)
         {
@@ -360,6 +353,4 @@ public sealed class CommandBarComponentParser(
                 $"CommandbarComponent name '{xmlData.Name}' is too long."));
         }
     }
-
-    public override CommandBarComponentData Parse(XElement element) => throw new NotSupportedException();
 }
