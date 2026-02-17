@@ -4,8 +4,8 @@ using System.Collections.ObjectModel;
 using System.Numerics;
 using PG.Commons.Hashing;
 using PG.Commons.Numerics;
-using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.CommandBar.Xml;
 
@@ -128,7 +128,7 @@ public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationI
     public Vector4Int? TextColor2 { get; internal set; }
     public Vector4Int? MaxBarColor { get; internal set; } = WhiteColor;
 
-    internal override void CoerceValues()
+    public override void CoerceValues()
     {
         base.CoerceValues();
         if (AlternateFontNames.Count == 0)

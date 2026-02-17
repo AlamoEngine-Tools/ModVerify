@@ -3,6 +3,8 @@ using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using System;
+using PG.StarWarsGame.Files.XML.Data;
+using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 

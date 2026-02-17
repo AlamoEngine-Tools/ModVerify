@@ -10,9 +10,9 @@ using PG.StarWarsGame.Files.XML.Parsers;
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
 internal class GuiDialogParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) : 
-    PetroglyphXmlFileParser<GuiDialogsXml>(serviceProvider, errorReporter)
+    XmlFileParser<GuiDialogsXml>(serviceProvider, errorReporter)
 { 
-    protected override GuiDialogsXml Parse(XElement element, string fileName)
+    protected override GuiDialogsXml ParseRoot(XElement element, string fileName)
     {
         var textures = ParseTextures(element.Element("Textures"), fileName);
         return new GuiDialogsXml(textures, XmlLocationInfo.FromElement(element));

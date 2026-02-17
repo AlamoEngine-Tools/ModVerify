@@ -4,7 +4,7 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlElementParser<T> where T : notnull
+public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlParserBase where T : notnull
 {
     private protected abstract T DefaultValue { get; }
 
@@ -12,7 +12,7 @@ public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlElementPars
     {
     }
 
-    public sealed override T Parse(XElement element)
+    public T Parse(XElement element)
     {
         var tagName = element.Name.LocalName;
         if (string.IsNullOrEmpty(tagName))

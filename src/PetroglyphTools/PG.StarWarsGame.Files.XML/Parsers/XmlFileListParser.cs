@@ -7,15 +7,10 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-
-// TODO: To XmlObjectParser
-
 public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null) :
-    PetroglyphXmlFileParser<XmlFileList>(serviceProvider, errorReporter)
-{
-    protected override bool LoadLineInfo => false;
-
-    protected override XmlFileList Parse(XElement element, string fileName)
+    XmlFileParser<XmlFileList>(serviceProvider, errorReporter)
+{ 
+    protected override XmlFileList ParseRoot(XElement element, string fileName)
     {
         var files = new List<string>();
         foreach (var child in element.Elements())
@@ -43,6 +38,6 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
                 });
             }
         }
-        return new XmlFileList(new ReadOnlyCollection<string>(files));
+        return new XmlFileList(new ReadOnlyCollection<string>(files), new XmlLocationInfo(fileName, null));
     }
 }

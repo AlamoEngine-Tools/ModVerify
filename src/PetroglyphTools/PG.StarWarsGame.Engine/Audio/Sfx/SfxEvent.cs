@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
@@ -163,7 +163,7 @@ public sealed class SfxEvent : NamedXmlObject
     {
     }
 
-    internal override void CoerceValues()
+    public override void CoerceValues()
     {
         AdjustMinMaxValues(ref _minVolume, ref _maxVolume);
         AdjustMinMaxValues(ref _minPitch, ref _maxPitch);

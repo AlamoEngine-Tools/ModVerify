@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using System.Xml.Linq;
-using AnakinRaW.CommonUtilities;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -65,7 +62,7 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 
             var args = new EngineXmlParserErrorEventArgs(xmlFile, isXmlFileList: true);
             XmlParseError?.Invoke(this, args);
-            return XmlFileList.Empty;
+            return XmlFileList.Empty(new XmlLocationInfo(xmlFile, null));
         }
 
         XmlFileList? container;
@@ -87,7 +84,7 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 
             var args = new EngineXmlParserErrorEventArgs(xmlFile, e, isXmlFileList: true);
             XmlParseError?.Invoke(this, args);
-            return XmlFileList.Empty;
+            return XmlFileList.Empty(new XmlLocationInfo(xmlFile, null));
         }
 
         return container;
@@ -103,7 +100,7 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 
         var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
-        var parser = new PetroglyphXmlFileContainerParser<T>(Services,
+        var parser = new XmlContainerFileParser<T>(Services,
             _fileParserFactory.CreateNamedXmlObjectParser<T>(_reporter), _reporter);
 
         foreach (var file in xmlFiles)
@@ -116,8 +113,8 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
 
     public bool ParseEntriesFromContainerFile<T>(
         string xmlFile,
-        IPetroglyphXmlFileContainerParser<T> parser,
-        IFrugalValueListDictionary<Crc32, T> entries) where T : notnull
+        XmlContainerFileParser<T> parser,
+        IFrugalValueListDictionary<Crc32, T> entries) where T : NamedXmlObject
     {
         using var fileStream = _gameRepository.TryOpenFile(xmlFile);
 
@@ -153,74 +150,6 @@ public sealed class EngineXmlParser : ServiceBase, IPetroglyphXmlParserInfo
             XmlParseError?.Invoke(this, args);
             return args.Continue;
         }
-    }
-}
-
-public interface IXmlTagMapper<TObject> where TObject : XmlObject
-{
-    bool TryParseEntry(XElement element, TObject target);
-}
-
-public abstract class XmlTagMapper<TObject> : IXmlTagMapper<TObject> where TObject : XmlObject
-{
-    private const int MaxTagLength = 256;
-
-    private delegate void ParserValueAction(TObject target, XElement element);
-
-    private readonly Dictionary<Crc32, ParserValueAction> _tagMappings = new();
-    private readonly ICrc32HashingService _crcService;
-
-    protected XmlTagMapper(IServiceProvider serviceProvider)
-    {
-        if (serviceProvider == null)
-            throw new ArgumentNullException(nameof(serviceProvider));
-        _crcService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-
-        // ReSharper disable once VirtualMemberCallInConstructor
-        BuildMappings();
-    }
-
-    protected abstract void BuildMappings();
-
-    protected void AddMapping<TValue>(string tagName, Func<XElement, TValue> parser, Action<TObject, TValue> setter)
-    {
-        ThrowHelper.ThrowIfNullOrEmpty(tagName);
-        if (tagName.Length >= MaxTagLength)
-            throw new ArgumentOutOfRangeException(
-                $"Tag name '{tagName}' exceeds maximum length of {MaxTagLength} characters", nameof(tagName));
-
-        if (parser == null)
-            throw new ArgumentNullException(nameof(parser));
-        if (setter == null)
-            throw new ArgumentNullException(nameof(setter));
-
-        var crc = GetCrc32(tagName);
-
-        _tagMappings[crc] = (target, element) =>
-        {
-            var value = parser(element);
-            setter(target, value);
-        };
-    }
-
-    public bool TryParseEntry(XElement element, TObject target)
-    {
-        var tagName = element.Name.LocalName;
-        if (tagName.Length >= MaxTagLength)
-            return false;
-
-        var crc = GetCrc32(tagName);
-
-        if (!_tagMappings.TryGetValue(crc, out var mapping))
-            return false;
-
-        mapping(target, element);
-        return true;
-    }
-
-    private Crc32 GetCrc32(string tagName)
-    {
-        return _crcService.GetCrc32Upper(tagName, PGConstants.DefaultPGEncoding);
     }
 }
 

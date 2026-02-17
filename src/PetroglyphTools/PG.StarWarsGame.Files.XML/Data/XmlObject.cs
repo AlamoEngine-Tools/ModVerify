@@ -1,12 +1,10 @@
-﻿using PG.StarWarsGame.Files.XML;
-
-namespace PG.StarWarsGame.Engine.Xml;
+﻿namespace PG.StarWarsGame.Files.XML.Data;
 
 public abstract class XmlObject(XmlLocationInfo location)
 {
     public XmlLocationInfo Location { get; } = location;
 
-    internal virtual void CoerceValues()
+    public virtual void CoerceValues()
     {
     }
 }

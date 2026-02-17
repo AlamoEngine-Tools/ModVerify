@@ -1,8 +1,7 @@
 ﻿using System;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Files.XML;
 
-namespace PG.StarWarsGame.Engine.Xml;
+namespace PG.StarWarsGame.Files.XML.Data;
 
 public abstract class NamedXmlObject(string name, Crc32 nameCrc, XmlLocationInfo location) : XmlObject(location)
 { 

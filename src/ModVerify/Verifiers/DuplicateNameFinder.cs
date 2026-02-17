@@ -10,6 +10,7 @@ using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.MTD.Data;
 using PG.StarWarsGame.Files.MTD.Files;
+using PG.StarWarsGame.Files.XML.Data;
 
 namespace AET.ModVerify.Verifiers;
 

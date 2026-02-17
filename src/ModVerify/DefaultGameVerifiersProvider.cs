@@ -15,10 +15,10 @@ public sealed class DefaultGameVerifiersProvider : IGameVerifiersProvider
         IServiceProvider serviceProvider)
     {
         yield break;
-        //yield return new ReferencedModelsVerifier(database, settings, serviceProvider);
-        //yield return new DuplicateNameFinder(database, settings, serviceProvider);
-        //yield return new AudioFilesVerifier(database, settings, serviceProvider);
-        //yield return new GuiDialogsVerifier(database, settings, serviceProvider);
-        //yield return new CommandBarVerifier(database, settings, serviceProvider);
+        yield return new ReferencedModelsVerifier(database, settings, serviceProvider);
+        yield return new DuplicateNameFinder(database, settings, serviceProvider);
+        yield return new AudioFilesVerifier(database, settings, serviceProvider);
+        yield return new GuiDialogsVerifier(database, settings, serviceProvider);
+        yield return new CommandBarVerifier(database, settings, serviceProvider);
     }
 }

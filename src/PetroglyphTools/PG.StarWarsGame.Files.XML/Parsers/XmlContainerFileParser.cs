@@ -3,16 +3,17 @@ using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using System;
 using System.IO;
+using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public sealed class PetroglyphXmlFileContainerParser<T>(
+public sealed class XmlContainerFileParser<T>(
     IServiceProvider serviceProvider,
-    IPetroglyphXmlNamedElementParser<T> elementParser,
+    NamedXmlObjectParser<T> elementParser,
     IXmlParserErrorReporter? listener = null)
-    : PetroglyphXmlFileParserBase(serviceProvider, listener), IPetroglyphXmlFileContainerParser<T> where T : notnull
+    : PetroglyphXmlFileParserBase(serviceProvider, listener) where T : NamedXmlObject
 {
-    public IPetroglyphXmlNamedElementParser<T> ElementParser { get; } =
+    public NamedXmlObjectParser<T> ElementParser { get; } =
         elementParser ?? throw new ArgumentNullException(nameof(elementParser));
 
     public void ParseFile(Stream xmlStream, IFrugalValueListDictionary<Crc32, T> parsedEntries)
