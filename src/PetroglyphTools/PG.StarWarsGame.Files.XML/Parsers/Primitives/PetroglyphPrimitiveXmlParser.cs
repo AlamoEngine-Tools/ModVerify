@@ -14,7 +14,7 @@ public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlParserBase 
 
     public T Parse(XElement element)
     {
-        if (IsTagValid(element))
+        if (!IsTagValid(element))
             return DefaultValue;
         var value = element.Value.AsSpan().Trim();
         return value.Length == 0 ? DefaultValue : ParseCore(value, element);
