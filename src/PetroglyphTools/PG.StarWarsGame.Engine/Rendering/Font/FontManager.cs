@@ -24,7 +24,14 @@ internal class FontManager : GameManagerBase, IFontManager
             _fontManager = new NetFontManager();
     }
 
-    public IReadOnlyCollection<string> FontNames => [.._fontNames];
+    public IReadOnlyCollection<string> FontNames
+    {
+        get
+        {
+            ThrowIfNotInitialized();
+            return [.._fontNames];
+        }
+    }
 
     public FontData? CreateFont(string fontName, int size, bool bold, bool italic, bool staticSize, float stretchFactor)
     {
