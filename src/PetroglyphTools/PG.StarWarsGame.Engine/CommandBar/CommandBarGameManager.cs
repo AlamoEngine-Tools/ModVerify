@@ -84,8 +84,8 @@ internal class CommandBarGameManager(
         var parsedCommandBarComponents = new FrugalValueListDictionary<Crc32, CommandBarComponentData>();
 
         await Task.Run(() => contentParser.ParseEntriesFromFileListXml(
-                "DATA\\XML\\CommandBarComponentFiles.XML",
-                ".\\DATA\\XML",
+                ".\\Data\\XML\\CommandBarComponentFiles.xml",
+                ".\\DATA\\XML\\",
                 parsedCommandBarComponents,
                 VerifyFilePathLength),
             token);

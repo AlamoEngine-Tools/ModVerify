@@ -9,7 +9,7 @@ public sealed class PetroglyphXmlBooleanParser : PetroglyphPrimitiveXmlParser<bo
 
     private protected override bool DefaultValue => false;
 
-    internal override int EngineDataTypeId => 0x0;
+    internal override int EngineDataTypeId => 0x0 & 0x50;
 
     private PetroglyphXmlBooleanParser()
     {

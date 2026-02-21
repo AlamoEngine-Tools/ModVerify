@@ -14,7 +14,7 @@ public sealed class PetroglyphXmlVector2FParser : PetroglyphPrimitiveXmlParser<V
 
     private protected override Vector2 DefaultValue => default;
 
-    internal override int EngineDataTypeId => throw new NotImplementedException();
+    internal override int EngineDataTypeId => 0x0F;
 
     private PetroglyphXmlVector2FParser()
     {
