@@ -20,8 +20,8 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
             {
                 ErrorReporter?.Report(new XmlError(this, child)
                 {
-                    ErrorKind = XmlParseErrorKind.UnknownNode,
-                    Message = $"Tag '<{tagName}>' is not supported. Only '<File>' is supported.",
+                    ErrorKind = XmlParseErrorKind.UnexceptedElementName,
+                    Message = $"Tag '<{tagName}>' should not be used. Use '<File>' only.",
                 });
             }
 

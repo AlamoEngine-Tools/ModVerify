@@ -77,7 +77,7 @@ internal class CommandBarGameManager(
         var contentParser = new PetroglyphStarWarsGameXmlParser(GameRepository, new PetroglyphStarWarsGameXmlParseSettings
         {
             GameManager = ToString(),
-            InvalidContainerXmlFailsInitialization = true,
+            InvalidObjectXmlFailsInitialization = true,
             InvalidFilesListXmlFailsInitialization = true
         }, ServiceProvider, ErrorReporter);
 

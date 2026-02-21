@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Xml.Linq;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,8 +24,7 @@ public abstract class NamedXmlObjectParser<T>(
         var name = GetXmlObjectName(element, out nameCrc);
         var namedXmlObject = CreateXmlObject(name, nameCrc, element, XmlLocationInfo.FromElement(element));
         Parse(namedXmlObject, element, parsedEntries);
-        ValidateValues(namedXmlObject, element);
-        namedXmlObject.CoerceValues();
+        ValidateAndFixupValues(namedXmlObject, element);
         return namedXmlObject;
     }
 
@@ -36,8 +34,8 @@ public abstract class NamedXmlObjectParser<T>(
     {
         GetNameAttributeValue(element, out var name);
         crc32 = UpperCaseNameForCrc
-            ? HashingService.GetCrc32Upper(name.AsSpan(), Encoding.ASCII)
-            : HashingService.GetCrc32(name.AsSpan(), Encoding.ASCII);
+            ? HashingService.GetCrc32Upper(name.AsSpan(), XmlFileConstants.XmlEncoding)
+            : HashingService.GetCrc32(name.AsSpan(), XmlFileConstants.XmlEncoding);
 
         if (crc32 == default)
         {

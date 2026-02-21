@@ -1,12 +1,14 @@
-﻿using System;
+﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
+using System;
 using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlParserBase where T : notnull
 {
     private protected abstract T DefaultValue { get; }
+
+    internal abstract int EngineDataTypeId { get; }
 
     private protected PetroglyphPrimitiveXmlParser() : base(PrimitiveXmlErrorReporter.Instance)
     {
@@ -16,7 +18,7 @@ public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlParserBase 
     {
         if (!IsTagValid(element))
             return DefaultValue;
-        var value = element.Value.AsSpan().Trim();
+        var value = element.PGValue.AsSpan().Trim();
         return value.Length == 0 ? DefaultValue : ParseCore(value, element);
     }
 

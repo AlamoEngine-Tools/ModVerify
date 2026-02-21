@@ -17,10 +17,11 @@ public sealed class CommaSeparatedStringKeyValueListParser : PetroglyphPrimitive
     }
 
     private protected override IList<(string key, string value)> DefaultValue => [];
+    internal override int EngineDataTypeId => throw new NotImplementedException();
 
     protected internal override IList<(string key, string value)> ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
-        var values = element.Value.Split(',');
+        var values = element.PGValue.Split(',');
 
         // Cases: Empty tag or invalid value (e.g, terrain only, wrong separator, etc.)
         if (values.Length <= 1)

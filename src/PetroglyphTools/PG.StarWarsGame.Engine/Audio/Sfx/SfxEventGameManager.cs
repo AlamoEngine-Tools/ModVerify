@@ -28,7 +28,7 @@ internal class SfxEventGameManager(GameRepository repository, GameEngineErrorRep
             new PetroglyphStarWarsGameXmlParseSettings
             {
                 GameManager = ToString(),
-                InvalidContainerXmlFailsInitialization = true,
+                InvalidObjectXmlFailsInitialization = true,
                 InvalidFilesListXmlFailsInitialization = true
             }, ServiceProvider, ErrorReporter);
 

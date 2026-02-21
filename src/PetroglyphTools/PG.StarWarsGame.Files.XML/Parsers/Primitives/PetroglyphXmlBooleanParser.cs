@@ -7,11 +7,13 @@ public sealed class PetroglyphXmlBooleanParser : PetroglyphPrimitiveXmlParser<bo
 {
     public static readonly PetroglyphXmlBooleanParser Instance = new();
 
+    private protected override bool DefaultValue => false;
+
+    internal override int EngineDataTypeId => 0x0;
+
     private PetroglyphXmlBooleanParser()
     {
     }
-
-    private protected override bool DefaultValue => false;
 
     protected internal override bool ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {

@@ -25,11 +25,11 @@ public sealed class SfxEvent : NamedXmlObject
     public const byte MaxPan2dValue = 100;
     public const byte MinPriorityValue = 1;
     public const byte MaxPriorityValue = 5;
-    public const byte MaxProbability = 100;
-    public const sbyte MinMaxInstances = 0;
-    public const sbyte InfinitivePlayCount = -1;
-    public const float MinLoopSeconds = 0.0f;
-    public const float MinVolumeSaturation = 0.0f;
+    public const byte MaxProbabilityValue = 100;
+    public const sbyte MinMaxInstancesValue = 0;
+    public const sbyte InfinitivePlayCountValue = -1;
+    public const float MinLoopSecondsValue = 0.0f;
+    public const float MinVolumeSaturationValue = 0.0f;
 
     // Default values which are not the default value of the type
     public const byte DefaultPriority = 3;
@@ -163,7 +163,7 @@ public sealed class SfxEvent : NamedXmlObject
     {
     }
 
-    public override void CoerceValues()
+    internal void FixupValues()
     {
         AdjustMinMaxValues(ref _minVolume, ref _maxVolume);
         AdjustMinMaxValues(ref _minPitch, ref _maxPitch);
@@ -187,6 +187,8 @@ public sealed class SfxEvent : NamedXmlObject
      */
     public void ApplyPreset(SfxEvent preset)
     {
+        Preset = preset;
+
         Is3D = preset.Is3D;
         Is2D = preset.Is2D;
         IsGui = preset.IsGui;
@@ -194,8 +196,6 @@ public sealed class SfxEvent : NamedXmlObject
         IsUnitResponseVo = preset.IsUnitResponseVo;
         IsAmbientVo = preset.IsAmbientVo;
         IsLocalized = preset.IsLocalized;
-        Preset = preset;
-        UsePresetName = preset.Name;
         PlaySequentially = preset.PlaySequentially;
         PreSamples = preset.PreSamples;
         Samples = preset.Samples;

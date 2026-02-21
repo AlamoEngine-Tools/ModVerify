@@ -26,7 +26,7 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
             {
                 GameManager = ToString(),
                 InvalidFilesListXmlFailsInitialization = true,
-                InvalidContainerXmlFailsInitialization = false,
+                InvalidObjectXmlFailsInitialization = false,
             }, ServiceProvider, ErrorReporter);
 
         var xmlFileList = parser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files

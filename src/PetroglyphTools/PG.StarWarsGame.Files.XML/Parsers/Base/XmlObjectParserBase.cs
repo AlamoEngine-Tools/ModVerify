@@ -12,7 +12,7 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
 
     protected virtual bool IgnoreEmptyValue => true;
 
-    protected virtual void ValidateValues(TObject namedXmlObject, XElement element)
+    protected virtual void ValidateAndFixupValues(TObject namedXmlObject, XElement element)
     {
     }
 
@@ -20,19 +20,23 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
     {
         foreach (var tag in element.Elements())
         {
-            if (string.IsNullOrEmpty(tag.Value) && IgnoreEmptyValue)
-                continue;
-
-            if (tag.HasElements) 
-                Parse(xmlObject, tag, in state);
-
-            if (!ParseTag(tag, xmlObject, state))
+            if (!tag.HasElements)
             {
-                ErrorReporter?.Report(new XmlError(this, element)
+                if (string.IsNullOrEmpty(tag.PGValue) && IgnoreEmptyValue)
+                    continue;
+
+                if (!ParseTag(tag, xmlObject, state))
                 {
-                    Message = $"The node '{tag.Name}' is not supported.",
-                    ErrorKind = XmlParseErrorKind.UnknownNode
-                });
+                    ErrorReporter?.Report(new XmlError(this, tag)
+                    {
+                        Message = $"The node '{tag.Name}' is not supported.",
+                        ErrorKind = XmlParseErrorKind.UnknownNode
+                    });
+                }
+            }
+            else
+            {
+                Parse(xmlObject, tag, in state);
             }
         }
     }

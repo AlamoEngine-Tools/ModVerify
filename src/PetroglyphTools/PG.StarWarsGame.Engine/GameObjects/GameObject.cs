@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 

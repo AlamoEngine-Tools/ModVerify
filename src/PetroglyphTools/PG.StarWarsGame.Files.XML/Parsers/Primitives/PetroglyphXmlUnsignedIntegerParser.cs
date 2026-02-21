@@ -4,11 +4,19 @@ using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphPrimitiveXmlParser<uint>
+public sealed class PetroglyphXmlUnsignedIntegerParser : PetroglyphNumberParser<uint>
 {
     public static readonly PetroglyphXmlUnsignedIntegerParser Instance = new();
 
     private protected override uint DefaultValue => 0;
+
+    internal override int EngineDataTypeId => 0x5;
+
+#if !NET7_0_OR_GREATER
+    protected override uint MaxValue => uint.MaxValue;
+
+    protected override uint MinValue => uint.MinValue;
+#endif
 
     private PetroglyphXmlUnsignedIntegerParser()
     {

@@ -20,6 +20,7 @@ public sealed class PetroglyphXmlLooseStringListParser : PetroglyphPrimitiveXmlP
     public static readonly PetroglyphXmlLooseStringListParser Instance = new();
 
     private protected override IList<string> DefaultValue => [];
+    internal override int EngineDataTypeId => 0x18;
 
     private PetroglyphXmlLooseStringListParser()
     {

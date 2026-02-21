@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using AnakinRaW.CommonUtilities.Collections;
@@ -39,72 +40,23 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
         Name = GetType().FullName!;
     }
 
+    public T? ParseFile<T>(string xmlFile, XmlFileParser<T> parser) where T : XmlObject
+    {
+        return ParseCore<T?>(xmlFile, parser.ParseFile, () => null);
+    }
+
     public XmlFileList ParseFileList(string xmlFile)
     {
-        Logger.LogDebug("Parsing container data '{XmlFile}'", xmlFile);
-
-        using var containerStream = _gameRepository.TryOpenFile(xmlFile);
-        if (containerStream == null)
-        {
-            var message = $"Could not find XML file '{xmlFile}'";
-           
-            Logger.LogWarning(message);
-
-            _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
-            {
-                Message = message,
-                ErrorKind = XmlParseErrorKind.MissingFile
-            });
-            
-            if (_settings.InvalidFilesListXmlFailsInitialization)
-            {
-                _reporter.Report(new InitializationError
-                {
-                    GameManager = _settings.GameManager,
-                    Message = message, 
-                });
-            }
-
-            return XmlFileList.Empty(new XmlLocationInfo(xmlFile, null));
-        }
-
-        XmlFileList? container;
-        var containerParser = new XmlFileListParser(Services, _reporter);
-
-        try
-        {
-            container = containerParser.ParseFile(containerStream);
-            if (container is null)
-                throw new XmlException($"Unable to parse XML container file '{xmlFile}'.");
-        }
-        catch (XmlException e)
-        {
-            _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, e.LineNumber))
-            {
-                ErrorKind = XmlParseErrorKind.Unknown,
-                Message = e.Message,
-            });
-
-            if (_settings.InvalidFilesListXmlFailsInitialization)
-            {
-                _reporter.Report(new InitializationError
-                {
-                    GameManager = _settings.GameManager,
-                    Message = e.Message,
-                });
-            }
-
-            return XmlFileList.Empty(new XmlLocationInfo(xmlFile, null));
-        }
-
-        return container;
+        return ParseCore(xmlFile, 
+            stream => new XmlFileListParser(Services, _reporter).ParseFile(stream),
+            () => XmlFileList.Empty(new XmlLocationInfo(xmlFile, null)));
     }
 
     public void ParseEntriesFromFileListXml<T>(
         string xmlFile,
         string lookupPath,
         FrugalValueListDictionary<Crc32, T> entries,
-        Action<string>? onFileParseAction = null) where T : NamedXmlObject
+        Action<string>? onParseContainerAction = null) where T : NamedXmlObject
     {
         var container = ParseFileList(xmlFile);
 
@@ -115,17 +67,28 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
 
         foreach (var file in xmlFiles)
         {
-            onFileParseAction?.Invoke(file);
-            if (!ParseEntriesFromContainerFile(file, parser, entries))
+            onParseContainerAction?.Invoke(file);
+            if (!ParseObjectsFromContainerFile(file, parser, entries))
                 return;
         }
     }
-
-    public bool ParseEntriesFromContainerFile<T>(
+    
+    public bool ParseObjectsFromContainerFile<T>(
         string xmlFile,
         XmlContainerFileParser<T> parser,
         IFrugalValueListDictionary<Crc32, T> entries) where T : NamedXmlObject
     {
+        return ParseCore(xmlFile, stream =>
+        {
+            parser.ParseFile(stream, entries);
+            return true;
+        }, () => _settings.InvalidObjectXmlFailsInitialization);
+    }
+
+    private T ParseCore<T>(string xmlFile, Func<Stream, T> parseAction, Func<T> invalidFileAction)
+    {
+        Logger.LogDebug("Parsing file '{XmlFile}'", xmlFile);
+
         using var fileStream = _gameRepository.TryOpenFile(xmlFile);
 
         if (fileStream is null)
@@ -138,8 +101,8 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
                 Message = message,
                 ErrorKind = XmlParseErrorKind.MissingFile
             });
-            
-            if (_settings.InvalidContainerXmlFailsInitialization)
+
+            if (_settings.InvalidObjectXmlFailsInitialization)
             {
                 _reporter.Report(new InitializationError
                 {
@@ -148,15 +111,12 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
                 });
             }
 
-            return _settings.InvalidContainerXmlFailsInitialization;
+            return invalidFileAction();
         }
-
-        Logger.LogDebug("Parsing File '{File}'", xmlFile);
 
         try
         {
-            parser.ParseFile(fileStream, entries);
-            return true;
+            return parseAction(fileStream);
         }
         catch (XmlException e)
         {
@@ -165,7 +125,7 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
                 ErrorKind = XmlParseErrorKind.Unknown,
                 Message = e.Message,
             });
-            if (_settings.InvalidContainerXmlFailsInitialization)
+            if (_settings.InvalidObjectXmlFailsInitialization)
             {
                 _reporter.Report(new InitializationError
                 {
@@ -173,7 +133,8 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
                     Message = e.Message,
                 });
             }
-            return _settings.InvalidContainerXmlFailsInitialization;
+
+            return invalidFileAction();
         }
     }
 }

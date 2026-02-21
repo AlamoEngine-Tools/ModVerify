@@ -128,9 +128,8 @@ public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationI
     public Vector4Int? TextColor2 { get; internal set; }
     public Vector4Int? MaxBarColor { get; internal set; } = WhiteColor;
 
-    public override void CoerceValues()
+    internal void FixupValues()
     {
-        base.CoerceValues();
         if (AlternateFontNames.Count == 0)
             return;
         var newFontNames = new string[AlternateFontNames.Count];

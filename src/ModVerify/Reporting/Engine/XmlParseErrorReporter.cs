@@ -76,6 +76,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
             XmlParseErrorKind.MissingNode => VerificationSeverity.Critical,
             XmlParseErrorKind.UnknownNode => VerificationSeverity.Information,
             XmlParseErrorKind.TagHasElements => VerificationSeverity.Warning,
+            XmlParseErrorKind.UnexceptedElementName => VerificationSeverity.Information,
             _ => VerificationSeverity.Warning
         };
     }
@@ -96,6 +97,7 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
             XmlParseErrorKind.MissingNode => VerifierErrorCodes.XmlMissingNode,
             XmlParseErrorKind.UnknownNode => VerifierErrorCodes.XmlUnsupportedTag,
             XmlParseErrorKind.TagHasElements => VerifierErrorCodes.XmlElementsInTag,
+            XmlParseErrorKind.UnexceptedElementName => VerifierErrorCodes.XmlUnexceptedElementName,
             _ => throw new ArgumentOutOfRangeException(nameof(xmlErrorErrorKind), xmlErrorErrorKind, null)
         };
     }

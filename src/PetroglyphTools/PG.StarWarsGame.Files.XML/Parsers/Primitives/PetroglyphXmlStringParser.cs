@@ -7,11 +7,13 @@ public sealed class PetroglyphXmlStringParser : PetroglyphPrimitiveXmlParser<str
 {
     public static readonly PetroglyphXmlStringParser Instance = new();
 
+    private protected override string DefaultValue => string.Empty;
+
+    internal override int EngineDataTypeId => 0x17;
+
     private PetroglyphXmlStringParser()
     {
     }
-
-    private protected override string DefaultValue => string.Empty;
 
     protected internal override string ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {

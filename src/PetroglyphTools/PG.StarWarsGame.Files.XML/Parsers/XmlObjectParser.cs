@@ -12,8 +12,7 @@ public abstract class XmlObjectParser<TObject>(IXmlTagMapper<TObject> tagMapper,
     {
         var xmlObject = CreateXmlObject(XmlLocationInfo.FromElement(element));
         Parse(xmlObject, element, EmptyParseState.Instance);
-        ValidateValues(xmlObject, element);
-        xmlObject.CoerceValues();
+        ValidateAndFixupValues(xmlObject, element); ;
         return xmlObject;
     }
 

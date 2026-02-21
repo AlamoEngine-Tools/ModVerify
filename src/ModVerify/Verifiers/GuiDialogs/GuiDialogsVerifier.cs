@@ -52,6 +52,8 @@ sealed class GuiDialogsVerifier : GameVerifier
         };
         components.AddRange(GameEngine.GuiDialogManager.Components);
 
+        // TODO: Verify no double definitions for textures and components exit
+        
         foreach (var component in components)
             VerifyGuiComponentTexturesExist(component);
 

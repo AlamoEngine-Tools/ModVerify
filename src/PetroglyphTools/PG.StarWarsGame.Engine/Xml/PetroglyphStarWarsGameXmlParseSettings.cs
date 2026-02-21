@@ -6,5 +6,5 @@ public sealed record PetroglyphStarWarsGameXmlParseSettings
 
     public bool InvalidFilesListXmlFailsInitialization { get; init; } = true;
 
-    public bool InvalidContainerXmlFailsInitialization { get; init; } = false;
+    public bool InvalidObjectXmlFailsInitialization { get; init; } = false;
 }

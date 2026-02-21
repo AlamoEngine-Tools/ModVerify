@@ -9,6 +9,7 @@ public sealed class PetroglyphXmlRgbaColorParser : PetroglyphPrimitiveXmlParser<
     public static readonly PetroglyphXmlRgbaColorParser Instance = new();
 
     private protected override Vector4Int DefaultValue => default;
+    internal override int EngineDataTypeId => 0x16;
 
     private PetroglyphXmlRgbaColorParser()
     {
