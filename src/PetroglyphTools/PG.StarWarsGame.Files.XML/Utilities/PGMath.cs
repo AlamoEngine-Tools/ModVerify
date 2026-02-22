@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
+#if NET7_0_OR_GREATER
+using System.Numerics;
+#endif
 
 namespace PG.StarWarsGame.Files.XML.Utilities;
 
