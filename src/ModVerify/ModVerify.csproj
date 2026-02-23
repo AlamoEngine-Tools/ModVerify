@@ -28,7 +28,7 @@
 	<ItemGroup>
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.1" />
 		<PackageReference Include="System.Text.Json" Version="10.0.3" />
-		<PackageReference Include="JsonSchema.Net" Version="9.1.0" />
+		<PackageReference Include="JsonSchema.Net" Version="9.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
