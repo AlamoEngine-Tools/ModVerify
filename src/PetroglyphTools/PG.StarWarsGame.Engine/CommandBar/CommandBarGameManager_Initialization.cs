@@ -82,13 +82,17 @@ internal partial class CommandBarGameManager
 
     private void LinkComponentsWithActions()
     {
-        // NB: Currently we do not have "action" but we keep the original method name
         var nameLookup = SupportedCommandBarComponentData.GetComponentIdsForEngine(GameRepository.EngineType);
         foreach (var idPair in nameLookup)
         {
+            // The engine does not uppercase the name here
             var crc = _hashingService.GetCrc32(idPair.Value, PGConstants.DefaultPGEncoding);
             if (NamedEntries.TryGetFirstValue(crc, out var component))
+            {
+                // NB: Currently we do not have "action"
+                // but we keep the original method name 'LinkComponentsWithActions'
                 component.Id = idPair.Key;
+            }
         }
     }
 
