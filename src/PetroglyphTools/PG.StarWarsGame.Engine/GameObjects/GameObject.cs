@@ -9,15 +9,33 @@ namespace PG.StarWarsGame.Engine.GameObjects;
 
 public sealed class GameObject : NamedXmlObject
 {
-    internal GameObject(string type, string name, Crc32 nameCrc, GameObjectType estimatedType, XmlLocationInfo location) 
+    internal GameObject(
+        string type, 
+        string name, 
+        Crc32 nameCrc, 
+        int index,
+        GameObjectType estimatedType, 
+        XmlLocationInfo location) 
         : base(name, nameCrc, location)
     {
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), "Index must be greater than 0.");
+        Index = index;
+        Id = (int)nameCrc;
         Type = type ?? throw new ArgumentNullException(nameof(type));
         EstimatedType = estimatedType;
         LandTerrainModelMapping = new ReadOnlyDictionary<string, string>(InternalLandTerrainModelMapping);
     }
 
+    internal int Id { get; }
+
+    public int Index { get; }
+
     public string Type { get; }
+
+    public string VariantOfExistingTypeName { get; internal set; }
+
+    public bool IsLoadingComplete { get; internal set; }
 
     public GameObjectType EstimatedType { get; }
 
@@ -80,5 +98,15 @@ public sealed class GameObject : NamedXmlObject
             return;
         if (predicate is null || predicate(value)) 
             set.Add(value);
+    }
+
+    public void PostLoadFixup()
+    {
+        // TODO:
+        // MaxSpeed *= 1.0;
+        // MaxThrust *= 1.0;
+
+        // The engine loads references for scripts, images, hardpoints, etc.,
+        // but we don't do that here.
     }
 }

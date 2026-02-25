@@ -22,13 +22,18 @@ public abstract class NamedXmlObjectParser<T>(
     public T Parse(XElement element, IReadOnlyFrugalValueListDictionary<Crc32, T> parsedEntries, out Crc32 nameCrc)
     {
         var name = GetXmlObjectName(element, out nameCrc);
-        var namedXmlObject = CreateXmlObject(name, nameCrc, element, XmlLocationInfo.FromElement(element));
-        Parse(namedXmlObject, element, parsedEntries);
+        var namedXmlObject = CreateXmlObject(name, nameCrc, element, parsedEntries, XmlLocationInfo.FromElement(element));
+        ParseObject(namedXmlObject, element, parsedEntries);
         ValidateAndFixupValues(namedXmlObject, element);
         return namedXmlObject;
     }
 
-    protected abstract T CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location);
+    protected abstract T CreateXmlObject(
+        string name, 
+        Crc32 nameCrc, 
+        XElement element,
+        IReadOnlyFrugalValueListDictionary<Crc32, T> parsedEntries,
+        XmlLocationInfo location);
 
     private string GetXmlObjectName(XElement element, out Crc32 crc32)
     {

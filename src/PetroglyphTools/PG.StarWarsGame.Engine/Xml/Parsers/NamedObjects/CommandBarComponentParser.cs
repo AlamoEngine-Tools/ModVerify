@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Xml.Linq;
+﻿using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.CommandBar.Xml;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
+using System;
+using System.Collections.ObjectModel;
+using System.Xml.Linq;
 using Crc32 = PG.Commons.Hashing.Crc32;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
@@ -12,7 +13,12 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers;
 internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
     : NamedXmlObjectParser<CommandBarComponentData>(serviceProvider, new CommandBarComponentDataXmlTagMapper(serviceProvider), errorReporter)
 {
-    protected override CommandBarComponentData CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
+    protected override CommandBarComponentData CreateXmlObject(
+        string name, 
+        Crc32 nameCrc,
+        XElement element,
+        IReadOnlyFrugalValueListDictionary<Crc32, CommandBarComponentData> parsedEntries,
+        XmlLocationInfo location)
     {
         return new CommandBarComponentData(name, nameCrc, location);
     }

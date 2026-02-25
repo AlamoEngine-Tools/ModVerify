@@ -1,9 +1,10 @@
 ﻿using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using System;
 using System.IO;
-using PG.StarWarsGame.Files.XML.Data;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -11,7 +12,8 @@ public sealed class XmlContainerFileParser<T>(
     IServiceProvider serviceProvider,
     NamedXmlObjectParser<T> elementParser,
     IXmlParserErrorReporter? listener = null)
-    : PetroglyphXmlFileParserBase(serviceProvider, listener) where T : NamedXmlObject
+    : PetroglyphXmlFileParserBase(serviceProvider, listener), IXmlContainerFileParser<T> 
+    where T : NamedXmlObject
 {
     public NamedXmlObjectParser<T> ElementParser { get; } =
         elementParser ?? throw new ArgumentNullException(nameof(elementParser));
@@ -19,11 +21,13 @@ public sealed class XmlContainerFileParser<T>(
     public void ParseFile(Stream xmlStream, IFrugalValueListDictionary<Crc32, T> parsedEntries)
     {
         var root = GetRootElement(xmlStream, out _);
-        
-        foreach (var xElement in root.Elements())
-        {
-            var parsedElement = ElementParser.Parse(xElement, parsedEntries, out var entryCrc);
-            parsedEntries.Add(entryCrc, parsedElement);
-        }
+        foreach (var xElement in root.Elements()) 
+            ParseElement(xElement, parsedEntries);
+    }
+
+    private void ParseElement(XElement element, IFrugalValueListDictionary<Crc32, T> parsedEntries)
+    {
+        var parsedElement = ElementParser.Parse(element, parsedEntries, out var entryCrc); 
+        parsedEntries.Add(entryCrc, parsedElement);
     }
 }

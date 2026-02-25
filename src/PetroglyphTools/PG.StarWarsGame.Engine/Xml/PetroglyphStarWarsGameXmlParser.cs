@@ -75,7 +75,7 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
     
     public bool ParseObjectsFromContainerFile<T>(
         string xmlFile,
-        XmlContainerFileParser<T> parser,
+        IXmlContainerFileParser<T> parser,
         IFrugalValueListDictionary<Crc32, T> entries) where T : NamedXmlObject
     {
         return ParseCore(xmlFile, stream =>

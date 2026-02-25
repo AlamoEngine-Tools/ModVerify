@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Xml.Linq;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.GameObjects;
@@ -25,14 +26,78 @@ public static class GameObjectXmlTags
     public const string DamagedSmokeAssetName = "Damaged_Smoke_Asset_Name";
 }
 
+
+
 internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
     : NamedXmlObjectParser<GameObject>(serviceProvider, new GameObjectXmlTagMapper(serviceProvider), errorReporter)
 { 
-    protected override GameObject CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
+    internal bool OverlayLoad { get; set; }
+
+    protected override GameObject CreateXmlObject(
+        string name, 
+        Crc32 nameCrc, 
+        XElement element, 
+        IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedEntries, 
+        XmlLocationInfo location)
     {
-        var type = GetTagName(element);
-        var objectType = EstimateType(type);
-        return new GameObject(type, name, nameCrc, objectType, location);
+        if (!OverlayLoad)
+        {
+            var type = GetTagName(element);
+            var objectType = EstimateType(type);
+            return new GameObject(type, name, nameCrc, parsedEntries.ValueCount, objectType, location);
+        }
+        else
+        {
+            parsedEntries.TryGetFirstValue(nameCrc, out var type);
+            Debug.Assert(type is not null);
+
+            OverlayType(type!, element, false);
+
+
+            return type!;
+        }
+    }
+
+    protected override void ValidateAndFixupValues(GameObject gameObject, XElement element)
+    {
+        if (!OverlayLoad)
+        {
+            gameObject.PostLoadFixup();
+            if (string.IsNullOrEmpty(gameObject.VariantOfExistingTypeName))
+                gameObject.IsLoadingComplete = true;
+            else
+                OverlayType(gameObject, element);
+        }
+    }
+
+    private void OverlayType(GameObject gameObject, XElement element)
+    { 
+        var baseType = gameObject.VariantOfExistingType;
+        if (baseType is null)
+        {
+            var baseTypeName = gameObject.VariantOfExistingTypeName;
+            if (string.IsNullOrEmpty(baseTypeName))
+                return;
+
+            baseType = FindBaseType(baseTypeName);
+            if (baseType is null)
+                return;
+        }
+        OverlayType(baseType, gameObject, element);
+    }
+
+    private void OverlayType(GameObject baseType, GameObject derivedType, XElement element)
+    {
+        if (!baseType.IsLoadingComplete)
+            return;
+
+        derivedType.ApplyBaseType(baseType);
+
+
+        ParseObject(derivedType, element, ReadOnlyFrugalValueListDictionary<Crc32, GameObject>.Empty);
+
+        derivedType.PostLoadFixup();
+        derivedType.IsLoadingComplete = true;
     }
 
     protected override bool ParseTag(XElement tag, GameObject xmlObject, in IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parseState)
