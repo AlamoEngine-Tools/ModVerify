@@ -14,7 +14,12 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers;
 internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
     : NamedXmlObjectParser<SfxEvent>(serviceProvider, new SfxEventXmlTagMapper(serviceProvider), errorReporter)
 {
-    protected override SfxEvent CreateXmlObject(string name, Crc32 nameCrc, XElement element, XmlLocationInfo location)
+    protected override SfxEvent CreateXmlObject(
+        string name, 
+        Crc32 nameCrc, 
+        XElement element,
+        IReadOnlyFrugalValueListDictionary<Crc32, SfxEvent> parsedEntries,
+        XmlLocationInfo location)
     {
         return new SfxEvent(name, nameCrc, location);
     }

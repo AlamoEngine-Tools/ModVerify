@@ -2,26 +2,49 @@
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Xml;
+using PG.StarWarsGame.Engine.Xml.Parsers;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
-internal class GameObjectTypeGameManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
-    : GameManagerBase<GameObject>(repository, errorReporter, serviceProvider), IGameObjectTypeGameManager
+internal class GameObjectTypeGameManager : GameManagerBase<GameObject>, IGameObjectTypeGameManager
 {
+    private readonly List<GameObject> _gameObjects;
+
+    public GameObjectTypeGameManager(
+        GameRepository repository, 
+        GameEngineErrorReporterWrapper errorReporter, 
+        IServiceProvider serviceProvider)
+        : base(repository, errorReporter, serviceProvider)
+    {
+        _gameObjects = new List<GameObject>();
+        GameObjects = new ReadOnlyCollection<GameObject>(_gameObjects);
+    }
+
+
+    public IReadOnlyList<GameObject> GameObjects
+    {
+        get
+        {
+            ThrowIfNotInitialized();
+            return field;
+        }
+    }
+
     protected override async Task InitializeCoreAsync(CancellationToken token)
     {
         Logger?.LogInformation("Parsing GameObjects...");
         await Task.Run(ParseGameObjectDatabases, token);
     }
 
-
     private void ParseGameObjectDatabases()
     {
-        var parser = new PetroglyphStarWarsGameXmlParser(GameRepository, 
+        var gameParser = new PetroglyphStarWarsGameXmlParser(GameRepository, 
             new PetroglyphStarWarsGameXmlParseSettings
             {
                 GameManager = ToString(),
@@ -29,28 +52,45 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
                 InvalidObjectXmlFailsInitialization = false,
             }, ServiceProvider, ErrorReporter);
 
-        var xmlFileList = parser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files
-            .Select(x =>
-            {
-                var filePath = FileSystem.Path.Combine(@".\DATA\XML\", x);
-                VerifyFilePathLength(filePath);
-                return filePath;
-            }).ToList();
+        var xmlFileList = gameParser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files
+            .Select(x => FileSystem.Path.Combine(@".\DATA\XML\", x))
+            .Where(VerifyFilePathLength)
+            .ToList();
 
-
-        //var gameObjectFileParser = new GameObjectFileParser(serviceProvider, errorReporter);
+        var gameObjectFileParser = new GameObjectFileParser(ServiceProvider, ErrorReporter);
 
         var allLoaded = false;
+
+        // This also acts a guard against infinite loops in case of unexpected circular dependencies or
+        // when a unit declares itself as its own <Variant_Of_Existing_Type>
         for (var passNumber = 0; !allLoaded && passNumber < 10; passNumber++)
         {
+            Logger?.LogDebug("***** Parsing game object types - pass {PassNumber} *****", passNumber);
+
+            if (passNumber != 0) 
+                gameObjectFileParser.OverlayLoad = true;
+            
             foreach (var gameObjectXmlFile in xmlFileList)
             {
                 if (passNumber == 0)
                 {
-                    //ParseSingleGameObjectFile(gameObjectXmlFile, parser, gameObjectFileParser);
+                    try
+                    {
+                        gameObjectFileParser.GameObjectParsed += OnGameObjectParsed;
+                        ParseSingleGameObjectFile(gameObjectXmlFile, gameParser, gameObjectFileParser);
+                    }
+                    finally
+                    {
+                        gameObjectFileParser.GameObjectParsed -= OnGameObjectParsed;
+                    }
                 }
                 else
                 {
+                    foreach (var gameObject in _gameObjects)
+                    {
+                        if (!gameObject.IsLoadingComplete && gameObject.Location.XmlFile == gameObjectXmlFile)
+                            ParseSingleGameObjectFile(gameObjectXmlFile, gameParser, gameObjectFileParser);
+                    }
                 }
             }
 
@@ -65,12 +105,38 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
         }
     }
 
-    //private void ParseSingleGameObjectFile(string file, EngineXmlParser engineParser, GameObjectFileParser gameObjectFileParser)
-    //{
-    //    engineParser.ParseEntriesFromContainerFile(gameObjectFileParser, file, NamedEntries);
-    //}
+    private void OnGameObjectParsed(object sender, GameObjectParsedEventArgs e)
+    {
+        if (!e.Unique)
+        {
+            var entries = NamedEntries.GetValues(e.ParsedElement.Crc32)
+                .Select(x => x.Name);
+            ErrorReporter.Assert(EngineAssert.Create(
+                EngineAssertKind.DuplicateEntry, 
+                e.ParsedElement.Crc32, entries, 
+                $"Error: Game object type {e.ParsedElement.Name} is defined multiple times."));
+        }
 
-    private void VerifyFilePathLength(string filePath)
+        if (NamedEntries.ValueCount >= 0x10000)
+        {
+            ErrorReporter.Assert(
+                EngineAssert.Create(
+                    EngineAssertKind.ValueOutOfRange, 
+                    NamedEntries.ValueCount,
+                    [ToString()], 
+                    "Too many game object types defined."));
+        }
+    }
+
+    private void ParseSingleGameObjectFile(
+        string file,
+        PetroglyphStarWarsGameXmlParser gameParser,
+        GameObjectFileParser gameObjectFileParser)
+    {
+        gameParser.ParseObjectsFromContainerFile(file, gameObjectFileParser, NamedEntries);
+    }
+
+    private bool VerifyFilePathLength(string filePath)
     {
         if (filePath.Length > PGConstants.MaxGameObjectDatabaseFileName)
         {
@@ -81,6 +147,9 @@ internal class GameObjectTypeGameManager(GameRepository repository, GameEngineEr
                 GameManager = ToString(),
                 Message = $"Game object file '{filePath}' is longer than {PGConstants.MaxGameObjectDatabaseFileName} characters."
             });
+            return false;
         }
+
+        return true;
     }
 }

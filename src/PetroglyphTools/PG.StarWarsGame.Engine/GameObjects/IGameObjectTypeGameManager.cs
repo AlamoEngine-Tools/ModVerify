@@ -1,3 +1,9 @@
-﻿namespace PG.StarWarsGame.Engine.GameObjects;
+﻿using System.Collections.Generic;
 
-public interface IGameObjectTypeGameManager : IGameManager<GameObject>;
+namespace PG.StarWarsGame.Engine.GameObjects;
+
+public interface IGameObjectTypeGameManager : IGameManager<GameObject>
+{
+    // List represent XML load order
+    IReadOnlyList<GameObject> GameObjects { get; }
+}

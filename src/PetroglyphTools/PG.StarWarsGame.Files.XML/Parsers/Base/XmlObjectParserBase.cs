@@ -16,7 +16,7 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
     {
     }
 
-    protected void Parse(TObject xmlObject, XElement element, in TParseState state)
+    protected void ParseObject(TObject xmlObject, XElement element, in TParseState state)
     {
         foreach (var tag in element.Elements())
         {
@@ -36,7 +36,7 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
             }
             else
             {
-                Parse(xmlObject, tag, in state);
+                ParseObject(xmlObject, tag, in state);
             }
         }
     }
