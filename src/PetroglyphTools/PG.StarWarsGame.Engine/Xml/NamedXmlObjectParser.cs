@@ -4,10 +4,12 @@ using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
+using PG.StarWarsGame.Files.XML.Parsers;
 
-namespace PG.StarWarsGame.Files.XML.Parsers;
+namespace PG.StarWarsGame.Engine.Xml;
 
 public abstract class NamedXmlObjectParser<T> : 
     XmlObjectParserBase<T, IReadOnlyFrugalValueListDictionary<Crc32, T>>, INamedXmlObjectParser<T>
@@ -20,9 +22,11 @@ public abstract class NamedXmlObjectParser<T> :
     
     protected readonly ILogger? Logger;
 
-    protected NamedXmlObjectParser(IServiceProvider serviceProvider,
-        IXmlTagMapper<T> tagMapper,
-        IXmlParserErrorReporter? errorReporter) : base(tagMapper, errorReporter)
+    protected NamedXmlObjectParser(
+        GameEngineType engine,
+        XmlTagMapper<T> tagMapper,
+        IXmlParserErrorReporter? errorReporter,
+        IServiceProvider serviceProvider) : base(engine, tagMapper, errorReporter)
     {
         HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());

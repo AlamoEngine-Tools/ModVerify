@@ -9,8 +9,11 @@ using Crc32 = PG.Commons.Hashing.Crc32;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
-    : NamedXmlObjectParser<CommandBarComponentData>(serviceProvider, new CommandBarComponentDataXmlTagMapper(serviceProvider), errorReporter)
+internal class CommandBarComponentParser(
+    GameEngineType engine, 
+    IServiceProvider serviceProvider, 
+    IXmlParserErrorReporter? errorReporter = null)
+    : NamedXmlObjectParser<CommandBarComponentData>(engine, new CommandBarComponentDataXmlTagMapper(serviceProvider), errorReporter, serviceProvider)
 {
     protected override bool UpperCaseNameForCrc => true;
     protected override bool UpperCaseNameForObject => false;

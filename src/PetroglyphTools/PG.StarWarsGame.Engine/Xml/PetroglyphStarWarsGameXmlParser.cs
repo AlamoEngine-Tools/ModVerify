@@ -9,7 +9,6 @@ using PG.Commons.Hashing;
 using PG.Commons.Services;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
-using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
@@ -63,7 +62,7 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
         var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
 
         var parser = new XmlContainerFileParser<T>(Services,
-            _fileParserFactory.CreateNamedXmlObjectParser<T>(_reporter), _reporter);
+            _fileParserFactory.CreateNamedXmlObjectParser<T>(_gameRepository.EngineType, _reporter), _reporter);
 
         foreach (var file in xmlFiles)
         {

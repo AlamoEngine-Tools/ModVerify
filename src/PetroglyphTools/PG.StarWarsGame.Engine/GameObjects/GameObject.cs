@@ -11,21 +11,7 @@ namespace PG.StarWarsGame.Engine.GameObjects;
 [DebuggerDisplay("{Name} ({ClassificationName})")]
 public sealed class GameObject : NamedXmlObject
 {
-    internal GameObject(
-        string name,
-        string classification,
-        Crc32 nameCrc,
-        int index,
-        XmlLocationInfo location) 
-        : base(name, nameCrc, location)
-    {
-        if (index < 0)
-            throw new ArgumentOutOfRangeException(nameof(index), "Index must be greater than 0.");
-        Index = index;
-        Id = (int)nameCrc;
-        ClassificationName = classification ?? throw new ArgumentNullException(nameof(classification));
-        LandTerrainModelMapping = new ReadOnlyDictionary<string, string>(InternalLandTerrainModelMapping);
-    }
+    internal readonly List<(string terrain, string model)> InternalLandTerrainModelMapping = [];
 
     internal int Id { get; }
 
@@ -61,48 +47,24 @@ public sealed class GameObject : NamedXmlObject
 
     public string? DamagedSmokeAssetModel { get; internal set; }
 
-    public IReadOnlyDictionary<string, string> LandTerrainModelMapping { get; }
-
-    internal Dictionary<string, string> InternalLandTerrainModelMapping { get; } = new(StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Gets all model files (including particles) the game object references.
-    /// </summary>
-    public IEnumerable<string> Models
+    public IReadOnlyList<(string terrain, string model)> LandTerrainModelMappingValues { get; }
+    
+    internal GameObject(
+        string name,
+        string classification,
+        Crc32 nameCrc,
+        int index,
+        XmlLocationInfo location)
+        : base(name, nameCrc, location)
     {
-        get
-        {
-            var models = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            AddNotEmpty(models, GalacticModel);
-            AddNotEmpty(models, DestroyedGalacticModel);
-            AddNotEmpty(models, LandModel);
-            AddNotEmpty(models, SpaceModel);
-            AddNotEmpty(models, TacticalModel);
-            AddNotEmpty(models, GalacticFleetOverrideModel);
-            AddNotEmpty(models, GuiModel);
-            AddNotEmpty(models, ModelName);
-            
-            // TODO: Is this really correct?
-            AddNotEmpty(models, LandAnimOverrideModel, s => s.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
-            AddNotEmpty(models, SpaceAnimOverrideModel, s => s.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
-            
-            AddNotEmpty(models, DamagedSmokeAssetModel);
-            foreach (var model in InternalLandTerrainModelMapping.Values) 
-                models.Add(model);
-
-            return models;
-        }
-        
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), "Index must be greater than 0.");
+        Index = index;
+        Id = (int)nameCrc;
+        ClassificationName = classification ?? throw new ArgumentNullException(nameof(classification));
+        LandTerrainModelMappingValues = new ReadOnlyCollection<(string, string)>(InternalLandTerrainModelMapping);
     }
-
-    private static void AddNotEmpty(ISet<string> set, string? value, Predicate<string>? predicate = null)
-    {
-        if (value is null) 
-            return;
-        if (predicate is null || predicate(value)) 
-            set.Add(value);
-    }
-
+    
     public void PostLoadFixup()
     {
         // TODO:

@@ -10,8 +10,8 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
-    : NamedXmlObjectParser<SfxEvent>(serviceProvider, new SfxEventXmlTagMapper(serviceProvider), errorReporter)
+internal class SfxEventParser(GameEngineType engine, IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
+    : NamedXmlObjectParser<SfxEvent>(engine, new SfxEventXmlTagMapper(serviceProvider), errorReporter, serviceProvider)
 {
     // This is a slight derivation from the engine:
     // The engine does not upper case the name neither for the name itself and the CRC.

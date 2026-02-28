@@ -11,9 +11,12 @@ using Crc32 = PG.Commons.Hashing.Crc32;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal partial class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
-    : NamedXmlObjectParser<GameObject>(serviceProvider, new GameObjectXmlTagMapper(serviceProvider), errorReporter)
-{ 
+internal partial class GameObjectParser(
+    GameEngineType engine,
+    IServiceProvider serviceProvider,
+    IXmlParserErrorReporter? errorReporter = null)
+    : NamedXmlObjectParser<GameObject>(engine, new GameObjectXmlTagMapper(serviceProvider), errorReporter, serviceProvider)
+{
     internal bool OverlayLoad { get; set; }
 
     protected override bool UpperCaseNameForCrc => true;
@@ -148,13 +151,11 @@ internal partial class GameObjectParser(IServiceProvider serviceProvider, IXmlPa
                 GameObjectXmlTags.LandModelName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.LandModel = val);
-
-            // TODO
-            //AddMapping(
-            //    GameObjectXmlTags.LandTerrainModelMapping,
-            //    PetroglyphXmlStringParser.Instance.Parse,
-            //    (obj, val) => obj.InternalLandTerrainModelMapping = val);
-
+            AddMapping(
+                GameObjectXmlTags.LandTerrainModelMapping,
+                CommaSeparatedStringKeyValueListParser.Instance.Parse,
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.InternalLandTerrainModelMapping, val, replace));
             AddMapping(
                 GameObjectXmlTags.SpaceModelName,
                 PetroglyphXmlStringParser.Instance.Parse,
@@ -168,16 +169,21 @@ internal partial class GameObjectParser(IServiceProvider serviceProvider, IXmlPa
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.SpaceAnimOverrideModel = val);
 
+            // TODO
+
+            AddMapping(
+                GameObjectXmlTags.DamagedSmokeAssetName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.DamagedSmokeAssetModel = val);
+
+            // TODO
 
             AddMapping(
                 GameObjectXmlTags.GuiModelName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.GuiModel = val);
 
-            AddMapping(
-                GameObjectXmlTags.DamagedSmokeAssetName,
-                PetroglyphXmlStringParser.Instance.Parse,
-                (obj, val) => obj.DamagedSmokeAssetModel = val);
+            // TODO
         }
     }
 

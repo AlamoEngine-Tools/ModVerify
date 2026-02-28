@@ -15,14 +15,13 @@ using System.Numerics;
 namespace PG.StarWarsGame.Engine.CommandBar;
 
 internal partial class CommandBarGameManager(
-    GameEngineType engineType,
     GameRepository repository,
     PGRender pgRender,
     IGameConstants gameConstants,
     IFontManager fontManager,
     GameEngineErrorReporterWrapper errorReporter,
     IServiceProvider serviceProvider)
-    : GameManagerBase<CommandBarBaseComponent>(engineType, repository, errorReporter, serviceProvider), ICommandBarGameManager
+    : GameManagerBase<CommandBarBaseComponent>(repository, errorReporter, serviceProvider), ICommandBarGameManager
 {
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();

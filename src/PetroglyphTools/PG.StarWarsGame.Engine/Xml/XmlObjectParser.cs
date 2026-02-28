@@ -1,11 +1,15 @@
-﻿using PG.StarWarsGame.Files.XML.Data;
+﻿using System.Xml.Linq;
+using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
-using System.Xml.Linq;
 
-namespace PG.StarWarsGame.Files.XML.Parsers;
+namespace PG.StarWarsGame.Engine.Xml;
 
-public abstract class XmlObjectParser<TObject>(IXmlTagMapper<TObject> tagMapper, IXmlParserErrorReporter? errorReporter = null)
-    : XmlObjectParserBase<TObject, EmptyParseState>(tagMapper, errorReporter)
+public abstract class XmlObjectParser<TObject>(
+    GameEngineType engine,
+    XmlTagMapper<TObject> tagMapper,
+    IXmlParserErrorReporter? errorReporter = null)
+    : XmlObjectParserBase<TObject, XmlObjectParser<TObject>.EmptyParseState>(engine, tagMapper, errorReporter)
     where TObject : XmlObject
 {
     public TObject Parse(XElement element)
@@ -30,10 +34,15 @@ public abstract class XmlObjectParser<TObject>(IXmlTagMapper<TObject> tagMapper,
 
     protected virtual bool ParseTag(XElement tag, TObject xmlObject, bool replace)
     {
-        return XmlTagMapper.TryParseEntry(tag, xmlObject, replace);
+        return XmlTagMapper.TryParseEntry(tag, xmlObject, replace, Engine);
     }
 
     protected virtual void ValidateAndFixupValues(TObject xmlObject, XElement element)
     {
+    }
+
+    public readonly struct EmptyParseState
+    {
+        public static readonly EmptyParseState Instance = new();
     }
 }

@@ -8,26 +8,15 @@ using System.IO;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-internal sealed class GameObjectParsedEventArgs : EventArgs
-{
-    public bool Unique { get; }
-
-    public GameObject ParsedElement { get; }
-
-    internal GameObjectParsedEventArgs(GameObject parsedElement, bool unique)
-    {
-        Unique = unique;
-        ParsedElement = parsedElement ?? throw new ArgumentNullException(nameof(parsedElement));
-    }
-}
-
-
-internal class GameObjectFileParser(IServiceProvider serviceProvider, IGameEngineErrorReporter? errorReporter)
+internal class GameObjectFileParser(
+    GameEngineType engine,
+    IServiceProvider serviceProvider, 
+    IGameEngineErrorReporter? errorReporter)
     : PetroglyphXmlFileParserBase(serviceProvider, errorReporter), IXmlContainerFileParser<GameObject>
 {
     public event EventHandler<GameObjectParsedEventArgs>? GameObjectParsed;
 
-    private readonly GameObjectParser _gameObjectParser = new(serviceProvider, errorReporter);
+    private readonly GameObjectParser _gameObjectParser = new(engine, serviceProvider, errorReporter);
 
     public INamedXmlObjectParser<GameObject> ElementParser => _gameObjectParser;
 

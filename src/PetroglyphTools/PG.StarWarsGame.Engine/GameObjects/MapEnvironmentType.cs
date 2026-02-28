@@ -20,7 +20,7 @@ public enum MapEnvironmentType
 // TODO: To separate GameManager that holds these Conversion instances
 public static class MapEnvironmentTypeConversion
 {
-    public static readonly EnumConversionDictionary<MapEnvironmentType> Dictionary = new([
+    public static readonly EnumConversionDictionary<MapEnvironmentType> ConversionDictionary = new([
         new KeyValuePair<string, MapEnvironmentType>("Temperate", MapEnvironmentType.Temperate),
         new KeyValuePair<string, MapEnvironmentType>("Arctic", MapEnvironmentType.Arctic),
         new KeyValuePair<string, MapEnvironmentType>("Desert", MapEnvironmentType.Desert),

@@ -16,11 +16,10 @@ internal class FontManager : GameManagerBase, IFontManager
     private ISet<string> _fontNames = null!;
 
     public FontManager(
-        GameEngineType engineType,
         GameRepository repository, 
         GameEngineErrorReporterWrapper errorReporter, 
         IServiceProvider serviceProvider) 
-        : base(engineType, repository, errorReporter, serviceProvider)
+        : base(repository, errorReporter, serviceProvider)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             _fontManager = new WindowsFontManager();

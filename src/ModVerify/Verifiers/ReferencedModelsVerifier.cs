@@ -20,7 +20,10 @@ public sealed class ReferencedModelsVerifier(
         var gameObjectEntries = GameEngine.GameObjectTypeManager.Entries.ToList();
         var hardcodedModels = FocHardcodedConstants.HardcodedModels.ToList();
 
-        var totalModelsCount = gameObjectEntries.Sum(x => x.Models.Count()) + hardcodedModels.Count;
+        var totalModelsCount =
+            gameObjectEntries
+                .Sum(x => GameEngine.GameObjectTypeManager.GetModels(x).Count())
+            + hardcodedModels.Count;
 
         if (totalModelsCount == 0)
             return;
@@ -36,7 +39,7 @@ public sealed class ReferencedModelsVerifier(
             foreach (var gameObject in gameObjectEntries)
             {
                 context[0] = $"GameObject: {gameObject.Name}";
-                foreach (var model in gameObject.Models)
+                foreach (var model in GameEngine.GameObjectTypeManager.GetModels(gameObject))
                 {
                     OnProgress((double)++counter / totalModelsCount, $"Model - '{model}'");
                     inner.Verify(model, context, token);
