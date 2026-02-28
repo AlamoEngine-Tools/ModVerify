@@ -29,7 +29,7 @@ internal class GameObjectFileParser(IServiceProvider serviceProvider, IGameEngin
 
     private readonly GameObjectParser _gameObjectParser = new(serviceProvider, errorReporter);
 
-    public NamedXmlObjectParser<GameObject> ElementParser => _gameObjectParser;
+    public INamedXmlObjectParser<GameObject> ElementParser => _gameObjectParser;
 
     public bool OverlayLoad
     {

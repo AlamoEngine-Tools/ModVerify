@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Xml.Linq;
 using AnakinRaW.CommonUtilities.Collections;
@@ -14,6 +13,13 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers;
 internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
     : NamedXmlObjectParser<SfxEvent>(serviceProvider, new SfxEventXmlTagMapper(serviceProvider), errorReporter)
 {
+    // This is a slight derivation from the engine:
+    // The engine does not upper case the name neither for the name itself and the CRC.
+    // However, the SFXEventManager maps all SFXEvent by their upper-cased name CRC values.
+    // We create and store upper-cased name CRC to the SFXEvent too.
+    protected override bool UpperCaseNameForCrc => true;
+    protected override bool UpperCaseNameForObject => false;
+
     protected override SfxEvent CreateXmlObject(
         string name, 
         Crc32 nameCrc, 
@@ -24,7 +30,7 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
         return new SfxEvent(name, nameCrc, location);
     }
 
-    protected override void ValidateAndFixupValues(SfxEvent sfxEvent, XElement element)
+    protected override void ValidateAndFixupValues(SfxEvent sfxEvent, XElement element, in IReadOnlyFrugalValueListDictionary<Crc32, SfxEvent> parsedEntries)
     {
         if (sfxEvent.Name.Length > PGConstants.MaxSFXEventName)
         {
@@ -92,11 +98,16 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
         sfxEvent.FixupValues();
     }
 
-    protected override bool ParseTag(XElement tag, SfxEvent sfxEvent,
+    protected override bool ParseTag(
+        XElement tag, 
+        SfxEvent sfxEvent,
+        bool replace,
         in IReadOnlyFrugalValueListDictionary<Crc32, SfxEvent> parsedEntries)
     {
         if (tag.Name.LocalName == SfxEventXmlTags.UsePreset)
         {
+            // TODO: Needs is Valid Check?
+
             var presetName = PetroglyphXmlStringParser.Instance.Parse(tag);
 
             Debug.Assert(!string.IsNullOrEmpty(presetName));
@@ -119,7 +130,7 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
             return true;
         }
 
-        return base.ParseTag(tag, sfxEvent, parsedEntries);
+        return base.ParseTag(tag, sfxEvent, replace, parsedEntries);
     }
 
 
@@ -139,19 +150,19 @@ internal class SfxEventParser(IServiceProvider serviceProvider, IXmlParserErrorR
             AddMapping(
                 SfxEventXmlTags.Samples,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.Samples = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => SetOrReplaceList(obj.SamplesInternal, val, replace));
             AddMapping(
                 SfxEventXmlTags.PreSamples,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.PreSamples = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => SetOrReplaceList(obj.PreSamplesInternal, val, replace));
             AddMapping(
                 SfxEventXmlTags.PostSamples,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.PostSamples = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => SetOrReplaceList(obj.PostSamplesInternal, val, replace));
             AddMapping(
                 SfxEventXmlTags.TextID,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.LocalizedTextIDs = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => SetOrReplaceList(obj.LocalizedTextIDsInternal, val, replace));
             AddMapping(
                 SfxEventXmlTags.PlaySequentially,
                 PetroglyphXmlBooleanParser.Instance.Parse,

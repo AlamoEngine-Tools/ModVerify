@@ -7,7 +7,7 @@ namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public interface IXmlContainerFileParser<T> : IPetroglyphXmlParserInfo where T : NamedXmlObject
 {
-    NamedXmlObjectParser<T> ElementParser { get; }
+    INamedXmlObjectParser<T> ElementParser { get; }
 
     void ParseFile(Stream xmlStream, IFrugalValueListDictionary<Crc32, T> parsedEntries);
 }

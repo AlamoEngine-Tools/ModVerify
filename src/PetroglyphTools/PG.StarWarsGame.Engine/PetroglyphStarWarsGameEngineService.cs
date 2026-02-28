@@ -74,7 +74,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
 
             var pgRender = new PGRender(repository, errorReporter, serviceProvider);
 
-            var gameConstants = new GameConstants.GameConstants(repository, errorReporter, serviceProvider);
+            var gameConstants = new GameConstants.GameConstants(engineType, repository, errorReporter, serviceProvider);
             initReporter?.ReportProgress("Initializing GameConstants");
             await gameConstants.InitializeAsync(token);
 
@@ -82,23 +82,23 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
 
             // MousePointer
 
-            var fontManger = new FontManager(repository, errorReporter, serviceProvider);
+            var fontManger = new FontManager(engineType, repository, errorReporter, serviceProvider);
             initReporter?.ReportProgress("Initializing FontManager");
             await fontManger.InitializeAsync(token);
 
-            var guiDialogs = new GuiDialogGameManager(repository, errorReporter, serviceProvider);
+            var guiDialogs = new GuiDialogGameManager(engineType, repository, errorReporter, serviceProvider);
             initReporter?.ReportProgress("Initializing GUIDialogManager");
             await guiDialogs.InitializeAsync(token);
 
-            var sfxGameManager = new SfxEventGameManager(repository, errorReporter, serviceProvider);
+            var sfxGameManager = new SfxEventGameManager(engineType, repository, errorReporter, serviceProvider);
             initReporter?.ReportProgress("Initializing SFXManager");
             await sfxGameManager.InitializeAsync(token);
 
-            var commandBarManager = new CommandBarGameManager(repository, pgRender, gameConstants, fontManger, errorReporter, serviceProvider);
+            var commandBarManager = new CommandBarGameManager(engineType, repository, pgRender, gameConstants, fontManger, errorReporter, serviceProvider);
             initReporter?.ReportProgress("Initializing CommandBar");
             await commandBarManager.InitializeAsync(token);
 
-            var gameObjetTypeManager = new GameObjectTypeGameManager(repository, errorReporter, serviceProvider);
+            var gameObjetTypeManager = new GameObjectTypeGameManager(engineType, repository, errorReporter, serviceProvider);
             initReporter?.ReportProgress("Initializing GameObjectTypeManager");
             await gameObjetTypeManager.InitializeAsync(token);
 

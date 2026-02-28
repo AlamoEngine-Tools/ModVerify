@@ -2,29 +2,38 @@
 using System.Xml.Linq;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML.Data;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class NamedXmlObjectParser<T>(
-    IServiceProvider serviceProvider,
-    IXmlTagMapper<T> tagMapper,
-    IXmlParserErrorReporter? errorReporter)
-    : XmlObjectParserBase<T, IReadOnlyFrugalValueListDictionary<Crc32, T>>(tagMapper, errorReporter)
+public abstract class NamedXmlObjectParser<T> : 
+    XmlObjectParserBase<T, IReadOnlyFrugalValueListDictionary<Crc32, T>>, INamedXmlObjectParser<T>
     where T : NamedXmlObject
 {
-    protected virtual bool UpperCaseNameForCrc => true;
+    protected abstract bool UpperCaseNameForCrc { get; }
+    protected abstract bool UpperCaseNameForObject { get; }
 
-    protected readonly ICrc32HashingService HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
+    protected readonly ICrc32HashingService HashingService;
+    
+    protected readonly ILogger? Logger;
+
+    protected NamedXmlObjectParser(IServiceProvider serviceProvider,
+        IXmlTagMapper<T> tagMapper,
+        IXmlParserErrorReporter? errorReporter) : base(tagMapper, errorReporter)
+    {
+        HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
+        Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+    }
 
     public T Parse(XElement element, IReadOnlyFrugalValueListDictionary<Crc32, T> parsedEntries, out Crc32 nameCrc)
     {
         var name = GetXmlObjectName(element, out nameCrc);
         var namedXmlObject = CreateXmlObject(name, nameCrc, element, parsedEntries, XmlLocationInfo.FromElement(element));
-        ParseObject(namedXmlObject, element, parsedEntries);
-        ValidateAndFixupValues(namedXmlObject, element);
+        ParseObject(namedXmlObject, element, false, parsedEntries);
+        ValidateAndFixupValues(namedXmlObject, element, parsedEntries);
         return namedXmlObject;
     }
 
@@ -35,12 +44,17 @@ public abstract class NamedXmlObjectParser<T>(
         IReadOnlyFrugalValueListDictionary<Crc32, T> parsedEntries,
         XmlLocationInfo location);
 
-    private string GetXmlObjectName(XElement element, out Crc32 crc32)
+    protected virtual Crc32 CreateNameCrc(string name)
     {
-        GetNameAttributeValue(element, out var name);
-        crc32 = UpperCaseNameForCrc
+        return UpperCaseNameForCrc
             ? HashingService.GetCrc32Upper(name.AsSpan(), XmlFileConstants.XmlEncoding)
             : HashingService.GetCrc32(name.AsSpan(), XmlFileConstants.XmlEncoding);
+    }
+
+    protected string GetXmlObjectName(XElement element, out Crc32 crc32)
+    {
+        GetNameAttributeValue(element, out var name, UpperCaseNameForObject);
+        crc32 = CreateNameCrc(name);
 
         if (crc32 == default)
         {

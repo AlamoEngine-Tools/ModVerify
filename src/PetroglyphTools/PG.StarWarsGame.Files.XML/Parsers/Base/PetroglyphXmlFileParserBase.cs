@@ -29,7 +29,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
         if (string.IsNullOrEmpty(fileName))
             throw new InvalidOperationException("Unable to parse XML from unnamed stream. Either parse from a file or MEG stream.");
 
-        SkipLeadingWhiteSpace(fileName, xmlStream);
+        SkipCharactersUntilXmlHeader(fileName, xmlStream);
 
         var asciiStreamReader = new StreamReader(xmlStream, XmlFileConstants.XmlEncoding, false, 1024, leaveOpen: true);
         using var xmlReader = XmlReader.Create(asciiStreamReader, new XmlReaderSettings
@@ -77,18 +77,16 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
     }
 
 
-    private void SkipLeadingWhiteSpace(string fileName, Stream stream)
+    private void SkipCharactersUntilXmlHeader(string fileName, Stream stream)
     {
         using var r = new StreamReader(stream, XmlFileConstants.XmlEncoding, false, 10, true);
         var count = 0;
 
-        while (true)
-        {
-            var c = (char)r.Read();
-            if (!char.IsWhiteSpace(c))
-                break;
+        // It might be possible, that a XML file starts with leading spaces or even a encoding BOM. 
+        // The engine skips everything until the first '<' character, so we have to do the same to avoid parsing errors.
+
+        while ((char)r.Read() != '<') 
             count++;
-        }
 
         if (count != 0)
         {

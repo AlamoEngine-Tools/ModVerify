@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML;
@@ -6,6 +8,7 @@ using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
+[DebuggerDisplay("{Name}")]
 public sealed class SfxEvent : NamedXmlObject
 {
     private byte _minVolume = DefaultMinVolume;
@@ -45,6 +48,11 @@ public sealed class SfxEvent : NamedXmlObject
     public const byte DefaultMaxPan2d = 50;
     public const float DefaultVolumeSaturationDistance = 300.0f;
 
+    internal readonly List<string> PreSamplesInternal = new();
+    internal readonly List<string> SamplesInternal = new();
+    internal readonly List<string> PostSamplesInternal = new();
+    internal readonly List<string> LocalizedTextIDsInternal = new();
+
     public bool IsPreset { get; internal set; }
 
     public bool Is3D { get; internal set; } = DefaultIs3d;
@@ -69,14 +77,14 @@ public sealed class SfxEvent : NamedXmlObject
 
     public IEnumerable<string> AllSamples => PreSamples.Concat(Samples).Concat(PostSamples);
 
-    public IReadOnlyList<string> PreSamples { get; internal set; } = [];
+    public IReadOnlyList<string> PreSamples { get; }
 
-    public IReadOnlyList<string> Samples { get; internal set; } = [];
+    public IReadOnlyList<string> Samples { get; }
 
-    public IReadOnlyList<string> PostSamples { get; internal set; } = [];
+    public IReadOnlyList<string> PostSamples { get; }
 
-    public IReadOnlyList<string> LocalizedTextIDs { get; internal set; } = [];
-
+    public IReadOnlyList<string> LocalizedTextIDs { get; }
+    
     public byte Priority { get; internal set; } = DefaultPriority;
 
     public byte Probability { get; internal set; } = DefaultProbability;
@@ -161,6 +169,7 @@ public sealed class SfxEvent : NamedXmlObject
     internal SfxEvent(string name, Crc32 nameCrc, XmlLocationInfo location)
         : base(name, nameCrc, location)
     {
+        PreSamples = new ReadOnlyCollection<string>(PreSamplesInternal);
     }
 
     internal void FixupValues()
@@ -197,10 +206,10 @@ public sealed class SfxEvent : NamedXmlObject
         IsAmbientVo = preset.IsAmbientVo;
         IsLocalized = preset.IsLocalized;
         PlaySequentially = preset.PlaySequentially;
-        PreSamples = preset.PreSamples;
-        Samples = preset.Samples;
-        PostSamples = preset.PostSamples;
-        LocalizedTextIDs = preset.LocalizedTextIDs;
+        SetList(PreSamplesInternal, preset.PreSamplesInternal);
+        SetList(SamplesInternal, preset.SamplesInternal);
+        SetList(PostSamplesInternal, preset.PostSamplesInternal);
+        SetList(LocalizedTextIDsInternal, preset.LocalizedTextIDsInternal);
         Priority = preset.Priority;
         Probability = preset.Probability;
         PlayCount = preset.PlayCount;
@@ -219,6 +228,13 @@ public sealed class SfxEvent : NamedXmlObject
         MaxPitch = preset.MaxPitch;
         MinPan2D = preset.MinPan2D;
         MaxPan2D = preset.MaxPan2D;
+        return;
+
+        static void SetList(List<string> target, List<string> source)
+        {
+            target.Clear();
+            target.AddRange(source);
+        }
     }
 
     private static void AdjustMinMaxValues(ref byte minValue, ref byte maxValue)

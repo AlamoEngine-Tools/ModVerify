@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Runtime.Serialization;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using System.Xml.Linq;
 
@@ -68,12 +70,17 @@ public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
         return nameAttribute is null ? string.Empty : nameAttribute.Value;
     }
 
-    protected bool GetNameAttributeValue(XElement element, out string value)
+    protected bool GetNameAttributeValue(XElement element, out string value, bool uppercase)
     {
         return GetAttributeValue(element, "Name", out value!, string.Empty);
     }
 
-    protected bool GetAttributeValue(XElement element, string attribute, out string? value, string? defaultValue = null)
+    protected bool GetAttributeValue(
+        XElement element, 
+        string attribute, 
+        out string? value, 
+        string defaultValue = "",
+        bool uppercase = false)
     {
         // In this engine, this is actually case-sensitive
         var nameAttribute = element.Attributes()
@@ -82,6 +89,8 @@ public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
         if (nameAttribute is null)
         {
             value = defaultValue;
+            if (uppercase) 
+                value = value.ToUpperInvariant();
             ErrorReporter?.Report(new XmlError(this, element)
             {
                 ErrorKind = XmlParseErrorKind.MissingAttribute,
@@ -91,6 +100,8 @@ public abstract class PetroglyphXmlParserBase : IPetroglyphXmlParserInfo
         }
 
         value = nameAttribute.Value;
+        if (uppercase)
+            value = value.ToUpperInvariant();
         return true;
     }
 }

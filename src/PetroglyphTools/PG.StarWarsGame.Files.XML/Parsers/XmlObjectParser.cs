@@ -11,20 +11,29 @@ public abstract class XmlObjectParser<TObject>(IXmlTagMapper<TObject> tagMapper,
     public TObject Parse(XElement element)
     {
         var xmlObject = CreateXmlObject(XmlLocationInfo.FromElement(element));
-        ParseObject(xmlObject, element, EmptyParseState.Instance);
-        ValidateAndFixupValues(xmlObject, element); ;
+        ParseObject(xmlObject, element, false, EmptyParseState.Instance);
+        ValidateAndFixupValues(xmlObject, element, EmptyParseState.Instance);
         return xmlObject;
     }
 
     protected abstract TObject CreateXmlObject(XmlLocationInfo location);
 
-    protected sealed override bool ParseTag(XElement tag, TObject xmlObject, in EmptyParseState parseState)
+    protected sealed override bool ParseTag(XElement tag, TObject xmlObject, bool replace, in EmptyParseState parseState)
     {
-        return ParseTag(tag, xmlObject);
+        return ParseTag(tag, xmlObject, replace);
+    }
+    
+    protected sealed override void ValidateAndFixupValues(TObject xmlObject, XElement element, in EmptyParseState parseState)
+    {
+        ValidateAndFixupValues(xmlObject, element);
     }
 
-    protected virtual bool ParseTag(XElement tag, TObject xmlObject)
+    protected virtual bool ParseTag(XElement tag, TObject xmlObject, bool replace)
     {
-        return XmlTagMapper.TryParseEntry(tag, xmlObject);
+        return XmlTagMapper.TryParseEntry(tag, xmlObject, replace);
+    }
+
+    protected virtual void ValidateAndFixupValues(TObject xmlObject, XElement element)
+    {
     }
 }

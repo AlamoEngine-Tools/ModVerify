@@ -1,37 +1,24 @@
-﻿using System;
-using System.Diagnostics;
-using System.Xml.Linq;
-using AnakinRaW.CommonUtilities.Collections;
+﻿using AnakinRaW.CommonUtilities.Collections;
+using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.GameObjects;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
+using System;
+using System.Diagnostics;
+using System.Xml.Linq;
 using Crc32 = PG.Commons.Hashing.Crc32;
 
 namespace PG.StarWarsGame.Engine.Xml.Parsers;
 
-public static class GameObjectXmlTags
-{
-    public const string LandTerrainModelMapping =  "Land_Terrain_Model_Mapping";
-    public const string GalacticModelName = "Galactic_Model_Name";
-    public const string DestroyedGalacticModelName = "Destroyed_Galactic_Model_Name";
-    public const string LandModelName = "Land_Model_Name";
-    public const string SpaceModelName = "Space_Model_Name";
-    public const string ModelName = "Model_Name";
-    public const string TacticalModelName = "Tactical_Model_Name";
-    public const string GalacticFleetOverrideModelName = "Galactic_Fleet_Override_Model_Name";
-    public const string GuiModelName = "GUI_Model_Name";
-    public const string LandModelAnimOverrideName = "Land_Model_Anim_Override_Name";
-    public const string XxxSpaceModelName = "xxxSpace_Model_Name";
-    public const string DamagedSmokeAssetName = "Damaged_Smoke_Asset_Name";
-}
-
-
-
-internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
+internal partial class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
     : NamedXmlObjectParser<GameObject>(serviceProvider, new GameObjectXmlTagMapper(serviceProvider), errorReporter)
 { 
     internal bool OverlayLoad { get; set; }
+
+    protected override bool UpperCaseNameForCrc => true;
+    
+    protected override bool UpperCaseNameForObject => true;
 
     protected override GameObject CreateXmlObject(
         string name, 
@@ -40,37 +27,64 @@ internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErro
         IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedEntries, 
         XmlLocationInfo location)
     {
-        if (!OverlayLoad)
-        {
-            var type = GetTagName(element);
-            var objectType = EstimateType(type);
-            return new GameObject(type, name, nameCrc, parsedEntries.ValueCount, objectType, location);
-        }
-        else
+        if (OverlayLoad)
         {
             parsedEntries.TryGetFirstValue(nameCrc, out var type);
             Debug.Assert(type is not null);
+            OverlayType(type, element, parsedEntries);
+            return type;
+        }
 
-            OverlayType(type!, element, false);
+        // The engine actually manages a CRC table of the classification names,
+        // but since we uppercase the name and this feature is nowhere used,
+        // except for "MultiplayerStructureMarker",
+        // we can just use the name as the classification.
+        var classificationName = GetTagName(element).ToUpperInvariant();
+        var gameObjectType =  new GameObject(name, classificationName, nameCrc, parsedEntries.ValueCount, location);
+        if (Logger != null)
+            LogCreatingNewGameObjectType(Logger, gameObjectType.Name);
+        return gameObjectType;
+    }
 
-
-            return type!;
+    protected override void ParseObject(
+        GameObject xmlObject, 
+        XElement element, 
+        bool replace,
+        in IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedEntries)
+    {
+        if (element.HasElements && element.Attribute("SubObjectList")?.Value == "Yes")
+        {
+            // TODO
+            return;
+        }
+        
+        if (OverlayLoad)
+        {
+            Debug.Assert(replace);
+            OverlayType(xmlObject, element, parsedEntries);
+        }
+        else
+        {
+            base.ParseObject(xmlObject, element, replace, in parsedEntries);
         }
     }
 
-    protected override void ValidateAndFixupValues(GameObject gameObject, XElement element)
+    protected override void ValidateAndFixupValues(GameObject gameObject, XElement element, in IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedEntries)
     {
         if (!OverlayLoad)
         {
+            //BehaviorClass.AddImpliedBehaviors(this, BehaviorNames);
+            //InitBehaviorMap();
+
             gameObject.PostLoadFixup();
             if (string.IsNullOrEmpty(gameObject.VariantOfExistingTypeName))
                 gameObject.IsLoadingComplete = true;
             else
-                OverlayType(gameObject, element);
+                OverlayType(gameObject, element, parsedEntries);
         }
     }
 
-    private void OverlayType(GameObject gameObject, XElement element)
+    private void OverlayType(GameObject gameObject, XElement element, IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parsedEntries)
     { 
         var baseType = gameObject.VariantOfExistingType;
         if (baseType is null)
@@ -79,7 +93,9 @@ internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErro
             if (string.IsNullOrEmpty(baseTypeName))
                 return;
 
-            baseType = FindBaseType(baseTypeName);
+            var nameCrc = CreateNameCrc(baseTypeName);
+
+            parsedEntries.TryGetFirstValue(nameCrc, out baseType);
             if (baseType is null)
                 return;
         }
@@ -93,118 +109,92 @@ internal class GameObjectParser(IServiceProvider serviceProvider, IXmlParserErro
 
         derivedType.ApplyBaseType(baseType);
 
-
-        ParseObject(derivedType, element, ReadOnlyFrugalValueListDictionary<Crc32, GameObject>.Empty);
+        ParseTags(derivedType, element, true, ReadOnlyFrugalValueListDictionary<Crc32, GameObject>.Empty);
 
         derivedType.PostLoadFixup();
         derivedType.IsLoadingComplete = true;
     }
 
-    protected override bool ParseTag(XElement tag, GameObject xmlObject, in IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parseState)
+    protected override bool ParseTag(
+        XElement tag, 
+        GameObject xmlObject,
+        bool replace,
+        in IReadOnlyFrugalValueListDictionary<Crc32, GameObject> parseState)
     {
-        switch (tag.Name.LocalName)
-        {
-            case GameObjectXmlTags.LandTerrainModelMapping:
-                var mappingValue = CommaSeparatedStringKeyValueListParser.Instance.Parse(tag);
-                var dict = xmlObject.InternalLandTerrainModelMapping;
-                foreach (var keyValuePair in mappingValue)
-                {
-                    if (!dict.ContainsKey(keyValuePair.key))
-                        dict.Add(keyValuePair.key, keyValuePair.value);
-                }
-                return true;
-            case GameObjectXmlTags.GalacticModelName:
-                xmlObject.GalacticModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.DestroyedGalacticModelName:
-                xmlObject.DestroyedGalacticModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.LandModelName:
-                xmlObject.LandModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.SpaceModelName:
-                xmlObject.SpaceModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.ModelName:
-                xmlObject.ModelName = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.TacticalModelName:
-                xmlObject.TacticalModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.GalacticFleetOverrideModelName:
-                xmlObject.GalacticFleetOverrideModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.GuiModelName:
-                xmlObject.GuiModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.LandModelAnimOverrideName:
-                xmlObject.LandAnimOverrideModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.XxxSpaceModelName:
-                xmlObject.XxxSpaceModeModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            case GameObjectXmlTags.DamagedSmokeAssetName:
-                xmlObject.DamagedSmokeAssetModel = PetroglyphXmlStringParser.Instance.Parse(tag);
-                return true;
-            default: return true; // TODO: Once parsing is complete, switch to false.
-        }
-    }
+        // The engine ignores the return value, but we do not, so we can report unknown tags.
+        base.ParseTag(tag, xmlObject, replace, in parseState);
 
-    private static GameObjectType EstimateType(string tagName)
-    {
-        if (tagName.StartsWith("Props_"))
-            return GameObjectType.Prop;
-        if (tagName.StartsWith("CIN_", StringComparison.OrdinalIgnoreCase))
-            return GameObjectType.CinematicObject;
-
-        return tagName switch
-        {
-            "Container" => GameObjectType.Container,
-            "GenericHeroUnit" => GameObjectType.GenericHeroUnit,
-            "GroundBase" => GameObjectType.GroundBase,
-            "GroundBuildable" => GameObjectType.GroundBuildable,
-            "GroundCompany" => GameObjectType.GroundCompany,
-            "GroundInfantry" => GameObjectType.GroundInfantry,
-            "GroundStructure" => GameObjectType.GroundStructure,
-            "GroundVehicle" => GameObjectType.GroundVehicle,
-            "HeroCompany" => GameObjectType.HeroCompany,
-            "HeroUnit" => GameObjectType.HeroUnit,
-            "Indigenous_Unit" => GameObjectType.IndigenousUnit,
-            "LandBombingUnit" => GameObjectType.LandBombingUnit,
-            "LandPrimarySkydome" => GameObjectType.LandPrimarySkydome,
-            "LandSecondarySkydome" => GameObjectType.LandSecondarySkydome,
-            "Marker" => GameObjectType.Marker,
-            "MiscObject" => GameObjectType.MiscObject,
-            "Mobile_Defense_Unit" => GameObjectType.MobileDefenseUnit,
-            "MultiplayerStructureMarker" => GameObjectType.MultiplayerStructureMarker,
-            "Particle" => GameObjectType.Particle,
-            "Planet" => GameObjectType.Planet,
-            "Projectile" => GameObjectType.Projectile,
-            "ScriptMarker" => GameObjectType.ScriptMarker,
-            "SecondaryStructure" => GameObjectType.SecondaryStructure,
-            "SlaveCompany" => GameObjectType.SlaveCompany,
-            "Slave_Unit" => GameObjectType.SlaveUnit,
-            "SpaceBuildable" => GameObjectType.SpaceBuildable,
-            "SpacePrimarySkydome" => GameObjectType.SpacePrimarySkydome,
-            "SpaceProp" => GameObjectType.SpaceProp,
-            "SpaceSecondarySkydome" => GameObjectType.SpaceSecondarySkydome,
-            "SpaceUnit" => GameObjectType.SpaceUnit,
-            "SpecialEffect" => GameObjectType.SpecialEffect,
-            "SpecialStructure" => GameObjectType.SpecialStructure,
-            "Squadron" => GameObjectType.Squadron,
-            "StarBase" => GameObjectType.StarBase,
-            "TechBuilding" => GameObjectType.TechBuilding,
-            "TransportUnit" => GameObjectType.TransportUnit,
-            "UniqueUnit" => GameObjectType.UniqueUint,
-            "UpgradeObject" => GameObjectType.UpgradeUnit,
-            _ => GameObjectType.Unknown
-        };
+        // TODO: Once parsing is complete, return original parse result.
+        return true;
     }
 
     private sealed class GameObjectXmlTagMapper(IServiceProvider serviceProvider) : XmlTagMapper<GameObject>(serviceProvider)
     {
         protected override void BuildMappings()
         {
+            AddMapping(
+                GameObjectXmlTags.GalacticModelName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.GalacticModel = val);
+            AddMapping(
+                GameObjectXmlTags.GalacticFleetOverrideModelName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.GalacticFleetOverrideModel = val);
+            AddMapping(
+                GameObjectXmlTags.DestroyedGalacticModelName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.DestroyedGalacticModel = val);
+            AddMapping(
+                GameObjectXmlTags.LandModelName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.LandModel = val);
+
+            // TODO
+            //AddMapping(
+            //    GameObjectXmlTags.LandTerrainModelMapping,
+            //    PetroglyphXmlStringParser.Instance.Parse,
+            //    (obj, val) => obj.InternalLandTerrainModelMapping = val);
+
+            AddMapping(
+                GameObjectXmlTags.SpaceModelName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.SpaceModel = val);
+            AddMapping(
+                GameObjectXmlTags.LandModelAnimOverrideName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.LandAnimOverrideModel = val);
+            AddMapping(
+                GameObjectXmlTags.SpaceModelAnimOverrideName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.SpaceAnimOverrideModel = val);
+
+
+            AddMapping(
+                GameObjectXmlTags.GuiModelName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.GuiModel = val);
+
+            AddMapping(
+                GameObjectXmlTags.DamagedSmokeAssetName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.DamagedSmokeAssetModel = val);
         }
+    }
+
+    [LoggerMessage(LogLevel.Debug, "--- Creating new GameObjectTypeClass for key '{objectName}'")]
+    static partial void LogCreatingNewGameObjectType(ILogger logger, string objectName);
+
+    internal static class GameObjectXmlTags
+    {
+        public const string LandTerrainModelMapping = "Land_Terrain_Model_Mapping";
+        public const string GalacticModelName = "Galactic_Model_Name";
+        public const string DestroyedGalacticModelName = "Destroyed_Galactic_Model_Name";
+        public const string LandModelName = "Land_Model_Name";
+        public const string SpaceModelName = "Space_Model_Name";
+        public const string GalacticFleetOverrideModelName = "Galactic_Fleet_Override_Model_Name";
+        public const string GuiModelName = "GUI_Model_Name";
+        public const string LandModelAnimOverrideName = "Land_Model_Anim_Override_Name";
+        public const string SpaceModelAnimOverrideName = "Space_Model_Anim_Override_Name";
+        public const string DamagedSmokeAssetName = "Damaged_Smoke_Asset_Name";
     }
 }

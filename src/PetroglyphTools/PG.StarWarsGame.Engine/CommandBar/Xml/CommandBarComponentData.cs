@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Numerics;
 using PG.Commons.Hashing;
@@ -9,7 +8,7 @@ using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.CommandBar.Xml;
 
-public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationInfo location) : NamedXmlObject(name, crc, location)
+public sealed class CommandBarComponentData : NamedXmlObject
 {
     public const float DefaultScale = 1.0f;
     public const float DefaultBlinkRate = 0.2f;
@@ -17,18 +16,31 @@ public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationI
     public static readonly Vector2 DefaultOffsetWidescreenValue = new(9.9999998e17f, 9.9999998e17f);
     public static readonly Vector4Int WhiteColor = new(255, 255, 255, 255);
 
-    public IReadOnlyList<string> SelectedTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> BlankTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> IconAlternateTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> MouseOverTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> BarTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> BarOverlayNames { get; internal set; } = [];
-    public IReadOnlyList<string> AlternateFontNames { get; internal set; } = [];
-    public IReadOnlyList<string> TooltipTexts { get; internal set; } = [];
-    public IReadOnlyList<string> LowerEffectTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> UpperEffectTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> OverlayTextureNames { get; internal set; } = [];
-    public IReadOnlyList<string> Overlay2TextureNames { get; internal set; } = [];
+    internal readonly List<string> SelectedTextureNamesInternal = [];
+    internal readonly List<string> BlankTextureNamesInternal = [];
+    internal readonly List<string> IconAlternateTextureNamesInternal = [];
+    internal readonly List<string> MouseOverTextureNamesInternal = [];
+    internal readonly List<string> BarTextureNamesInternal = [];
+    internal readonly List<string> BarOverlayNamesInternal = [];
+    internal readonly List<string> AlternateFontNamesInternal = [];
+    internal readonly List<string> TooltipTextsInternal = [];
+    internal readonly List<string> LowerEffectTextureNamesInternal = [];
+    internal readonly List<string> UpperEffectTextureNamesInternal = [];
+    internal readonly List<string> OverlayTextureNamesInternal = [];
+    internal readonly List<string> Overlay2TextureNamesInternal = [];
+    
+    public IReadOnlyList<string> SelectedTextureNames { get; }
+    public IReadOnlyList<string> BlankTextureNames { get; }
+    public IReadOnlyList<string> IconAlternateTextureNames { get; }
+    public IReadOnlyList<string> MouseOverTextureNames { get; }
+    public IReadOnlyList<string> BarTextureNames { get; }
+    public IReadOnlyList<string> BarOverlayNames { get; }
+    public IReadOnlyList<string> AlternateFontNames { get; }
+    public IReadOnlyList<string> TooltipTexts { get; }
+    public IReadOnlyList<string> LowerEffectTextureNames { get; }
+    public IReadOnlyList<string> UpperEffectTextureNames { get; }
+    public IReadOnlyList<string> OverlayTextureNames { get; }
+    public IReadOnlyList<string> Overlay2TextureNames { get; }
 
     public string? IconTextureName { get; internal set; }
     public string? DisabledTextureName { get; internal set; }
@@ -128,21 +140,26 @@ public sealed class CommandBarComponentData(string name, Crc32 crc, XmlLocationI
     public Vector4Int? TextColor2 { get; internal set; }
     public Vector4Int? MaxBarColor { get; internal set; } = WhiteColor;
 
+    public CommandBarComponentData(string name, Crc32 crc, XmlLocationInfo location) : base(name, crc, location)
+    {
+        SelectedTextureNames = new ReadOnlyCollection<string>(SelectedTextureNamesInternal);
+        BlankTextureNames = new ReadOnlyCollection<string>(BlankTextureNamesInternal);
+        IconAlternateTextureNames = new ReadOnlyCollection<string>(IconAlternateTextureNamesInternal);
+        MouseOverTextureNames = new ReadOnlyCollection<string>(MouseOverTextureNamesInternal);
+        BarTextureNames = new ReadOnlyCollection<string>(BarTextureNamesInternal);
+        BarOverlayNames = new ReadOnlyCollection<string>(BarOverlayNamesInternal);
+        AlternateFontNames = new ReadOnlyCollection<string>(AlternateFontNamesInternal);
+        TooltipTexts = new ReadOnlyCollection<string>(TooltipTextsInternal);
+        LowerEffectTextureNames = new ReadOnlyCollection<string>(LowerEffectTextureNamesInternal);
+        UpperEffectTextureNames = new ReadOnlyCollection<string>(UpperEffectTextureNamesInternal);
+        OverlayTextureNames = new ReadOnlyCollection<string>(OverlayTextureNamesInternal);
+        Overlay2TextureNames = new ReadOnlyCollection<string>(Overlay2TextureNamesInternal);
+    }
+
     internal void FixupValues()
     {
-        if (AlternateFontNames.Count == 0)
-            return;
-        var newFontNames = new string[AlternateFontNames.Count];
-        for (var i = 0; i < AlternateFontNames.Count; i++)
-        {
-            var current = AlternateFontNames[i];
-
-            if (current.AsSpan().IndexOf('_') != -1)
-                newFontNames[i] = current.Replace('_', ' ');
-            else 
-                newFontNames[i] = current;
-        }
-        AlternateFontNames = new ReadOnlyCollection<string>(newFontNames);
+        for (var i = 0; i < AlternateFontNamesInternal.Count; i++) 
+            AlternateFontNamesInternal[i] = AlternateFontNamesInternal[i].Replace('_', ' ');
     }
 }
 

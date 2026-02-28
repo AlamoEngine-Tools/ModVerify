@@ -17,10 +17,11 @@ internal class GameObjectTypeGameManager : GameManagerBase<GameObject>, IGameObj
     private readonly List<GameObject> _gameObjects;
 
     public GameObjectTypeGameManager(
+        GameEngineType engineType,
         GameRepository repository, 
         GameEngineErrorReporterWrapper errorReporter, 
         IServiceProvider serviceProvider)
-        : base(repository, errorReporter, serviceProvider)
+        : base(engineType, repository, errorReporter, serviceProvider)
     {
         _gameObjects = new List<GameObject>();
         GameObjects = new ReadOnlyCollection<GameObject>(_gameObjects);

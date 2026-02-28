@@ -11,8 +11,12 @@ using PG.StarWarsGame.Engine.Xml;
 
 namespace PG.StarWarsGame.Engine.Audio.Sfx;
 
-internal class SfxEventGameManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
-    : GameManagerBase<SfxEvent>(repository, errorReporter, serviceProvider), ISfxEventGameManager
+internal class SfxEventGameManager(
+    GameEngineType engineType,
+    GameRepository repository, 
+    GameEngineErrorReporterWrapper errorReporter, 
+    IServiceProvider serviceProvider)
+    : GameManagerBase<SfxEvent>(engineType, repository, errorReporter, serviceProvider), ISfxEventGameManager
 {
     public IEnumerable<LanguageType> InstalledLanguages { get; private set; } = [];
 

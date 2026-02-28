@@ -4,7 +4,6 @@ using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
 using System;
-using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using Crc32 = PG.Commons.Hashing.Crc32;
 
@@ -13,6 +12,9 @@ namespace PG.StarWarsGame.Engine.Xml.Parsers;
 internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter = null)
     : NamedXmlObjectParser<CommandBarComponentData>(serviceProvider, new CommandBarComponentDataXmlTagMapper(serviceProvider), errorReporter)
 {
+    protected override bool UpperCaseNameForCrc => true;
+    protected override bool UpperCaseNameForObject => false;
+
     protected override CommandBarComponentData CreateXmlObject(
         string name, 
         Crc32 nameCrc,
@@ -24,7 +26,7 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
     }
 
 
-    protected override void ValidateAndFixupValues(CommandBarComponentData xmlData, XElement element)
+    protected override void ValidateAndFixupValues(CommandBarComponentData xmlData, XElement element, in IReadOnlyFrugalValueListDictionary<Crc32, CommandBarComponentData> parsedEntries)
     {
         if (xmlData.Name.Length > PGConstants.MaxCommandBarComponentName)
         {
@@ -37,7 +39,7 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
 
         xmlData.FixupValues();
     }
-
+    
     private sealed class CommandBarComponentDataXmlTagMapper(IServiceProvider serviceProvider)
         : XmlTagMapper<CommandBarComponentData>(serviceProvider)
     {
@@ -46,11 +48,13 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
             AddMapping(
                 CommandBarComponentTags.SelectedTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.SelectedTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.SelectedTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.BlankTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.BlankTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.BlankTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.IconTextureName,
                 PetroglyphXmlStringParser.Instance.Parse,
@@ -58,11 +62,13 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
             AddMapping(
                 CommandBarComponentTags.IconAlternateTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.IconAlternateTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.IconAlternateTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.MouseOverTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.MouseOverTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.MouseOverTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.DisabledTextureName,
                 PetroglyphXmlStringParser.Instance.Parse,
@@ -74,11 +80,13 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
             AddMapping(
                 CommandBarComponentTags.BarTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.BarTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.BarTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.BarOverlayName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.BarOverlayNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.BarOverlayNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.BuildTextureName,
                 PetroglyphXmlStringParser.Instance.Parse,
@@ -102,11 +110,13 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
             AddMapping(
                 CommandBarComponentTags.AlternateFontName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.AlternateFontNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.AlternateFontNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.TooltipText,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.TooltipTexts = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.TooltipTextsInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.ClickSfx,
                 PetroglyphXmlStringParser.Instance.Parse,
@@ -118,19 +128,23 @@ internal class CommandBarComponentParser(IServiceProvider serviceProvider, IXmlP
             AddMapping(
                 CommandBarComponentTags.LowerEffectTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.LowerEffectTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.LowerEffectTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.UpperEffectTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.UpperEffectTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.UpperEffectTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.OverlayTextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.OverlayTextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.OverlayTextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.Overlay2TextureName,
                 PetroglyphXmlLooseStringListParser.Instance.Parse,
-                (obj, val) => obj.Overlay2TextureNames = new ReadOnlyCollection<string>(val));
+                (obj, val, replace) => 
+                    SetOrReplaceList(obj.Overlay2TextureNamesInternal, val, replace));
             AddMapping(
                 CommandBarComponentTags.RightClickSfx,
                 PetroglyphXmlStringParser.Instance.Parse,

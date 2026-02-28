@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
+[DebuggerDisplay("{Name} ({ClassificationName})")]
 public sealed class GameObject : NamedXmlObject
 {
     internal GameObject(
-        string type, 
-        string name, 
-        Crc32 nameCrc, 
+        string name,
+        string classification,
+        Crc32 nameCrc,
         int index,
-        GameObjectType estimatedType, 
         XmlLocationInfo location) 
         : base(name, nameCrc, location)
     {
@@ -22,8 +23,7 @@ public sealed class GameObject : NamedXmlObject
             throw new ArgumentOutOfRangeException(nameof(index), "Index must be greater than 0.");
         Index = index;
         Id = (int)nameCrc;
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        EstimatedType = estimatedType;
+        ClassificationName = classification ?? throw new ArgumentNullException(nameof(classification));
         LandTerrainModelMapping = new ReadOnlyDictionary<string, string>(InternalLandTerrainModelMapping);
     }
 
@@ -31,14 +31,14 @@ public sealed class GameObject : NamedXmlObject
 
     public int Index { get; }
 
-    public string Type { get; }
+    public string ClassificationName { get; }
 
-    public string VariantOfExistingTypeName { get; internal set; }
+    public string? VariantOfExistingTypeName { get; internal set; }
+
+    public GameObject? VariantOfExistingType { get; internal set; }
 
     public bool IsLoadingComplete { get; internal set; }
-
-    public GameObjectType EstimatedType { get; }
-
+    
     public string? GalacticModel { get; internal set; }
 
     public string? DestroyedGalacticModel { get; internal set; }
@@ -57,7 +57,7 @@ public sealed class GameObject : NamedXmlObject
 
     public string? LandAnimOverrideModel { get; internal set; }
 
-    public string? XxxSpaceModeModel { get; internal set; }
+    public string SpaceAnimOverrideModel { get; internal set; }
 
     public string? DamagedSmokeAssetModel { get; internal set; }
 
@@ -81,8 +81,11 @@ public sealed class GameObject : NamedXmlObject
             AddNotEmpty(models, GalacticFleetOverrideModel);
             AddNotEmpty(models, GuiModel);
             AddNotEmpty(models, ModelName);
+            
+            // TODO: Is this really correct?
             AddNotEmpty(models, LandAnimOverrideModel, s => s.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
-            AddNotEmpty(models, XxxSpaceModeModel);
+            AddNotEmpty(models, SpaceAnimOverrideModel, s => s.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
+            
             AddNotEmpty(models, DamagedSmokeAssetModel);
             foreach (var model in InternalLandTerrainModelMapping.Values) 
                 models.Add(model);
@@ -108,5 +111,10 @@ public sealed class GameObject : NamedXmlObject
 
         // The engine loads references for scripts, images, hardpoints, etc.,
         // but we don't do that here.
+    }
+
+    internal void ApplyBaseType(GameObject baseType)
+    {
+        throw new NotImplementedException();
     }
 }

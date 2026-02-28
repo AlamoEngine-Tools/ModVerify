@@ -10,12 +10,12 @@ namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public sealed class XmlContainerFileParser<T>(
     IServiceProvider serviceProvider,
-    NamedXmlObjectParser<T> elementParser,
+    INamedXmlObjectParser<T> elementParser,
     IXmlParserErrorReporter? listener = null)
     : PetroglyphXmlFileParserBase(serviceProvider, listener), IXmlContainerFileParser<T> 
     where T : NamedXmlObject
 {
-    public NamedXmlObjectParser<T> ElementParser { get; } =
+    public INamedXmlObjectParser<T> ElementParser { get; } =
         elementParser ?? throw new ArgumentNullException(nameof(elementParser));
 
     public void ParseFile(Stream xmlStream, IFrugalValueListDictionary<Crc32, T> parsedEntries)

@@ -12,11 +12,21 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
 
     protected virtual bool IgnoreEmptyValue => true;
 
-    protected virtual void ValidateAndFixupValues(TObject namedXmlObject, XElement element)
+    protected virtual void ValidateAndFixupValues(TObject namedXmlObject, XElement element, in TParseState state)
     {
     }
 
-    protected void ParseObject(TObject xmlObject, XElement element, in TParseState state)
+    protected virtual void ParseObject(TObject xmlObject, XElement element, bool replace, in TParseState state)
+    {
+        ParseTags(xmlObject, element, replace, in state);
+    }
+
+    protected virtual bool ParseTag(XElement tag, TObject xmlObject, bool replace, in TParseState parseState)
+    {
+        return IsTagValid(tag) && XmlTagMapper.TryParseEntry(tag, xmlObject, replace);
+    }
+
+    protected void ParseTags(TObject xmlObject, XElement element, bool replace, in TParseState state)
     {
         foreach (var tag in element.Elements())
         {
@@ -25,7 +35,7 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
                 if (string.IsNullOrEmpty(tag.PGValue) && IgnoreEmptyValue)
                     continue;
 
-                if (!ParseTag(tag, xmlObject, state))
+                if (!ParseTag(tag, xmlObject, replace, state))
                 {
                     ErrorReporter?.Report(new XmlError(this, tag)
                     {
@@ -36,13 +46,8 @@ public abstract class XmlObjectParserBase<TObject, TParseState>(IXmlTagMapper<TO
             }
             else
             {
-                ParseObject(xmlObject, tag, in state);
+                ParseObject(xmlObject, tag, replace, in state);
             }
         }
-    }
-
-    protected virtual bool ParseTag(XElement tag, TObject xmlObject, in TParseState parseState)
-    {
-        return IsTagValid(tag) && XmlTagMapper.TryParseEntry(tag, xmlObject);
     }
 }

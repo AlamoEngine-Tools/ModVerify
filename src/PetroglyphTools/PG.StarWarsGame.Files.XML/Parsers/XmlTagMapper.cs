@@ -10,7 +10,7 @@ namespace PG.StarWarsGame.Files.XML.Parsers;
 
 public abstract class XmlTagMapper<TObject> : IXmlTagMapper<TObject> where TObject : XmlObject
 {
-    private delegate void ParserValueAction(TObject target, XElement element);
+    private delegate void ParserValueAction(TObject target, XElement element, bool replace);
 
     private readonly Dictionary<Crc32, ParserValueAction> _tagMappings = new();
     private readonly ICrc32HashingService _crcService;
@@ -27,7 +27,21 @@ public abstract class XmlTagMapper<TObject> : IXmlTagMapper<TObject> where TObje
 
     protected abstract void BuildMappings();
 
-    protected void AddMapping<TValue>(string tagName, Func<XElement, TValue> parser, Action<TObject, TValue> setter)
+    protected static void SetOrReplaceList<T>(IList<T> destinationList, IEnumerable<T> values, bool replace)
+    {
+        if (replace)
+            destinationList.Clear();
+        foreach (var value in values)
+            destinationList.Add(value);
+    }
+
+    protected void AddMapping<TValue>(string tagName, Func<XElement, TValue> parser,
+        Action<TObject, TValue> setter)
+    {
+        AddMapping(tagName, parser, (target, value, _) => setter(target, value));
+    }
+
+    protected void AddMapping<TValue>(string tagName, Func<XElement, TValue> parser, Action<TObject, TValue, bool> setter)
     {
         ThrowHelper.ThrowIfNullOrEmpty(tagName);
         if (tagName.Length >= XmlFileConstants.MaxTagNameLength)
@@ -41,14 +55,14 @@ public abstract class XmlTagMapper<TObject> : IXmlTagMapper<TObject> where TObje
 
         var crc = GetCrc32(tagName);
 
-        _tagMappings[crc] = (target, element) =>
+        _tagMappings[crc] = (target, element, replace) =>
         {
             var value = parser(element);
-            setter(target, value);
+            setter(target, value, replace);
         };
     }
 
-    public bool TryParseEntry(XElement element, TObject target)
+    public bool TryParseEntry(XElement element, TObject target, bool replace)
     {
         var tagName = element.Name.LocalName;
         if (tagName.Length >= XmlFileConstants.MaxTagNameLength)
@@ -59,7 +73,7 @@ public abstract class XmlTagMapper<TObject> : IXmlTagMapper<TObject> where TObje
         if (!_tagMappings.TryGetValue(crc, out var mapping))
             return false;
 
-        mapping(target, element);
+        mapping(target, element, replace);
         return true;
     }
 
