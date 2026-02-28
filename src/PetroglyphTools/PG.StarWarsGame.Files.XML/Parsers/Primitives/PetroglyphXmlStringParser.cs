@@ -9,7 +9,7 @@ public sealed class PetroglyphXmlStringParser : PetroglyphPrimitiveXmlParser<str
 
     private protected override string DefaultValue => string.Empty;
 
-    internal override int EngineDataTypeId => 0x17;
+    internal override int EngineDataTypeId => 0x17 & 0x1D & 0x1F;
 
     private PetroglyphXmlStringParser()
     {

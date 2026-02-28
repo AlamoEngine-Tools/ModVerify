@@ -63,7 +63,6 @@ internal partial class GameObjectParser(
         
         if (OverlayLoad)
         {
-            Debug.Assert(replace);
             OverlayType(xmlObject, element, parsedEntries);
         }
         else
@@ -168,22 +167,22 @@ internal partial class GameObjectParser(
                 GameObjectXmlTags.SpaceModelAnimOverrideName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.SpaceAnimOverrideModel = val);
-
-            // TODO
-
+            
             AddMapping(
                 GameObjectXmlTags.DamagedSmokeAssetName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.DamagedSmokeAssetModel = val);
 
-            // TODO
 
             AddMapping(
                 GameObjectXmlTags.GuiModelName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.GuiModel = val);
 
-            // TODO
+            AddMapping(
+                GameObjectXmlTags.VariantOfExistingType,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.VariantOfExistingTypeName = val);
         }
     }
 
@@ -202,5 +201,7 @@ internal partial class GameObjectParser(
         public const string LandModelAnimOverrideName = "Land_Model_Anim_Override_Name";
         public const string SpaceModelAnimOverrideName = "Space_Model_Anim_Override_Name";
         public const string DamagedSmokeAssetName = "Damaged_Smoke_Asset_Name";
+
+        public const string VariantOfExistingType = "Variant_Of_Existing_Type";
     }
 }

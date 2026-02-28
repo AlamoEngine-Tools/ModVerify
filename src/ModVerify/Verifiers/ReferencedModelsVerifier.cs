@@ -7,6 +7,8 @@ using System.Threading;
 
 namespace AET.ModVerify.Verifiers;
 
+// TODO: Add GameObjectTypeVerifier and check that LandModelTerrainOverride is correct (all keys correct, no dups)
+
 public sealed class ReferencedModelsVerifier(
     IStarWarsGameEngine engine,
     GameVerifySettings settings,

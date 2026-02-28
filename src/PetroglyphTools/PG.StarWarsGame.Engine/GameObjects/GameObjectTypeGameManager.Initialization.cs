@@ -5,6 +5,7 @@ using PG.StarWarsGame.Engine.Xml.Parsers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AnakinRaW.CommonUtilities.FileSystem;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
@@ -62,7 +63,7 @@ internal partial class GameObjectTypeGameManager
                 {
                     foreach (var gameObject in _gameObjects)
                     {
-                        if (!gameObject.IsLoadingComplete && gameObject.Location.XmlFile == gameObjectXmlFile)
+                        if (!gameObject.IsLoadingComplete && IsSameFile(gameObject.Location.XmlFile, gameObjectXmlFile))
                             ParseSingleGameObjectFile(gameObjectXmlFile, gameParser, gameObjectFileParser);
                     }
                 }
@@ -77,6 +78,11 @@ internal partial class GameObjectTypeGameManager
             //FactionReferenceClass::Static_Post_Load_Fixup();
             //...
         }
+    }
+
+    private bool IsSameFile(string filePathA, string filePathB)
+    {
+        return FileSystem.Path.AreEqual(filePathA, filePathB);
     }
 
     private void OnGameObjectParsed(object sender, GameObjectParsedEventArgs e)

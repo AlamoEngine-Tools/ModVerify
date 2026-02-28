@@ -37,7 +37,6 @@ internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, 
         AddNotEmpty(gameObject.DestroyedGalacticModel);
         AddNotEmpty(gameObject.LandModel);
         AddNotEmpty(gameObject.SpaceModel);
-        AddNotEmpty(gameObject.TacticalModel);
         AddNotEmpty(gameObject.GalacticFleetOverrideModel);
         AddNotEmpty(gameObject.GuiModel);
         AddNotEmpty(gameObject.ModelName);

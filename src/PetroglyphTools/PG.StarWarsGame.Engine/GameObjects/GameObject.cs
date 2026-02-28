@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
 
@@ -32,8 +33,6 @@ public sealed class GameObject : NamedXmlObject
     public string? LandModel { get; internal set; }
 
     public string? SpaceModel { get; internal set; }
-
-    public string? TacticalModel { get; internal set; }
 
     public string? GalacticFleetOverrideModel { get; internal set; }
 
@@ -77,6 +76,19 @@ public sealed class GameObject : NamedXmlObject
 
     internal void ApplyBaseType(GameObject baseType)
     {
-        throw new NotImplementedException();
+        // The following properties must not be inherited from the base type:
+        // ID, CRC, Name, Location, IsLoadingComplete, ClassificationName and VariantOfExistingType[Name], LuaScript
+
+        GalacticModel = baseType.GalacticModel;
+        DestroyedGalacticModel = baseType.DestroyedGalacticModel;
+        LandModel = baseType.LandModel;
+        SpaceModel = baseType.SpaceModel;
+        GalacticFleetOverrideModel = baseType.GalacticFleetOverrideModel;
+        GuiModel = baseType.GuiModel;
+        ModelName = baseType.ModelName;
+        LandAnimOverrideModel = baseType.LandAnimOverrideModel;
+        SpaceAnimOverrideModel = baseType.SpaceAnimOverrideModel;
+        DamagedSmokeAssetModel = baseType.DamagedSmokeAssetModel;
+        InternalLandTerrainModelMapping.ClearAddRange(baseType.InternalLandTerrainModelMapping);
     }
 }

@@ -170,6 +170,9 @@ public sealed class SfxEvent : NamedXmlObject
         : base(name, nameCrc, location)
     {
         PreSamples = new ReadOnlyCollection<string>(PreSamplesInternal);
+        Samples = new ReadOnlyCollection<string>(SamplesInternal);
+        PostSamples = new ReadOnlyCollection<string>(PostSamplesInternal);
+        LocalizedTextIDs = new ReadOnlyCollection<string>(LocalizedTextIDsInternal);
     }
 
     internal void FixupValues()
