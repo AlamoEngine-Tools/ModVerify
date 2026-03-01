@@ -48,7 +48,7 @@ jobs:
         # use publish for .NET Core
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Binary Releases
           path: ./releases
@@ -68,7 +68,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: Binary Releases
           path: ./releases
@@ -103,7 +103,7 @@ jobs:
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
         working-directory: ./releases/net10.0
         run: zip -r ../ModVerify-Net10.zip .
-      - uses: dotnet/nbgv@v0.5.0
+      - uses: dotnet/nbgv@v0.5.1
         id: nbgv
       - name: Create GitHub release
         # Create a GitHub release on push to main only
