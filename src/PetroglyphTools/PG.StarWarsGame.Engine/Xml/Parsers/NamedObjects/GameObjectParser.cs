@@ -75,10 +75,11 @@ internal partial class GameObjectParser(
     {
         if (!OverlayLoad)
         {
+            // TODO
             //BehaviorClass.AddImpliedBehaviors(this, BehaviorNames);
             //InitBehaviorMap();
 
-            gameObject.PostLoadFixup();
+            PostLoadFixup(gameObject);
             if (string.IsNullOrEmpty(gameObject.VariantOfExistingTypeName))
                 gameObject.IsLoadingComplete = true;
             else
@@ -113,7 +114,7 @@ internal partial class GameObjectParser(
 
         ParseTags(derivedType, element, true, ReadOnlyFrugalValueListDictionary<Crc32, GameObject>.Empty);
 
-        derivedType.PostLoadFixup();
+        PostLoadFixup(derivedType);
         derivedType.IsLoadingComplete = true;
     }
 
@@ -128,6 +129,17 @@ internal partial class GameObjectParser(
 
         // TODO: Once parsing is complete, return original parse result.
         return true;
+    }
+
+    private void PostLoadFixup(GameObject gameObject)
+    {
+        // TODO:
+        // MaxSpeed *= 1.0;
+        // MaxThrust *= 1.0;
+        // Asserts and some coercions
+
+        // The engine loads references for scripts, images, hardpoints, etc.,
+        // but we don't do that here.
     }
 
     private sealed class GameObjectXmlTagMapper(IServiceProvider serviceProvider) : XmlTagMapper<GameObject>(serviceProvider)

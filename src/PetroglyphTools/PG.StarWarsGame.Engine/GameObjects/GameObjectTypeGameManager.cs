@@ -1,14 +1,17 @@
-﻿using PG.StarWarsGame.Engine.ErrorReporting;
+﻿using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
 internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, IGameObjectTypeGameManager
 {
     private readonly List<GameObject> _gameObjects;
+    private readonly ICrc32HashingService _hashingService;
 
     public GameObjectTypeGameManager(
         GameRepository repository, 
@@ -16,6 +19,7 @@ internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, 
         IServiceProvider serviceProvider)
         : base(repository, errorReporter, serviceProvider)
     {
+        _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _gameObjects = [];
         GameObjects = new ReadOnlyCollection<GameObject>(_gameObjects);
     }

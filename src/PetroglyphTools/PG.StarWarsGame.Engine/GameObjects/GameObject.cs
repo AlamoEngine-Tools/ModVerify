@@ -63,16 +63,6 @@ public sealed class GameObject : NamedXmlObject
         ClassificationName = classification ?? throw new ArgumentNullException(nameof(classification));
         LandTerrainModelMappingValues = new ReadOnlyCollection<(string, string)>(InternalLandTerrainModelMapping);
     }
-    
-    public void PostLoadFixup()
-    {
-        // TODO:
-        // MaxSpeed *= 1.0;
-        // MaxThrust *= 1.0;
-
-        // The engine loads references for scripts, images, hardpoints, etc.,
-        // but we don't do that here.
-    }
 
     internal void ApplyBaseType(GameObject baseType)
     {
@@ -90,5 +80,11 @@ public sealed class GameObject : NamedXmlObject
         SpaceAnimOverrideModel = baseType.SpaceAnimOverrideModel;
         DamagedSmokeAssetModel = baseType.DamagedSmokeAssetModel;
         InternalLandTerrainModelMapping.ClearAddRange(baseType.InternalLandTerrainModelMapping);
+    }
+
+    internal void PostLoadFixup()
+    {
+        // This method is different than the fixup that is performed after parsing the object.
+        // IDK why there are two separate fixups. This fixup performs more value coercions
     }
 }

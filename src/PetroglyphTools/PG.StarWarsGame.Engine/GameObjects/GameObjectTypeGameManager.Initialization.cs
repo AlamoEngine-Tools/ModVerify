@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.Xml;
 using PG.StarWarsGame.Engine.Xml.Parsers;
@@ -70,13 +71,39 @@ internal partial class GameObjectTypeGameManager
             }
 
 
-
-            //GameObjectTypeClass::Static_Post_Load_Fixup();
+            PostLoadFixup();
             //SFXEventReferenceClass::Static_Post_Load_Fixup();
             //SpeechEventReferenceClass::Static_Post_Load_Fixup();
             //MusicEventReferenceClass::Static_Post_Load_Fixup();
             //FactionReferenceClass::Static_Post_Load_Fixup();
             //...
+
+            allLoaded = true;
+
+            foreach (var gameObject in _gameObjects)
+            {
+                gameObject.PostLoadFixup();
+                if (!gameObject.IsLoadingComplete) 
+                    allLoaded = false;
+            }
+        }
+    }
+
+    private void PostLoadFixup()
+    {
+        // In the engine, this is the so-called static post load fixup.
+        foreach (var gameObject in _gameObjects)
+        {
+            var baseTypeName = gameObject.VariantOfExistingTypeName;
+            if (string.IsNullOrEmpty(baseTypeName) || baseTypeName.Equals("None", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            // At this point the engine would assert, if the base type was not found.
+            // We do not, because the game reports this error for every iteration of the loading loop,
+            // which would bloat error logs.
+            var baseNameHash = _hashingService.GetCrc32Upper(baseTypeName, PGConstants.DefaultPGEncoding);
+            NamedEntries.TryGetFirstValue(baseNameHash, out var baseType);
+            gameObject.VariantOfExistingType = baseType;
         }
     }
 

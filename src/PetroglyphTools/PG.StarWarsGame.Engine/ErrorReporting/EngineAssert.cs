@@ -9,7 +9,7 @@ namespace PG.StarWarsGame.Engine.ErrorReporting;
 
 public sealed class EngineAssert
 {
-    private static readonly string ThisNameSpace = typeof(EngineAssert).Namespace!;
+    private static readonly string ThisNamespace = typeof(EngineAssert).Namespace!;
     private const string NullLiteral = "NULL";
 
     public string Value { get; }
@@ -66,7 +66,7 @@ public sealed class EngineAssert
         {
             var frame = trace.GetFrame(i);
             var method = frame.GetMethod();
-            if (method.DeclaringType is null || method.DeclaringType.Namespace?.Equals(ThisNameSpace) == false)
+            if (method.DeclaringType is null || method.DeclaringType.Namespace?.Equals(ThisNamespace) == false)
                 return frame;
         }
         return null;
