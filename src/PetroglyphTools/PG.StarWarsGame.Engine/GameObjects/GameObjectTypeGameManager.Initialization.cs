@@ -87,6 +87,8 @@ internal partial class GameObjectTypeGameManager
                     allLoaded = false;
             }
         }
+
+        // TODO: The Engine is now asserting some SFX files of all types
     }
 
     private void PostLoadFixup()
