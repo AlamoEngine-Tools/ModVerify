@@ -17,7 +17,7 @@ public static class VerifierErrorCodes
     public const string FilePathTooLong = "FILE01";
     public const string InvalidFilePath = "FILE02";
 
-    public const string DuplicateFound = "DUP00";
+    public const string Duplicate = "DUP00";
 
     public const string SampleNotPCM = "WAV00";
     public const string SampleNotMono = "WAV01";

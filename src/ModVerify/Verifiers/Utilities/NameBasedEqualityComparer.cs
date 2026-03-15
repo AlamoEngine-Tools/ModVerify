@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.Utilities;
 
 internal sealed class NameBasedEqualityComparer : IEqualityComparer<GameVerifier>, IEqualityComparer<IGameVerifierInfo>
 {

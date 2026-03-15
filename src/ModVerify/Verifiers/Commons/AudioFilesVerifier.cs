@@ -8,17 +8,18 @@ using System.Text;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AnakinRaW.CommonUtilities.FileSystem;
 using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using Microsoft.Extensions.DependencyInjection;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Localization;
-#if NETSTANDARD2_0
-using AnakinRaW.CommonUtilities.FileSystem;
-#endif
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.Commons;
+
+// TODO: Refactor to make this a generic audio file verifier that can be used for 
+//  SFXEvents, MusicEvents and SpeechEvents
 
 public class AudioFilesVerifier : GameVerifier
 {

@@ -25,7 +25,8 @@ public sealed class SingleModelVerifier : GameVerifier<string>
     private readonly TextureVeifier _textureVerifier;
     private readonly IAlreadyVerifiedCache? _cache;
 
-    public SingleModelVerifier(IGameVerifierInfo? parent,
+    public SingleModelVerifier(
+        IGameVerifierInfo? parent,
         IStarWarsGameEngine engine,
         GameVerifySettings settings,
         IServiceProvider serviceProvider) : base(parent, engine, settings, serviceProvider)

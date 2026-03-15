@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers;
+using AET.ModVerify.Verifiers.Commons;
 using AET.ModVerify.Verifiers.GuiDialogs;
 using PG.StarWarsGame.Engine;
 
@@ -14,9 +15,9 @@ public sealed class DefaultGameVerifiersProvider : IGameVerifiersProvider
         GameVerifySettings settings, 
         IServiceProvider serviceProvider)
     {
-        yield break;
+        //yield break;
         yield return new ReferencedModelsVerifier(database, settings, serviceProvider);
-        yield return new DuplicateNameFinder(database, settings, serviceProvider);
+        //yield return new DuplicateNameFinder(database, settings, serviceProvider);
         yield return new AudioFilesVerifier(database, settings, serviceProvider);
         yield return new GuiDialogsVerifier(database, settings, serviceProvider);
         yield return new CommandBarVerifier(database, settings, serviceProvider);

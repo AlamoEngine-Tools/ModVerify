@@ -11,6 +11,7 @@ using AET.ModVerify.Reporting.Suppressions;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
+using AET.ModVerify.Verifiers.Utilities;
 using AnakinRaW.CommonUtilities.SimplePipeline;
 using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
