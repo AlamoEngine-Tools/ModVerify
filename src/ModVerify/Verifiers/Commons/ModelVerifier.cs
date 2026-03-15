@@ -61,9 +61,23 @@ public sealed class SingleModelVerifier : GameVerifier<string>
 
         var modelName = FileSystem.Path.GetFileName(modelPath.AsSpan());
 
-        if (_cache?.TryAddEntry(modelName) == false)
+        // We always want to report that a file was not found, so that error reports show all XRefs to the not found model.
+        if (!GameEngine.GameRepository.ModelRepository.FileExists(modelPath))
+        {
+            var modelNameString = modelName.ToString();
+            var error = VerificationError.Create(
+                VerifierChain,
+                VerifierErrorCodes.FileNotFound,
+                $"Unable to find .ALO file '{modelNameString}'",
+                VerificationSeverity.Error,
+                contextInfo,
+                modelNameString);
+            AddError(error);
+        }
+
+        if (_cache?.TryAddEntry(modelName) is false)
             return;
-        
+
         IAloFile<IAloDataContent, AloFileInformation>? aloFile = null;
         try
         {
@@ -81,18 +95,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
             }
 
             if (aloFile is null)
-            {
-                var modelNameString = modelName.ToString();
-                var error = VerificationError.Create(
-                    VerifierChain,
-                    VerifierErrorCodes.FileNotFound,
-                    $"Unable to find .ALO file '{modelNameString}'",
-                    VerificationSeverity.Error,
-                    contextInfo,
-                    modelNameString);
-                AddError(error);
                 return;
-            }
 
             VerifyModelOrParticle(aloFile, contextInfo, token);
         }

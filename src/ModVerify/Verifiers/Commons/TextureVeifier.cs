@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
-using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers.Commons;
@@ -16,8 +15,6 @@ public sealed class TextureVeifier(
     IServiceProvider serviceProvider) 
     : GameVerifier<string>(parent, gameEngine, settings, serviceProvider)
 {
-    private readonly IAlreadyVerifiedCache? _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
-
     public override void Verify(string texturePath, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
         Verify(texturePath.AsSpan(), contextInfo, token);
@@ -26,10 +23,6 @@ public sealed class TextureVeifier(
     public void Verify(ReadOnlySpan<char> textureName, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-
-      
-        if (_cache?.TryAddEntry(textureName) == false)
-            return;
 
         if (Repository.TextureRepository.FileExists(textureName, false, out var tooLongPath))
             return;
