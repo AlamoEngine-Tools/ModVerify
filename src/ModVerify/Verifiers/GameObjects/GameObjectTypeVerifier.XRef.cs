@@ -10,7 +10,7 @@ public sealed partial class GameObjectTypeVerifier
         if (!string.IsNullOrEmpty(gameObject.VariantOfExistingTypeName) && gameObject.VariantOfExistingType is null)
         {
             AddError(VerificationError.Create(
-                VerifierChain, 
+                this, 
                 VerifierErrorCodes.MissingXRef,
                 $"Missing base type '{gameObject.VariantOfExistingTypeName}' for GameObject '{gameObject.Name}'",
                 VerificationSeverity.Critical, 

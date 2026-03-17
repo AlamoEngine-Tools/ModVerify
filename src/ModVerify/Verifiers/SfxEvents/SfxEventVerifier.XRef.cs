@@ -10,7 +10,7 @@ public partial class SfxEventVerifier
         if (!string.IsNullOrEmpty(sfxEvent.UsePresetName) && sfxEvent.Preset is null)
         {
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.MissingXRef,
                 $"Missing preset '{sfxEvent.UsePresetName}' for SFXEvent '{sfxEvent.Name}'.",
                 VerificationSeverity.Error,

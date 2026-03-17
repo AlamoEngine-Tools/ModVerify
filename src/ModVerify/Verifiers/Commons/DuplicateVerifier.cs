@@ -31,7 +31,7 @@ public sealed class DuplicateVerifier : GameVerifier<IDuplicateVerificationConte
             if (toVerify.HasDuplicates(crc32, out var entryNames, out var context, out var errorMessage))
             {
                 AddError(VerificationError.Create(
-                    VerifierChain,
+                    this,
                     VerifierErrorCodes.Duplicate,
                     errorMessage,
                     VerificationSeverity.Error,

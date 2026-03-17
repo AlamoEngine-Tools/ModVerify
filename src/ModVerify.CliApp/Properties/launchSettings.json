@@ -2,7 +2,7 @@
   "profiles": {
     "Verify": {
       "commandName": "Project",
-      "commandLineArgs": ""
+      "commandLineArgs": "verify --offline"
     },
     "Verify (Interactive)": {
       "commandName": "Project",

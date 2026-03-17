@@ -72,7 +72,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         {
             var modelNameString = modelName.ToString();
             var error = VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.FileNotFound,
                 $"Unable to find .ALO file '{modelNameString}'",
                 VerificationSeverity.Error,
@@ -95,7 +95,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
             {
                 var aloFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), modelPath.AsSpan()).ToString();
                 var message = $"'{aloFilePath}' is corrupted: {e.Message}";
-                AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FileCorrupt, message,
+                AddError(VerificationError.Create(this, VerifierErrorCodes.FileCorrupt, message,
                     VerificationSeverity.Critical, contextInfo, aloFilePath));
                 return;
             }
@@ -139,7 +139,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
                 {
                     var particlePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        VerifierChain,
+                        this,
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid texture file name '{texture}' in particle '{particlePath}'",
                         VerificationSeverity.Error,
@@ -154,7 +154,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         {
             var particlePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.InvalidParticleName,
                 $"The particle name '{file.Content.Name}' does not match file name '{particlePath}'",
                 VerificationSeverity.Error,
@@ -173,7 +173,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
                 {
                     var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        VerifierChain,
+                        this,
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid texture file name '{texture}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
@@ -191,7 +191,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
                     var modelFilePath =
                         FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        VerifierChain,
+                        this,
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid shader file name '{shader}' in model '{modelFilePath}'",
                         VerificationSeverity.Error,
@@ -210,7 +210,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
                     var modelFilePath = FileSystem.Path
                         .GetGameStrippedPath(Repository.Path.AsSpan(), file.FilePath.AsSpan()).ToString();
                     AddError(VerificationError.Create(
-                        VerifierChain,
+                        this,
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid proxy file name '{proxy}' for model '{modelFilePath}'",
                         VerificationSeverity.Error,
@@ -238,7 +238,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         {
             var message = $"Proxy particle '{proxyName}' not found for model '{modelFilePath}'";
             var error = VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.FileNotFound,
                 message, 
                 VerificationSeverity.Error, 
@@ -261,7 +261,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
             var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan()).ToString();
             var message = $"Shader effect '{shader}' not found for model '{modelFilePath}'.";
             var error = VerificationError.Create(
-                VerifierChain, 
+                this,
                 VerifierErrorCodes.FileNotFound, 
                 message, 
                 VerificationSeverity.Error, 

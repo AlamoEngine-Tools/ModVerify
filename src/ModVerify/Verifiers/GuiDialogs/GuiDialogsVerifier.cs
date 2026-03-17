@@ -67,8 +67,8 @@ sealed class GuiDialogsVerifier : GameVerifier
         if (GameEngine.GuiDialogManager.MtdFile is null)
         {
             var mtdFileName = megaTextureName ?? "<<MTD_NOT_SPECIFIED>>";
-            VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
-                VerificationSeverity.Critical, mtdFileName);
+            AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
+                VerificationSeverity.Critical, mtdFileName));
         }
 
         if (megaTextureName is not null)
@@ -122,7 +122,7 @@ sealed class GuiDialogsVerifier : GameVerifier
 
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
-                        AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FilePathTooLong,
+                        AddError(VerificationError.Create(this, VerifierErrorCodes.FilePathTooLong,
                             $"The filename is too long. Max length is {MtdFileConstants.MaxFileNameSize} characters.",
                             VerificationSeverity.Error, texture.Texture));
                     }
@@ -133,7 +133,7 @@ sealed class GuiDialogsVerifier : GameVerifier
                         if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
                             message += " The file name is too long.";
 
-                        AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound,
+                        AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
                             message, VerificationSeverity.Error,
                             [component, origin.ToString()], texture.Texture));
                     }

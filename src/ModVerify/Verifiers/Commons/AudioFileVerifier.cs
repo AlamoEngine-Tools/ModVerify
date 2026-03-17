@@ -36,7 +36,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
         if (sampleStream is null)
         {
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.FileNotFound,
                 $"Audio file '{sampleString}' could not be found.",
                 VerificationSeverity.Error, 
@@ -72,7 +72,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
         if (format != WaveFormats.PCM)
         {
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.SampleNotPCM,
                 $"Audio file '{sampleString}' has an invalid format '{format}'. Supported is {WaveFormats.PCM}", 
                 VerificationSeverity.Error,
@@ -83,7 +83,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
         if (channels > 1 && !sampleInfo.IsAmbient)
         {
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.SampleNotMono, 
                 $"Audio file '{sampleString}' is not mono audio.", 
                 VerificationSeverity.Information,
@@ -93,7 +93,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
         if (sampleRate > 48_000)
         {
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.InvalidSampleRate, 
                 $"Audio file '{sampleString}' has a too high sample rate of {sampleRate}. Maximum is 48.000Hz.",
                 VerificationSeverity.Error,
@@ -104,7 +104,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
         if (bitPerSecondPerChannel > 16)
         {
             AddError(VerificationError.Create(
-                VerifierChain,
+                this,
                 VerifierErrorCodes.InvalidBitsPerSeconds, 
                 $"Audio file '{sampleString}' has an invalid bit size of {bitPerSecondPerChannel}. Supported are 16bit.",
                 VerificationSeverity.Error,

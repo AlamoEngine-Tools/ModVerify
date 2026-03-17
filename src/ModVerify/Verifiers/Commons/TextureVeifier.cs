@@ -39,7 +39,7 @@ public sealed class TextureVeifier : GameVerifier<string>
 
         if (tooLongPath)
         {
-            AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FilePathTooLong,
+            AddError(VerificationError.Create(this, VerifierErrorCodes.FilePathTooLong,
                 $"Could not find texture '{pathString}' because the engine resolved a path that is too long.",
                 VerificationSeverity.Error, contextInfo, pathString));
             return;
@@ -56,7 +56,7 @@ public sealed class TextureVeifier : GameVerifier<string>
 
         messageBuilder.Append('.');
 
-        AddError(VerificationError.Create(VerifierChain, VerifierErrorCodes.FileNotFound, 
+        AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound, 
             messageBuilder.ToString(),
             VerificationSeverity.Error, contextInfo, pathString));
     }

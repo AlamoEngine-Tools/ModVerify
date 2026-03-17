@@ -19,7 +19,7 @@ partial class CommandBarVerifier
             if (!occupiedComponentIds.TryGetValue(component.Id, out var alreadyOccupied))
             {
                 AddError(VerificationError.Create(
-                    VerifierChain,
+                    this,
                     CommandBarUnsupportedComponent,
                     $"The CommandBar component '{component.Name}' is not supported by the game.",
                     VerificationSeverity.Information,
@@ -32,7 +32,7 @@ partial class CommandBarVerifier
 
             if (alreadyOccupied)
             {
-                AddError(VerificationError.Create(VerifierChain,
+                AddError(VerificationError.Create(this,
                     VerifierErrorCodes.Duplicate,
                     $"The CommandBar component '{component.Name}' with ID '{component.Id}' already exists.",
                     VerificationSeverity.Warning,
@@ -56,7 +56,7 @@ partial class CommandBarVerifier
 
         if (shellComponent.ModelPath is null)
         {
-            AddError(VerificationError.Create(VerifierChain,
+            AddError(VerificationError.Create(this,
                 CommandBarShellNoModel, $"The CommandBarShellComponent '{component.Name}' has no model specified.",
                 VerificationSeverity.Error, shellComponent.Name));
             return;
@@ -65,7 +65,7 @@ partial class CommandBarVerifier
         var model = GameEngine.PGRender.LoadModelAndAnimations(shellComponent.ModelPath.AsSpan(), null);
         if (model is null)
         {
-            AddError(VerificationError.Create(VerifierChain,
+            AddError(VerificationError.Create(this,
                 CommandBarShellNoModel, $"Could not find model '{shellComponent.ModelPath}' for CommandBarShellComponent '{component.Name}'.",
                 VerificationSeverity.Error, [shellComponent.Name], shellComponent.ModelPath));
             return;
@@ -79,7 +79,7 @@ partial class CommandBarVerifier
 
         if (component.Bone == -1)
         {
-            AddError(VerificationError.Create(VerifierChain,
+            AddError(VerificationError.Create(this,
                 CommandBarShellNoModel, $"The CommandBar component '{component.Name}' is not connected to a shell component.",
                 VerificationSeverity.Warning, component.Name));
         }

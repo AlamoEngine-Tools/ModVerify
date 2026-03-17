@@ -25,14 +25,14 @@ partial class CommandBarVerifier
         }
 
         if (shellGroups.Count == 0) 
-            AddError(VerificationError.Create(VerifierChain,
+            AddError(VerificationError.Create(this,
                 CommandBarNoShellsGroup, 
                 $"No CommandBarGroup '{CommandBarConstants.ShellGroupName}' found.", 
                 VerificationSeverity.Error, 
                 "GameCommandBar"));
 
         if (shellGroups.Count > 1) 
-            AddError(VerificationError.Create(VerifierChain, 
+            AddError(VerificationError.Create(this, 
                 CommandBarManyShellsGroup, 
                 $"Found more than one Shells CommandBarGroup. Mind that group names are case-sensitive. Correct name is '{CommandBarConstants.ShellGroupName}'",
                 VerificationSeverity.Warning, 
@@ -46,7 +46,7 @@ partial class CommandBarVerifier
             var shellComponent = component as CommandBarShellComponent;
             if (shellComponent?.Type is not CommandBarComponentType.Shell)
             {
-                AddError(VerificationError.Create(VerifierChain,
+                AddError(VerificationError.Create(this,
                     CommandBarNoShellsComponentInShellGroup, 
                     $"The CommandBar component '{component.Name}' is not a shell component, but part of the '{CommandBarConstants.ShellGroupName}' group.", 
                     VerificationSeverity.Warning, component.Name));
