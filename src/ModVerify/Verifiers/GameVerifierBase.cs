@@ -40,6 +40,28 @@ public abstract class GameVerifierBase : IGameVerifierInfo
 
     protected IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
 
+
+    protected GameVerifierBase(GameVerifierBase parent)
+    {
+        if (parent == null)
+            throw new ArgumentNullException(nameof(parent));
+        Services = parent.Services;
+        Logger = Services.GetService<ILoggerFactory>()?.CreateLogger(GetType()) ?? NullLogger.Instance;
+        FileSystem = Services.GetRequiredService<IFileSystem>();
+        Parent = parent;
+        Settings = parent.Settings;
+        GameEngine = parent.GameEngine;
+        VerifierChain = CreateVerifierChain();
+    }
+
+    protected GameVerifierBase(
+        IStarWarsGameEngine gameEngine,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider)
+    : this (null, gameEngine, settings, serviceProvider)
+    {
+    }
+
     protected GameVerifierBase(
         IGameVerifierInfo? parent,
         IStarWarsGameEngine gameEngine,

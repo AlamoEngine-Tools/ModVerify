@@ -24,7 +24,7 @@ public sealed partial class GameObjectTypeVerifier : NamedGameEntityVerifier<Gam
         IServiceProvider serviceProvider) 
         : base(gameEngine, settings, serviceProvider)
     {
-        _singleModelVerifier = new SingleModelVerifier(this, gameEngine, settings, serviceProvider);
+        _singleModelVerifier = new SingleModelVerifier(this);
     }
 
     protected override void VerifyEntity(GameObject entity, string[] context, double progress, CancellationToken token)

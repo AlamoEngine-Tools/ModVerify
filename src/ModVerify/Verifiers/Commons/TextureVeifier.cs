@@ -8,13 +8,21 @@ using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
-public sealed class TextureVeifier(
-    IGameVerifierInfo? parent,
-    IStarWarsGameEngine gameEngine, 
-    GameVerifySettings settings, 
-    IServiceProvider serviceProvider) 
-    : GameVerifier<string>(parent, gameEngine, settings, serviceProvider)
+public sealed class TextureVeifier : GameVerifier<string>
 {
+    public TextureVeifier(GameVerifierBase parent) : base(parent)
+    {
+    }
+
+    public TextureVeifier(
+        IGameVerifierInfo? parent,
+        IStarWarsGameEngine gameEngine, 
+        GameVerifySettings settings, 
+        IServiceProvider serviceProvider) :
+        base(parent, gameEngine, settings, serviceProvider)
+    {
+    }
+
     public override void Verify(string texturePath, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
         Verify(texturePath.AsSpan(), contextInfo, token);

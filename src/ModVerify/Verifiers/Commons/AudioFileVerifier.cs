@@ -9,14 +9,22 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
-public class AudioFileVerifier(
-    IGameVerifierInfo? parent,
-    IStarWarsGameEngine gameEngine,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider)
-    : GameVerifier<AudioFileInfo>(parent, gameEngine, settings, serviceProvider)
+public class AudioFileVerifier : GameVerifier<AudioFileInfo>
 {
-    private readonly IAlreadyVerifiedCache? _alreadyVerifiedCache = serviceProvider.GetService<IAlreadyVerifiedCache>();
+    private readonly IAlreadyVerifiedCache? _alreadyVerifiedCache;
+
+    public AudioFileVerifier(GameVerifierBase parent) : base(parent)
+    {
+        _alreadyVerifiedCache = Services.GetService<IAlreadyVerifiedCache>();
+    }
+
+    public AudioFileVerifier(IGameVerifierInfo? parent,
+        IStarWarsGameEngine gameEngine,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider) : base(parent, gameEngine, settings, serviceProvider)
+    {
+        _alreadyVerifiedCache = serviceProvider.GetService<IAlreadyVerifiedCache>();
+    }
 
     public override string FriendlyName => "Audio File format";
 

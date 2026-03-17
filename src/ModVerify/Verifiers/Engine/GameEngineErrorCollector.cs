@@ -13,7 +13,7 @@ public sealed class GameEngineErrorCollector(
     IStarWarsGameEngine gameEngine,
     GameVerifySettings settings,
     IServiceProvider serviceProvider)
-    : GameVerifier(null, gameEngine, settings, serviceProvider)
+    : GameVerifier(gameEngine, settings, serviceProvider)
 {
     public override string FriendlyName => "Game Engine Initialization";
 

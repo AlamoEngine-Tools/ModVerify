@@ -7,13 +7,21 @@ using System.Threading;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
-public sealed class DuplicateVerifier(
-    IGameVerifierInfo? parent,
-    IStarWarsGameEngine gameEngine,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider)
-    : GameVerifier<IDuplicateVerificationContext>(parent, gameEngine, settings, serviceProvider)
+public sealed class DuplicateVerifier : GameVerifier<IDuplicateVerificationContext>
 {
+    public DuplicateVerifier(GameVerifierBase parent) : base(parent)
+    {
+    }
+
+    public DuplicateVerifier(
+        IGameVerifierInfo? parent,
+        IStarWarsGameEngine gameEngine,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider) 
+        : base(parent, gameEngine, settings, serviceProvider)
+    {
+    }
+
     public override string FriendlyName => "Duplicates";
 
     public override void Verify(IDuplicateVerificationContext toVerify, IReadOnlyCollection<string> contextInfo, CancellationToken token)

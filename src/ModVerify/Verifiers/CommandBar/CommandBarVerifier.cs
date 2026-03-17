@@ -6,7 +6,7 @@ using PG.StarWarsGame.Engine;
 namespace AET.ModVerify.Verifiers.CommandBar;
 
 public partial class CommandBarVerifier(IStarWarsGameEngine gameEngine, GameVerifySettings settings, IServiceProvider serviceProvider)
-    : GameVerifier(null, gameEngine, settings, serviceProvider)
+    : GameVerifier(gameEngine, settings, serviceProvider)
 {
     public const string CommandBarNoShellsGroup = "CMDBAR00";
     public const string CommandBarManyShellsGroup = "CMDBAR01";

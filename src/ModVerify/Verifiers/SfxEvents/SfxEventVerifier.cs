@@ -30,13 +30,16 @@ public sealed partial class SfxEventVerifier : NamedGameEntityVerifier<SfxEvent>
     public override string FriendlyName => "SFX Events";
     public override string EntityTypeName => "SFXEvent";
 
-    public SfxEventVerifier(IStarWarsGameEngine gameEngine, GameVerifySettings settings, IServiceProvider serviceProvider) 
-        : base( gameEngine, settings, serviceProvider)
+    public SfxEventVerifier(
+        IStarWarsGameEngine gameEngine,
+        GameVerifySettings settings, 
+        IServiceProvider serviceProvider) 
+        : base(gameEngine, settings, serviceProvider)
     {
         _languageManager = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>()
             .GetLanguageManager(Repository.EngineType);
         _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
-        _audioFileVerifier = new AudioFileVerifier(this, gameEngine, settings, serviceProvider);
+        _audioFileVerifier = new AudioFileVerifier(this);
         _languagesToVerify = GetLanguagesToVerify();
     }
 

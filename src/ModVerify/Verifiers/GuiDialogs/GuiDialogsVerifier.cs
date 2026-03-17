@@ -22,12 +22,14 @@ sealed class GuiDialogsVerifier : GameVerifier
     private readonly IAlreadyVerifiedCache? _cache;
     private readonly TextureVeifier _textureVerifier;
 
-    public GuiDialogsVerifier(IStarWarsGameEngine gameEngine,
+    public GuiDialogsVerifier(
+        IStarWarsGameEngine gameEngine,
         GameVerifySettings settings,
-        IServiceProvider serviceProvider) : base(null, gameEngine, settings, serviceProvider)
+        IServiceProvider serviceProvider) 
+        : base(gameEngine, settings, serviceProvider)
     {
         _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
-        _textureVerifier = new TextureVeifier(this, gameEngine, settings, serviceProvider);
+        _textureVerifier = new TextureVeifier(this);
     }
 
     public override void Verify(CancellationToken token)

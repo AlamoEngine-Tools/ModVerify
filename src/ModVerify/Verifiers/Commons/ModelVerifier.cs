@@ -25,13 +25,19 @@ public sealed class SingleModelVerifier : GameVerifier<string>
     private readonly TextureVeifier _textureVerifier;
     private readonly IAlreadyVerifiedCache? _cache;
 
+    public SingleModelVerifier(GameVerifierBase parent) : base(parent)
+    {
+        _textureVerifier = new TextureVeifier(this);
+        _cache = Services.GetService<IAlreadyVerifiedCache>();
+    }
+
     public SingleModelVerifier(
         IGameVerifierInfo? parent,
         IStarWarsGameEngine engine,
         GameVerifySettings settings,
         IServiceProvider serviceProvider) : base(parent, engine, settings, serviceProvider)
     {
-        _textureVerifier = new TextureVeifier(this, engine, settings, serviceProvider);
+        _textureVerifier = new TextureVeifier(this);
         _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
     }
 
