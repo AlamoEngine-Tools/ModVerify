@@ -2,26 +2,40 @@
 using System.Threading;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
-using AET.ModVerify.Verifiers.Utilities;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.GameObjects;
 
 namespace AET.ModVerify.Verifiers.GameObjects;
 
-public sealed class GameObjectTypeVerifier(
-    IGameVerifierInfo? parent,
-    IStarWarsGameEngine gameEngine,
-    GameVerifySettings settings,
-    IServiceProvider serviceProvider)
-    : GameVerifier(parent, gameEngine, settings, serviceProvider)
+// TODO: Add GameObjectTypeVerifier and check that LandModelTerrainOverride is correct (all keys correct, no dups)
+public sealed partial class GameObjectTypeVerifier : NamedGameEntityVerifier<GameObject>
 {
+    private readonly SingleModelVerifier _singleModelVerifier;
+
     public override string FriendlyName => "GameObjectType Verifier";
 
-    public override void Verify(CancellationToken token)
+    public override IGameManager<GameObject> GameManager => GameEngine.GameObjectTypeManager;
+
+    public override string EntityTypeName => "GameObjectType";
+
+    public GameObjectTypeVerifier(
+        IStarWarsGameEngine gameEngine,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider) 
+        : base(gameEngine, settings, serviceProvider)
     {
-        var context = IDuplicateVerificationContext.CreateForNamedXmlObjects(GameEngine.GameObjectTypeManager, "GameObjectType");
-        var verifier = new DuplicateVerifier(this, GameEngine, Settings, Services);
-        verifier.Verify(context, [], token);
-        foreach (var error in verifier.VerifyErrors)
-            AddError(error);
+        _singleModelVerifier = new SingleModelVerifier(this, gameEngine, settings, serviceProvider);
+    }
+
+    protected override void VerifyEntity(GameObject entity, string[] context, double progress, CancellationToken token)
+    {
+        VerifyXRefs(entity, context);
+        VerifyModels(entity, context, token);
+    }
+
+    protected override void PostEntityVerify(CancellationToken token)
+    {
+        foreach (var modelError in _singleModelVerifier.VerifyErrors)
+            AddError(modelError);
     }
 }

@@ -4,7 +4,7 @@ using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.CommandBar.Components;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.CommandBar;
 
 partial class CommandBarVerifier
 {

@@ -1,16 +1,17 @@
-﻿using AET.ModVerify.Reporting;
+﻿using System;
+using System.Linq;
+using AET.ModVerify.Reporting;
 using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.CommandBar.Components;
-using System;
-using System.Linq;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.CommandBar;
 
 partial class CommandBarVerifier
 {
     private void VerifyCommandBarComponents()
     {
-        var occupiedComponentIds = SupportedCommandBarComponentData.GetComponentIdsForEngine(Repository.EngineType).Keys
+        var occupiedComponentIds = SupportedCommandBarComponentData
+            .GetComponentIdsForEngine(Repository.EngineType).Keys
             .ToDictionary(value => value, _ => false);
 
         foreach (var component in GameEngine.CommandBar.Components)
@@ -32,7 +33,7 @@ partial class CommandBarVerifier
             if (alreadyOccupied)
             {
                 AddError(VerificationError.Create(VerifierChain,
-                    CommandBarDuplicateComponent,
+                    VerifierErrorCodes.Duplicate,
                     $"The CommandBar component '{component.Name}' with ID '{component.Id}' already exists.",
                     VerificationSeverity.Warning,
                     component.Name));

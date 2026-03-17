@@ -8,10 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading;
+using PG.StarWarsGame.Engine.Audio.Sfx;
 
 namespace AET.ModVerify.Verifiers.SfxEvents;
 
-public sealed partial class SfxEventVerifier : GameVerifier
+public sealed partial class SfxEventVerifier : NamedGameEntityVerifier<SfxEvent>
 {
     private static readonly PathNormalizeOptions SampleNormalizerOptions = new()
     {
@@ -25,10 +26,12 @@ public sealed partial class SfxEventVerifier : GameVerifier
     private readonly AudioFileVerifier _audioFileVerifier;
     private readonly IReadOnlyCollection<LanguageType> _languagesToVerify;
 
+    public override IGameManager<SfxEvent> GameManager => GameEngine.SfxGameManager;
     public override string FriendlyName => "SFX Events";
+    public override string EntityTypeName => "SFXEvent";
 
     public SfxEventVerifier(IStarWarsGameEngine gameEngine, GameVerifySettings settings, IServiceProvider serviceProvider) 
-        : base(null, gameEngine, settings, serviceProvider)
+        : base( gameEngine, settings, serviceProvider)
     {
         _languageManager = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>()
             .GetLanguageManager(Repository.EngineType);
@@ -37,19 +40,16 @@ public sealed partial class SfxEventVerifier : GameVerifier
         _languagesToVerify = GetLanguagesToVerify();
     }
 
-    public override void Verify(CancellationToken token)
+    protected override void VerifyEntity(SfxEvent entity, string[] context, double progress, CancellationToken token)
     {
-        VerifyDuplicates(token);
+        VerifyPresetRef(entity, context);
+        VerifySamples(entity, context, token);
+    }
 
-        var numEvents = GameEngine.SfxGameManager.Entries.Count;
-        double counter = 0;
-        foreach (var sfxEvent in GameEngine.SfxGameManager.Entries)
-        {
-            OnProgress(++counter / numEvents, $"SFX Event - '{sfxEvent.Name}'");
-
-            VerifyPresetRef(sfxEvent, token);
-            VerifySamples(sfxEvent, token);
-        }
+    protected override void PostEntityVerify(CancellationToken token)
+    {
+        foreach (var sampleError in _audioFileVerifier.VerifyErrors) 
+            AddError(sampleError);
     }
 
     private IReadOnlyCollection<LanguageType> GetLanguagesToVerify()

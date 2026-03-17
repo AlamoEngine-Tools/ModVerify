@@ -6,7 +6,7 @@ using AET.ModVerify.Reporting.Engine;
 using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 
-namespace AET.ModVerify.Verifiers;
+namespace AET.ModVerify.Verifiers.Engine;
 
 public sealed class GameEngineErrorCollector(
     IGameEngineErrorCollection errorCollection,

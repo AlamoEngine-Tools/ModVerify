@@ -9,7 +9,7 @@ namespace AET.ModVerify;
 public interface IGameVerifiersProvider
 {
     IEnumerable<GameVerifier> GetVerifiers(
-        IStarWarsGameEngine database, 
+        IStarWarsGameEngine gameEngine, 
         GameVerifySettings settings, 
         IServiceProvider serviceProvider);
 }

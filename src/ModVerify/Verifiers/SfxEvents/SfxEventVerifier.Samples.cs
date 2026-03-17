@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Threading;
-using AET.ModVerify.Reporting;
 using AET.ModVerify.Verifiers.Commons;
 using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using PG.StarWarsGame.Engine;
@@ -12,29 +11,17 @@ namespace AET.ModVerify.Verifiers.SfxEvents;
 
 public partial class SfxEventVerifier
 {
-    private void VerifySamples(SfxEvent sfxEvent, CancellationToken token)
+    private void VerifySamples(SfxEvent sfxEvent, string[] context, CancellationToken token)
     {
-        EventHandler<VerificationErrorEventArgs> errorHandler = (_, e) => AddError(e.Error);
-        _audioFileVerifier.Error += errorHandler;
-
-        try
-        {
-            var isAmbient = IsAmbient2D(sfxEvent);
-
-            foreach (var codedSample in sfxEvent.AllSamples)
-            {
-                VerifySample(codedSample.AsSpan(), sfxEvent, isAmbient, token);
-            }
-        }
-        finally
-        {
-            _audioFileVerifier.Error -= errorHandler;
-        }
+        var isAmbient = IsAmbient2D(sfxEvent);
+        foreach (var codedSample in sfxEvent.AllSamples) 
+            VerifySample(codedSample.AsSpan(), sfxEvent, context, isAmbient, token);
     }
 
     private void VerifySample(
         ReadOnlySpan<char> sample, 
-        SfxEvent sfxEvent, 
+        SfxEvent sfxEvent,
+        string[] context,
         bool isAmbient, 
         CancellationToken token)
     {
@@ -53,7 +40,7 @@ public partial class SfxEventVerifier
             {
                 foreach (var language in _languagesToVerify)
                 {
-                    VerifySampleLocalized(sfxEvent, sampleNameBuffer, isAmbient, language, out var localized, token);
+                    VerifySampleLocalized(context, sampleNameBuffer, isAmbient, language, out var localized, token);
                     if (!localized)
                     {
                         // There is no reason to continue if we failed to localize the sample name, because the verification will fail anyway
@@ -65,7 +52,7 @@ public partial class SfxEventVerifier
             else
             {
                 var audioInfo = new AudioFileInfo(sampleNameBuffer.ToString(), AudioFileType.Wav, isAmbient);
-                _audioFileVerifier.Verify(audioInfo, [sfxEvent.Name], token);
+                _audioFileVerifier.Verify(audioInfo, context, token);
             }
         }
         finally
@@ -75,7 +62,12 @@ public partial class SfxEventVerifier
         }
     }
 
-    private void VerifySampleLocalized(SfxEvent sfxEvent, ReadOnlySpan<char> sample, bool isAmbient, LanguageType language, out bool localized, CancellationToken token)
+    private void VerifySampleLocalized(string[] context,
+        ReadOnlySpan<char> sample,
+        bool isAmbient,
+        LanguageType language,
+        out bool localized, 
+        CancellationToken token)
     {
         char[]? pooledBuffer = null;
 
@@ -88,7 +80,7 @@ public partial class SfxEventVerifier
             var localizedName = buffer.Slice(0, l);
             
             var audioInfo = new AudioFileInfo(localizedName.ToString(), AudioFileType.Wav, isAmbient);
-            _audioFileVerifier.Verify(audioInfo, [sfxEvent.Name], token);
+            _audioFileVerifier.Verify(audioInfo, context, token);
         }
         finally
         {

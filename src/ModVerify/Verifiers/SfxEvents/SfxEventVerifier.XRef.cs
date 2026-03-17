@@ -1,21 +1,20 @@
-﻿using System.Threading;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using PG.StarWarsGame.Engine.Audio.Sfx;
 
 namespace AET.ModVerify.Verifiers.SfxEvents;
 
 public partial class SfxEventVerifier
 {
-    private void VerifyPresetRef(SfxEvent sfxEvent, CancellationToken token)
+    private void VerifyPresetRef(SfxEvent sfxEvent, string[] context)
     {
         if (!string.IsNullOrEmpty(sfxEvent.UsePresetName) && sfxEvent.Preset is null)
         {
             AddError(VerificationError.Create(
                 VerifierChain,
                 VerifierErrorCodes.MissingXRef,
-                $"SFX Event '{sfxEvent.Name}' has Use_Preset set to '{sfxEvent.UsePresetName}' but the preset could not be found.",
+                $"Missing preset '{sfxEvent.UsePresetName}' for SFXEvent '{sfxEvent.Name}'.",
                 VerificationSeverity.Error,
-                [sfxEvent.Name],
+                context,
                 sfxEvent.UsePresetName));
         }
     }

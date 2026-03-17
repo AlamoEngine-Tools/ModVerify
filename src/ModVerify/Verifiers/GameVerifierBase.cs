@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using AET.ModVerify.Progress;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers;
@@ -22,6 +24,7 @@ public abstract class GameVerifierBase : IGameVerifierInfo
     protected readonly IFileSystem FileSystem;
     protected readonly IServiceProvider Services;
     protected readonly GameVerifySettings Settings;
+    protected readonly ILogger Logger;
 
     public IReadOnlyCollection<VerificationError> VerifyErrors => [.. _verifyErrors.Keys];
 
@@ -45,6 +48,7 @@ public abstract class GameVerifierBase : IGameVerifierInfo
     {
         if (serviceProvider == null) 
             throw new ArgumentNullException(nameof(serviceProvider));
+        Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType()) ?? NullLogger.Instance;
         FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         Parent = parent;
