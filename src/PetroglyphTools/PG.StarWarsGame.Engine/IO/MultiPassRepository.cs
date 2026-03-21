@@ -1,9 +1,10 @@
-﻿using System;
-using System.IO;
-using System.IO.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Utilities;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.IO.Abstractions;
 
 namespace PG.StarWarsGame.Engine.IO;
 
@@ -28,6 +29,22 @@ internal abstract class MultiPassRepository(GameRepository baseRepository, IServ
     public bool FileExists(string filePath, bool megFileOnly = false)
     {
         return FileExists(filePath.AsSpan(), megFileOnly);
+    }
+
+    public bool FileExists(string filePath, bool megFileOnly, out bool inMeg, [NotNullWhen(true)] out string? actualFilePath)
+    {
+        var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var result = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
+        var fileFound = result.FileFound;
+        inMeg = result.InMeg;
+        if (!fileFound)
+            actualFilePath = null;
+        else
+            actualFilePath = result.InMeg ? result.MegDataEntryReference.Path : result.FilePath.ToString();
+        multiPassSb.Dispose();
+        destinationSb.Dispose();
+        return fileFound;
     }
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)

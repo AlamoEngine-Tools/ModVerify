@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using AnakinRaW.CommonUtilities.FileSystem;
+﻿using AnakinRaW.CommonUtilities.FileSystem;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.IO.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Files.MEG.Binary;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
@@ -30,6 +31,20 @@ internal partial class GameRepository
     public bool FileExists(string filePath, bool megFileOnly = false)
     {
         return FileExists(filePath.AsSpan(), megFileOnly);
+    }
+
+    public bool FileExists(string filePath, bool megFileOnly, out bool inMeg, [NotNullWhen(true)] out string? actualFilePath)
+    {
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var fileFound = FindFile(filePath, ref sb, megFileOnly);
+        var fileExists = fileFound.FileFound;
+        inMeg = fileFound.InMeg;
+        if (!fileExists)
+            actualFilePath = null;
+        else 
+            actualFilePath = fileFound.InMeg ? fileFound.MegDataEntryReference.Path : fileFound.FilePath.ToString();
+        sb.Dispose();
+        return fileExists;
     }
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)

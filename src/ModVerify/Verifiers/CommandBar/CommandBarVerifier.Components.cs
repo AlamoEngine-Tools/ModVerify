@@ -1,21 +1,27 @@
-﻿using System;
-using System.Linq;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using PG.StarWarsGame.Engine.CommandBar;
-using PG.StarWarsGame.Engine.CommandBar.Components;
+using System.Linq;
+using System.Threading;
 
 namespace AET.ModVerify.Verifiers.CommandBar;
 
 partial class CommandBarVerifier
 {
-    private void VerifyCommandBarComponents()
+    private void VerifyCommandBarComponents(CancellationToken token, double startProgress)
     {
         var occupiedComponentIds = SupportedCommandBarComponentData
             .GetComponentIdsForEngine(Repository.EngineType).Keys
             .ToDictionary(value => value, _ => false);
 
+        var counter = 0;
+        var numEntities = GameEngine.CommandBar.Components.Count;
+        var num = 1 - startProgress;
+       
         foreach (var component in GameEngine.CommandBar.Components)
         {
+            var progress = num + (++counter / (double)numEntities) * startProgress;
+            OnProgress(progress, $"CommandBarComponent - '{component.Name}'");
+
             if (!occupiedComponentIds.TryGetValue(component.Id, out var alreadyOccupied))
             {
                 AddError(VerificationError.Create(
@@ -39,49 +45,7 @@ partial class CommandBarVerifier
                     component.Name));
             }
 
-            VerifySingleComponent(component);
-        }
-    }
-
-    private void VerifySingleComponent(CommandBarBaseComponent component)
-    {
-        VerifyCommandBarModel(component);
-        VerifyComponentBone(component);
-    }
-
-    private void VerifyCommandBarModel(CommandBarBaseComponent component)
-    {
-        if (component is not CommandBarShellComponent shellComponent)
-            return;
-
-        if (shellComponent.ModelPath is null)
-        {
-            AddError(VerificationError.Create(this,
-                CommandBarShellNoModel, $"The CommandBarShellComponent '{component.Name}' has no model specified.",
-                VerificationSeverity.Error, shellComponent.Name));
-            return;
-        }
-
-        var model = GameEngine.PGRender.LoadModelAndAnimations(shellComponent.ModelPath.AsSpan(), null);
-        if (model is null)
-        {
-            AddError(VerificationError.Create(this,
-                CommandBarShellNoModel, $"Could not find model '{shellComponent.ModelPath}' for CommandBarShellComponent '{component.Name}'.",
-                VerificationSeverity.Error, [shellComponent.Name], shellComponent.ModelPath));
-            return;
-        }
-    }
-
-    private void VerifyComponentBone(CommandBarBaseComponent component)
-    {
-        if (component is CommandBarShellComponent)
-            return;
-
-        if (component.Bone == -1)
-        {
-            AddError(VerificationError.Create(this,
-                CommandBarShellNoModel, $"The CommandBar component '{component.Name}' is not connected to a shell component.",
-                VerificationSeverity.Warning, component.Name));
+            VerifySingleComponent(component, token);
         }
     }
 }

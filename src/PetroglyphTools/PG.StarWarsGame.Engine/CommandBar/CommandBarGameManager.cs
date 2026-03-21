@@ -11,6 +11,7 @@ using PG.StarWarsGame.Files.MTD.Services;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using PG.StarWarsGame.Engine.GameObjects;
 
 namespace PG.StarWarsGame.Engine.CommandBar;
 
@@ -27,7 +28,6 @@ internal partial class CommandBarGameManager(
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
     private readonly Dictionary<string, CommandBarComponentGroup> _groups = new();
 
-    private bool _megaTextureExists;
     private FontData? _defaultFont;
 
     public ICollection<CommandBarBaseComponent> Components => Entries;
@@ -48,7 +48,7 @@ internal partial class CommandBarGameManager(
         }
     }
 
-    public IMtdFile? MegaTextureFile
+    public IMtdFile? MtdFile
     {
         get
         {
@@ -62,7 +62,41 @@ internal partial class CommandBarGameManager(
         }
     }
 
+    public string? MegaTextureFileName
+    {
+        get
+        {
+            ThrowIfNotInitialized();
+            return field;
+        }
+        private set
+        {
+            ThrowIfAlreadyInitialized();
+            field = value;
+        }
+    }
+
+
     public Vector3 CommandBarScale { get; }
 
     public Vector3 CommandBarOffset { get; internal set; }
+
+    public bool IconExists(GameObject gameObject)
+    {
+        ThrowIfNotInitialized();
+        if (gameObject == null)
+            throw new ArgumentNullException(nameof(gameObject));
+
+        if (MtdFile is null)
+            return false;
+
+        //if (string.IsNullOrEmpty(gameObject.IconName))
+        //    return false;
+
+        //var crc = _hashingService.GetCrc32Upper(gameObject.IconName);
+
+        //return MtdFile.Content.Contains(crc);
+
+        return false;
+    }
 }

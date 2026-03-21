@@ -201,7 +201,7 @@ internal partial class CommandBarGameManager
 
         try
         {
-            MegaTextureFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+            MtdFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
         }
         catch (BinaryCorruptedException e)
         {
@@ -209,7 +209,9 @@ internal partial class CommandBarGameManager
             Logger?.LogError(e, message);
             ErrorReporter.Assert(EngineAssert.Create(EngineAssertKind.CorruptBinary, mtdPath, [], message));
         }
-        _megaTextureExists = GameRepository.TextureRepository.FileExists($"{CommandBarConstants.MegaTextureBaseName}.tga");
+        
+        GameRepository.TextureRepository.FileExists($"{CommandBarConstants.MegaTextureBaseName}.tga", false, out _, out var actualFilePath);
+        MegaTextureFileName = FileSystem.Path.GetFileName(actualFilePath);
     }
 
     private void SetComponentGroup(IEnumerable<CommandBarBaseComponent> components)

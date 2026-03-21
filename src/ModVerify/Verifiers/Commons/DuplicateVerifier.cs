@@ -9,6 +9,8 @@ namespace AET.ModVerify.Verifiers.Commons;
 
 public sealed class DuplicateVerifier : GameVerifier<IDuplicateVerificationContext>
 {
+    public override string FriendlyName => "Duplicate Verifier";
+
     public DuplicateVerifier(GameVerifierBase parent) : base(parent)
     {
     }
@@ -21,8 +23,6 @@ public sealed class DuplicateVerifier : GameVerifier<IDuplicateVerificationConte
         : base(parent, gameEngine, settings, serviceProvider)
     {
     }
-
-    public override string FriendlyName => "Duplicates";
 
     public override void Verify(IDuplicateVerificationContext toVerify, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {

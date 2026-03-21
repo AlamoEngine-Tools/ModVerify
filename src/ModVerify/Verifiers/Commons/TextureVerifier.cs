@@ -8,13 +8,13 @@ using PG.StarWarsGame.Engine;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
-public sealed class TextureVeifier : GameVerifier<string>
+public sealed class TextureVerifier : GameVerifier<string>
 {
-    public TextureVeifier(GameVerifierBase parent) : base(parent)
+    public TextureVerifier(GameVerifierBase parent) : base(parent)
     {
     }
 
-    public TextureVeifier(
+    public TextureVerifier(
         IGameVerifierInfo? parent,
         IStarWarsGameEngine gameEngine, 
         GameVerifySettings settings, 

@@ -20,7 +20,7 @@ sealed class GuiDialogsVerifier : GameVerifier
         Enum.GetValues(typeof(GuiComponentType)).OfType<GuiComponentType>().ToArray();
 
     private readonly IAlreadyVerifiedCache? _cache;
-    private readonly TextureVeifier _textureVerifier;
+    private readonly TextureVerifier _textureVerifier;
 
     public GuiDialogsVerifier(
         IStarWarsGameEngine gameEngine,
@@ -29,21 +29,16 @@ sealed class GuiDialogsVerifier : GameVerifier
         : base(gameEngine, settings, serviceProvider)
     {
         _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
-        _textureVerifier = new TextureVeifier(this);
+        _textureVerifier = new TextureVerifier(this);
     }
 
     public override void Verify(CancellationToken token)
     {
-        try
-        {
-            _textureVerifier.Error += OnTextureError;
-            VerifyMegaTexturesExist(token);
-            VerifyGuiTextures();
-        }
-        finally
-        {
-            _textureVerifier.Error -= OnTextureError;
-        }
+        VerifyMegaTexturesExist(token);
+        VerifyGuiTextures();
+
+        foreach (var textureError in _textureVerifier.VerifyErrors)
+            AddError(textureError);
     }
 
     private void VerifyGuiTextures()

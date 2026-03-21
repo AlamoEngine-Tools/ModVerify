@@ -22,12 +22,12 @@ public sealed class SingleModelVerifier : GameVerifier<string>
 {
     private const string ProxyAltIdentifier = "_ALT";
 
-    private readonly TextureVeifier _textureVerifier;
+    private readonly TextureVerifier _textureVerifier;
     private readonly IAlreadyVerifiedCache? _cache;
 
     public SingleModelVerifier(GameVerifierBase parent) : base(parent)
     {
-        _textureVerifier = new TextureVeifier(this);
+        _textureVerifier = new TextureVerifier(this);
         _cache = Services.GetService<IAlreadyVerifiedCache>();
     }
 
@@ -37,28 +37,18 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         GameVerifySettings settings,
         IServiceProvider serviceProvider) : base(parent, engine, settings, serviceProvider)
     {
-        _textureVerifier = new TextureVeifier(this);
+        _textureVerifier = new TextureVerifier(this);
         _cache = serviceProvider.GetService<IAlreadyVerifiedCache>();
     }
 
     public override void Verify(string modelName, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
-        try
-        {
-            _textureVerifier.Error += OnTextureError;
 
-            var modelPath = BuildModelPath(modelName);
-            VerifyAlamoFile(modelPath, contextInfo, token);
-        }
-        finally
-        {
-            _textureVerifier.Error -= OnTextureError;
-        }
-    }
+        var modelPath = BuildModelPath(modelName);
+        VerifyAlamoFile(modelPath, contextInfo, token);
 
-    private void OnTextureError(object sender, VerificationErrorEventArgs e)
-    {
-        AddError(e.Error);
+        foreach (var textureError in _textureVerifier.VerifyErrors) 
+            AddError(textureError);
     }
 
     private void VerifyAlamoFile(string modelPath, IReadOnlyCollection<string> contextInfo, CancellationToken token)
@@ -111,10 +101,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         }
     }
 
-    private void VerifyModelOrParticle(
-        IAloFile<IAloDataContent, AloFileInformation> aloFile, 
-        IReadOnlyCollection<string> contextInfo,
-        CancellationToken token)
+    public void VerifyModelOrParticle(IAloFile<IAloDataContent, AloFileInformation> aloFile, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
         switch (aloFile)
         {
