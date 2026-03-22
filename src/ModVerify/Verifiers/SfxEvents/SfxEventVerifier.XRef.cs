@@ -14,7 +14,7 @@ public partial class SfxEventVerifier
                 VerifierErrorCodes.MissingXRef,
                 $"Missing preset '{sfxEvent.UsePresetName}' for SFXEvent '{sfxEvent.Name}'.",
                 VerificationSeverity.Error,
-                context,
+                [..context, "Preset"],
                 sfxEvent.UsePresetName));
         }
     }

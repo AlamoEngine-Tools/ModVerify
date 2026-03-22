@@ -179,7 +179,13 @@ internal partial class GameObjectParser(
                 GameObjectXmlTags.SpaceModelAnimOverrideName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.SpaceAnimOverrideModel = val);
-            
+
+            AddMapping(
+                GameObjectXmlTags.CompanyUnits,
+                PetroglyphXmlLooseStringListParser.Instance.Parse,
+                // The MULTI_OBJECT_REFERENCE parser never replaces (this is done by the MultiReferenceList itself)
+                (obj, val) => obj.GroundCompanyUnits.AddRange(val));
+
             AddMapping(
                 GameObjectXmlTags.DamagedSmokeAssetName,
                 PetroglyphXmlStringParser.Instance.Parse,
@@ -222,5 +228,6 @@ internal partial class GameObjectParser(
         public const string VariantOfExistingType = "Variant_Of_Existing_Type";
 
         public const string IconName = "Icon_Name";
+        public const string CompanyUnits = "Company_Units";
     }
 }

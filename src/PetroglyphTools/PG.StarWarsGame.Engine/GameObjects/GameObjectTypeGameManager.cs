@@ -23,8 +23,7 @@ internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, 
         _gameObjects = [];
         GameObjects = new ReadOnlyCollection<GameObject>(_gameObjects);
     }
-
-
+    
     public IReadOnlyList<GameObject> GameObjects
     {
         get

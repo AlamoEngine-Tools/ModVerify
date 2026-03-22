@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using PG.Commons.Hashing;
+﻿using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine.Commons;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.Data;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
@@ -47,7 +48,10 @@ public sealed class GameObject : NamedXmlObject
     public string? DamagedSmokeAssetModel { get; internal set; }
 
     public IReadOnlyList<(string terrain, string model)> LandTerrainModelMappingValues { get; }
+    
     public string? IconName { get; internal set; }
+
+    public MultiNameReferenceList GroundCompanyUnits { get; internal set; } = [];
 
     internal GameObject(
         string name,
@@ -82,8 +86,9 @@ public sealed class GameObject : NamedXmlObject
         SpaceAnimOverrideModel = baseType.SpaceAnimOverrideModel;
         DamagedSmokeAssetModel = baseType.DamagedSmokeAssetModel;
         InternalLandTerrainModelMapping.ClearAddRange(baseType.InternalLandTerrainModelMapping);
-
+        
         IconName = baseType.IconName;
+        GroundCompanyUnits = new(baseType.GroundCompanyUnits);
     }
 
     internal void PostLoadFixup()
