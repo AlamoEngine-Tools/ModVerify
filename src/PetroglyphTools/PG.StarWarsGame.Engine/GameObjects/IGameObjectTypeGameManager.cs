@@ -20,4 +20,6 @@ public interface IGameObjectTypeGameManager : IGameManager<GameObject>
     /// An <see cref="IEnumerable{T}"/> containing the names of the models associated with the specified <see cref="GameObject"/>.
     /// </returns>
     IEnumerable<string> GetModels(GameObject gameObject);
+
+    GameObject? FindObjectType(string name);
 }

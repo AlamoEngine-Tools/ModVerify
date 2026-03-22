@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
 using PG.StarWarsGame.Engine;
@@ -29,6 +30,12 @@ public sealed partial class GameObjectTypeVerifier : NamedGameEntityVerifier<Gam
 
     protected override void VerifyEntity(GameObject entity, string[] context, double progress, CancellationToken token)
     {
+        if (entity.Name.Length >= PGConstants.MaxGameObjectTypeName)
+        {
+            AddError(VerificationError.Create(this, VerifierErrorCodes.NameTooLong,
+                $"The GameObjectType name '{entity.Name}' is too long. Maximum length is {PGConstants.MaxGameObjectTypeName}.", 
+                VerificationSeverity.Critical, entity.Name));
+        }
         VerifyXRefs(entity, context);
         VerifyModels(entity, context, token);
         VerifyIcons(entity, context);

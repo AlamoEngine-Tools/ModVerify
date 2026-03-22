@@ -20,6 +20,8 @@ public static class VerifierErrorCodes
     public const string Duplicate = "DUP00";
     public const string MissingXRef = "XREF00";
 
+    public const string NameTooLong = "NAME00";
+
     public const string MissingPreset = "SFX00";
 
     public const string SampleNotPCM = "WAV00";

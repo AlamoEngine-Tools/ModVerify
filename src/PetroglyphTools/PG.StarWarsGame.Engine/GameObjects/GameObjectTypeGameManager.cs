@@ -74,4 +74,13 @@ internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, 
             }
         }
     }
+
+    public GameObject? FindObjectType(string? name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return null;
+        var nameCrc = _hashingService.GetCrc32Upper(name, PGConstants.DefaultPGEncoding);
+        NamedEntries.TryGetFirstValue(nameCrc, out var gameObject);
+        return gameObject;
+    }
 }

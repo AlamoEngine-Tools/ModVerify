@@ -1,14 +1,15 @@
-﻿using AET.ModVerify.Settings;
+﻿using AET.ModVerify.Reporting;
+using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
 using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.Audio.Sfx;
 using PG.StarWarsGame.Engine.Localization;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading;
-using PG.StarWarsGame.Engine.Audio.Sfx;
 
 namespace AET.ModVerify.Verifiers.SfxEvents;
 
@@ -45,6 +46,12 @@ public sealed partial class SfxEventVerifier : NamedGameEntityVerifier<SfxEvent>
 
     protected override void VerifyEntity(SfxEvent entity, string[] context, double progress, CancellationToken token)
     {
+        if (entity.Name.Length >= PGConstants.MaxSFXEventName)
+        {
+            AddError(VerificationError.Create(this, VerifierErrorCodes.NameTooLong,
+                $"The SFXEvent name '{entity.Name}' is too long. Maximum length is {PGConstants.MaxSFXEventName}.",
+                VerificationSeverity.Critical, entity.Name));
+        }
         VerifyPresetRef(entity, context);
         VerifySamples(entity, context, token);
     }
