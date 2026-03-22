@@ -10,7 +10,7 @@ public static class VerifierErrorCodes
 
     public const string GenericExceptionErrorCode = "MV00";
 
-    public const string FileCorrupt = "ENG00";
+    public const string BinaryFileCorrupt = "BIN00";
 
 
     public const string FileNotFound = "FILE00";

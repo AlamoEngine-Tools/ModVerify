@@ -30,7 +30,8 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
         if (Settings.AggregateResults)
         {
             errors = result.Errors
-                .OrderBy(x => x.Id)
+                .OrderByDescending(x => x.Severity)
+                .ThenBy(x => x.Id)
                 .GroupBy(x => new GroupKey(x.Asset, x.Id, x.VerifierChain))
                 .Select<IGrouping<GroupKey, VerificationError>, JsonVerificationErrorBase>(g =>
                 {
@@ -45,7 +46,8 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
         else
         {
             errors = result.Errors
-                .OrderBy(x => x.Id)
+                .OrderByDescending(x => x.Severity)
+                .ThenBy(x => x.Id)
                 .Select(x => new JsonVerificationError(x));
         }
 

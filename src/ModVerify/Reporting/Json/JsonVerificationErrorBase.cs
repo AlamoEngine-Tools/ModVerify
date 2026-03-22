@@ -11,12 +11,6 @@ internal abstract class JsonVerificationErrorBase
     [JsonPropertyName("id")]
     public string Id { get; }
 
-    [JsonPropertyName("verifiers")]
-    public IReadOnlyList<string> VerifierChain { get; }
-
-    [JsonPropertyName("message")]
-    public string Message { get; }
-
     [JsonPropertyName("severity")]
     [JsonConverter(typeof(JsonStringEnumConverter<VerificationSeverity>))]
     public VerificationSeverity Severity { get; }
@@ -24,12 +18,17 @@ internal abstract class JsonVerificationErrorBase
     [JsonPropertyName("asset")]
     public string Asset { get; }
 
-    protected JsonVerificationErrorBase(
-        string id,
-        IReadOnlyList<string>? verifierChain,
-        string message,
+    [JsonPropertyName("message")]
+    public string Message { get; }
+
+    [JsonPropertyName("verifiers")]
+    public IReadOnlyList<string> VerifierChain { get; }
+    
+    protected JsonVerificationErrorBase(string id,
         VerificationSeverity severity,
-        string? asset)
+        string? asset,
+        string message,
+        IReadOnlyList<string>? verifierChain)
     {
         Id = id;
         VerifierChain = verifierChain ?? [];

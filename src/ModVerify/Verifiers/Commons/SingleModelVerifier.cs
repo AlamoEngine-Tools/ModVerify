@@ -85,7 +85,7 @@ public sealed class SingleModelVerifier : GameVerifier<string>
             {
                 var aloFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), modelPath.AsSpan()).ToString();
                 var message = $"'{aloFilePath}' is corrupted: {e.Message}";
-                AddError(VerificationError.Create(this, VerifierErrorCodes.FileCorrupt, message,
+                AddError(VerificationError.Create(this, VerifierErrorCodes.BinaryFileCorrupt, message,
                     VerificationSeverity.Critical, contextInfo, aloFilePath));
                 return;
             }
