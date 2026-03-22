@@ -6,6 +6,7 @@ using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using AET.ModVerify.Verifiers.Caching;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
@@ -30,9 +31,30 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
 
     public override void Verify(AudioFileInfo sampleInfo, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
+        var cached = _alreadyVerifiedCache?.GetEntry(sampleInfo.SampleName);
+
+        if (cached?.AlreadyVerified is true)
+        {
+            if (!cached.Value.AssetExists)
+            {
+                AddError(VerificationError.Create(
+                    this,
+                    VerifierErrorCodes.FileNotFound,
+                    $"Audio file '{sampleInfo.SampleName}' could not be found.",
+                    VerificationSeverity.Error,
+                    [.. contextInfo],
+                    sampleInfo.SampleName));
+            }
+            return;
+        }
+
+
         var sampleString = sampleInfo.SampleName;
         
         using var sampleStream = Repository.TryOpenFile(sampleString.AsSpan());
+
+        _alreadyVerifiedCache?.TryAddEntry(sampleInfo.SampleName, sampleStream is not null);
+
         if (sampleStream is null)
         {
             AddError(VerificationError.Create(
@@ -44,9 +66,6 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
                 sampleString));
             return;
         }
-
-        if (!_alreadyVerifiedCache?.TryAddEntry(sampleInfo.SampleName) is false)
-            return;
 
         if (sampleInfo.ExpectedType == AudioFileType.Mp3)
         {

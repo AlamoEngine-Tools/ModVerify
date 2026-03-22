@@ -4,6 +4,7 @@ using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Utilities;
+using AET.ModVerify.Verifiers.Caching;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Files;
@@ -43,36 +44,71 @@ public sealed class SingleModelVerifier : GameVerifier<string>
 
     public override void Verify(string modelName, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
+        var cacheEntry = _cache?.GetEntry(modelName);
+        if (cacheEntry?.AlreadyVerified is true)
+        {
+            if (!cacheEntry.Value.AssetExists)
+            {
+                var error = VerificationError.Create(
+                    this,
+                    VerifierErrorCodes.FileNotFound,
+                    $"Unable to find .ALO file '{modelName}'",
+                    VerificationSeverity.Error,
+                    contextInfo,
+                    modelName);
+                AddError(error);
+            }
+            return;
+        }
 
         var modelPath = BuildModelPath(modelName);
-        VerifyAlamoFile(modelPath, contextInfo, token);
+        VerifyAlamoFile(modelPath, contextInfo, token, out var modelExists);
+
+        if (!modelExists)
+        {
+            var error = VerificationError.Create(
+                this,
+                VerifierErrorCodes.FileNotFound,
+                $"Unable to find .ALO file '{modelName}'",
+                VerificationSeverity.Error,
+                contextInfo,
+                modelName);
+            AddError(error);
+        }
+
+        _cache?.TryAddEntry(modelName, modelExists);
 
         foreach (var textureError in _textureVerifier.VerifyErrors) 
             AddError(textureError);
     }
 
-    private void VerifyAlamoFile(string modelPath, IReadOnlyCollection<string> contextInfo, CancellationToken token)
+    public void VerifyModelOrParticle(
+        IAloFile<IAloDataContent, AloFileInformation> aloFile, 
+        IReadOnlyCollection<string> contextInfo, 
+        CancellationToken token)
+    {
+        switch (aloFile)
+        {
+            case IAloModelFile model:
+                VerifyModel(model, contextInfo, token);
+                break;
+            case IAloParticleFile particle:
+                VerifyParticle(particle, contextInfo);
+                break;
+            default:
+                throw new InvalidOperationException("The data stream is neither a model nor particle.");
+        }
+    }
+
+    private void VerifyAlamoFile(
+        string modelPath,
+        IReadOnlyCollection<string> contextInfo,
+        CancellationToken token,
+        out bool modelExists)
     {
         token.ThrowIfCancellationRequested();
 
-        var modelName = FileSystem.Path.GetFileName(modelPath.AsSpan());
-
-        // We always want to report that a file was not found, so that error reports show all XRefs to the not found model.
-        if (!GameEngine.GameRepository.ModelRepository.FileExists(modelPath))
-        {
-            var modelNameString = modelName.ToString();
-            var error = VerificationError.Create(
-                this,
-                VerifierErrorCodes.FileNotFound,
-                $"Unable to find .ALO file '{modelNameString}'",
-                VerificationSeverity.Error,
-                contextInfo,
-                modelNameString);
-            AddError(error);
-        }
-
-        if (_cache?.TryAddEntry(modelName) is false)
-            return;
+        modelExists = true;
 
         IAloFile<IAloDataContent, AloFileInformation>? aloFile = null;
         try
@@ -90,29 +126,19 @@ public sealed class SingleModelVerifier : GameVerifier<string>
                 return;
             }
 
+            // Because throwsException is true, we know that if aloFile is null,
+            // the file does not exist
             if (aloFile is null)
+            {
+                modelExists = false;
                 return;
+            }
 
             VerifyModelOrParticle(aloFile, contextInfo, token);
         }
         finally
         {
             aloFile?.Dispose();
-        }
-    }
-
-    public void VerifyModelOrParticle(IAloFile<IAloDataContent, AloFileInformation> aloFile, IReadOnlyCollection<string> contextInfo, CancellationToken token)
-    {
-        switch (aloFile)
-        {
-            case IAloModelFile model:
-                VerifyModel(model, contextInfo, token);
-                break;
-            case IAloParticleFile particle:
-                VerifyParticle(particle, contextInfo);
-                break;
-            default:
-                throw new InvalidOperationException("The data stream is neither a model nor particle.");
         }
     }
 
@@ -220,22 +246,21 @@ public sealed class SingleModelVerifier : GameVerifier<string>
         var proxyPath = BuildModelPath(proxyName);
 
         var modelFilePath = FileSystem.Path.GetGameStrippedPath(Repository.Path.AsSpan(), model.FilePath.AsSpan()).ToString();
+        
+        VerifyAlamoFile(proxyPath, [..contextInfo, modelFilePath], token, out var proxyExists);
 
-        if (!Repository.ModelRepository.FileExists(proxyPath))
+        if (!proxyExists)
         {
             var message = $"Proxy particle '{proxyName}' not found for model '{modelFilePath}'";
             var error = VerificationError.Create(
                 this,
                 VerifierErrorCodes.FileNotFound,
-                message, 
-                VerificationSeverity.Error, 
-                [..contextInfo, modelFilePath], 
+                message,
+                VerificationSeverity.Error,
+                [.. contextInfo, modelFilePath],
                 proxyName);
             AddError(error);
-            return;
         }
-        
-        VerifyAlamoFile(proxyPath, [..contextInfo, modelFilePath], token);
     }
 
     private void VerifyShaderExists(IPetroglyphFileHolder model, string shader, IReadOnlyCollection<string> contextInfo)

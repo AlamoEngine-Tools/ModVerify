@@ -1,5 +1,6 @@
 ﻿using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
+using AET.ModVerify.Verifiers.Caching;
 using AET.ModVerify.Verifiers.Commons;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine;
@@ -8,6 +9,7 @@ using PG.StarWarsGame.Files.MTD.Binary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace AET.ModVerify.Verifiers.GuiDialogs;
@@ -84,11 +86,12 @@ sealed class GuiDialogsVerifier : GameVerifier
     private void VerifyGuiComponentTexturesExist(string component)
     {
         var middleButtonInRepoMode = false;
-
-
+        
         var entriesForComponent = GetTextureEntriesForComponents(component, out var defined);
         if (!defined)
             return;
+
+        // TODO: Button Middle needs to be checked first as the engine checks this first
 
         foreach (var componentType in GuiComponentTypes)
         {
@@ -97,7 +100,8 @@ sealed class GuiDialogsVerifier : GameVerifier
                 if (!entriesForComponent.TryGetValue(componentType, out var texture))
                     continue;
 
-                if (_cache?.TryAddEntry(texture.Texture) == false)
+                var cached = _cache?.GetEntry(texture.Texture);
+                if (cached?.AlreadyVerified is true)
                 {
                     // If we are in a special case we don't want to skip
                     if (!middleButtonInRepoMode &&
@@ -107,14 +111,14 @@ sealed class GuiDialogsVerifier : GameVerifier
                         continue;
                 }
 
-                if (!GameEngine.GuiDialogManager.TextureExists(
-                        texture,
-                        out var origin,
-                        out var isNone,
-                        middleButtonInRepoMode)
-                    && !isNone)
+                var exists = GameEngine.GuiDialogManager.TextureExists(
+                    texture,
+                    out var origin,
+                    out var isNone,
+                    middleButtonInRepoMode);
+                
+                if (!exists && !isNone)
                 {
-
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
                         AddError(VerificationError.Create(this, VerifierErrorCodes.FilePathTooLong,
@@ -123,27 +127,36 @@ sealed class GuiDialogsVerifier : GameVerifier
                     }
                     else
                     {
-                        var message = $"Could not find GUI texture '{texture.Texture}' at location '{origin}'.";
-                        
-                        if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
-                            message += " The file name is too long.";
-
-                        AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
-                            message, VerificationSeverity.Error,
-                            [component, origin.ToString()], texture.Texture));
+                        AddNotFoundError(texture, component, origin);
                     }
                 }
 
                 if (componentType is GuiComponentType.ButtonMiddle && origin is GuiTextureOrigin.Repository)
                     middleButtonInRepoMode = true;
+
+                _cache?.TryAddEntry(texture.Texture, exists);
             }
             finally
             {
-
                 if (componentType >= GuiComponentType.ButtonRightDisabled)
                     middleButtonInRepoMode = false;
             }
         }
+    }
+
+    private void AddNotFoundError(ComponentTextureEntry texture, string component, GuiTextureOrigin? origin)
+    {
+        var sb = new StringBuilder($"Could not find GUI texture '{texture.Texture}'");
+        if (origin is not null)
+            sb.Append($" at location '{origin}'");
+        sb.Append('.');
+
+        if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
+            sb.Append(" The file name is too long.");
+
+        AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
+            sb.ToString(), VerificationSeverity.Error,
+            [component, origin.ToString()], texture.Texture));
     }
 
     private IReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> GetTextureEntriesForComponents(string component, out bool defined)
