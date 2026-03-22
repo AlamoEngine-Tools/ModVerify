@@ -90,13 +90,11 @@ internal partial class CommandBarGameManager(
         if (MtdFile is null)
             return false;
 
-        //if (string.IsNullOrEmpty(gameObject.IconName))
-        //    return false;
+        if (string.IsNullOrEmpty(gameObject.IconName))
+            return false;
 
-        //var crc = _hashingService.GetCrc32Upper(gameObject.IconName);
+        var crc = _hashingService.GetCrc32Upper(gameObject.IconName, PGConstants.DefaultPGEncoding);
 
-        //return MtdFile.Content.Contains(crc);
-
-        return false;
+        return MtdFile.Content.Contains(crc);
     }
 }

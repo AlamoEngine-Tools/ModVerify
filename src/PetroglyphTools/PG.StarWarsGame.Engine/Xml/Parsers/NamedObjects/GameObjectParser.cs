@@ -185,11 +185,16 @@ internal partial class GameObjectParser(
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.DamagedSmokeAssetModel = val);
 
-
+            
             AddMapping(
                 GameObjectXmlTags.GuiModelName,
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.GuiModel = val);
+
+            AddMapping(
+                GameObjectXmlTags.IconName,
+                PetroglyphXmlStringParser.Instance.Parse,
+                (obj, val) => obj.IconName = val);
 
             AddMapping(
                 GameObjectXmlTags.VariantOfExistingType,
@@ -215,5 +220,7 @@ internal partial class GameObjectParser(
         public const string DamagedSmokeAssetName = "Damaged_Smoke_Asset_Name";
 
         public const string VariantOfExistingType = "Variant_Of_Existing_Type";
+
+        public const string IconName = "Icon_Name";
     }
 }

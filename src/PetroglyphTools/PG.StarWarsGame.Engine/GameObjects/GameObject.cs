@@ -47,7 +47,8 @@ public sealed class GameObject : NamedXmlObject
     public string? DamagedSmokeAssetModel { get; internal set; }
 
     public IReadOnlyList<(string terrain, string model)> LandTerrainModelMappingValues { get; }
-    
+    public string? IconName { get; internal set; }
+
     internal GameObject(
         string name,
         string classification,
@@ -69,6 +70,7 @@ public sealed class GameObject : NamedXmlObject
         // The following properties must not be inherited from the base type:
         // ID, CRC, Name, Location, IsLoadingComplete, ClassificationName and VariantOfExistingType[Name], LuaScript
 
+        // TODO
         GalacticModel = baseType.GalacticModel;
         DestroyedGalacticModel = baseType.DestroyedGalacticModel;
         LandModel = baseType.LandModel;
@@ -80,6 +82,8 @@ public sealed class GameObject : NamedXmlObject
         SpaceAnimOverrideModel = baseType.SpaceAnimOverrideModel;
         DamagedSmokeAssetModel = baseType.DamagedSmokeAssetModel;
         InternalLandTerrainModelMapping.ClearAddRange(baseType.InternalLandTerrainModelMapping);
+
+        IconName = baseType.IconName;
     }
 
     internal void PostLoadFixup()

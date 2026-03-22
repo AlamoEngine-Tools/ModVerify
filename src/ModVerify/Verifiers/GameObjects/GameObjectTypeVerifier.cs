@@ -31,6 +31,7 @@ public sealed partial class GameObjectTypeVerifier : NamedGameEntityVerifier<Gam
     {
         VerifyXRefs(entity, context);
         VerifyModels(entity, context, token);
+        VerifyIcons(entity, context);
     }
 
     protected override void PostEntityVerify(CancellationToken token)
