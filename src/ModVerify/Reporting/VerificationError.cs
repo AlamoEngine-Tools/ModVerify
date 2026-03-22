@@ -122,8 +122,11 @@ public sealed class VerificationError : IEquatable<VerificationError>
                $"{Id}: Message={Message}; Asset='{Asset}'; Context=[{string.Join(",", ContextEntries)}];";
     }
 
-    private static IReadOnlyList<IGameVerifierInfo> RestoreVerifierChain(IReadOnlyList<string> errorVerifierChain)
+    private static IReadOnlyList<IGameVerifierInfo> RestoreVerifierChain(IReadOnlyList<string>? errorVerifierChain)
     {
+        if (errorVerifierChain is null)
+            return [];
+
         var verifierChain = new List<IGameVerifierInfo>();
         IGameVerifierInfo? previousVerifier = null;
 

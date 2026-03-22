@@ -22,7 +22,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Schemas\2.1\baseline.json" />
+	  <EmbeddedResource Include="Resources\Schemas\2.2\baseline.json" />
 	</ItemGroup>
 
 	<ItemGroup>

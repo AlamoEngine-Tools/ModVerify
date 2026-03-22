@@ -3,4 +3,5 @@
 public record ReporterSettings
 {
     public VerificationSeverity MinimumReportSeverity { get; init; } = VerificationSeverity.Information;
+    public bool Verbose { get; init; }
 }

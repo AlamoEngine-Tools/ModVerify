@@ -22,7 +22,8 @@ internal class JsonVerificationError : JsonVerificationErrorBase
         ContextEntries = contextEntries;
     }
 
-    public JsonVerificationError(VerificationError error) : base(error)
+    public JsonVerificationError(VerificationError error, bool verbose = false) 
+        : base(error, verbose)
     {
         ContextEntries = error.ContextEntries.Any() ? error.ContextEntries : [];
     }

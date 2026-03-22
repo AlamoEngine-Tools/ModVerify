@@ -37,10 +37,9 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
                 {
                     var first = g.First();
                     var contexts = g.Select(x => x.ContextEntries).ToList();
-
                     if (contexts.Count == 1)
-                        return new JsonVerificationError(first);
-                    return new JsonAggregatedVerificationError(first, contexts);
+                        return new JsonVerificationError(first, Settings.Verbose);
+                    return new JsonAggregatedVerificationError(first, contexts, Settings.Verbose);
                 });
         }
         else
@@ -48,7 +47,7 @@ internal class JsonReporter(JsonReporterSettings settings, IServiceProvider serv
             errors = result.Errors
                 .OrderByDescending(x => x.Severity)
                 .ThenBy(x => x.Id)
-                .Select(x => new JsonVerificationError(x));
+                .Select(x => new JsonVerificationError(x, Settings.Verbose));
         }
 
         return new JsonVerificationReport

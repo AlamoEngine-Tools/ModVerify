@@ -23,7 +23,9 @@ internal class JsonAggregatedVerificationError : JsonVerificationErrorBase
 
     public JsonAggregatedVerificationError(
         VerificationError error,
-        IEnumerable<IEnumerable<string>> contexts) : base(error)
+        IEnumerable<IEnumerable<string>> contexts,
+        bool verbose = false) 
+        : base(error, verbose)
     {
         Contexts = contexts;
     }

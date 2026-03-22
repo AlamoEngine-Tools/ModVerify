@@ -13,7 +13,7 @@ namespace AET.ModVerify.Reporting.Baseline;
 
 public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError>
 {
-    public static readonly Version LatestVersion = new(2, 1);
+    public static readonly Version LatestVersion = new(2, 2);
     public static readonly string LatestVersionString = LatestVersion.ToString(2);
 
     public static readonly VerificationBaseline Empty = new(VerificationSeverity.Information, [], null);
@@ -61,7 +61,6 @@ public sealed class VerificationBaseline : IReadOnlyCollection<VerificationError
     {
         JsonSerializer.Serialize(stream, new JsonVerificationBaseline(this), ModVerifyJsonSettings.JsonSettings);
     }
-
     public Task ToJsonAsync(Stream stream)
     {
         return JsonSerializer.SerializeAsync(stream, new JsonVerificationBaseline(this), ModVerifyJsonSettings.JsonSettings);

@@ -1,5 +1,5 @@
 {
-  "$id": "https://AlamoEngine-Tools.github.io/schemas/mod-verify/2.1/baseline",
+  "$id": "https://AlamoEngine-Tools.github.io/schemas/mod-verify/2.2/baseline",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Represents a baseline for AET ModVerify",
   "type": "object",
@@ -73,12 +73,6 @@
         "severity": {
           "$ref": "#/$defs/severity"
         },
-        "verifiers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "context": {
           "type": "array",
           "items": {
@@ -91,7 +85,6 @@
         "message",
         "asset",
         "severity",
-        "verifiers",
         "context"
       ],
       "additionalProperties": false
@@ -99,7 +92,7 @@
   },
   "properties": {
     "version": {
-      "const": "2.1"
+      "const": "2.2"
     },
     "minSeverity": {
       "$ref": "#/$defs/severity"

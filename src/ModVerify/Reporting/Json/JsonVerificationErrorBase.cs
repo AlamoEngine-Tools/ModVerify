@@ -22,7 +22,8 @@ internal abstract class JsonVerificationErrorBase
     public string Message { get; }
 
     [JsonPropertyName("verifiers")]
-    public IReadOnlyList<string> VerifierChain { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<string>? VerifierChain { get; }
     
     protected JsonVerificationErrorBase(string id,
         VerificationSeverity severity,
@@ -31,16 +32,15 @@ internal abstract class JsonVerificationErrorBase
         IReadOnlyList<string>? verifierChain)
     {
         Id = id;
-        VerifierChain = verifierChain ?? [];
+        VerifierChain = verifierChain;
         Message = message;
         Severity = severity;
         Asset = asset ?? string.Empty;
     }
-
-    protected JsonVerificationErrorBase(VerificationError error)
+    protected JsonVerificationErrorBase(VerificationError error, bool verbose = false)
     {
         Id = error.Id;
-        VerifierChain = error.VerifierChain.Select(x => x.Name).ToList();
+        VerifierChain = verbose ? error.VerifierChain.Select(x => x.Name).ToList() : null;
         Message = error.Message;
         Severity = error.Severity;
         Asset = error.Asset;

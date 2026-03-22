@@ -73,6 +73,7 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
 
         reporters.Add(IVerificationReporter.CreateConsole(new ConsoleReporterSettings
         {
+            Verbose = Settings.ReportSettings.Verbose,
             MinimumReportSeverity = Settings.VerifierServiceSettings.FailFastSettings.IsFailFast
                 ? VerificationSeverity.Information
                 : VerificationSeverity.Error
@@ -83,11 +84,13 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
         {
             OutputDirectory = outputDirectory,
             MinimumReportSeverity = Settings.ReportSettings.MinimumReportSeverity,
-            AggregateResults = true
+            AggregateResults = true,
+            Verbose = Settings.ReportSettings.Verbose
         }, ServiceProvider));
 
         reporters.Add(IVerificationReporter.CreateText(new TextFileReporterSettings
         {
+            Verbose = Settings.ReportSettings.Verbose,
             OutputDirectory = outputDirectory!,
             MinimumReportSeverity = Settings.ReportSettings.MinimumReportSeverity
         }, ServiceProvider));
