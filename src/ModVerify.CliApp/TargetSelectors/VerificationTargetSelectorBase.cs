@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Runtime.InteropServices;
 using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Settings;
 using Microsoft.Extensions.DependencyInjection;

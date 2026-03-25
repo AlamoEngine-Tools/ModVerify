@@ -1,6 +1,6 @@
 ﻿using AET.ModVerify.App.Resources.Baselines;
 using AET.ModVerify.App.Settings;
-using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
 using AnakinRaW.ApplicationBase;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

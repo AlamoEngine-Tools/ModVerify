@@ -15,7 +15,10 @@ internal class FontManager : GameManagerBase, IFontManager
 
     private ISet<string> _fontNames = null!;
 
-    public FontManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) 
+    public FontManager(
+        GameRepository repository, 
+        GameEngineErrorReporterWrapper errorReporter, 
+        IServiceProvider serviceProvider) 
         : base(repository, errorReporter, serviceProvider)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -24,7 +27,14 @@ internal class FontManager : GameManagerBase, IFontManager
             _fontManager = new NetFontManager();
     }
 
-    public IReadOnlyCollection<string> FontNames => [.._fontNames];
+    public IReadOnlyCollection<string> FontNames
+    {
+        get
+        {
+            ThrowIfNotInitialized();
+            return [.._fontNames];
+        }
+    }
 
     public FontData? CreateFont(string fontName, int size, bool bold, bool italic, bool staticSize, float stretchFactor)
     {

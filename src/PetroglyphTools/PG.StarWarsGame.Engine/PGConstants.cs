@@ -15,8 +15,11 @@ public static class PGConstants
     public const int MaxSFXEventDatabaseFileName = 259;
     public const int MaxSFXEventName = 255;
     public const int MaxGameObjectDatabaseFileName = 127;
-    public const int MaxCommandBarDatabaseFileName = 259;
+    public const int MaxCommandBarDatabaseFileName = 271;
     public const int MaxCommandBarComponentName = 255;
+    // The actual engine's buffer size that holds name.
+    public const int MaxCommandBarComponentNameBuffer = 263;
+    public const int MaxGameObjectTypeName = 127;
 
     public const int MaxGuiDialogMegaTextureFileName = 255;
     

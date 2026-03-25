@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AET.ModVerify.Reporting.Settings;
 
 namespace AET.ModVerify.Reporting.Reporters;
 
@@ -12,7 +11,7 @@ public abstract class ReporterBase<T>(T settings, IServiceProvider serviceProvid
 
     protected T Settings { get; } = settings ?? throw new ArgumentNullException(nameof(settings));
 
-    public abstract Task ReportAsync(IReadOnlyCollection<VerificationError> errors);
+    public abstract Task ReportAsync(VerificationResult verificationResult);
 
     protected IEnumerable<VerificationError> FilteredErrors(IReadOnlyCollection<VerificationError> errors)
     {

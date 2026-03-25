@@ -5,14 +5,14 @@
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AET.ModVerify.App</RootNamespace>
 		<AssemblyName>ModVerify</AssemblyName>
-		<ApplicationIcon>$(RepoRootPath)aet.ico</ApplicationIcon>
+		<ApplicationIcon>Resources/aet.ico</ApplicationIcon>
 		<PackageId>AlamoEngineTools.ModVerify.CliApp</PackageId>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Title>ModVerify Console Application</Title>
 		<Product>AET.ModVerify</Product>
-		<Description>Console application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
+		<Description>An application that analyzes game modifications for Empire at War / Forces of Corruption for common errors.</Description>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 
@@ -26,26 +26,22 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Baselines\baseline-foc.json" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Baselines\baseline-foc.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="5.0.1" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="5.0.1" />
-		<PackageReference Include="Figgle" Version="0.6.5" />
-		<PackageReference Include="Figgle.Generator" Version="0.6.5" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="5.0.7" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="5.0.7" />
+		<PackageReference Include="Figgle" Version="0.6.6" />
+		<PackageReference Include="Figgle.Generator" Version="0.6.6" />
 		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="5.0.1" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="5.0.7" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
@@ -66,15 +62,15 @@
 
 	<!-- Exclude System.Index from all dependencies, excluding Microsoft.Bcl.Memory -->
 	<ItemGroup>
-		<PackageReference Include="Vanara.Core" Version="5.0.0" Condition="'$(TargetFramework)' == 'net481'">
+		<PackageReference Include="Vanara.Core" Version="5.0.1" Condition="'$(TargetFramework)' == 'net481'">
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="IndexRange" Version="1.0.3" Condition="'$(TargetFramework)' == 'net481'">
+		<PackageReference Include="IndexRange" Version="1.1.0" Condition="'$(TargetFramework)' == 'net481'">
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.3" Condition="'$(TargetFramework)' == 'net481'" />
+		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.5" Condition="'$(TargetFramework)' == 'net481'" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -84,10 +80,6 @@
 	  <ProjectReference Include="..\..\modules\ModdingToolBase\src\Updater\AppUpdaterFramework\AppUpdaterFramework.csproj" />
 	  <ProjectReference Include="..\..\modules\ModdingToolBase\src\Updater\ExternalUpdater.App\ExternalUpdater.App.csproj" Condition="$(TargetFramework) == 'net481'" />
 	  <ProjectReference Include="..\ModVerify\ModVerify.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.103" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">

@@ -7,8 +7,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using AET.ModVerify.Pipeline.Progress;
+using AET.ModVerify.Progress;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using PG.StarWarsGame.Engine;
+using AET.ModVerify.Verifiers.Utilities;
 
 namespace AET.ModVerify.Verifiers;
 
@@ -22,6 +25,7 @@ public abstract class GameVerifierBase : IGameVerifierInfo
     protected readonly IFileSystem FileSystem;
     protected readonly IServiceProvider Services;
     protected readonly GameVerifySettings Settings;
+    protected readonly ILogger Logger;
 
     public IReadOnlyCollection<VerificationError> VerifyErrors => [.. _verifyErrors.Keys];
 
@@ -35,7 +39,23 @@ public abstract class GameVerifierBase : IGameVerifierInfo
 
     protected IGameRepository Repository => GameEngine.GameRepository;
 
-    protected IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
+    public IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
+
+
+    protected GameVerifierBase(GameVerifierBase parent) 
+        : this(parent, parent.GameEngine, parent.Settings, parent.Services)
+    {
+        if (parent == null)
+            throw new ArgumentNullException(nameof(parent));
+    }
+
+    protected GameVerifierBase(
+        IStarWarsGameEngine gameEngine,
+        GameVerifySettings settings,
+        IServiceProvider serviceProvider)
+    : this (null, gameEngine, settings, serviceProvider)
+    {
+    }
 
     protected GameVerifierBase(
         IGameVerifierInfo? parent,
@@ -45,12 +65,13 @@ public abstract class GameVerifierBase : IGameVerifierInfo
     {
         if (serviceProvider == null) 
             throw new ArgumentNullException(nameof(serviceProvider));
+        Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType()) ?? NullLogger.Instance;
         FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         Parent = parent;
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         GameEngine = gameEngine ?? throw new ArgumentNullException(nameof(gameEngine));
-        VerifierChain = CreateVerifierChain();
+        VerifierChain = this.GetVerifierChain();
     }
 
     protected void AddError(VerificationError error)
@@ -79,19 +100,5 @@ public abstract class GameVerifierBase : IGameVerifierInfo
     protected void OnProgress(double progress, string? message)
     {
         Progress?.Invoke(this, new(progress, message));
-    }
-
-    private IReadOnlyList<IGameVerifierInfo> CreateVerifierChain()
-    {
-        var verifierChain = new List<IGameVerifierInfo> { this };
-
-        var parent = Parent;
-        while (parent != null)
-        {
-            verifierChain.Insert(0, parent);
-            parent = parent.Parent;
-        }
-
-        return verifierChain;
     }
 }

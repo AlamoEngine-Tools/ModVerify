@@ -1,43 +1,47 @@
-﻿using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Utilities;
+﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
+using System;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public sealed class PetroglyphXmlIntegerParser : PetroglyphPrimitiveXmlParser<int>
+public sealed class PetroglyphXmlIntegerParser : PetroglyphNumberParser<int>
 {
     public static readonly PetroglyphXmlIntegerParser Instance = new();
 
     private protected override int DefaultValue => 0;
 
+    internal override int EngineDataTypeId => 0x6;
+
+#if !NET7_0_OR_GREATER
+    protected override int MaxValue => int.MaxValue;
+
+    protected override int MinValue => int.MinValue;
+#endif
+
     private PetroglyphXmlIntegerParser()
     {
     }
 
-    protected internal override int ParseCore(string trimmedValue, XElement element)
+    protected internal override int ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         // The engines uses the C++ function std::atoi which is a little more loose.
         // For example the value '123d' get parsed to 123,
         // whereas in C# int.TryParse returns (false, 0)
-        if (!int.TryParse(trimmedValue, out var i))
+        if (!int.TryParse(trimmedValue
+#if NETSTANDARD2_0
+                    .ToString()
+#endif
+
+                , out var i))
         {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.MalformedValue,
-                $"Expected integer but got '{trimmedValue}'."));
-            return 0;
+            ErrorReporter?.Report(new XmlError(this, element)
+            {
+                ErrorKind = XmlParseErrorKind.MalformedValue,
+                Message = $"Expected integer but got '{trimmedValue.ToString()}'.",
+            });
+            return DefaultValue;
         }
 
         return i;
-    }
-
-    public int ParseWithRange(XElement element, int minValue, int maxValue)
-    {
-        var value = Parse(element);
-        var clamped =  PGMath.Clamp(value, minValue, maxValue);
-        if (value != clamped)
-        {
-            OnParseError(new XmlParseErrorEventArgs(element, XmlParseErrorKind.InvalidValue,
-                $"Expected integer between {minValue} and {maxValue} but got value '{value}'."));
-        }
-        return clamped;
     }
 }

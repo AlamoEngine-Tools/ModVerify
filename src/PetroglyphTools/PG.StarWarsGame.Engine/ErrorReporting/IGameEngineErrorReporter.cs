@@ -1,9 +1,9 @@
-﻿namespace PG.StarWarsGame.Engine.ErrorReporting;
+﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
 
-public interface IGameEngineErrorReporter
+namespace PG.StarWarsGame.Engine.ErrorReporting;
+
+public interface IGameEngineErrorReporter : IXmlParserErrorReporter
 {
-    void Report(XmlError error);
-
     void Report(InitializationError error);
 
     void Assert(EngineAssert assert);

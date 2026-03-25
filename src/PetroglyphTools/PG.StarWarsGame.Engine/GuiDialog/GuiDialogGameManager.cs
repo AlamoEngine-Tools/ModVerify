@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
@@ -13,21 +14,33 @@ using PG.StarWarsGame.Files.MTD.Services;
 
 namespace PG.StarWarsGame.Engine.GuiDialog;
 
-internal partial class GuiDialogGameManager(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal partial class GuiDialogGameManager(
+    GameRepository repository, 
+    GameEngineErrorReporterWrapper errorReporter,
+    IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGuiDialogManager
 {
     private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
-    // Unlike other strings for this game, the component's (aka gadget) name is case-sensitive. 
-    private readonly Dictionary<string, Dictionary<GuiComponentType, ComponentTextureEntry>> _perComponentTextures = new(StringComparer.Ordinal);
-    private readonly Dictionary<GuiComponentType, ComponentTextureEntry> _defaultTextures = new();
-    private ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> _defaultTexturesRo = null!;
-
     private bool _megaTextureExists;
     private string? _megaTextureFileName;
 
-
+    [field: MaybeNull, AllowNull]
+    private ReadOnlyDictionary<string, IReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>> PerComponentTextures
+    {
+        get
+        {
+            ThrowIfNotInitialized();
+            return field!;
+        }
+        set
+        {
+            ThrowIfAlreadyInitialized();
+            field = value;
+        }
+    }
+    
     public IMtdFile? MtdFile
     {
         get
@@ -61,7 +74,7 @@ internal partial class GuiDialogGameManager(GameRepository repository, GameEngin
         get
         {
             ThrowIfNotInitialized();
-            return _perComponentTextures.Keys;
+            return PerComponentTextures.Keys!;
         }
     }
 
@@ -70,14 +83,19 @@ internal partial class GuiDialogGameManager(GameRepository repository, GameEngin
         get
         {
             ThrowIfNotInitialized();
-            return _defaultTexturesRo;
+            return field!;
+        }
+        internal set
+        {
+            ThrowIfAlreadyInitialized();
+            field = value;
         }
     }
     
 
     public IReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> GetTextureEntries(string component, out bool componentExist)
     {
-        if (!_perComponentTextures.TryGetValue(component, out var textures))
+        if (!PerComponentTextures.TryGetValue(component, out var textures))
         {
             Logger?.LogDebug("The component '{Component}' has no overrides. Using default textures.", component);
             componentExist = false;
@@ -85,15 +103,15 @@ internal partial class GuiDialogGameManager(GameRepository repository, GameEngin
         }
 
         componentExist = true;
-        return new ReadOnlyDictionary<GuiComponentType, ComponentTextureEntry>(textures);
+        return textures;
     }
     
     public bool TryGetTextureEntry(string component, GuiComponentType key, out ComponentTextureEntry texture)
     {
-        if (!_perComponentTextures.TryGetValue(component, out var textures))
+        if (!PerComponentTextures.TryGetValue(component, out var textures))
         {
             Logger?.LogDebug("The component '{Component}' has no overrides. Using default textures.", component);
-            textures = _defaultTextures;
+            textures = DefaultTextureEntries;
         }
 
         return textures.TryGetValue(key, out texture);

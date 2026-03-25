@@ -12,7 +12,7 @@ public static class PetroglyphEngineServiceContribution
         // Singletons
         serviceCollection.AddSingleton<IGameRepositoryFactory>(sp => new GameRepositoryFactory(sp));
         serviceCollection.AddSingleton<IGameLanguageManagerProvider>(sp => new GameLanguageManagerProvider(sp));
-        serviceCollection.AddSingleton<IPetroglyphXmlFileParserFactory>(sp => new PetroglyphXmlFileParserFactory(sp));
+        serviceCollection.AddSingleton<IPetroglyphXmlFileParserFactory>(sp => new XmlObjectParserFactory(sp));
         
         serviceCollection.AddSingleton<IPetroglyphStarWarsGameEngineService>(sp => new PetroglyphStarWarsGameEngineService(sp));
     }

@@ -2,11 +2,6 @@
 using AET.ModVerify.App.Settings.CommandLine;
 using AET.ModVerify.App.Updates;
 using AET.ModVerify.App.Utilities;
-using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Reporters;
-using AET.ModVerify.Reporting.Reporters.JSON;
-using AET.ModVerify.Reporting.Reporters.Text;
-using AET.ModVerify.Reporting.Settings;
 using AET.SteamAbstraction;
 using AnakinRaW.ApplicationBase;
 using AnakinRaW.ApplicationBase.Environment;
@@ -20,7 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons;
 using PG.StarWarsGame.Engine;
-using PG.StarWarsGame.Engine.Xml.Parsers;
 using PG.StarWarsGame.Files.ALO;
 using PG.StarWarsGame.Files.MEG;
 using PG.StarWarsGame.Files.MTD;
@@ -36,11 +30,11 @@ using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AET.ModVerify.App.Reporting;
+using PG.StarWarsGame.Engine.Xml;
 using Testably.Abstractions;
 using ILogger = Serilog.ILogger;
 
@@ -57,8 +51,8 @@ internal class MainClass
 
 internal class Program : SelfUpdateableAppLifecycle
 {
-    private static readonly string EngineParserNamespace = typeof(XmlObjectParser<>).Namespace!;
-    private static readonly string ParserNamespace = typeof(PetroglyphXmlFileParser<>).Namespace!;
+    private static readonly string EngineParserNamespace = typeof(PetroglyphStarWarsGameXmlParser).Namespace!;
+    private static readonly string ParserNamespace = typeof(XmlFileParser<>).Namespace!;
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
     private static readonly CompiledExpression PrintToConsoleExpression = SerilogExpression.Compile($"EventId.Id = {ModVerifyConstants.ConsoleEventIdValue}");
 
@@ -157,11 +151,10 @@ internal class Program : SelfUpdateableAppLifecycle
         PetroglyphCommons.ContributeServices(services);
 
         PetroglyphEngineServiceContribution.ContributeServices(services);
+        services.AddModVerify();
         services.RegisterVerifierCache();
 
         services.AddSingleton<IBaselineFactory>(sp => new BaselineFactory(sp));
-        
-        SetupVerifyReporting(services);
 
         if (_offlineMode)
         {
@@ -198,37 +191,6 @@ internal class Program : SelfUpdateableAppLifecycle
         if (result != 0 || _modVerifyAppSettings is null)
             return result;
         return await new ModVerifyApplication(_modVerifyAppSettings, appServiceProvider).RunAsync().ConfigureAwait(false);
-    }
-
-    private void SetupVerifyReporting(IServiceCollection serviceCollection)
-    {
-        Debug.Assert(_modVerifyAppSettings is not null);
-
-        var verifySettings = _modVerifyAppSettings as AppVerifySettings;
-
-        // Console should be in minimal summary mode if we are in a different mode than verify.
-        serviceCollection.RegisterConsoleReporter(new ReporterSettings
-        {
-            MinimumReportSeverity = verifySettings?.VerifyPipelineSettings.FailFastSettings.IsFailFast is true
-                ? VerificationSeverity.Information 
-                : VerificationSeverity.Error
-        }, summaryOnly: verifySettings is null);
-
-        if (verifySettings == null)
-            return;
-
-        var outputDirectory = verifySettings.ReportDirectory;
-        serviceCollection.RegisterJsonReporter(new JsonReporterSettings
-        {
-            OutputDirectory = outputDirectory!,
-            MinimumReportSeverity = _modVerifyAppSettings.ReportSettings.MinimumReportSeverity
-        });
-
-        serviceCollection.RegisterTextFileReporter(new TextFileReporterSettings
-        {
-            OutputDirectory = outputDirectory!,
-            MinimumReportSeverity = _modVerifyAppSettings.ReportSettings.MinimumReportSeverity
-        });
     }
 
     private void ConfigureLogging(ILoggingBuilder loggingBuilder)

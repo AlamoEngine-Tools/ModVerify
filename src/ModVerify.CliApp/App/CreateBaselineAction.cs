@@ -2,10 +2,10 @@
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 
@@ -26,16 +26,14 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
         Console.WriteLine();
     }
 
-    protected override async Task<int> ProcessVerifyFindings(
-        VerificationTarget verificationTarget, 
-        IReadOnlyCollection<VerificationError> allErrors)
+    protected override async Task<int> ProcessResult(VerificationResult result)
     {
         var baselineFactory = ServiceProvider.GetRequiredService<IBaselineFactory>();
-        var baseline = baselineFactory.CreateBaseline(verificationTarget, Settings, allErrors);
+        var baseline = baselineFactory.CreateBaseline(result.Target, Settings, result.Errors);
 
         var fullPath = _fileSystem.Path.GetFullPath(Settings.NewBaselinePath);
         Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-            "Writing Baseline to '{FullPath}' with {Number} findings", fullPath, allErrors.Count);
+            "Writing Baseline to '{FullPath}' with {Number} findings", fullPath, result.Errors.Count);
 
         await baselineFactory.WriteBaselineAsync(baseline, Settings.NewBaselinePath);
 
@@ -43,7 +41,7 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
 
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine($"Baseline for {verificationTarget.Name} created.");
+        Console.WriteLine($"Baseline for {result.Target.Name} created.");
         Console.ResetColor();
 
         return ModVerifyConstants.Success;

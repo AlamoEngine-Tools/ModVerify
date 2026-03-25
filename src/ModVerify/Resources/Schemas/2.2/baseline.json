@@ -1,0 +1,117 @@
+{
+  "$id": "https://AlamoEngine-Tools.github.io/schemas/mod-verify/2.2/baseline",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Represents a baseline for AET ModVerify",
+  "type": "object",
+  "$defs": {
+    "location": {
+      "type": "object",
+      "properties": {
+        "modPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gamePath": {
+          "type": "string"
+        },
+        "fallbackPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "modPaths",
+        "gamePath",
+        "fallbackPaths"
+      ],
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "engine": {
+          "enum": [ "Eaw", "Foc" ]
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        },
+        "isGame": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "engine"
+      ],
+      "additionalProperties": false
+    },
+    "severity": {
+      "enum": [ "Information", "Warning", "Error", "Critical" ]
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/severity"
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "message",
+        "asset",
+        "severity",
+        "context"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "version": {
+      "const": "2.2"
+    },
+    "minSeverity": {
+      "$ref": "#/$defs/severity"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/error"
+      },
+      "additionalItems": false
+    },
+    "target": {
+      "$ref": "#/$defs/target"
+    }
+  },
+  "required": [
+    "version",
+    "minSeverity",
+    "errors"
+  ],
+  "additionalProperties": false
+}

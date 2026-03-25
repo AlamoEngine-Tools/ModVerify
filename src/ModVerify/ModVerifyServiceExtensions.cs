@@ -1,12 +1,20 @@
-﻿using AET.ModVerify.Verifiers;
+﻿using AET.ModVerify.Verifiers.Caching;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify;
 
 public static class ModVerifyServiceExtensions
 {
-    public static IServiceCollection RegisterVerifierCache(this IServiceCollection serviceCollection)
+    extension(IServiceCollection serviceCollection)
     {
-        return serviceCollection.AddSingleton<IAlreadyVerifiedCache>(sp => new AlreadyVerifiedCache(sp));
+        public IServiceCollection AddModVerify()
+        {
+            return serviceCollection.AddSingleton<IGameVerifierService>(sp => new GameVerifierService(sp));
+        }
+
+        public IServiceCollection RegisterVerifierCache()
+        {
+            return serviceCollection.AddSingleton<IAlreadyVerifiedCache>(new AlreadyVerifiedCache());
+        }
     }
 }

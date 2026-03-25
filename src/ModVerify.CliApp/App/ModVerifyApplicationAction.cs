@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.TargetSelectors;
-using AET.ModVerify.Pipeline;
 using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Baseline;
+using AET.ModVerify.Reporting.Suppressions;
 using AnakinRaW.ApplicationBase;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -71,43 +71,55 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
         
         PrintAction(verificationTarget);
 
-        var allErrors = await VerifyTargetAsync(verificationTarget)
+        var verificationResult = await VerifyTargetAsync(verificationTarget)
             .ConfigureAwait(false);
 
-        return await ProcessVerifyFindings(verificationTarget, allErrors);
+        return await ProcessResult(verificationResult);
     }
 
-    protected abstract Task<int> ProcessVerifyFindings(
-        VerificationTarget verificationTarget, 
-        IReadOnlyCollection<VerificationError> allErrors);
+    protected abstract Task<int> ProcessResult(VerificationResult result);
     
     protected abstract VerificationBaseline GetBaseline(VerificationTarget verificationTarget);
 
-    private async Task<IReadOnlyCollection<VerificationError>> VerifyTargetAsync(VerificationTarget verificationTarget)
+    private async Task<VerificationResult> VerifyTargetAsync(VerificationTarget verificationTarget)
     {
         var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name, Settings.ReportSettings);
 
         var baseline = GetBaseline(verificationTarget);
         var suppressions = GetSuppressions();
 
-        using var verifyPipeline = new GameVerifyPipeline(
-            verificationTarget,
-            Settings.VerifyPipelineSettings,
-            progressReporter,
-            new EngineInitializeProgressReporter(verificationTarget.Engine),
-            baseline,
-            suppressions,
-            ServiceProvider);
-
         try
         {
+            var verifierService = ServiceProvider.GetRequiredService<IGameVerifierService>();
+            
             Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{Target}'...", verificationTarget.Name);
-            await verifyPipeline.RunAsync().ConfigureAwait(false);
+            
+            var verificationResult = await verifierService.VerifyAsync(
+                verificationTarget, 
+                Settings.VerifierServiceSettings,
+                baseline, 
+                suppressions,
+                progressReporter, 
+                new EngineInitializeProgressReporter(verificationTarget.Engine));
+
             progressReporter.Report(string.Empty, 1.0);
-        }
-        catch (OperationCanceledException)
-        {
-            Logger?.LogWarning(ModVerifyConstants.ConsoleEventId, "Verification stopped due to enabled failFast setting.");
+
+            switch (verificationResult.Status)
+            {
+                case VerificationCompletionStatus.CompletedFailFast:
+                    Logger?.LogWarning(ModVerifyConstants.ConsoleEventId, "Verification stopped due to enabled failFast setting.");
+                    break;
+                case VerificationCompletionStatus.Cancelled:
+                    Logger?.LogWarning(ModVerifyConstants.ConsoleEventId, "Verification was cancelled.");
+                    break;
+                case VerificationCompletionStatus.Completed:
+                default:
+                    Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verification completed successfully.");
+                    break;
+            }
+
+            return verificationResult;
+
         }
         catch (Exception e)
         {
@@ -119,9 +131,6 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
         {
             progressReporter.Dispose();
         }
-
-        Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Finished verification");
-        return verifyPipeline.FilteredErrors;
     }
 
     private SuppressionList GetSuppressions()

@@ -7,4 +7,5 @@ public enum EngineAssertKind
     InvalidValue,
     CorruptBinary,
     FileNotFound,
+    DuplicateEntry
 }

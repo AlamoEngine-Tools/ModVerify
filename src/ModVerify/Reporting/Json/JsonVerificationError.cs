@@ -1,53 +1,30 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace AET.ModVerify.Reporting.Json;
 
-internal class JsonVerificationError
+internal class JsonVerificationError : JsonVerificationErrorBase
 {
-    [JsonPropertyName("id")]
-    public string Id { get; }
-
-    [JsonPropertyName("verifiers")]
-    public IReadOnlyList<string> VerifierChain { get; }
-
-    [JsonPropertyName("message")]
-    public string Message { get; }
-
-    [JsonPropertyName("severity")]
-    [JsonConverter(typeof(JsonStringEnumConverter<VerificationSeverity>))]
-    public VerificationSeverity Severity { get; }
-
     [JsonPropertyName("context")]
+    [JsonPropertyOrder(99)]
     public IEnumerable<string> ContextEntries { get; }
 
-    [JsonPropertyName("asset")]
-    public string Asset { get; }
-
     [JsonConstructor]
-    private JsonVerificationError(
-        string id, 
-        IReadOnlyList<string>? verifierChain, 
+    public JsonVerificationError(
+        string id,
+        VerificationSeverity severity,
+        string? asset,
         string message,
-        VerificationSeverity severity, 
-        IEnumerable<string>? contextEntries, 
-        string? asset)
+        IReadOnlyList<string>? verifierChain,
+        IEnumerable<string> contextEntries) : base(id, severity, asset, message, verifierChain)
     {
-        Id = id;
-        VerifierChain = verifierChain ?? [];
-        Message = message;
-        Severity = severity;
-        ContextEntries = contextEntries ?? [];
-        Asset = asset ?? string.Empty;
+        ContextEntries = contextEntries;
     }
 
-    public JsonVerificationError(VerificationError error)
+    public JsonVerificationError(VerificationError error, bool verbose = false) 
+        : base(error, verbose)
     {
-        Id = error.Id;
-        VerifierChain = error.VerifierChain;
-        Message = error.Message;
-        Severity = error.Severity;
-        ContextEntries = error.ContextEntries;
-        Asset = error.Asset;
+        ContextEntries = error.ContextEntries.Any() ? error.ContextEntries : [];
     }
 }

@@ -17,7 +17,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
 
     public string Message { get; }
 
-    public IReadOnlyList<string> VerifierChain { get; }
+    public IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
 
     public IReadOnlyCollection<string> ContextEntries { get; }
 
@@ -28,11 +28,13 @@ public sealed class VerificationError : IEquatable<VerificationError>
     public VerificationError(
         string id, 
         string message, 
-        IReadOnlyList<string> verifiers,
+        IGameVerifierInfo verifier,
         IEnumerable<string> contextEntries, 
         string asset,
         VerificationSeverity severity)
     {
+        if (verifier == null)
+            throw new ArgumentNullException(nameof(verifier));
         if (contextEntries == null)
             throw new ArgumentNullException(nameof(contextEntries));
         if (asset is null)
@@ -41,10 +43,9 @@ public sealed class VerificationError : IEquatable<VerificationError>
 
         Id = id;
         Message = message ?? throw new ArgumentNullException(nameof(message));
-        VerifierChain = verifiers;
+        VerifierChain = verifier.VerifierChain;
         Severity = severity;
-        _contextEntries = [.. contextEntries];
-        ContextEntries = _contextEntries.ToList();
+        ContextEntries = _contextEntries = [.. contextEntries];
         Asset = asset;
     }
 
@@ -52,25 +53,25 @@ public sealed class VerificationError : IEquatable<VerificationError>
     {
         Id = error.Id;
         Message = error.Message;
-        VerifierChain = error.VerifierChain;
+        VerifierChain = RestoreVerifierChain(error.VerifierChain);
         _contextEntries = [..error.ContextEntries];
         ContextEntries = _contextEntries.ToList();
         Asset = error.Asset;
     }
 
     public static VerificationError Create(
-        IReadOnlyList<IGameVerifierInfo> verifiers,
+        IGameVerifierInfo verifier,
         string id,
         string message,
         VerificationSeverity severity,
         IEnumerable<string> context,
         string asset)
     {
-        return new VerificationError(id, message, verifiers.Select(x => x.Name).ToList(), context, asset, severity);
+        return new VerificationError(id, message, verifier, context, asset, severity);
     }
 
     public static VerificationError Create(
-        IReadOnlyList<IGameVerifierInfo> verifiers,
+        IGameVerifierInfo verifier,
         string id,
         string message,
         VerificationSeverity severity,
@@ -79,7 +80,7 @@ public sealed class VerificationError : IEquatable<VerificationError>
         return new VerificationError(
             id,
             message, 
-            verifiers.Select(x => x.Name).ToList(),
+            verifier,
             [], 
             asset, 
             severity);
@@ -119,5 +120,27 @@ public sealed class VerificationError : IEquatable<VerificationError>
     {
         return $"[{Severity}] [{string.Join(" --> ", VerifierChain)}] " +
                $"{Id}: Message={Message}; Asset='{Asset}'; Context=[{string.Join(",", ContextEntries)}];";
+    }
+
+    private static IReadOnlyList<IGameVerifierInfo> RestoreVerifierChain(IReadOnlyList<string>? errorVerifierChain)
+    {
+        if (errorVerifierChain is null)
+            return [];
+
+        var verifierChain = new List<IGameVerifierInfo>();
+        IGameVerifierInfo? previousVerifier = null;
+
+        foreach (var name in errorVerifierChain)
+        {
+            var verifier = new RestoredVerifierInfo
+            {
+                Name = name,
+                Parent = previousVerifier
+            };
+            verifierChain.Add(verifier);
+            previousVerifier = verifier;
+        }
+
+        return verifierChain;
     }
 }
