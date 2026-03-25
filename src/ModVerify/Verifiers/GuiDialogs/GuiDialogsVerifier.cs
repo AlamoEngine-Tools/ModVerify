@@ -18,7 +18,7 @@ sealed class GuiDialogsVerifier : GameVerifier
 {
     internal const string DefaultComponentIdentifier = "<<DEFAULT>>";
 
-    private static readonly GuiComponentType[] GuiComponentTypes =
+    private static readonly IReadOnlyList<GuiComponentType> GuiComponentTypes =
         Enum.GetValues(typeof(GuiComponentType)).OfType<GuiComponentType>().ToArray();
 
     private readonly IAlreadyVerifiedCache? _cache;
@@ -85,13 +85,18 @@ sealed class GuiDialogsVerifier : GameVerifier
 
     private void VerifyGuiComponentTexturesExist(string component)
     {
-        var middleButtonInRepoMode = false;
+        var buttonSpecialMode = false;
         
         var entriesForComponent = GetTextureEntriesForComponents(component, out var defined);
         if (!defined)
             return;
 
-        // TODO: Button Middle needs to be checked first as the engine checks this first
+        if (entriesForComponent.TryGetValue(GuiComponentType.ButtonMiddle, out var middleTexture))
+        {
+            GameEngine.GuiDialogManager.TextureExists(middleTexture, out var origin, out _);
+            if (origin == GuiTextureOrigin.Repository)
+                buttonSpecialMode = true;
+        }
 
         foreach (var componentType in GuiComponentTypes)
         {
@@ -100,11 +105,17 @@ sealed class GuiDialogsVerifier : GameVerifier
                 if (!entriesForComponent.TryGetValue(componentType, out var texture))
                     continue;
 
+                if (buttonSpecialMode && componentType.IsButton() && !componentType.SupportsSpecialTextureMode())
+                {
+                    // If we are in special button mode, non-supported button textures won't be loaded anyway.
+                    continue;
+                }
+
                 var cached = _cache?.GetEntry(texture.Texture);
                 if (cached?.AlreadyVerified is true)
                 {
                     // If we are in a special case we don't want to skip
-                    if (!middleButtonInRepoMode &&
+                    if (!buttonSpecialMode &&
                         componentType is not GuiComponentType.ButtonMiddle &&
                         componentType is not GuiComponentType.Scanlines &&
                         componentType is not GuiComponentType.FrameBackground)
@@ -115,7 +126,7 @@ sealed class GuiDialogsVerifier : GameVerifier
                     texture,
                     out var origin,
                     out var isNone,
-                    middleButtonInRepoMode);
+                    buttonSpecialMode);
                 
                 if (!exists && !isNone)
                 {
@@ -130,16 +141,13 @@ sealed class GuiDialogsVerifier : GameVerifier
                         AddNotFoundError(texture, component, origin);
                     }
                 }
-
-                if (componentType is GuiComponentType.ButtonMiddle && origin is GuiTextureOrigin.Repository)
-                    middleButtonInRepoMode = true;
-
+                
                 _cache?.TryAddEntry(texture.Texture, exists);
             }
             finally
             {
-                if (componentType >= GuiComponentType.ButtonRightDisabled)
-                    middleButtonInRepoMode = false;
+                if (!componentType.IsButton())
+                    buttonSpecialMode = false;
             }
         }
     }
