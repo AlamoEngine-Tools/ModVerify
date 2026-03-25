@@ -6,7 +6,7 @@ namespace AET.ModVerify.Reporting.Json;
 
 internal class JsonVerificationTarget
 {
-    [JsonPropertyName("name")] 
+    [JsonPropertyName("name")]
     public string Name { get; }
 
     [JsonPropertyName("engine")]
@@ -18,7 +18,7 @@ internal class JsonVerificationTarget
 
     [JsonPropertyName("version")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Version{ get; }
+    public string? Version { get; }
 
     [JsonPropertyName("location")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -26,9 +26,9 @@ internal class JsonVerificationTarget
 
     [JsonConstructor]
     private JsonVerificationTarget(
-        string name, 
-        string? version, 
-        JsonGameLocation? location, 
+        string name,
+        string? version,
+        JsonGameLocation? location,
         GameEngineType engine,
         bool isGame)
     {

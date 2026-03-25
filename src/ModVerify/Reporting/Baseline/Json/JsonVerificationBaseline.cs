@@ -33,8 +33,8 @@ internal class JsonVerificationBaseline
     [JsonConstructor]
     private JsonVerificationBaseline(
         JsonVerificationTarget target,
-        Version version, 
-        VerificationSeverity minimumSeverity, 
+        Version version,
+        VerificationSeverity minimumSeverity,
         IEnumerable<JsonVerificationError> errors)
     {
         Target = target;
