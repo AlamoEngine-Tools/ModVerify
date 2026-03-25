@@ -1,5 +1,5 @@
-﻿using PG.StarWarsGame.Engine.Xml;
-using PG.StarWarsGame.Files.XML;
+﻿using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
 
 namespace PG.StarWarsGame.Engine.GuiDialog.Xml;
 

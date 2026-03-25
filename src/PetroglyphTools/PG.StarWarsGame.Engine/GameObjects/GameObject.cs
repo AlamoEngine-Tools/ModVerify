@@ -1,26 +1,32 @@
-﻿using System;
+﻿using PG.Commons.Hashing;
+using PG.StarWarsGame.Engine.Commons;
+using PG.StarWarsGame.Engine.Utilities;
+using PG.StarWarsGame.Files.XML;
+using PG.StarWarsGame.Files.XML.Data;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using PG.Commons.Hashing;
-using PG.StarWarsGame.Engine.Xml;
-using PG.StarWarsGame.Files.XML;
+using System.Diagnostics;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
+[DebuggerDisplay("{Name} ({ClassificationName})")]
 public sealed class GameObject : NamedXmlObject
 {
-    internal GameObject(string type, string name, Crc32 nameCrc, GameObjectType estimatedType, XmlLocationInfo location) 
-        : base(name, nameCrc, location)
-    {
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        EstimatedType = estimatedType;
-        LandTerrainModelMapping = new ReadOnlyDictionary<string, string>(InternalLandTerrainModelMapping);
-    }
+    internal readonly List<(string terrain, string model)> InternalLandTerrainModelMapping = [];
 
-    public string Type { get; }
+    internal int Id { get; }
 
-    public GameObjectType EstimatedType { get; }
+    public int Index { get; }
 
+    public string ClassificationName { get; }
+
+    public string? VariantOfExistingTypeName { get; internal set; }
+
+    public GameObject? VariantOfExistingType { get; internal set; }
+
+    public bool IsLoadingComplete { get; internal set; }
+    
     public string? GalacticModel { get; internal set; }
 
     public string? DestroyedGalacticModel { get; internal set; }
@@ -28,8 +34,6 @@ public sealed class GameObject : NamedXmlObject
     public string? LandModel { get; internal set; }
 
     public string? SpaceModel { get; internal set; }
-
-    public string? TacticalModel { get; internal set; }
 
     public string? GalacticFleetOverrideModel { get; internal set; }
 
@@ -39,46 +43,57 @@ public sealed class GameObject : NamedXmlObject
 
     public string? LandAnimOverrideModel { get; internal set; }
 
-    public string? XxxSpaceModeModel { get; internal set; }
+    public string SpaceAnimOverrideModel { get; internal set; }
 
     public string? DamagedSmokeAssetModel { get; internal set; }
 
-    public IReadOnlyDictionary<string, string> LandTerrainModelMapping { get; }
+    public IReadOnlyList<(string terrain, string model)> LandTerrainModelMappingValues { get; }
+    
+    public string? IconName { get; internal set; }
 
-    internal Dictionary<string, string> InternalLandTerrainModelMapping { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public MultiNameReferenceList GroundCompanyUnits { get; internal set; } = [];
 
-    /// <summary>
-    /// Gets all model files (including particles) the game object references.
-    /// </summary>
-    public IEnumerable<string> Models
+    internal GameObject(
+        string name,
+        string classification,
+        Crc32 nameCrc,
+        int index,
+        XmlLocationInfo location)
+        : base(name, nameCrc, location)
     {
-        get
-        {
-            var models = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            AddNotEmpty(models, GalacticModel);
-            AddNotEmpty(models, DestroyedGalacticModel);
-            AddNotEmpty(models, LandModel);
-            AddNotEmpty(models, SpaceModel);
-            AddNotEmpty(models, TacticalModel);
-            AddNotEmpty(models, GalacticFleetOverrideModel);
-            AddNotEmpty(models, GuiModel);
-            AddNotEmpty(models, ModelName);
-            AddNotEmpty(models, LandAnimOverrideModel, s => s.EndsWith(".alo", StringComparison.OrdinalIgnoreCase));
-            AddNotEmpty(models, XxxSpaceModeModel);
-            AddNotEmpty(models, DamagedSmokeAssetModel);
-            foreach (var model in InternalLandTerrainModelMapping.Values) 
-                models.Add(model);
-
-            return models;
-        }
-        
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), "Index must be greater than 0.");
+        Index = index;
+        Id = (int)nameCrc;
+        ClassificationName = classification ?? throw new ArgumentNullException(nameof(classification));
+        LandTerrainModelMappingValues = new ReadOnlyCollection<(string, string)>(InternalLandTerrainModelMapping);
     }
 
-    private static void AddNotEmpty(ISet<string> set, string? value, Predicate<string>? predicate = null)
+    internal void ApplyBaseType(GameObject baseType)
     {
-        if (value is null) 
-            return;
-        if (predicate is null || predicate(value)) 
-            set.Add(value);
+        // The following properties must not be inherited from the base type:
+        // ID, CRC, Name, Location, IsLoadingComplete, ClassificationName and VariantOfExistingType[Name], LuaScript
+
+        // TODO
+        GalacticModel = baseType.GalacticModel;
+        DestroyedGalacticModel = baseType.DestroyedGalacticModel;
+        LandModel = baseType.LandModel;
+        SpaceModel = baseType.SpaceModel;
+        GalacticFleetOverrideModel = baseType.GalacticFleetOverrideModel;
+        GuiModel = baseType.GuiModel;
+        ModelName = baseType.ModelName;
+        LandAnimOverrideModel = baseType.LandAnimOverrideModel;
+        SpaceAnimOverrideModel = baseType.SpaceAnimOverrideModel;
+        DamagedSmokeAssetModel = baseType.DamagedSmokeAssetModel;
+        InternalLandTerrainModelMapping.ClearAddRange(baseType.InternalLandTerrainModelMapping);
+        
+        IconName = baseType.IconName;
+        GroundCompanyUnits = new(baseType.GroundCompanyUnits);
+    }
+
+    internal void PostLoadFixup()
+    {
+        // This method is different than the fixup that is performed after parsing the object.
+        // IDK why there are two separate fixups. This fixup performs more value coercions
     }
 }

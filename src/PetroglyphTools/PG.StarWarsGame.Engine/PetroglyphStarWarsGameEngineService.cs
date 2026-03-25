@@ -51,6 +51,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
 
         void OnInitializationError(object sender, InitializationError e)
         {
+            _logger?.LogWarning("Engine initialization failed for {Manager}: {Message}", e.GameManager, e.Message);
             if (cancelOnInitializationError)
                 cts.Cancel();
         }

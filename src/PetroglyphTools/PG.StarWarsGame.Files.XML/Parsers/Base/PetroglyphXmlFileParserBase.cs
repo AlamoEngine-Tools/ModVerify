@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,20 +22,22 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
     protected virtual bool LoadLineInfo => true;
 
-    protected XElement? GetRootElement(Stream xmlStream, out string fileName)
+    protected XElement GetRootElement(Stream xmlStream, out string fileName)
     {
         fileName = GetStrippedFileName(xmlStream.GetFilePath());
 
         if (string.IsNullOrEmpty(fileName))
             throw new InvalidOperationException("Unable to parse XML from unnamed stream. Either parse from a file or MEG stream.");
 
-        SkipLeadingWhiteSpace(fileName, xmlStream);
+        SkipCharactersUntilXmlHeader(fileName, xmlStream);
 
-        var xmlReader = XmlReader.Create(xmlStream, new XmlReaderSettings
+        var asciiStreamReader = new StreamReader(xmlStream, XmlFileConstants.XmlEncoding, false, 1024, leaveOpen: true);
+        using var xmlReader = XmlReader.Create(asciiStreamReader, new XmlReaderSettings
         {
             IgnoreWhitespace = true,
             IgnoreComments = true,
-            IgnoreProcessingInstructions = true
+            IgnoreProcessingInstructions = true,
+            CloseInput = true
         }, fileName);
 
         var options = LoadOptions.SetBaseUri;
@@ -44,7 +45,22 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
             options |= LoadOptions.SetLineInfo;
 
         var doc = XDocument.Load(xmlReader, options);
-        return doc.Root;
+
+        var root = doc.Root;
+
+        if (root is null)
+            throw new XmlException("No root node found.");
+
+        if (!root.HasElements)
+        {
+            ErrorReporter?.Report(new XmlError(this, root)
+            {
+                ErrorKind = XmlParseErrorKind.EmptyRoot,
+                Message = "XML file has an empty root node.",
+            });
+        }
+
+        return root;
     }
 
     private string GetStrippedFileName(string filePath)
@@ -61,23 +77,25 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
     }
 
 
-    private void SkipLeadingWhiteSpace(string fileName, Stream stream)
+    private void SkipCharactersUntilXmlHeader(string fileName, Stream stream)
     {
-        using var r = new StreamReader(stream, Encoding.ASCII, false, 10, true);
+        using var r = new StreamReader(stream, XmlFileConstants.XmlEncoding, false, 10, true);
         var count = 0;
 
-        while (true)
-        {
-            var c = (char)r.Read();
-            if (!char.IsWhiteSpace(c))
-                break;
+        // It might be possible, that a XML file starts with leading spaces or even a encoding BOM. 
+        // The engine skips everything until the first '<' character, so we have to do the same to avoid parsing errors.
+
+        while ((char)r.Read() != '<') 
             count++;
-        }
 
         if (count != 0)
         {
-            OnParseError(new XmlParseErrorEventArgs(new XmlLocationInfo(fileName, 0),
-                XmlParseErrorKind.DataBeforeHeader, $"XML header is not the first entry of the XML file."));}
+            ErrorReporter?.Report(new XmlError(this, locationInfo: new XmlLocationInfo(fileName, 0))
+            {
+                ErrorKind = XmlParseErrorKind.DataBeforeHeader,
+                Message = "XML header is not the first entry of the XML file.",
+            });
+        }
 
         stream.Position = count;
     }

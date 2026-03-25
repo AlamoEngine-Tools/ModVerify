@@ -12,7 +12,10 @@ using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine;
 
-internal abstract class GameManagerBase<T>(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal abstract class GameManagerBase<T>(
+    GameRepository repository, 
+    GameEngineErrorReporterWrapper errorReporter, 
+    IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGameManager<T>
 {
     protected readonly FrugalValueListDictionary<Crc32, T> NamedEntries = new();
@@ -40,11 +43,17 @@ internal abstract class GameManagerBase
     protected readonly GameEngineErrorReporterWrapper ErrorReporter;
 
     public bool IsInitialized => _initialized;
+    
+    public GameEngineType EngineType { get; }
 
-    protected GameManagerBase(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+    protected GameManagerBase(
+        GameRepository repository, 
+        GameEngineErrorReporterWrapper errorReporter, 
+        IServiceProvider serviceProvider)
     {
         GameRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        EngineType = repository.EngineType;
         Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
         FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         ErrorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));

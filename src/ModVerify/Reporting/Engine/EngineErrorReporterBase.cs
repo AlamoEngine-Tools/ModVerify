@@ -6,17 +6,25 @@ using PG.StarWarsGame.Engine.IO;
 
 namespace AET.ModVerify.Reporting.Engine;
 
-internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepository, IServiceProvider serviceProvider) 
-    : IGameVerifierInfo
+internal abstract class EngineErrorReporterBase<T> : IGameVerifierInfo
 {
-    protected readonly IGameRepository GameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
-    protected readonly IServiceProvider ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    protected readonly IGameRepository GameRepository;
+    protected readonly IServiceProvider ServiceProvider;
 
     public IGameVerifierInfo? Parent => null;
+
+    public IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
 
     public string Name => GetType().FullName;
 
     public abstract string FriendlyName { get; }
+
+    protected EngineErrorReporterBase(IGameRepository gameRepository, IServiceProvider serviceProvider)
+    {
+        GameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
+        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        VerifierChain = [this];
+    }
 
     public IEnumerable<VerificationError> GetErrors(IEnumerable<T> errors)
     {
@@ -24,7 +32,7 @@ internal abstract class EngineErrorReporterBase<T>(IGameRepository gameRepositor
         {
             var errorData = CreateError(error);
             yield return new VerificationError(
-                errorData.Identifier, errorData.Message, [this], errorData.Context, errorData.Asset, errorData.Severity);
+                errorData.Identifier, errorData.Message, this, errorData.Context, errorData.Asset, errorData.Severity);
         }
     }
 

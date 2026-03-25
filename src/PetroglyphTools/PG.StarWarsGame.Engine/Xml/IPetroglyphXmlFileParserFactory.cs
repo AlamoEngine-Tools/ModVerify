@@ -1,9 +1,10 @@
-﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
-using PG.StarWarsGame.Files.XML.Parsers;
+﻿using PG.StarWarsGame.Files.XML.Data;
+using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace PG.StarWarsGame.Engine.Xml;
 
 public interface IPetroglyphXmlFileParserFactory
-{
-    IPetroglyphXmlFileContainerParser<T> CreateFileParser<T>(IXmlParserErrorReporter? errorReporter) where T : notnull;
+{ 
+    NamedXmlObjectParser<T> CreateNamedXmlObjectParser<T>(GameEngineType engine, IXmlParserErrorReporter? errorReporter) 
+        where T : NamedXmlObject;
 }

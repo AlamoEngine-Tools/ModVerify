@@ -16,14 +16,16 @@ internal class JsonAggregatedVerificationError : JsonVerificationErrorBase
         string message,
         VerificationSeverity severity,
         IEnumerable<IEnumerable<string>>? contexts,
-        string? asset) : base(id, verifierChain, message, severity, asset)
+        string? asset) : base(id, severity, asset, message, verifierChain)
     {
         Contexts = contexts ?? [];
     }
 
     public JsonAggregatedVerificationError(
         VerificationError error,
-        IEnumerable<IEnumerable<string>> contexts) : base(error)
+        IEnumerable<IEnumerable<string>> contexts,
+        bool verbose = false) 
+        : base(error, verbose)
     {
         Contexts = contexts;
     }

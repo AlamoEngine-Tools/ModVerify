@@ -6,7 +6,10 @@ using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine.GameConstants;
 
-internal class GameConstants(GameRepository repository, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider)
+internal class GameConstants(
+    GameRepository repository, 
+    GameEngineErrorReporterWrapper errorReporter, 
+    IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGameConstants
 {
     protected override Task InitializeCoreAsync(CancellationToken token)

@@ -10,14 +10,19 @@ public static class VerifierErrorCodes
 
     public const string GenericExceptionErrorCode = "MV00";
 
-    public const string FileCorrupt = "ENG00";
+    public const string BinaryFileCorrupt = "BIN00";
 
 
     public const string FileNotFound = "FILE00";
     public const string FilePathTooLong = "FILE01";
     public const string InvalidFilePath = "FILE02";
 
-    public const string DuplicateFound = "DUP00";
+    public const string Duplicate = "DUP00";
+    public const string MissingXRef = "XREF00";
+
+    public const string NameTooLong = "NAME00";
+
+    public const string MissingPreset = "SFX00";
 
     public const string SampleNotPCM = "WAV00";
     public const string SampleNotMono = "WAV01";
@@ -36,4 +41,6 @@ public static class VerifierErrorCodes
     public const string XmlDataBeforeHeader = "XML08";
     public const string XmlMissingNode = "XML09";
     public const string XmlUnsupportedTag = "XML10";
+    public const string XmlElementsInTag = "XML11";
+    public const string XmlUnexceptedElementName = "XML12";
 }

@@ -1,4 +1,4 @@
-﻿using AET.ModVerify.Verifiers;
+﻿using AET.ModVerify.Verifiers.Caching;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AET.ModVerify;
@@ -14,7 +14,7 @@ public static class ModVerifyServiceExtensions
 
         public IServiceCollection RegisterVerifierCache()
         {
-            return serviceCollection.AddSingleton<IAlreadyVerifiedCache>(sp => new AlreadyVerifiedCache(sp));
+            return serviceCollection.AddSingleton<IAlreadyVerifiedCache>(new AlreadyVerifiedCache());
         }
     }
 }

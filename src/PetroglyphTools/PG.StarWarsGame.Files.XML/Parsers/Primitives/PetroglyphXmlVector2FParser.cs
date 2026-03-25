@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
@@ -11,13 +12,15 @@ public sealed class PetroglyphXmlVector2FParser : PetroglyphPrimitiveXmlParser<V
 
     private static readonly PetroglyphXmlLooseStringListParser LooseStringListParser = PetroglyphXmlLooseStringListParser.Instance;
 
+    private protected override Vector2 DefaultValue => default;
+
+    internal override int EngineDataTypeId => 0x0F;
+
     private PetroglyphXmlVector2FParser()
     {
     }
 
-    private protected override Vector2 DefaultValue => default;
-
-    protected internal override Vector2 ParseCore(string trimmedValue, XElement element)
+    protected internal override Vector2 ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         var listOfValues = LooseStringListParser.Parse(element);
 

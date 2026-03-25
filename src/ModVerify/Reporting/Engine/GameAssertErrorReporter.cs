@@ -17,7 +17,12 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
         var context = new List<string>();
         context.AddRange(assert.Context);
         context.Add($"location='{GetLocation(assert)}'");
-        return new ErrorData(GetIdFromError(assert.Kind), assert.Message, context, assert.Value, VerificationSeverity.Warning);
+        return new ErrorData(
+            GetIdFromError(assert.Kind),
+            assert.Message, 
+            context, 
+            assert.Value, 
+            VerificationSeverity.Warning);
     }
 
     private static string GetLocation(EngineAssert assert)
@@ -41,6 +46,7 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
             EngineAssertKind.ValueOutOfRange => VerifierErrorCodes.AssertValueOutOfRange,
             EngineAssertKind.InvalidValue => VerifierErrorCodes.AssertValueInvalid,
             EngineAssertKind.FileNotFound => VerifierErrorCodes.FileNotFound,
+            EngineAssertKind.DuplicateEntry => VerifierErrorCodes.Duplicate,
             _ => throw new ArgumentOutOfRangeException(nameof(assertKind), assertKind, null)
         };
     }

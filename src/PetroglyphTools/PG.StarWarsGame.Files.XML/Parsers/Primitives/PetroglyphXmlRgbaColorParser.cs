@@ -9,12 +9,13 @@ public sealed class PetroglyphXmlRgbaColorParser : PetroglyphPrimitiveXmlParser<
     public static readonly PetroglyphXmlRgbaColorParser Instance = new();
 
     private protected override Vector4Int DefaultValue => default;
+    internal override int EngineDataTypeId => 0x16;
 
     private PetroglyphXmlRgbaColorParser()
     {
     }
 
-    protected internal override Vector4Int ParseCore(string trimmedValue, XElement element)
+    protected internal override Vector4Int ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         var values = PetroglyphXmlLooseStringListParser.Instance.ParseCore(trimmedValue, element);
 

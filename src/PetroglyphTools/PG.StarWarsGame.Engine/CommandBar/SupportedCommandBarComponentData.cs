@@ -5,6 +5,8 @@ namespace PG.StarWarsGame.Engine.CommandBar;
 
 public static class SupportedCommandBarComponentData
 {
+    // Unfortunately we cannot use EnumConversionDictionary, because EaW and use different enum values
+    // for the same components, so we need to maintain separate dictionaries for each engine.
     public static IReadOnlyDictionary<CommandBarComponentId, string> GetComponentIdsForEngine(GameEngineType engineType)
     {
         return engineType switch

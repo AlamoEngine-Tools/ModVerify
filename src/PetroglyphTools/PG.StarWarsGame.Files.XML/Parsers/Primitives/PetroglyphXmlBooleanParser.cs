@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
@@ -6,13 +7,15 @@ public sealed class PetroglyphXmlBooleanParser : PetroglyphPrimitiveXmlParser<bo
 {
     public static readonly PetroglyphXmlBooleanParser Instance = new();
 
+    private protected override bool DefaultValue => false;
+
+    internal override int EngineDataTypeId => 0x0 & 0x50;
+
     private PetroglyphXmlBooleanParser()
     {
     }
 
-    private protected override bool DefaultValue => false;
-
-    protected internal override bool ParseCore(string trimmedValue, XElement element)
+    protected internal override bool ParseCore(ReadOnlySpan<char> trimmedValue, XElement element)
     {
         // Yes! The engine only checks if the values is exact 1 or starts with Tt or Yy
         // At least it's efficient, I guess...

@@ -8,22 +8,23 @@ internal class JsonVerificationError : JsonVerificationErrorBase
 {
     [JsonPropertyName("context")]
     [JsonPropertyOrder(99)]
-    public IEnumerable<string>? ContextEntries { get; }
+    public IEnumerable<string> ContextEntries { get; }
 
     [JsonConstructor]
     public JsonVerificationError(
-        string id, 
-        IReadOnlyList<string>? verifierChain, 
+        string id,
+        VerificationSeverity severity,
+        string? asset,
         string message,
-        VerificationSeverity severity, 
-        IEnumerable<string>? contextEntries, 
-        string? asset) : base(id, verifierChain, message, severity, asset)
+        IReadOnlyList<string>? verifierChain,
+        IEnumerable<string> contextEntries) : base(id, severity, asset, message, verifierChain)
     {
         ContextEntries = contextEntries;
     }
 
-    public JsonVerificationError(VerificationError error) : base(error)
+    public JsonVerificationError(VerificationError error, bool verbose = false) 
+        : base(error, verbose)
     {
-        ContextEntries = error.ContextEntries.Any() ? error.ContextEntries : null;
+        ContextEntries = error.ContextEntries.Any() ? error.ContextEntries : [];
     }
 }

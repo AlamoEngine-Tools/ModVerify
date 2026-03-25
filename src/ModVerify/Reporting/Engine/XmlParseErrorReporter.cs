@@ -4,7 +4,6 @@ using System.IO.Abstractions;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 
@@ -29,7 +28,8 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
         
         var context = new List<string>
         {
-            strippedFileName
+            $"Parser: {error.Parser.Name}",
+            $"File: {strippedFileName}" 
         };
 
         var xmlElement = error.Element;
@@ -75,6 +75,8 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
             XmlParseErrorKind.DataBeforeHeader => VerificationSeverity.Information,
             XmlParseErrorKind.MissingNode => VerificationSeverity.Critical,
             XmlParseErrorKind.UnknownNode => VerificationSeverity.Information,
+            XmlParseErrorKind.TagHasElements => VerificationSeverity.Warning,
+            XmlParseErrorKind.UnexceptedElementName => VerificationSeverity.Information,
             _ => VerificationSeverity.Warning
         };
     }
@@ -94,6 +96,8 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
             XmlParseErrorKind.DataBeforeHeader => VerifierErrorCodes.XmlDataBeforeHeader,
             XmlParseErrorKind.MissingNode => VerifierErrorCodes.XmlMissingNode,
             XmlParseErrorKind.UnknownNode => VerifierErrorCodes.XmlUnsupportedTag,
+            XmlParseErrorKind.TagHasElements => VerifierErrorCodes.XmlElementsInTag,
+            XmlParseErrorKind.UnexceptedElementName => VerifierErrorCodes.XmlUnexceptedElementName,
             _ => throw new ArgumentOutOfRangeException(nameof(xmlErrorErrorKind), xmlErrorErrorKind, null)
         };
     }

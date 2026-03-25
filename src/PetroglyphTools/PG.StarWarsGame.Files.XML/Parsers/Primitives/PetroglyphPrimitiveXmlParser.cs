@@ -1,30 +1,26 @@
-﻿using System.Xml.Linq;
-using PG.StarWarsGame.Files.XML.ErrorHandling;
+﻿using PG.StarWarsGame.Files.XML.ErrorHandling;
+using System;
+using System.Xml.Linq;
 
 namespace PG.StarWarsGame.Files.XML.Parsers;
 
-public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlElementParser<T> where T : notnull
+public abstract class PetroglyphPrimitiveXmlParser<T> : PetroglyphXmlParserBase where T : notnull
 {
     private protected abstract T DefaultValue { get; }
+
+    internal abstract int EngineDataTypeId { get; }
 
     private protected PetroglyphPrimitiveXmlParser() : base(PrimitiveXmlErrorReporter.Instance)
     {
     }
 
-    public sealed override T Parse(XElement element)
+    public T Parse(XElement element)
     {
-        var tagName = element.Name.LocalName;
-        if (string.IsNullOrEmpty(tagName))
-        {
-            ErrorReporter?.Report(this, new XmlParseErrorEventArgs(element, XmlParseErrorKind.EmptyNodeName, "A tag name cannot be null or empty."));
+        if (!IsTagValid(element))
             return DefaultValue;
-        }
-        if (tagName.Length >= 256) 
-            ErrorReporter?.Report(this, new XmlParseErrorEventArgs(element, XmlParseErrorKind.TooLongData, "A tag name cannot be null or empty."));
-
-        var value = element.Value.Trim();
+        var value = element.PGValue.AsSpan().Trim();
         return value.Length == 0 ? DefaultValue : ParseCore(value, element);
     }
 
-    protected internal abstract T ParseCore(string trimmedValue, XElement element);
+    protected internal abstract T ParseCore(ReadOnlySpan<char> trimmedValue, XElement element);
 }
