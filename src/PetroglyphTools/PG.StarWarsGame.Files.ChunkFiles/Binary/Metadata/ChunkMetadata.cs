@@ -1,29 +1,39 @@
-﻿namespace PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+﻿using System;
+using System.Diagnostics;
 
+namespace PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+
+[DebuggerDisplay("Type: {Type}, Size: {BodySize}, Mini:{IsMiniChunk}")]
 public readonly struct ChunkMetadata
 {
-    public readonly int Type;
-    public readonly int Size;
+    public readonly uint Type;
+    public readonly uint RawSize;
+    public readonly bool IsMiniChunk;
 
-    private ChunkMetadata(int type, int size, bool isContainer, bool isMiniChunk)
+    /// <summary>
+    /// Indicates that bit 31 of RawSize is set.
+    /// This is a hint that the body contains child chunks, not a guarantee.
+    /// </summary>
+    public bool HasChildrenHint => !IsMiniChunk && (int)RawSize < 0;
+
+    /// <summary>
+    /// Gets the size of the chunk's data in bytes.
+    /// </summary>
+    /// <remarks>
+    /// This value has bit 31 masked off compared to <see cref="RawSize"/>.
+    /// Per spec, bit 31 is set only for chunks containing regular child chunks.
+    /// Chunks containing mini-chunks (treated as data) do NOT set bit 31.
+    /// Since this library doesn't support sizes > <see cref="int.MaxValue"/>, masking bit 31
+    /// has no practical impact on the usable size range.
+    /// </remarks>
+    public int BodySize => (int)(RawSize & 0x7FFF_FFFF);
+
+    public ChunkMetadata(uint type, uint rawSize, bool isMiniChunk)
     {
+        if (isMiniChunk && rawSize > byte.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(rawSize), "Mini chunk size must fit in a byte (0-255).");
         Type = type;
-        Size = size;
+        RawSize = rawSize;
         IsMiniChunk = isMiniChunk;
-        IsContainer = isContainer;
-    }
-
-    public bool IsContainer { get; }
-
-    public bool IsMiniChunk { get; }
-
-    public static ChunkMetadata FromContainer(int type, int size)
-    {
-        return new ChunkMetadata(type, size, true, false);
-    }
-
-    public static ChunkMetadata FromData(int type, int size, bool isMini = false)
-    {
-        return new ChunkMetadata(type, size, false, isMini);
     }
 }

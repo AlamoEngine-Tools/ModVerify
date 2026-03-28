@@ -25,16 +25,16 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
             switch (chunk.Value.Type)
             {
                 case (int)ModelChunkTypes.Skeleton:
-                    ReadSkeleton(chunk.Value.Size, bones);
+                    ReadSkeleton(chunk.Value.BodySize, bones);
                     break;
                 case (int)ModelChunkTypes.Mesh:
-                    ReadMesh(chunk.Value.Size, textures, shaders);
+                    ReadMesh(chunk.Value.BodySize, textures, shaders);
                     break;
                 case (int)ModelChunkTypes.Connections:
-                    ReadConnections(chunk.Value.Size, proxies);
+                    ReadConnections(chunk.Value.BodySize, proxies);
                     break;
                 default:
-                    ChunkReader.Skip(chunk.Value.Size);
+                    ChunkReader.Skip(chunk.Value.BodySize);
                     break;
             }
 
@@ -59,14 +59,16 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         do
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
+            if (chunk.RawSize < 0)
+                ThrowChunkSizeTooLargeException();
 
             if (chunk.Type == (int)ModelChunkTypes.ProxyConnection)
             {
-                ReadProxy(chunk.Size, out var proxy, ref actualSize);
+                ReadProxy(chunk.BodySize, out var proxy, ref actualSize);
                 proxies.Add(proxy);
             }
             else
-                ChunkReader.Skip(chunk.Size, ref actualSize);
+                ChunkReader.Skip(chunk.BodySize, ref actualSize);
 
 
         } while (actualSize < size);
@@ -84,9 +86,9 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
             var chunk = ChunkReader.ReadMiniChunk(ref actualSize);
 
             if (chunk.Type == 5)
-                proxy = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true, ref actualSize);
+                proxy = ChunkReader.ReadString(chunk.BodySize, Encoding.ASCII, true, ref actualSize);
             else
-                ChunkReader.Skip(chunk.Size, ref actualSize);
+                ChunkReader.Skip(chunk.BodySize, ref actualSize);
 
         } while (actualSize < size);
 
@@ -110,9 +112,9 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
             var chunk = ChunkReader.ReadChunk(ref actualSize);
 
             if (chunk.Type == (int)ModelChunkTypes.SubMeshMaterialInformation)
-                ReadSubMeshMaterialInformation(chunk.Size, textures, shaders, ref actualSize);
+                ReadSubMeshMaterialInformation(chunk.BodySize, textures, shaders, ref actualSize);
             else
-                ChunkReader.Skip(chunk.Size, ref actualSize);
+                ChunkReader.Skip(chunk.BodySize, ref actualSize);
 
 
         } while (actualSize < size);
@@ -132,15 +134,17 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
             {
                 case (int)ModelChunkTypes.ShaderFileName:
                     {
-                        var shader = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true, ref actualSize);
+                        var shader = ChunkReader.ReadString(chunk.BodySize, Encoding.ASCII, true, ref actualSize);
                         shaders.Add(shader);
                         break;
                     }
                 case (int)ModelChunkTypes.ShaderTexture:
-                    ReadShaderTexture(chunk.Size, textures, ref actualSize);
+                    if (chunk.RawSize < 0)
+                        ThrowChunkSizeTooLargeException();
+                    ReadShaderTexture(chunk.BodySize, textures, ref actualSize);
                     break;
                 default:
-                    ChunkReader.Skip(chunk.Size, ref actualSize);
+                    ChunkReader.Skip(chunk.BodySize, ref actualSize);
                     break;
             }
 
@@ -162,11 +166,11 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
 
             if (mini.Type == 2)
             {
-                var texture = ChunkReader.ReadString(mini.Size, Encoding.ASCII, true, ref actualTextureChunkSize);
+                var texture = ChunkReader.ReadString(mini.BodySize, Encoding.ASCII, true, ref actualTextureChunkSize);
                 textures.Add(texture);
             }
             else
-                ChunkReader.Skip(mini.Size, ref actualTextureChunkSize);
+                ChunkReader.Skip(mini.BodySize, ref actualTextureChunkSize);
 
         } while (actualTextureChunkSize != size);
 
@@ -191,7 +195,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
 
         var boneCountChunk = ChunkReader.ReadChunk(ref actualSize);
 
-        Debug.Assert(boneCountChunk is { Size: 128, Type: (int)ModelChunkTypes.BoneCount });
+        Debug.Assert(boneCountChunk is { BodySize: 128, Type: (int)ModelChunkTypes.BoneCount });
 
         var boneCount = ChunkReader.ReadDword(ref actualSize);
 
@@ -201,24 +205,24 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         {
             var bone = ChunkReader.ReadChunk(ref actualSize);
 
-            Debug.Assert(bone is { Type: (int)ModelChunkTypes.Bone, IsContainer: true });
+            Debug.Assert(bone is { Type: (int)ModelChunkTypes.Bone, HasChildrenHint: true });
 
             var boneReadSize = 0;
 
-            while (boneReadSize < bone.Size)
+            while (boneReadSize < bone.BodySize)
             {
                 var innerBoneChunk = ChunkReader.ReadChunk(ref boneReadSize);
 
                 if (innerBoneChunk.Type == (int)ModelChunkTypes.BoneName)
                 {
-                    var nameSize = innerBoneChunk.Size;
+                    var nameSize = innerBoneChunk.BodySize;
 
                     var name = ChunkReader.ReadString(nameSize, Encoding.ASCII, true, ref boneReadSize);
                     bones.Add(name);
                 }
                 else
                 {
-                    ChunkReader.Skip(innerBoneChunk.Size, ref boneReadSize);
+                    ChunkReader.Skip(innerBoneChunk.BodySize, ref boneReadSize);
                 }
             }
 

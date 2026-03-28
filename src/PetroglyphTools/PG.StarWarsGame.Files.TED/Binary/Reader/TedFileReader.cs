@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Reader;
 using PG.StarWarsGame.Files.TED.Data;
 
@@ -8,6 +9,6 @@ internal sealed class TedFileReader(Stream stream) : ChunkFileReaderBase<IMapDat
 {
     public override IMapData Read()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 }
