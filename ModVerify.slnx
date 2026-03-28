@@ -20,6 +20,7 @@
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine/PG.StarWarsGame.Engine.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.ALO/PG.StarWarsGame.Files.ALO.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.ChunkFiles/PG.StarWarsGame.Files.ChunkFiles.csproj" />
+    <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.TED.Test/PG.StarWarsGame.Files.TED.Test.csproj" Id="f8ee09db-2472-4825-8cb9-a0bec243a6fb" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.TED/PG.StarWarsGame.Files.TED.csproj" Id="eeae3b31-7a07-468a-a2f7-4dc11fe7ce45" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.XML/PG.StarWarsGame.Files.XML.csproj" />
   </Folder>

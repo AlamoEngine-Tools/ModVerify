@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using AnakinRaW.CommonUtilities;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
 
@@ -19,5 +20,11 @@ public abstract class ChunkFileReaderBase<T>(Stream stream) : DisposableObject, 
     {
         base.DisposeResources();
         ChunkReader.Dispose();
+    }
+
+    //[DoesNotReturn]
+    protected void ThrowChunkSizeTooLargeException()
+    {
+        throw new NotSupportedException("Chunk sizes larger than int.MaxValue are not supported.");
     }
 }

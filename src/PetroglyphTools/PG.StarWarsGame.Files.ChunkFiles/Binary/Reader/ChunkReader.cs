@@ -20,13 +20,9 @@ public class ChunkReader : DisposableObject
 
     public ChunkMetadata ReadChunk()
     {
-        var type = _binaryReader.ReadInt32();
-        var rawSize = _binaryReader.ReadInt32();
-
-        var isContainer = (rawSize & 0x80000000) != 0;
-        var size = rawSize & 0x7FFFFFFF;
-
-        return isContainer ? ChunkMetadata.FromContainer(type, size) : ChunkMetadata.FromData(type, size);
+        var type = _binaryReader.ReadUInt32();
+        var rawSize = _binaryReader.ReadUInt32();
+        return new ChunkMetadata(type, rawSize, false);
     }
 
     public ChunkMetadata ReadChunk(ref int readBytes)
@@ -43,8 +39,34 @@ public class ChunkReader : DisposableObject
 
         readBytes += 2;
 
-        return ChunkMetadata.FromData(type, size, true);
+        return new ChunkMetadata(type, size, true);
     }
+
+    public byte[] ReadData(ChunkMetadata chunk)
+    {
+        if (chunk.HasChildrenHint)
+            throw new InvalidOperationException("Unable to read data from container chunk.");
+
+        return _binaryReader.ReadBytes(chunk.BodySize);
+    }
+
+    public byte[] ReadData(int size)
+    {
+        return size < 0 ?
+            throw new ArgumentOutOfRangeException(nameof(size), "size cannot be negative") : 
+            _binaryReader.ReadBytes(size);
+    }
+
+    public byte[] ReadData(ChunkMetadata chunk, ref int readSize)
+    {
+        if (chunk.HasChildrenHint)
+            throw new InvalidOperationException("Unable to read data from container chunk.");
+
+        var data = _binaryReader.ReadBytes(chunk.BodySize);
+        readSize += chunk.BodySize;
+        return data;
+    }
+
 
     public uint ReadDword(ref int readSize)
     {
