@@ -7,7 +7,7 @@ namespace PG.StarWarsGame.Files.ChunkFiles.Binary.Model;
 /// <summary>
 /// A chunk containing binary data.
 /// </summary>
-public sealed class DataChunk : Chunk
+public sealed class DataChunk : RootChunk
 {
     /// <summary>
     /// Gets the chunk metadata.

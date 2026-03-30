@@ -32,7 +32,6 @@ public static class ChunkFactory
     {
         if (data == null)
             throw new ArgumentNullException(nameof(data));
-
         var metadata = new ChunkMetadata(type, (uint)data.Length);
         return new DataChunk(metadata, data);
     }
@@ -49,7 +48,6 @@ public static class ChunkFactory
     {
         if (data == null)
             throw new ArgumentNullException(nameof(data));
-
         var metadata = new ChunkMetadata(type, rawSize);
         return new RawChunk(metadata, data);
     }
