@@ -59,9 +59,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
         do
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
-            if (chunk.RawSize < 0)
-                ThrowChunkSizeTooLargeException();
-
+            ThrowIfChunkSizeTooLargeException(chunk);
             if (chunk.Type == (int)ModelChunkTypes.ProxyConnection)
             {
                 ReadProxy(chunk.BodySize, out var proxy, ref actualSize);
@@ -139,8 +137,7 @@ internal class ModelFileReader(AloLoadOptions loadOptions, Stream stream) : AloF
                         break;
                     }
                 case (int)ModelChunkTypes.ShaderTexture:
-                    if (chunk.RawSize < 0)
-                        ThrowChunkSizeTooLargeException();
+                    ThrowIfChunkSizeTooLargeException(chunk);
                     ReadShaderTexture(chunk.BodySize, textures, ref actualSize);
                     break;
                 default:

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+using PG.StarWarsGame.Files.ChunkFiles.Binary.Model;
+using PG.StarWarsGame.Files.ChunkFiles.Binary.Model.Metadata;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Reader;
 
 namespace PG.StarWarsGame.Files.TED.Binary.Writer;
@@ -47,7 +48,7 @@ internal sealed class MapPreviewExtractor
             }
             else
             {
-                var chunk = new Chunk(chunkInfo.Value, reader.ReadData(chunkInfo.Value.BodySize));
+                var chunk = new RawChunk(chunkInfo.Value, reader.ReadData(chunkInfo.Value.BodySize));
                 destination.Write(chunk.Bytes, 0, chunk.Bytes.Length);
             }
         }
