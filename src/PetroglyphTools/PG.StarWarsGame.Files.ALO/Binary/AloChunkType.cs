@@ -1,6 +1,6 @@
-﻿namespace PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+﻿namespace PG.StarWarsGame.Files.ALO.Binary;
 
-public enum ChunkType
+public enum AloChunkType
 {
     Unknown,
     Name = 0x0,

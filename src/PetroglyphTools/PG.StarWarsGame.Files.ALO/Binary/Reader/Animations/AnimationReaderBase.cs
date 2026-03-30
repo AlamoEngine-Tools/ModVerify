@@ -4,7 +4,7 @@ using System.Text;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.Binary;
-using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+using PG.StarWarsGame.Files.ChunkFiles.Binary.Model.Metadata;
 
 namespace PG.StarWarsGame.Files.ALO.Binary.Reader.Animations;
 
@@ -54,8 +54,7 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
         switch (chunk.Type)
         {
             case (int)AnimationChunkTypes.AnimationInfo:
-                if (chunk.RawSize < 0)
-                    ThrowChunkSizeTooLargeException();
+                ThrowIfChunkSizeTooLargeException(chunk);
                 animationInformation = ReadAnimationInfo(chunk.BodySize);
                 break;
             case (int)AnimationChunkTypes.BoneData:
@@ -72,8 +71,7 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
         switch (chunk.Type)
         {
             case (int)AnimationChunkTypes.BoneDataInfo:
-                if (chunk.RawSize < 0)
-                    ThrowChunkSizeTooLargeException();
+                ThrowIfChunkSizeTooLargeException(chunk);
                 ReadBoneInfo(chunk.BodySize, bones);
                 break;
             default:
