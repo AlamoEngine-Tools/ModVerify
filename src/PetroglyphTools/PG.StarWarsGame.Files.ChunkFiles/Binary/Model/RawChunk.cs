@@ -45,14 +45,10 @@ public sealed class RawChunk : RootChunk
     /// <param name="info">The chunk metadata, written as-is. No validation is performed on bit 31.</param>
     /// <param name="data">The raw body data.</param>
     /// <exception cref="ArgumentException">
-    /// <paramref name="data"/> is empty, or
     /// <paramref name="info"/> body size does not match the data length.
     /// </exception>
     public RawChunk(ChunkMetadata info, ReadOnlyMemory<byte> data)
     {
-        if (data is { IsEmpty: true, Length: 0 })
-            throw new ArgumentException("Data cannot be empty.", nameof(data));
-
         if (info.BodySize != data.Length)
             throw new ArgumentException(
                 $"Metadata size ({info.BodySize}) does not match data length ({data.Length}).",

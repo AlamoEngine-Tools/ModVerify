@@ -19,10 +19,11 @@ public class DataChunkTest
     }
 
     [Fact]
-    public void Ctor_ThrowsOnEmptyData()
+    public void Ctor_AllowsEmptyData()
     {
         var info = new ChunkMetadata(0x10, 0);
-        Assert.Throws<ArgumentException>(() => new DataChunk(info, ReadOnlyMemory<byte>.Empty));
+        var chunk = new DataChunk(info, ReadOnlyMemory<byte>.Empty);
+        Assert.Equal(0, chunk.Data.Length);
     }
 
     [Fact]
@@ -50,6 +51,28 @@ public class DataChunkTest
 
         // Header is 8 bytes (sizeof ChunkMetadata) + 3 bytes data
         Assert.Equal(8 + 3, chunk.Size);
+    }
+
+    [Fact]
+    public void GetBytes_EmptyData_WritesHeaderOnly()
+    {
+        var info = new ChunkMetadata(0x05, 0);
+        var chunk = new DataChunk(info, ReadOnlyMemory<byte>.Empty);
+
+        var bytes = chunk.Bytes;
+        Assert.Equal(8, bytes.Length);
+
+        // Type (LE)
+        Assert.Equal(0x05, bytes[0]);
+        Assert.Equal(0x00, bytes[1]);
+        Assert.Equal(0x00, bytes[2]);
+        Assert.Equal(0x00, bytes[3]);
+
+        // Size = 0 (LE)
+        Assert.Equal(0x00, bytes[4]);
+        Assert.Equal(0x00, bytes[5]);
+        Assert.Equal(0x00, bytes[6]);
+        Assert.Equal(0x00, bytes[7]);
     }
 
     [Fact]

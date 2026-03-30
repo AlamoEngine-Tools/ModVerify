@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Text;
+using PG.StarWarsGame.Files.Binary;
+using PG.StarWarsGame.Files.ChunkFiles.Binary;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Reader;
 using Xunit;
 
@@ -50,8 +52,31 @@ public class ChunkReaderTest
     [Fact]
     public void ReadChunk_ThrowsAtEndOfStream()
     {
-        using var reader = new ChunkReader(CreateStream(Array.Empty<byte>()));
+        using var reader = new ChunkReader(CreateStream([]));
         Assert.Throws<EndOfStreamException>(() => reader.ReadChunk());
+    }
+
+    [Fact]
+    public void ReadChunk_ThrowsOnPartialHeader()
+    {
+        // Only 4 bytes instead of the required 8
+        using var reader = new ChunkReader(CreateStream([0x01, 0x00, 0x00, 0x00]));
+        Assert.Throws<EndOfStreamException>(() => reader.ReadChunk());
+    }
+
+    [Fact]
+    public void ReadMiniChunk_ThrowsAtEndOfStream()
+    {
+        using var reader = new ChunkReader(CreateStream([]));
+        Assert.Throws<EndOfStreamException>(() => { var rb = 0; reader.ReadMiniChunk(ref rb); });
+    }
+
+    [Fact]
+    public void ReadMiniChunk_ThrowsOnPartialHeader()
+    {
+        // Only 1 byte instead of the required 2
+        using var reader = new ChunkReader(CreateStream([0x05]));
+        Assert.Throws<EndOfStreamException>(() => { var rb = 0; reader.ReadMiniChunk(ref rb); });
     }
 
     [Fact]
@@ -158,9 +183,18 @@ public class ChunkReaderTest
     }
 
     [Fact]
+    public void ReadData_BySize_ReturnsAvailableBytes_WhenSizeExceedsStream()
+    {
+        var data = new byte[] { 0x01, 0x02 };
+        using var reader = new ChunkReader(CreateStream(data));
+        var result = reader.ReadData(10);
+        Assert.Equal(data, result);
+    }
+
+    [Fact]
     public void ReadData_BySize_ThrowsOnNegative()
     {
-        using var reader = new ChunkReader(CreateStream(new byte[] { 0x01 }));
+        using var reader = new ChunkReader(CreateStream([0x01]));
         Assert.Throws<ArgumentOutOfRangeException>(() => reader.ReadData(-1));
     }
 
@@ -223,7 +257,7 @@ public class ChunkReaderTest
     [Fact]
     public void TryReadChunk_ReturnsNull_AtEndOfStream()
     {
-        using var reader = new ChunkReader(CreateStream(Array.Empty<byte>()));
+        using var reader = new ChunkReader(CreateStream([]));
         var result = reader.TryReadChunk();
         Assert.Null(result);
     }
@@ -255,7 +289,7 @@ public class ChunkReaderTest
     [Fact]
     public void TryReadChunk_WithRefBytes_DoesNotIncrement_AtEnd()
     {
-        using var reader = new ChunkReader(CreateStream(Array.Empty<byte>()));
+        using var reader = new ChunkReader(CreateStream([]));
 
         var readBytes = 5;
         var result = reader.TryReadChunk(ref readBytes);
@@ -263,10 +297,12 @@ public class ChunkReaderTest
         Assert.Equal(5, readBytes);
     }
 
+    #region ReadString
+
     [Fact]
     public void ReadString_ReadsCorrectly()
     {
-        var text = "Hello";
+        const string text = "Hello";
         var encoded = Encoding.ASCII.GetBytes(text);
         using var reader = new ChunkReader(CreateStream(encoded));
 
@@ -279,7 +315,7 @@ public class ChunkReaderTest
     [Fact]
     public void ReadString_ZeroTerminated_TrimsAtNull()
     {
-        var encoded = new byte[] { (byte)'H', (byte)'i', 0, (byte)'X' };
+        var encoded = "Hi\0X"u8.ToArray();
         using var reader = new ChunkReader(CreateStream(encoded));
 
         var result = reader.ReadString(encoded.Length, Encoding.ASCII, true);
@@ -289,7 +325,7 @@ public class ChunkReaderTest
     [Fact]
     public void ReadString_WithoutRefBytes_Works()
     {
-        var text = "AB";
+        const string text = "AB";
         var encoded = Encoding.ASCII.GetBytes(text);
         using var reader = new ChunkReader(CreateStream(encoded));
 
@@ -298,9 +334,38 @@ public class ChunkReaderTest
     }
 
     [Fact]
+    public void ReadString_ThrowsBinaryCorrupted_WhenSizeExceedsStream()
+    {
+        var encoded = "Hi"u8.ToArray();
+        using var reader = new ChunkReader(CreateStream(encoded));
+        Assert.Throws<BinaryCorruptedException>(() => reader.ReadString(10, Encoding.ASCII, false));
+    }
+
+    [Fact]
+    public void ReadString_ZeroTerminated_ThrowsBinaryCorrupted_WhenNoNullTerminator()
+    {
+        // No null terminator present — the reader cannot find the terminator and throws
+        var encoded = "Hello"u8.ToArray();
+        using var reader = new ChunkReader(CreateStream(encoded));
+
+        Assert.Throws<BinaryCorruptedException>(() =>
+            reader.ReadString(encoded.Length, Encoding.ASCII, zeroTerminated: true));
+    }
+
+    [Fact]
+    public void ReadString_ZeroTerminated_ThrowsBinaryCorrupted_WhenSizeExceedsStream()
+    {
+        var encoded = "Hi"u8.ToArray();
+        using var reader = new ChunkReader(CreateStream(encoded));
+        Assert.Throws<BinaryCorruptedException>(() => reader.ReadString(10, Encoding.ASCII, zeroTerminated: true));
+    }
+
+    #endregion
+
+    [Fact]
     public void Dispose_DisposesUnderlyingStream()
     {
-        var ms = CreateStream(new byte[] { 1, 2, 3 });
+        var ms = CreateStream([1, 2, 3]);
         var reader = new ChunkReader(ms);
         reader.Dispose();
 
@@ -310,7 +375,7 @@ public class ChunkReaderTest
     [Fact]
     public void Dispose_LeaveOpen_KeepsStreamOpen()
     {
-        var ms = CreateStream(new byte[] { 1, 2, 3 });
+        var ms = CreateStream([1, 2, 3]);
         var reader = new ChunkReader(ms, leaveOpen: true);
         reader.Dispose();
 
@@ -322,7 +387,7 @@ public class ChunkReaderTest
     [Fact]
     public void ReadChunk_Roundtrip_WithChunkFactory()
     {
-        var original = PG.StarWarsGame.Files.ChunkFiles.Binary.ChunkFactory.Data(0x42, new byte[] { 1, 2, 3 });
+        var original = ChunkFactory.Data(0x42, [1, 2, 3]);
         var bytes = original.Bytes;
 
         using var reader = new ChunkReader(CreateStream(bytes));

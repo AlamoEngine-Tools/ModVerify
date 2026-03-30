@@ -28,15 +28,11 @@ public sealed class DataChunk : RootChunk
     /// <param name="info">The chunk metadata. Must not have bit 31 set.</param>
     /// <param name="data">The binary data payload.</param>
     /// <exception cref="ArgumentException">
-    /// <paramref name="data"/> is empty, or
     /// <paramref name="info"/> has bit 31 set, or
     /// <paramref name="info"/> body size does not match the data length.
     /// </exception>
     public DataChunk(ChunkMetadata info, ReadOnlyMemory<byte> data)
     {
-        if (data is { IsEmpty: true, Length: 0 })
-            throw new ArgumentException("Data cannot be empty.", nameof(data));
-
         if (info.HasChildrenHint)
             throw new ArgumentException(
                 "DataChunk metadata must not have bit 31 set.", nameof(info));

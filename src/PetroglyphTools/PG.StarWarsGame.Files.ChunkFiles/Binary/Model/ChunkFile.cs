@@ -24,24 +24,11 @@ public sealed class ChunkFile : IBinaryFile
     /// <summary>
     /// Initializes a new instance of the <see cref="ChunkFile"/> class.
     /// </summary>
-    /// <param name="rootChunks">
-    /// The root-level chunks. Must contain at least one element.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="rootChunks"/> is <see langword="null"/>.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// <paramref name="rootChunks"/> is empty.
-    /// </exception>
+    /// <param name="rootChunks">The root-level chunks.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="rootChunks"/> is <see langword="null"/>.</exception>
     public ChunkFile(IReadOnlyList<RootChunk> rootChunks)
     {
-        if (rootChunks == null)
-            throw new ArgumentNullException(nameof(rootChunks));
-
-        if (rootChunks.Count == 0)
-            throw new ArgumentException("ChunkFile must have at least one root chunk.", nameof(rootChunks));
-
-        RootChunks = rootChunks;
+        RootChunks = rootChunks ?? throw new ArgumentNullException(nameof(rootChunks));
     }
 
     /// <summary>
@@ -77,14 +64,11 @@ public sealed class ChunkFile : IBinaryFile
     /// Writes the file's binary representation to a stream.
     /// </summary>
     /// <param name="stream">The destination stream.</param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="stream"/> is <see langword="null"/>.
-    /// </exception>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     public void WriteTo(Stream stream)
     {
         if (stream == null)
             throw new ArgumentNullException(nameof(stream));
-
         stream.Write(Bytes, 0, Size);
     }
 }

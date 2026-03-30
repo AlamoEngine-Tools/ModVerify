@@ -16,7 +16,7 @@ public sealed class NodeChunk : NodeChunkBase<RootChunk>
     /// Initializes a new instance of the <see cref="NodeChunk"/> class.
     /// </summary>
     /// <param name="info">The chunk metadata. Must have bit 31 set.</param>
-    /// <param name="children">The child chunks. Must contain at least one element.</param>
+    /// <param name="children">The child chunks.</param>
     /// <exception cref="ArgumentException"><paramref name="info"/> does not have bit 31 set.</exception>
     public NodeChunk(ChunkMetadata info, IReadOnlyList<RootChunk> children) : base(info, children)
     {
