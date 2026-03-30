@@ -19,10 +19,11 @@ public class MiniChunkTest
     }
 
     [Fact]
-    public void Ctor_ThrowsOnEmptyData()
+    public void Ctor_AllowsEmptyData()
     {
         var info = new MiniChunkMetadata(0x05, 0);
-        Assert.Throws<ArgumentException>(() => new MiniChunk(info, ReadOnlyMemory<byte>.Empty));
+        var chunk = new MiniChunk(info, ReadOnlyMemory<byte>.Empty);
+        Assert.Equal(0, chunk.Data.Length);
     }
 
     [Fact]
@@ -42,6 +43,19 @@ public class MiniChunkTest
 
         // Header is 2 bytes (sizeof MiniChunkMetadata) + 3 bytes data
         Assert.Equal(2 + 3, chunk.Size);
+    }
+
+    [Fact]
+    public void GetBytes_EmptyData_WritesHeaderOnly()
+    {
+        var info = new MiniChunkMetadata(0x0B, 0);
+        var chunk = new MiniChunk(info, ReadOnlyMemory<byte>.Empty);
+
+        var bytes = chunk.Bytes;
+        Assert.Equal(2, bytes.Length);
+
+        Assert.Equal(0x0B, bytes[0]); // Type
+        Assert.Equal(0x00, bytes[1]); // Size = 0
     }
 
     [Fact]
@@ -65,7 +79,7 @@ public class MiniChunkTest
         var data = new byte[] { 1 };
         var info = new MiniChunkMetadata(1, 1);
         var chunk = new MiniChunk(info, data);
-        Assert.IsAssignableFrom<Chunk>(chunk);
-        Assert.IsNotType<RootChunk>(chunk);
+        Assert.IsType<Chunk>(chunk, false);
+        Assert.IsNotType<RootChunk>(chunk, exactMatch: false);
     }
 }

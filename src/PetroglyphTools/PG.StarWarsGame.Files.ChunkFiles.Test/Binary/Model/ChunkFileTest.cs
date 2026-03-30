@@ -30,9 +30,10 @@ public class ChunkFileTest
     }
 
     [Fact]
-    public void Ctor_ThrowsOnEmpty()
+    public void Ctor_AllowsEmpty()
     {
-        Assert.Throws<ArgumentException>(() => new ChunkFile([]));
+        var file = new ChunkFile([]);
+        Assert.Empty(file.RootChunks);
     }
 
     [Fact]
@@ -57,20 +58,19 @@ public class ChunkFileTest
     }
 
     [Fact]
-    public void GetBytes_WritesMultipleRootChunks()
+    public void GetBytes_WritesExactByteSequence()
     {
+        // type=0x01, size=1: [0x01,0x00,0x00,0x00, 0x01,0x00,0x00,0x00, 0xAA]
+        // type=0x02, size=2: [0x02,0x00,0x00,0x00, 0x02,0x00,0x00,0x00, 0xBB,0xCC]
         var r1 = CreateRoot(1, [0xAA]);
-        var r2 = CreateRoot(2, [0xBB]);
+        var r2 = CreateRoot(2, [0xBB, 0xCC]);
         var file = new ChunkFile([r1, r2]);
 
-        var bytes = file.Bytes;
-        var r1Bytes = r1.Bytes;
-        var r2Bytes = r2.Bytes;
-
-        for (var i = 0; i < r1Bytes.Length; i++)
-            Assert.Equal(r1Bytes[i], bytes[i]);
-        for (var i = 0; i < r2Bytes.Length; i++)
-            Assert.Equal(r2Bytes[i], bytes[r1.Size + i]);
+        Assert.Equal(new byte[]
+        {
+            0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xAA,
+            0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xBB, 0xCC,
+        }, file.Bytes);
     }
 
     [Fact]

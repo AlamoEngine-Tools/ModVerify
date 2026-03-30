@@ -19,7 +19,7 @@ public sealed class MiniNodeChunk : NodeChunkBase<MiniChunk>
     /// Initializes a new instance of the <see cref="MiniNodeChunk"/> class.
     /// </summary>
     /// <param name="info">The chunk metadata. Must not have bit 31 set.</param>
-    /// <param name="children">The mini-chunk children. Must contain at least one element.</param>
+    /// <param name="children">The mini-chunk children.</param>
     /// <exception cref="NotSupportedException">Chunks larger than 2GB are not supported.</exception>
     public MiniNodeChunk(ChunkMetadata info, IReadOnlyList<MiniChunk> children) : base(info, children)
     {

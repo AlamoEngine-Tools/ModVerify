@@ -29,20 +29,15 @@ public abstract class NodeChunkBase<TChild> : RootChunk where TChild : Chunk
     /// Initializes a new instance of the <see cref="NodeChunkBase{TChild}"/> class.
     /// </summary>
     /// <param name="info">The chunk metadata.</param>
-    /// <param name="children">The child chunks. Must contain at least one element.</param>
+    /// <param name="children">The child chunks.</param>
     /// <exception cref="ArgumentNullException"><paramref name="children"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException">
-    /// <paramref name="children"/> is empty, or
     /// <paramref name="info"/> body size does not match the sum of children sizes.
     /// </exception>
     protected NodeChunkBase(ChunkMetadata info, IReadOnlyList<TChild> children)
     {
         if (children == null)
             throw new ArgumentNullException(nameof(children));
-
-        if (children.Count == 0)
-            throw new ArgumentException(
-                $"{GetType().Name} must have at least one child.", nameof(children));
 
         var actualSize = children.Sum(c => c.Size);
         if (info.BodySize != actualSize)

@@ -27,9 +27,10 @@ public class ChunkFactoryTest
     }
 
     [Fact]
-    public void Data_ThrowsOnEmptyArray()
+    public void Data_AllowsEmptyArray()
     {
-        Assert.Throws<ArgumentException>(() => ChunkFactory.Data(1, []));
+        var chunk = ChunkFactory.Data(1, []);
+        Assert.Equal(0, chunk.Data.Length);
     }
 
     [Fact]
@@ -61,9 +62,10 @@ public class ChunkFactoryTest
     }
 
     [Fact]
-    public void Raw_ThrowsOnEmptyData()
+    public void Raw_AllowsEmptyData()
     {
-        Assert.Throws<ArgumentException>(() => ChunkFactory.Raw(0x01, 0, []));
+        var chunk = ChunkFactory.Raw(0x01, 0, []);
+        Assert.Equal(0, chunk.Data.Length);
     }
 
     [Fact]
@@ -123,9 +125,10 @@ public class ChunkFactoryTest
     }
 
     [Fact]
-    public void Mini_ThrowsOnEmptyArray()
+    public void Mini_AllowsEmptyArray()
     {
-        Assert.Throws<ArgumentException>(() => ChunkFactory.Mini(1, []));
+        var chunk = ChunkFactory.Mini(1, []);
+        Assert.Equal(0, chunk.Data.Length);
     }
 
     [Fact]
@@ -158,9 +161,10 @@ public class ChunkFactoryTest
     }
 
     [Fact]
-    public void Node_RootChunk_ThrowsOnEmpty()
+    public void Node_RootChunk_AllowsEmpty()
     {
-        Assert.Throws<ArgumentException>(() => ChunkFactory.Node(1, Array.Empty<RootChunk>()));
+        var node = ChunkFactory.Node(1, Array.Empty<RootChunk>());
+        Assert.Empty(node.Children);
     }
 
     [Fact]
@@ -219,9 +223,10 @@ public class ChunkFactoryTest
     }
 
     [Fact]
-    public void Node_MiniChunk_ThrowsOnEmpty()
+    public void Node_MiniChunk_AllowsEmpty()
     {
-        Assert.Throws<ArgumentException>(() => ChunkFactory.Node(1, Array.Empty<MiniChunk>()));
+        var node = ChunkFactory.Node(1, Array.Empty<MiniChunk>());
+        Assert.Empty(node.Children);
     }
 
     [Fact]
@@ -265,9 +270,10 @@ public class ChunkFactoryTest
     }
 
     [Fact]
-    public void File_ThrowsOnEmpty()
+    public void File_AllowsEmpty()
     {
-        Assert.Throws<ArgumentException>(() => ChunkFactory.File());
+        var file = ChunkFactory.File();
+        Assert.Empty(file.RootChunks);
     }
 
     [Fact]
