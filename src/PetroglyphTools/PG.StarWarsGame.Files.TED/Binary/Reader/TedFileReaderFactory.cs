@@ -7,6 +7,6 @@ internal class TedFileReaderFactory(IServiceProvider serviceProvider) : ITedFile
 {
     public ITedFileReader GetReader(Stream dataStream)
     {
-        return new TedFileReader(dataStream);
+        return new TedFileReader(TedLoadOptions.Full, dataStream);
     }
 }
