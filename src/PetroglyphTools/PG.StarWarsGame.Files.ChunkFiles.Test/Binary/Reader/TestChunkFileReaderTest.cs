@@ -42,4 +42,27 @@ public sealed class TestChunkFileReaderTest : ChunkFileReaderBaseTest<TestChunkF
     {
         reader.CallThrowIfChunkSizeTooLarge(chunk);
     }
+
+    [Fact]
+    public void FileName_IsNullForMemoryStream()
+    {
+        using var reader = CreateReader(new MemoryStream());
+        Assert.Null(reader.FileName);
+    }
+
+    [Fact]
+    public void FileName_IsPopulatedFromFileStream()
+    {
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            using var fs = File.OpenRead(tempFile);
+            using var reader = CreateReader(fs);
+            Assert.Equal(tempFile, reader.FileName);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
 }

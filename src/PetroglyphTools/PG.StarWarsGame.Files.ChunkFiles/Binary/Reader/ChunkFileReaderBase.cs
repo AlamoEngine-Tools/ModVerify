@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using AnakinRaW.CommonUtilities;
+using PG.Commons.Utilities;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Model;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Model.Metadata;
 using PG.StarWarsGame.Files.ChunkFiles.Data;
@@ -26,6 +27,9 @@ public abstract class ChunkFileReaderBase<T>(Stream stream, bool leaveStreamOpen
     /// This reader is initialized with the provided stream and the option to leave the stream open after disposal.
     /// </remarks>
     protected readonly ChunkReader ChunkReader = new(stream, leaveStreamOpen);
+
+    /// <inheritdoc/>
+    public string? FileName { get; } = stream.TryGetFilePath();
 
     /// <inheritdoc/>
     public abstract T Read();
