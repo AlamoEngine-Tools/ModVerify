@@ -7,6 +7,8 @@ namespace PG.StarWarsGame.Files.ChunkFiles.Test.Binary.Reader;
 public sealed class TestChunkFileReader(Stream stream, bool leaveStreamOpen = false)
     : ChunkFileReaderBase<TestChunkFileReaderTest.TestChunkData>(stream, leaveStreamOpen)
 {
+    public new string? FileName => base.FileName;
+
     public override TestChunkFileReaderTest.TestChunkData Read()
     {
         var meta = ChunkReader.ReadChunk();

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace PG.StarWarsGame.Files.ChunkFiles.Binary.Model.Metadata;
 
