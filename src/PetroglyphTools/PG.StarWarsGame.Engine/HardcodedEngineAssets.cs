@@ -8,7 +8,7 @@ public static class HardcodedEngineAssets
     /// <summary>
     /// These models / particles are hardcoded into StarWarsG.exe.
     /// </summary>
-    public static IList<string> HardcodedFocModels { get; } = new List<string>
+    public static IList<string> HardcodedFocModelsParticles { get; } = new List<string>
     {
         "i_tutorial_arrow.alo",
         "p_hero_empire_fx.alo",
@@ -24,7 +24,7 @@ public static class HardcodedEngineAssets
     /// <summary>
     /// These models / particles are hardcoded into StarWarsG.exe.
     /// </summary>
-    public static IList<string> HardcodedEawModels { get; } = new List<string>
+    public static IList<string> HardcodedEawModelsParticles { get; } = new List<string>
     {
         "i_tutorial_arrow.alo",
         "p_hero_empire_fx.alo",
@@ -280,12 +280,12 @@ public static class HardcodedEngineAssets
         "W_Space_Reinforce_FOW_Grid.tga",
     };
 
-    public static IList<string> GetHardcodedModels(GameEngineType engine)
+    public static IList<string> GetHardcodedModelsAndParticles(GameEngineType engine)
     {
         return engine switch
         {
-            GameEngineType.Eaw => HardcodedEawModels,
-            GameEngineType.Foc => HardcodedFocModels,
+            GameEngineType.Eaw => HardcodedEawModelsParticles,
+            GameEngineType.Foc => HardcodedFocModelsParticles,
             _ => throw new ArgumentOutOfRangeException(nameof(engine), engine, null)
         };
     }

@@ -11,6 +11,7 @@ public static class VerifierErrorCodes
     public const string GenericExceptionErrorCode = "MV00";
 
     public const string BinaryFileCorrupt = "BIN00";
+    public const string UnexpectedBinaryFormat = "BIN01";
 
 
     public const string FileNotFound = "FILE00";
@@ -22,7 +23,7 @@ public static class VerifierErrorCodes
 
     public const string NameTooLong = "NAME00";
 
-    public const string MissingPreset = "SFX00";
+    public const string UnrecognizedEnum = "ENUM00";
 
     public const string SampleNotPCM = "WAV00";
     public const string SampleNotMono = "WAV01";

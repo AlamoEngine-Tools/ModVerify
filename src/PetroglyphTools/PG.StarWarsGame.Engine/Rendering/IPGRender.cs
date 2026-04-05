@@ -26,7 +26,7 @@ public interface IPGRender
 
     public AnimationCollection LoadAnimations(
         ReadOnlySpan<char> fileName,
-        ReadOnlySpan<char> dirPath,
+        ReadOnlySpan<char> directory,
         bool metadataOnly = true,
-        Action<BinaryCorruptedException>? corruptedAnimationHandler = null);
+        Action<BinaryCorruptedException, ModelAnimationType, string>? corruptedAnimationHandler = null);
 }

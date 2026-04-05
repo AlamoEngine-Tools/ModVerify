@@ -15,5 +15,5 @@ public interface ICommandBarGameManager : IGameManager<CommandBarBaseComponent>
 
     IReadOnlyDictionary<string, CommandBarComponentGroup> Groups { get; }
 
-    bool IconExists(GameObject gameObject);
+    bool IconExists(GameObjectType gameObjectType);
 }

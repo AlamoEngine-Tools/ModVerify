@@ -6,28 +6,28 @@ namespace AET.ModVerify.Verifiers.GameObjects;
 
 public sealed partial class GameObjectTypeVerifier
 {
-    private void VerifyXRefs(GameObject gameObject, string[] context)
+    private void VerifyXRefs(GameObjectType gameObjectType, string[] context)
     {
-        if (!string.IsNullOrEmpty(gameObject.VariantOfExistingTypeName) && gameObject.VariantOfExistingType is null)
+        if (!string.IsNullOrEmpty(gameObjectType.VariantOfExistingTypeName) && gameObjectType.VariantOfExistingType is null)
         {
             AddError(VerificationError.Create(
                 this, 
                 VerifierErrorCodes.MissingXRef,
-                $"Missing base type '{gameObject.VariantOfExistingTypeName}' for GameObject '{gameObject.Name}'",
+                $"Missing base type '{gameObjectType.VariantOfExistingTypeName}' for GameObject '{gameObjectType.Name}'",
                 VerificationSeverity.Critical,
                 [..context, "VariantOfExistingType"],
-                gameObject.VariantOfExistingTypeName));
+                gameObjectType.VariantOfExistingTypeName));
         }
 
-        VerifyCompanyUnits(gameObject, context);
+        VerifyCompanyUnits(gameObjectType, context);
     }
 
-    private void VerifyCompanyUnits(GameObject gameObject, string[] context)
+    private void VerifyCompanyUnits(GameObjectType gameObjectType, string[] context)
     {
-        if (gameObject.GroundCompanyUnits.Count == 0)
+        if (gameObjectType.GroundCompanyUnits.Count == 0)
             return;
 
-        var uniqueCompanyUnits = gameObject.GroundCompanyUnits
+        var uniqueCompanyUnits = gameObjectType.GroundCompanyUnits
             .Select(x => x.ToUpperInvariant())
             .Distinct();
 
@@ -36,7 +36,7 @@ public sealed partial class GameObjectTypeVerifier
             if (GameEngine.GameObjectTypeManager.FindObjectType(companyUnit) is null)
             {
                 AddError(VerificationError.Create(this, VerifierErrorCodes.MissingXRef,
-                    $"Missing company unit '{companyUnit}' for GameObject '{gameObject.Name}'",
+                    $"Missing company unit '{companyUnit}' for GameObject '{gameObjectType.Name}'",
                     VerificationSeverity.Critical, [..context, "CompanyUnits"], companyUnit));
             }
         }

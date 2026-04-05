@@ -12,13 +12,13 @@ internal class GameObjectFileParser(
     GameEngineType engine,
     IServiceProvider serviceProvider, 
     IGameEngineErrorReporter? errorReporter)
-    : PetroglyphXmlFileParserBase(serviceProvider, errorReporter), IXmlContainerFileParser<GameObject>
+    : PetroglyphXmlFileParserBase(serviceProvider, errorReporter), IXmlContainerFileParser<GameObjectType>
 {
     public event EventHandler<GameObjectParsedEventArgs>? GameObjectParsed;
 
-    private readonly GameObjectParser _gameObjectParser = new(engine, serviceProvider, errorReporter);
+    private readonly GameObjectTypeParser _gameObjectTypeParser = new(engine, serviceProvider, errorReporter);
 
-    public INamedXmlObjectParser<GameObject> ElementParser => _gameObjectParser;
+    public INamedXmlObjectParser<GameObjectType> ElementParser => _gameObjectTypeParser;
 
     public bool OverlayLoad
     {
@@ -26,16 +26,16 @@ internal class GameObjectFileParser(
         set
         {
             field = value;
-            _gameObjectParser.OverlayLoad = value;
+            _gameObjectTypeParser.OverlayLoad = value;
         }
     }
 
-    public void ParseFile(Stream xmlStream, IFrugalValueListDictionary<Crc32, GameObject> parsedEntries)
+    public void ParseFile(Stream xmlStream, IFrugalValueListDictionary<Crc32, GameObjectType> parsedEntries)
     {
         var root = GetRootElement(xmlStream, out _);
         foreach (var xElement in root.Elements())
         {
-            var parsedElement = _gameObjectParser.Parse(xElement, parsedEntries, out var entryCrc);
+            var parsedElement = _gameObjectTypeParser.Parse(xElement, parsedEntries, out var entryCrc);
             if (!OverlayLoad)
             {
                 parsedEntries.Add(entryCrc, parsedElement);
