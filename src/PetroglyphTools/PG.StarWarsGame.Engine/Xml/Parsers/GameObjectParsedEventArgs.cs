@@ -7,11 +7,11 @@ internal sealed class GameObjectParsedEventArgs : EventArgs
 {
     public bool Unique { get; }
 
-    public GameObject GameObject { get; }
+    public GameObjectType GameObjectType { get; }
 
-    internal GameObjectParsedEventArgs(GameObject gameObject, bool unique)
+    internal GameObjectParsedEventArgs(GameObjectType gameObjectType, bool unique)
     {
         Unique = unique;
-        GameObject = gameObject ?? throw new ArgumentNullException(nameof(gameObject));
+        GameObjectType = gameObjectType ?? throw new ArgumentNullException(nameof(gameObjectType));
     }
 }

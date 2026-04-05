@@ -11,7 +11,7 @@ using System.Diagnostics;
 namespace PG.StarWarsGame.Engine.GameObjects;
 
 [DebuggerDisplay("{Name} ({ClassificationName})")]
-public sealed class GameObject : NamedXmlObject
+public sealed class GameObjectType : NamedXmlObject
 {
     internal readonly List<(string terrain, string model)> InternalLandTerrainModelMapping = [];
 
@@ -23,7 +23,7 @@ public sealed class GameObject : NamedXmlObject
 
     public string? VariantOfExistingTypeName { get; internal set; }
 
-    public GameObject? VariantOfExistingType { get; internal set; }
+    public GameObjectType? VariantOfExistingType { get; internal set; }
 
     public bool IsLoadingComplete { get; internal set; }
     
@@ -39,21 +39,19 @@ public sealed class GameObject : NamedXmlObject
 
     public string? GuiModel { get; internal set; }
 
-    public string? ModelName { get; internal set; }
-
     public string? LandAnimOverrideModel { get; internal set; }
 
     public string SpaceAnimOverrideModel { get; internal set; }
 
     public string? DamagedSmokeAssetModel { get; internal set; }
 
-    public IReadOnlyList<(string terrain, string model)> LandTerrainModelMappingValues { get; }
+    public IReadOnlyList<(string terrainValue, string model)> LandTerrainModelMappingValues { get; }
     
     public string? IconName { get; internal set; }
 
     public MultiNameReferenceList GroundCompanyUnits { get; internal set; } = [];
 
-    internal GameObject(
+    internal GameObjectType(
         string name,
         string classification,
         Crc32 nameCrc,
@@ -69,7 +67,7 @@ public sealed class GameObject : NamedXmlObject
         LandTerrainModelMappingValues = new ReadOnlyCollection<(string, string)>(InternalLandTerrainModelMapping);
     }
 
-    internal void ApplyBaseType(GameObject baseType)
+    internal void ApplyBaseType(GameObjectType baseType)
     {
         // The following properties must not be inherited from the base type:
         // ID, CRC, Name, Location, IsLoadingComplete, ClassificationName and VariantOfExistingType[Name], LuaScript
@@ -81,7 +79,6 @@ public sealed class GameObject : NamedXmlObject
         SpaceModel = baseType.SpaceModel;
         GalacticFleetOverrideModel = baseType.GalacticFleetOverrideModel;
         GuiModel = baseType.GuiModel;
-        ModelName = baseType.ModelName;
         LandAnimOverrideModel = baseType.LandAnimOverrideModel;
         SpaceAnimOverrideModel = baseType.SpaceAnimOverrideModel;
         DamagedSmokeAssetModel = baseType.DamagedSmokeAssetModel;

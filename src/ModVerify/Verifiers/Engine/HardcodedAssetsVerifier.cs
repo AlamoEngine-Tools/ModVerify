@@ -25,10 +25,10 @@ public sealed class HardcodedAssetsVerifier : GameVerifier
 
     private void VerifyModels(CancellationToken token)
     {
-        var models = HardcodedEngineAssets.GetHardcodedModels(GameEngine.EngineType);
+        var models = HardcodedEngineAssets.GetHardcodedModelsAndParticles(GameEngine.EngineType);
 
         foreach (var model in models) 
-            _modelVerifier.Verify(model, [], token);
+            _modelVerifier.VerifyAlamoFile(model, [], token);
 
         foreach (var error in _modelVerifier.VerifyErrors) 
             AddError(error);

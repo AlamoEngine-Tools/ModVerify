@@ -118,12 +118,12 @@ internal partial class GameObjectTypeGameManager
     {
         if (!e.Unique)
         {
-            var entries = NamedEntries.GetValues(e.GameObject.Crc32)
+            var entries = NamedEntries.GetValues(e.GameObjectType.Crc32)
                 .Select(x => x.Name);
             ErrorReporter.Assert(EngineAssert.Create(
                 EngineAssertKind.DuplicateEntry, 
-                e.GameObject.Crc32, entries, 
-                $"Error: Game object type {e.GameObject.Name} is defined multiple times."));
+                e.GameObjectType.Crc32, entries, 
+                $"Error: Game object type {e.GameObjectType.Name} is defined multiple times."));
         }
 
         if (NamedEntries.ValueCount >= 0x10000)
@@ -136,7 +136,7 @@ internal partial class GameObjectTypeGameManager
                     "Too many game object types defined."));
         }
         
-        _gameObjects.Add(e.GameObject);
+        _gameObjects.Add(e.GameObjectType);
     }
 
     private void ParseSingleGameObjectFile(

@@ -5,14 +5,14 @@ namespace AET.ModVerify.Verifiers.GameObjects;
 
 public sealed partial class GameObjectTypeVerifier
 {
-    private void VerifyIcons(GameObject gameObject, string[] context)
+    private void VerifyIcons(GameObjectType gameObjectType, string[] context)
     {
-        VerifyObjectIcon(gameObject, context);
+        VerifyObjectIcon(gameObjectType, context);
     }
 
-    private void VerifyObjectIcon(GameObject gameObject, string[] context)
+    private void VerifyObjectIcon(GameObjectType gameObjectType, string[] context)
     {
-        if (string.IsNullOrEmpty(gameObject.IconName))
+        if (string.IsNullOrEmpty(gameObjectType.IconName))
             return;
 
         /*
@@ -31,11 +31,11 @@ public sealed partial class GameObjectTypeVerifier
          * Faction-specific icons are not verified as they are statically not decidable.
          */
 
-        if (!GameEngine.CommandBar.IconExists(gameObject))
+        if (!GameEngine.CommandBar.IconExists(gameObjectType))
         {
             AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound, 
-                $"Could not find icon '{gameObject.IconName}' for game object type '{gameObject.Name}'.",
-                VerificationSeverity.Warning, context, gameObject.IconName!));
+                $"Could not find icon '{gameObjectType.IconName}' for game object type '{gameObjectType.Name}'.",
+                VerificationSeverity.Warning, context, gameObjectType.IconName!));
         }
     }
 }
