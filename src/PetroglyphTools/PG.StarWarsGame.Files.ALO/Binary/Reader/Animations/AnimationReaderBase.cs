@@ -4,7 +4,7 @@ using System.Text;
 using PG.StarWarsGame.Files.ALO.Data;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.Binary;
-using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+using PG.StarWarsGame.Files.ChunkFiles.Binary.Model.Metadata;
 
 namespace PG.StarWarsGame.Files.ALO.Binary.Reader.Animations;
 
@@ -27,11 +27,11 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
             ReadAnimation(chunk, ref info, bones);
-            actualSize += chunk.Size;
+            actualSize += chunk.BodySize;
 
-        } while (actualSize < rootChunk.Size);
+        } while (actualSize < rootChunk.BodySize);
 
-        if (actualSize != rootChunk.Size)
+        if (actualSize != rootChunk.BodySize)
             throw new BinaryCorruptedException();
 
         if (info.NumberBones != bones.Count)
@@ -54,13 +54,14 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
         switch (chunk.Type)
         {
             case (int)AnimationChunkTypes.AnimationInfo:
-                animationInformation = ReadAnimationInfo(chunk.Size);
+                ThrowIfChunkSizeTooLargeException(chunk);
+                animationInformation = ReadAnimationInfo(chunk.BodySize);
                 break;
             case (int)AnimationChunkTypes.BoneData:
-                ReadBonesData(chunk.Size, bones);
+                ReadBonesData(chunk.BodySize, bones);
                 break;
             default:
-                ChunkReader.Skip(chunk.Size);
+                ChunkReader.Skip(chunk.BodySize);
                 break;
         }
     }
@@ -70,10 +71,11 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
         switch (chunk.Type)
         {
             case (int)AnimationChunkTypes.BoneDataInfo:
-                ReadBoneInfo(chunk.Size, bones);
+                ThrowIfChunkSizeTooLargeException(chunk);
+                ReadBoneInfo(chunk.BodySize, bones);
                 break;
             default:
-                ChunkReader.Skip(chunk.Size);
+                ChunkReader.Skip(chunk.BodySize);
                 break;
         }
     }
@@ -86,7 +88,7 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
         {
             var chunk = ChunkReader.ReadChunk(ref actualSize);
             ReadBoneDataCore(chunk, bones);
-            actualSize += chunk.Size;
+            actualSize += chunk.BodySize;
 
         } while (actualSize < chunkSize);
 
@@ -108,13 +110,13 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
             switch (chunk.Type)
             {
                 case (int)AnimationChunkTypes.BoneName:
-                    name = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true, ref actualSize);
+                    name = ChunkReader.ReadString(chunk.BodySize, Encoding.ASCII, true, ref actualSize);
                     break;
                 case (int)AnimationChunkTypes.BoneIndex:
                     index = ChunkReader.ReadDword(ref actualSize);
                     break;
                 default:
-                    ChunkReader.Skip(chunk.Size, ref actualSize);
+                    ChunkReader.Skip(chunk.BodySize, ref actualSize);
                     break;
             }
 
@@ -156,7 +158,7 @@ internal abstract class AnimationReaderBase(AloLoadOptions loadOptions, Stream s
                     info.ScaleBlockSize = ChunkReader.ReadDword(ref actualSize);
                     break;
                 default:
-                    ChunkReader.Skip(chunk.Size, ref actualSize);
+                    ChunkReader.Skip(chunk.BodySize, ref actualSize);
                     break;
             }
 

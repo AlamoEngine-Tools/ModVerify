@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net10.0</TargetFrameworks>
-		<Title>PG.StarWarsGame.Files.ChunkFiles</Title>
-		<Product>PG.StarWarsGame.Files.ChunkFiles</Product>
-		<PackageId>AlamoEngineTools.PG.StarWarsGame.Files.ChunkFiles</PackageId>
+		<Title>PG.StarWarsGame.Files.TED</Title>
+		<Product>PG.StarWarsGame.Files.TED</Product>
+		<PackageId>AlamoEngineTools.PG.StarWarsGame.Files.TED</PackageId>
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 	<PropertyGroup>
@@ -14,10 +14,14 @@
 	<PropertyGroup>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<LangVersion>preview</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files" Version="3.0.2" />
+		<PackageReference Include="PolySharp" Version="1.15.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
 	</ItemGroup>
 </Project>

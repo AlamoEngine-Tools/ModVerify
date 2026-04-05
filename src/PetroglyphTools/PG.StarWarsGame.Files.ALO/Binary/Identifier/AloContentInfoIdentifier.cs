@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using PG.StarWarsGame.Files.ALO.Files;
 using PG.StarWarsGame.Files.Binary;
-using PG.StarWarsGame.Files.ChunkFiles.Binary.Metadata;
+using PG.StarWarsGame.Files.ChunkFiles.Binary;
 using PG.StarWarsGame.Files.ChunkFiles.Binary.Reader;
 
 namespace PG.StarWarsGame.Files.ALO.Binary.Identifier;
@@ -14,19 +14,19 @@ internal class AloContentInfoIdentifier : IAloContentInfoIdentifier
 
         var chunk = chunkReader.ReadChunk();
 
-        switch ((ChunkType)chunk.Type)
+        switch ((AloChunkType)chunk.Type)
         {
-            case ChunkType.Skeleton:
-            case ChunkType.Mesh:
-            case ChunkType.Light:
-                return FromModel(chunk.Size, chunkReader);
-            case ChunkType.Connections:
+            case AloChunkType.Skeleton:
+            case AloChunkType.Mesh:
+            case AloChunkType.Light:
+                return FromModel(chunk.BodySize, chunkReader);
+            case AloChunkType.Connections:
                 return FromConnection(chunkReader);
-            case ChunkType.Particle:
+            case AloChunkType.Particle:
                 return new AloContentInfo(AloType.Particle, AloVersion.V1);
-            case ChunkType.ParticleUaW:
+            case AloChunkType.ParticleUaW:
                 return new AloContentInfo(AloType.Particle, AloVersion.V2);
-            case ChunkType.Animation:
+            case AloChunkType.Animation:
                 return FromAnimation(chunkReader);
             default:
                 throw new BinaryCorruptedException("Unable to get ALO content information.");
@@ -38,17 +38,17 @@ internal class AloContentInfoIdentifier : IAloContentInfoIdentifier
         var chunk = chunkReader.TryReadChunk();
         while (chunk.HasValue)
         {
-            switch ((ChunkType)chunk.Value.Type)
+            switch ((AloChunkType)chunk.Value.Type)
             {
-                case ChunkType.AnimationInformation:
-                    return chunk.Value.Size switch
+                case AloChunkType.AnimationInformation:
+                    return chunk.Value.BodySize switch
                     {
                         36 => new AloContentInfo(AloType.Animation, AloVersion.V2),
                         18 => new AloContentInfo(AloType.Animation, AloVersion.V1),
                         _ => throw new BinaryCorruptedException("Invalid ALA animation.")
                     };
                 default:
-                    chunkReader.Skip(chunk.Value.Size);
+                    chunkReader.Skip(chunk.Value.BodySize);
                     break;
             }
             chunk = chunkReader.TryReadChunk();
@@ -61,14 +61,14 @@ internal class AloContentInfoIdentifier : IAloContentInfoIdentifier
         var chunk = chunkReader.TryReadChunk();
         while (chunk.HasValue)
         {
-            switch ((ChunkType)chunk.Value.Type)
+            switch ((AloChunkType)chunk.Value.Type)
             {
-                case ChunkType.ProxyConnection:
-                case ChunkType.ObjectConnection:
-                case ChunkType.ConnectionCounts:
-                    chunkReader.Skip(chunk.Value.Size);
+                case AloChunkType.ProxyConnection:
+                case AloChunkType.ObjectConnection:
+                case AloChunkType.ConnectionCounts:
+                    chunkReader.Skip(chunk.Value.BodySize);
                     break;
-                case ChunkType.Dazzle:
+                case AloChunkType.Dazzle:
                     return new AloContentInfo(AloType.Model, AloVersion.V2);
                 default:
                     throw new BinaryCorruptedException("Invalid ALO model.");
@@ -85,14 +85,14 @@ internal class AloContentInfoIdentifier : IAloContentInfoIdentifier
         var chunk = chunkReader.TryReadChunk();
         if (chunk is null) 
             throw new BinaryCorruptedException("Unable to get ALO content information.");
-        switch ((ChunkType)chunk.Value.Type)
+        switch ((AloChunkType)chunk.Value.Type)
         {
-            case ChunkType.Connections:
+            case AloChunkType.Connections:
                 return FromConnection(chunkReader);
-            case ChunkType.Skeleton:
-            case ChunkType.Mesh:
-            case ChunkType.Light:
-                return FromModel(chunk.Value.Size, chunkReader);
+            case AloChunkType.Skeleton:
+            case AloChunkType.Mesh:
+            case AloChunkType.Light:
+                return FromModel(chunk.Value.BodySize, chunkReader);
             default:
                 throw new BinaryCorruptedException("Invalid ALO model.");
         }
