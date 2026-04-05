@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Xml;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,18 +37,16 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
 
         if (xmlElement is not null)
         {
-            var localName = xmlElement.Name.LocalName;
-            context.Add(localName);
-            
-            asset = localName;
-
             var parent = xmlElement.Parent;
 
             if (parent != null)
             {
                 var parentName = parent.Attribute("Name");
-                context.Add(parentName != null ? $"parentName='{parentName.Value}'" : $"parentTag='{parent.Name.LocalName}'");
+                context.Add(parentName != null ? $"{parentName.Value}" : $"<{parent.Name.LocalName}>");
             }
+
+            var localName = xmlElement.Name.LocalName;
+            asset = localName;
         }
 
         var errorMessage = CreateErrorMessage(error, strippedFileName);

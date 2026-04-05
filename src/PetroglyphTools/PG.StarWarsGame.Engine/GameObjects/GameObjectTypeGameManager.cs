@@ -8,9 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace PG.StarWarsGame.Engine.GameObjects;
 
-internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, IGameObjectTypeGameManager
+internal partial class GameObjectTypeGameManager : GameManagerBase<GameObjectType>, IGameObjectTypeGameManager
 {
-    private readonly List<GameObject> _gameObjects;
+    private readonly List<GameObjectType> _gameObjects;
     private readonly ICrc32HashingService _hashingService;
 
     public GameObjectTypeGameManager(
@@ -21,10 +21,10 @@ internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, 
     {
         _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _gameObjects = [];
-        GameObjects = new ReadOnlyCollection<GameObject>(_gameObjects);
+        GameObjectTypes = new ReadOnlyCollection<GameObjectType>(_gameObjects);
     }
     
-    public IReadOnlyList<GameObject> GameObjects
+    public IReadOnlyList<GameObjectType> GameObjectTypes
     {
         get
         {
@@ -32,49 +32,8 @@ internal partial class GameObjectTypeGameManager : GameManagerBase<GameObject>, 
             return field;
         }
     }
-
-    public IEnumerable<string> GetModels(GameObject gameObject)
-    {
-        var models = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        AddNotEmpty(gameObject.GalacticModel);
-        AddNotEmpty(gameObject.DestroyedGalacticModel);
-        AddNotEmpty(gameObject.LandModel);
-        AddNotEmpty(gameObject.SpaceModel);
-        AddNotEmpty(gameObject.GalacticFleetOverrideModel);
-        AddNotEmpty(gameObject.GuiModel);
-        AddNotEmpty(gameObject.ModelName);
-        AddNotEmpty(gameObject.LandAnimOverrideModel);
-        AddNotEmpty(gameObject.SpaceAnimOverrideModel);
-        AddNotEmpty(gameObject.DamagedSmokeAssetModel);
-        AddTerrainMappingModels();
-        return models;
-
-
-        void AddNotEmpty(string? value, Predicate<string>? predicate = null)
-        {
-            if (string.IsNullOrEmpty(value))
-                return;
-            if (predicate is null || predicate(value))
-                models.Add(value);
-        }
-
-
-        void AddTerrainMappingModels()
-        {
-            var visitedEnvTypes = new HashSet<MapEnvironmentType>();
-            foreach (var mapping in gameObject.LandTerrainModelMappingValues)
-            {
-                if (MapEnvironmentTypeConversion.ConversionDictionary.TryStringToEnum(mapping.terrain, out var envType))
-                {
-                    // The engine only uses the first model for each environment type.
-                    if (visitedEnvTypes.Add(envType)) 
-                        AddNotEmpty(mapping.model);
-                }
-            }
-        }
-    }
-
-    public GameObject? FindObjectType(string? name)
+    
+    public GameObjectType? FindObjectType(string? name)
     {
         if (string.IsNullOrEmpty(name))
             return null;

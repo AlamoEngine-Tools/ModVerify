@@ -81,29 +81,29 @@ internal class PGRender(
         if (!aloFile.FileInformation.IsModel)
             return new ModelClass(aloFile);
 
-        var dirPath = _fileSystem.Path.GetDirectoryName(path);
+        var directory = _fileSystem.Path.GetDirectoryName(path);
         var fileName = _fileSystem.Path.GetFileNameWithoutExtension(path);
 
         if (!string.IsNullOrEmpty(animOverrideName))
             fileName = _fileSystem.Path.GetFileNameWithoutExtension(animOverrideName.AsSpan());
 
-        var animations = LoadAnimations(fileName, dirPath, metadataOnly, throwsException ? AnimationCorruptedHandler : null);
+        var animations = LoadAnimations(fileName, directory, metadataOnly, throwsException ? AnimationCorruptedHandler : null);
 
         return new ModelClass(aloFile, animations);
     }
 
-    private void AnimationCorruptedHandler(BinaryCorruptedException e)
+    private static void AnimationCorruptedHandler(BinaryCorruptedException e, ModelAnimationType animationType, string file)
     {
         throw e;
     }
 
     public AnimationCollection LoadAnimations(
-        ReadOnlySpan<char> fileName, 
-        ReadOnlySpan<char> dirPath, 
+        ReadOnlySpan<char> modelFileName, 
+        ReadOnlySpan<char> directory, 
         bool metadataOnly = true,
-        Action<BinaryCorruptedException>? corruptedAnimationHandler = null)
+        Action<BinaryCorruptedException, ModelAnimationType, string>? corruptedAnimationHandler = null)
     {
-        fileName = _fileSystem.Path.GetFileNameWithoutExtension(fileName);
+        modelFileName = _fileSystem.Path.GetFileNameWithoutExtension(modelFileName);
 
         var animations = new AnimationCollection();
 
@@ -120,10 +120,10 @@ internal class PGRender(
             {
                 var stringBuilder = new ValueStringBuilder(stringBuffer);
 
-                CreateAnimationFilePath(ref stringBuilder, fileName, animationData.Value, subIndex);
+                CreateAnimationFilePath(ref stringBuilder, modelFileName, animationData.Value, subIndex);
                 var animationFilenameWithoutExtension =
                     _fileSystem.Path.GetFileNameWithoutExtension(stringBuilder.AsSpan());
-                InsertPath(ref stringBuilder, dirPath);
+                InsertPath(ref stringBuilder, directory);
 
                 if (stringBuilder.Length > PGConstants.MaxAnimationFileName)
                 {
@@ -151,8 +151,8 @@ internal class PGRender(
                 }
                 catch (BinaryCorruptedException e)
                 {
-                    corruptedAnimationHandler?.Invoke(e);
-                    loadingNumberedAnimations = false;
+                    // NB: Loading a corrupted animation does not break the loading of other numbered animations
+                    corruptedAnimationHandler?.Invoke(e, animationData.Key, stringBuilder.AsSpan().ToString());
                 }
                 finally
                 {

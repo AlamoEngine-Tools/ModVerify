@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.Audio.Sfx;
+using PG.StarWarsGame.Engine.Xml.Parsers.Tags;
 using PG.StarWarsGame.Files.XML;
 using PG.StarWarsGame.Files.XML.ErrorHandling;
 using PG.StarWarsGame.Files.XML.Parsers;
@@ -278,44 +279,5 @@ internal class SfxEventParser(GameEngineType engine, IServiceProvider servicePro
                 PetroglyphXmlStringParser.Instance.Parse,
                 (obj, val) => obj.ChainedSfxEventName = val);
         }
-    }
-
-    internal static class SfxEventXmlTags
-    {
-        internal const string PresetXRef = "XREF_PRESET";
-        internal const string IsPreset = "Is_Preset";
-        internal const string UsePreset = "Use_Preset";
-        internal const string Samples = "Samples";
-        internal const string PreSamples = "Pre_Samples";
-        internal const string PostSamples = "Post_Samples";
-        internal const string TextID = "Text_ID";
-        internal const string PlaySequentially = "Play_Sequentially";
-        internal const string Priority = "Priority";
-        internal const string Probability = "Probability";
-        internal const string PlayCount = "Play_Count";
-        internal const string LoopFadeInSeconds = "Loop_Fade_In_Seconds";
-        internal const string LoopFadeOutSeconds = "Loop_Fade_Out_Seconds";
-        internal const string MaxInstances = "Max_Instances";
-        internal const string MinVolume = "Min_Volume";
-        internal const string MaxVolume = "Max_Volume";
-        internal const string MinPitch = "Min_Pitch";
-        internal const string MaxPitch = "Max_Pitch";
-        internal const string MinPan2D = "Min_Pan2D";
-        internal const string MaxPan2D = "Max_Pan2D";
-        internal const string MinPredelay = "Min_Predelay";
-        internal const string MaxPredelay = "Max_Predelay";
-        internal const string MinPostdelay = "Min_Postdelay";
-        internal const string MaxPostdelay = "Max_Postdelay";
-        internal const string VolumeSaturationDistance = "Volume_Saturation_Distance";
-        internal const string KillsPreviousObjectSFX = "Kills_Previous_Object_SFX";
-        internal const string OverlapTest = "Overlap_Test";
-        internal const string Localize = "Localize";
-        internal const string Is2D = "Is_2D";
-        internal const string Is3D = "Is_3D";
-        internal const string IsGui = "Is_GUI";
-        internal const string IsHudVo = "Is_HUD_VO";
-        internal const string IsUnitResponseVo = "Is_Unit_Response_VO";
-        internal const string IsAmbientVo = "Is_Ambient_VO";
-        internal const string ChainedSfxEvent = "Chained_SFXEvent";
     }
 }

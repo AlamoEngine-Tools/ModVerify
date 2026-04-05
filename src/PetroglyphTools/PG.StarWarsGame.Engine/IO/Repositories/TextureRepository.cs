@@ -7,7 +7,7 @@ internal class TextureRepository(GameRepository baseRepository, IServiceProvider
     MultiPassRepository(baseRepository, serviceProvider)
 {
     private static readonly string DdsExtension = ".dds";
-    private static readonly string TexturePath = "DATA\\ART\\TEXTURES\\";
+    private static readonly string TexturePath = "./Data/art/Textures/";
 
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 

@@ -81,19 +81,19 @@ internal partial class CommandBarGameManager(
 
     public Vector3 CommandBarOffset { get; internal set; }
 
-    public bool IconExists(GameObject gameObject)
+    public bool IconExists(GameObjectType gameObjectType)
     {
         ThrowIfNotInitialized();
-        if (gameObject == null)
-            throw new ArgumentNullException(nameof(gameObject));
+        if (gameObjectType == null)
+            throw new ArgumentNullException(nameof(gameObjectType));
 
         if (MtdFile is null)
             return false;
 
-        if (string.IsNullOrEmpty(gameObject.IconName))
+        if (string.IsNullOrEmpty(gameObjectType.IconName))
             return false;
 
-        var crc = _hashingService.GetCrc32Upper(gameObject.IconName, PGConstants.DefaultPGEncoding);
+        var crc = _hashingService.GetCrc32Upper(gameObjectType.IconName, PGConstants.DefaultPGEncoding);
 
         return MtdFile.Content.Contains(crc);
     }

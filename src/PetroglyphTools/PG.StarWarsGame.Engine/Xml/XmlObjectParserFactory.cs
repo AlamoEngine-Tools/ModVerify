@@ -16,8 +16,8 @@ internal sealed class XmlObjectParserFactory(IServiceProvider serviceProvider) :
             return ChangeType<T>(new SfxEventParser(engine, serviceProvider, errorReporter));
         if (typeof(T) == typeof(CommandBarComponentData))
             return ChangeType<T>(new CommandBarComponentParser(engine, serviceProvider, errorReporter));
-        if (typeof(T) == typeof(GameObject))
-            return ChangeType<T>(new GameObjectParser(engine, serviceProvider, errorReporter));
+        if (typeof(T) == typeof(GameObjectType))
+            return ChangeType<T>(new GameObjectTypeParser(engine, serviceProvider, errorReporter));
 
 
         throw new ParserNotFoundException(typeof(T));
