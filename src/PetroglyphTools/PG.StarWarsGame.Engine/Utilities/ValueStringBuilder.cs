@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace PG.StarWarsGame.Engine.Utilities;
 
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
 internal ref struct ValueStringBuilder
 {
     private char[]? _arrayToReturnToPool;
@@ -82,6 +83,9 @@ internal ref struct ValueStringBuilder
             return ref _chars[index];
         }
     }
+    
+    [DebuggerBrowsable((DebuggerBrowsableState.Never))]
+    private string DebuggerDisplay => AsSpan().ToString();
 
     public override string ToString()
     {
