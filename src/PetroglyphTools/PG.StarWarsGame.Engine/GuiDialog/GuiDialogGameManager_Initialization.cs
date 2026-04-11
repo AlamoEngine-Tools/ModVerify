@@ -36,10 +36,9 @@ internal partial class GuiDialogGameManager
                     GameManager = ToString(),
                     Message = "Unable to parse GuiDialogs.xml"
                 });
-                return;
             }
 
-            InitializeTextures(guiDialogs.TextureData);
+            InitializeTextures(guiDialogs?.TextureData ?? new GuiDialogsXmlTextureData([], default));
             GuiDialogsXml = guiDialogs;
         }, token);
     }
