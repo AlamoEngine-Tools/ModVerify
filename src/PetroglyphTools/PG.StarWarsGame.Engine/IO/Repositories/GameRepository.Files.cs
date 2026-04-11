@@ -97,24 +97,28 @@ internal partial class GameRepository
     {
         Debug.Assert(MasterMegArchive is not null);
 
-        if (filePath.Length > PGConstants.MaxMegEntryPathLength)
+        var sb = new ValueStringBuilder(stackalloc char[Math.Max(filePath.Length, PGConstants.MaxMegEntryPathLength)]);
+        sb.Append(filePath);
+        NormalizePath(ref sb);
+
+        if (sb.Length > PGConstants.MaxMegEntryPathLength)
         {
-            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FilePath}'", filePath.ToString());
+            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FileName}'", sb.ToString());
+            sb.Dispose();
             return default;
         }
 
         Span<char> fileNameSpan = stackalloc char[PGConstants.MaxMegEntryPathLength];
 
-        if (!_megPathNormalizer.TryNormalize(filePath, fileNameSpan, out var length))
-            return default;
-
-        var fileName = fileNameSpan.Slice(0, length);
-
-        if (fileName.Length > PGConstants.MaxMegEntryPathLength)
+        if (!_megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out var length))
         {
-            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters after normalization: '{FileName}'", fileName.ToString());
+            sb.Dispose();
             return default;
         }
+
+        sb.Dispose();
+
+        var fileName = fileNameSpan.Slice(0, length);
 
         var crc = _crc32HashingService.GetCrc32(fileName, MegFileConstants.MegDataEntryPathEncoding);
 
@@ -133,13 +137,15 @@ internal partial class GameRepository
             stringBuilder.Append(filePath);
         else
             FileSystem.Path.Join(GameDirectory.AsSpan(), filePath, ref stringBuilder);
+        
 
-        var actualFilePath = stringBuilder.AsSpan();
-
-        // We accept a *possible* difference here between platforms,
-        // unless it's proven the differences are too significant.
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            exists = FileSystem.File.Exists(actualFilePath.ToString());
+        {
+            NormalizePath(ref stringBuilder);
+            
+            var actualFilePath = stringBuilder.AsSpan();
+            exists = FileSystemPathExistsCaseInsensitive(actualFilePath, ref stringBuilder);
+        }
         else
         {
             // We *could* also use the slightly faster GetFileAttributesA.
@@ -157,7 +163,7 @@ internal partial class GameRepository
 
             exists = IsValidAndClose(fileHandle);
         }
-        return !exists ? new FileFoundInfo() : new FileFoundInfo(actualFilePath);
+        return !exists ? new FileFoundInfo() : new FileFoundInfo(stringBuilder.AsSpan());
     }
 
     protected FileFoundInfo FileFromAltExists(ReadOnlySpan<char> filePath, IList<string> fallbackPaths, ref ValueStringBuilder pathStringBuilder)
@@ -182,6 +188,79 @@ internal partial class GameRepository
         }
 
         return default;
+    }
+    
+    private static int NormalizePath(Span<char> path)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return path.Length;
+
+        var writePos = 0;
+        var lastWasSeparator = false;
+        for (var i = 0; i < path.Length; i++)
+        {
+            var c = path[i];
+            var isSeparator = c is '\\' or '/';
+            if (isSeparator && lastWasSeparator)
+                continue;
+            path[writePos++] = isSeparator ? '/' : c;
+            lastWasSeparator = isSeparator;
+        }
+
+        return writePos;
+    }
+
+    private static void NormalizePath(ref ValueStringBuilder stringBuilder)
+    {
+        stringBuilder.Length = NormalizePath(stringBuilder.RawChars.Slice(0, stringBuilder.Length));
+    }
+
+    private bool FileSystemPathExistsCaseInsensitive(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder)
+    {
+        var pathString = filePath.ToString();
+        if (FileSystem.File.Exists(pathString))
+            return true;
+
+        var directory = FileSystem.Path.GetDirectoryName(pathString);
+        var fileName = FileSystem.Path.GetFileName(pathString);
+
+        if (string.IsNullOrEmpty(directory) || string.IsNullOrEmpty(fileName))
+            return false;
+
+        if (!FileSystem.Directory.Exists(directory))
+        {
+            if (!FileSystemPathExistsCaseInsensitive(directory.AsSpan(), ref stringBuilder))
+                return false;
+
+            directory = stringBuilder.AsSpan().ToString();
+        }
+
+        var files = FileSystem.Directory.GetFiles(directory);
+        var directories = FileSystem.Directory.GetDirectories(directory);
+
+        foreach (var file in files)
+        {
+            var name = FileSystem.Path.GetFileName(file);
+            if (name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
+            {
+                stringBuilder.Length = 0;
+                stringBuilder.Append(file);
+                return true;
+            }
+        }
+
+        foreach (var dir in directories)
+        {
+            var name = FileSystem.Path.GetFileName(dir);
+            if (name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
+            {
+                stringBuilder.Length = 0;
+                stringBuilder.Append(dir);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool PathStartsWithDataDirectory(ReadOnlySpan<char> path, out int cutoffLength)

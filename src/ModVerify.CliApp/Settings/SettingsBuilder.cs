@@ -57,6 +57,20 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
             }
 
+            if (verifyOptions.UseDefaultBaseline && !string.IsNullOrEmpty(verifyOptions.Baseline))
+            {
+                var useDefaultOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.UseDefaultBaseline));
+                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
+                throw new AppArgumentException($"Options {useDefaultOption} and {baselineOption} cannot be used together.");
+            }
+
+            if (verifyOptions is { UseDefaultBaseline: true, SearchBaselineLocally: true })
+            {
+                var useDefaultOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.UseDefaultBaseline));
+                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
+                throw new AppArgumentException($"Options {useDefaultOption} and {searchOption} cannot be used together.");
+            }
+
             if (verifyOptions is { FailFast: true, MinimumFailureSeverity: null })
             {
                 var failFast = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.FailFast));
@@ -86,6 +100,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 BaselinePath = verifyOptions.Baseline,
                 MinimumReportSeverity = verifyOptions.MinimumSeverity,
                 SearchBaselineLocally = verifyOptions.SearchBaselineLocally,
+                UseDefaultBaseline = verifyOptions.UseDefaultBaseline,
                 SuppressionsPath = verifyOptions.Suppressions,
                 Verbose = verifyOptions.Verbose
             };
