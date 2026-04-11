@@ -250,13 +250,14 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
         {
-            AddError(VerificationError.Create(
-                this,
-                VerifierErrorCodes.InvalidParticleName,
-                $"The particle name '{file.Content.Name}' does not match file name '{file.FileName}'",
-                VerificationSeverity.Error,
-                [file.FileName.ToUpperInvariant()],
-                file.Content.Name));
+            // TODO: Re-enable
+            // AddError(VerificationError.Create(
+            //     this,
+            //     VerifierErrorCodes.InvalidParticleName,
+            //     $"The particle name '{file.Content.Name}' does not match file name '{file.FileName}'",
+            //     VerificationSeverity.Error,
+            //     [file.FileName.ToUpperInvariant()],
+            //     file.Content.Name));
         }
 
     }
