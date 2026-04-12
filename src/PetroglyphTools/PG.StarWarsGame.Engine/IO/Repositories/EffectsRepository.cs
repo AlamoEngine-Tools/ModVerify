@@ -1,11 +1,9 @@
 ﻿using System;
-using PG.StarWarsGame.Engine.IO.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
-internal class EffectsRepository(GameRepository baseRepository, IServiceProvider serviceProvider) 
-    : MultiPassRepository(baseRepository, serviceProvider)
+internal class EffectsRepository(GameRepository baseRepository) : MultiPassRepository(baseRepository)
 {
     private static readonly string[] LookupPaths =
     [
@@ -73,7 +71,7 @@ internal class EffectsRepository(GameRepository baseRepository, IServiceProvider
         multiPassStringBuilder.Length = 0;
 
         if (directory != ReadOnlySpan<char>.Empty) 
-            FileSystem.Path.Join(directory, strippedName, ref multiPassStringBuilder);
+            BaseRepository.PGFileSystem.JoinPath(directory, strippedName, ref multiPassStringBuilder);
         else
             multiPassStringBuilder.Append(strippedName);
 

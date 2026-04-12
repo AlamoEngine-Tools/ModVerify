@@ -1,18 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.IO.Repositories;
+﻿using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Utilities;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.IO.Abstractions;
 
 namespace PG.StarWarsGame.Engine.IO;
 
-internal abstract class MultiPassRepository(GameRepository baseRepository, IServiceProvider serviceProvider) : IRepository
+internal abstract class MultiPassRepository(GameRepository baseRepository) : IRepository
 {
-    protected readonly IFileSystem FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
     protected readonly GameRepository BaseRepository = baseRepository;
-
+    
     public Stream OpenFile(string filePath, bool megFileOnly = false)
     {
         return OpenFile(filePath.AsSpan(), megFileOnly);

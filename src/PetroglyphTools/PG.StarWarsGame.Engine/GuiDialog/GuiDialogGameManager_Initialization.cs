@@ -145,7 +145,7 @@ internal partial class GuiDialogGameManager
         }
         else
         {
-            var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{guiDialogs.MegaTexture}.mtd");
+            var mtdPath = PGFileSystem.CombinePath("DATA\\ART\\TEXTURES", $"{guiDialogs.MegaTexture}.mtd");
 
             if (mtdPath.Length > MegaTextureMaxFilePathLength)
             {

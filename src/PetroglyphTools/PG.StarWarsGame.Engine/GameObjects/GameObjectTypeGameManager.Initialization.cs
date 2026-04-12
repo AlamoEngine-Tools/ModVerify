@@ -29,7 +29,7 @@ internal partial class GameObjectTypeGameManager
             }, ServiceProvider, ErrorReporter);
 
         var xmlFileList = gameParser.ParseFileList(@"DATA\XML\GAMEOBJECTFILES.XML").Files
-            .Select(x => FileSystem.Path.Combine(@".\DATA\XML\", x))
+            .Select(x => PGFileSystem.CombinePath(@".\DATA\XML\", x))
             .Where(VerifyFilePathLength)
             .ToList();
 
@@ -111,7 +111,7 @@ internal partial class GameObjectTypeGameManager
 
     private bool IsSameFile(string filePathA, string filePathB)
     {
-        return FileSystem.Path.AreEqual(filePathA, filePathB);
+        return PGFileSystem.PathsAreEqual(filePathA, filePathB);
     }
 
     private void OnGameObjectParsed(object sender, GameObjectParsedEventArgs e)
