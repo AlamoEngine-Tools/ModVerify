@@ -12,28 +12,20 @@ public sealed partial class PetroglyphFileSystem
 {
     internal void NormalizePath(ref ValueStringBuilder stringBuilder)
     {
-        stringBuilder.Length = NormalizePath(stringBuilder.RawChars.Slice(0, stringBuilder.Length));
+        NormalizePath(stringBuilder.RawChars.Slice(0, stringBuilder.Length));
     }
     
     // TODO: Check whether we can eliminate the double slash normalization
     // once we migrated to PGFileSystem
-    private static int NormalizePath(Span<char> path)
+    private static void NormalizePath(Span<char> path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return path.Length;
-
-        var writePos = 0;
-        var lastWasSeparator = false;
+            return;
         for (var i = 0; i < path.Length; i++)
         {
             var c = path[i];
-            var isSeparator = c is '\\' or '/';
-            if (isSeparator && lastWasSeparator)
-                continue;
-            path[writePos++] = isSeparator ? '/' : c;
-            lastWasSeparator = isSeparator;
+            if (IsDirectorySeparator(c))
+                path[i] = '/';
         }
-
-        return writePos;
     } 
 }
