@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,9 +17,6 @@ namespace PG.StarWarsGame.Files.XML.Parsers;
 public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvider, IXmlParserErrorReporter? errorReporter) 
     : PetroglyphXmlParserBase(errorReporter)
 {
-    protected readonly IServiceProvider ServiceProvider =
-        serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-
     protected readonly IFileSystem FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
     protected virtual bool LoadLineInfo => true;
@@ -62,18 +61,24 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
         return root;
     }
-
+    
     private string GetStrippedFileName(string filePath)
     {
         if (!FileSystem.Path.IsPathFullyQualified(filePath))
             return filePath;
-
-        var pathPartIndex = filePath.LastIndexOf("DATA\\XML\\", StringComparison.OrdinalIgnoreCase);
+        
+        var pathPartIndex = filePath.LastIndexOf(GetXmlDataFolder(), StringComparison.OrdinalIgnoreCase);
 
         if (pathPartIndex == -1)
             return filePath;
 
-        return filePath.Substring(pathPartIndex);
+        return filePath[pathPartIndex..];
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static string GetXmlDataFolder()
+        {
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"DATA\XML\" : "DATA/XML/";
+        }
     }
 
 
