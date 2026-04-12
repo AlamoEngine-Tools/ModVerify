@@ -160,21 +160,32 @@ internal partial class GameRepository
         return default;
     }
     
-    private static bool PathStartsWithDataDirectory(ReadOnlySpan<char> path, out int cutoffLength)
+    private bool PathStartsWithDataDirectory(ReadOnlySpan<char> path, out int cutoffLength)
     {
         cutoffLength = 0;
         if (path.Length < 5)
             return false;
-        foreach (var prefix in DataPathPrefixes)
+        
+        var sb = new ValueStringBuilder(stackalloc char[265]);
+        sb.Append(path);
+        PGFileSystem.NormalizePath(ref sb);
+        try
         {
-            if (path.StartsWith(prefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            foreach (var prefix in DataPathPrefixes)
             {
-                if (path[0] == '.')
-                    cutoffLength = 2;
-                return true;
+                if (sb.AsSpan().StartsWith(prefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (path[0] == '.')
+                        cutoffLength = 2;
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        finally
+        {
+            sb.Dispose();
+        }
     }
 
     internal Stream? OpenFileCore(FileFoundInfo fileFoundInfo)
