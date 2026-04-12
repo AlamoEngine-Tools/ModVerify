@@ -109,7 +109,7 @@ jobs:
         # Create a GitHub release on push to main only
         if: |
             github.ref == 'refs/heads/main' &&  github.event_name == 'push'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: v${{ steps.nbgv.outputs.SemVer2 }}
           tag_name: v${{ steps.nbgv.outputs.SemVer2 }}
