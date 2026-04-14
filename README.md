@@ -103,7 +103,7 @@ Uses manual mod setup, including sub-mods and the EaW fallback game, and uses th
 
 **Windows:**
 ```bat
-.\ModVerify.exe verify --mods "C:\My Games\FoC\Mods\MySubMod;C:\My Games\FoC\Mods\MyMod" --game "C:\My Games\FoC" --fallbackGame "C:\My Games\EaW" --useDefaultBaseline
+.\ModVerify.exe verify --mods "C:\My Games\FoC\Mods\MySubMod;C:\My Games\FoC\Mods\MyMod" --game "C:\My Games\FoC" --fallbackGame "C:\My Games\EaW" --engine FOC --useDefaultBaseline
 ```
 
 **Linux:**
@@ -112,6 +112,7 @@ Uses manual mod setup, including sub-mods and the EaW fallback game, and uses th
   --mods "/home/user/games/FoC/Mods/MySubMod:/home/user/games/FoC/Mods/MyMod" \
   --game "/home/user/games/FoC" \
   --fallbackGame "/home/user/games/EaW" \
+  --engine FOC \
   --useDefaultBaseline
 ```
 
@@ -144,6 +145,14 @@ The following verifiers are currently implemented:
 If you want to create your own baseline use the `createBaseline` option. 
 
 ### Example
+
+**Windows**
 ```bash
 ModVerify.exe createBaseline --outFile myBaseline.json --path "C:\My Games\FoC\Mods\MyMod"
+```
+**Linux**
+```bash
+./ModVerify createBaseline \
+  --outFile myBaseline.json \
+  --path "C:\My Games\FoC\Mods\MyMod"
 ```
