@@ -52,70 +52,54 @@ public sealed partial class PetroglyphFileSystem
     // NB: This method assumes backslashes have been normalized to forward slashes
     // NB: This method operates on the actual file system
     private bool FileExistsCaseInsensitive(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder)
-{
-    Debug.Assert(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
-
-    var pathString = filePath.ToString();
-    if (_underlyingFileSystem.File.Exists(pathString))
-        return true;
-
-    var segments = pathString.Split('/');
-    var currentPath = segments[0].Length == 0 ? "/" : segments[0];
-
-    var lastSegmentIndex = segments.Length - 1;
-    while (lastSegmentIndex > 0 && string.IsNullOrEmpty(segments[lastSegmentIndex]))
-        lastSegmentIndex--;
-
-    for (var i = 1; i < segments.Length; i++)
     {
-        var segment = segments[i];
-        if (string.IsNullOrEmpty(segment))
-            continue;
+        Debug.Assert(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+        
+        var pathString = filePath.ToString();
+        if (_underlyingFileSystem.File.Exists(pathString))
+            return true;
 
-        var isLastSegment = i == lastSegmentIndex;
+        var directory = _underlyingFileSystem.Path.GetDirectoryName(pathString);
+        var fileName = _underlyingFileSystem.Path.GetFileName(pathString);
 
-        // Guard: if currentPath doesn't exist as a directory, bail out cheaply
-        if (!_underlyingFileSystem.Directory.Exists(currentPath))
+        if (string.IsNullOrEmpty(directory) || string.IsNullOrEmpty(fileName))
             return false;
 
-        if (isLastSegment)
+        if (!_underlyingFileSystem.Directory.Exists(directory))
         {
-            // Single IO call instead of GetFiles + GetDirectories
-            var entries = _underlyingFileSystem.Directory.GetFileSystemEntries(currentPath);
-            foreach (var entry in entries)
-            {
-                var name = _underlyingFileSystem.Path.GetFileName(entry);
-                if (name.Equals(segment, StringComparison.OrdinalIgnoreCase))
-                {
-                    stringBuilder.Length = 0;
-                    stringBuilder.Append(entry);
-                    return true;
-                }
-            }
-            return false;
+            if (!FileExistsCaseInsensitive(directory.AsSpan(), ref stringBuilder))
+                return false;
+
+            directory = stringBuilder.AsSpan().ToString();
         }
 
-        // Intermediate segment: resolve case-insensitively
-        var subDirs = _underlyingFileSystem.Directory.GetDirectories(currentPath);
-        string? resolved = null;
-        foreach (var dir in subDirs)
+        var files = _underlyingFileSystem.Directory.GetFiles(directory);
+        var directories = _underlyingFileSystem.Directory.GetDirectories(directory);
+
+        foreach (var file in files)
+        {
+            var name = _underlyingFileSystem.Path.GetFileName(file);
+            if (name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
+            {
+                stringBuilder.Length = 0;
+                stringBuilder.Append(file);
+                return true;
+            }
+        }
+
+        foreach (var dir in directories)
         {
             var name = _underlyingFileSystem.Path.GetFileName(dir);
-            if (name.Equals(segment, StringComparison.OrdinalIgnoreCase))
+            if (name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
             {
-                resolved = dir;
-                break;
+                stringBuilder.Length = 0;
+                stringBuilder.Append(dir);
+                return true;
             }
         }
 
-        if (resolved is null)
-            return false;
-
-        currentPath = resolved;
+        return false;
     }
-
-    return false;
-}
 
     private bool IsPathFullyQualified_Exists(ReadOnlySpan<char> path)
     {
