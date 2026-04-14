@@ -109,7 +109,7 @@ Uses manual mod setup, including sub-mods and the EaW fallback game, and uses th
 **Linux:**
 ```bash
 ./ModVerify verify \
-  --mods "/home/user/games/FoC/Mods/MySubMod;/home/user/games/FoC/Mods/MyMod" \
+  --mods "/home/user/games/FoC/Mods/MySubMod:/home/user/games/FoC/Mods/MyMod" \
   --game "/home/user/games/FoC" \
   --fallbackGame "/home/user/games/EaW" \
   --useDefaultBaseline
