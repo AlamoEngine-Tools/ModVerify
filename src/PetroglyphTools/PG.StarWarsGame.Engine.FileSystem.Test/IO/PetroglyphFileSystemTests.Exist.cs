@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using AnakinRaW.CommonUtilities.Testing.Attributes;
 using PG.StarWarsGame.Engine.Utilities;
 using Xunit;
 
@@ -143,6 +144,58 @@ public partial class PetroglyphFileSystemTests
             var exists = _pgFileSystem.FileExists("test.txt".AsSpan(), ref vsb, tempDir.AsSpan());
             Assert.True(exists);
             Assert.Equal(tempFile, vsb.ToString());
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_DotSegmentInPath_ReturnsTrue()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            // Create the actual file at tempDir/DATA/FILE.TXT (uppercase)
+            Directory.CreateDirectory(Path.Combine(tempDir, "DATA"));
+            File.WriteAllText(Path.Combine(tempDir, "DATA", "FILE.TXT"), "test");
+
+            // Input path uses a leading ".\" (dot-segment) AND different casing.
+            // After normalization + join: tempDir/./DATA/file.txt
+            // File.Exists fast-path fails (case mismatch), so the impl must resolve case-insensitively.
+            // Correct impls must handle "." as a valid path segment that resolves to the current directory,
+            // not treat it as a literal directory name to look up via GetDirectories.
+            var vsb = new ValueStringBuilder();
+            var exists = _pgFileSystem.FileExists(@".\DATA\file.txt".AsSpan(), ref vsb, tempDir.AsSpan());
+
+            Assert.True(exists);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_MissingIntermediateDirectory_ReturnsFalse()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            // Create tempDir/a/c.txt — no "b" directory at all
+            Directory.CreateDirectory(Path.Combine(tempDir, "a"));
+            File.WriteAllText(Path.Combine(tempDir, "a", "c.txt"), "test");
+
+            // Input path references a non-existent intermediate segment "b"
+            var vsb = new ValueStringBuilder();
+            var exists = _pgFileSystem.FileExists("a/b/c.txt".AsSpan(), ref vsb, tempDir.AsSpan());
+
+            Assert.False(exists);
         }
         finally
         {
