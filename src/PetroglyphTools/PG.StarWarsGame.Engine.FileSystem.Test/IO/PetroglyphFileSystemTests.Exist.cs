@@ -84,6 +84,8 @@ public partial class PetroglyphFileSystemTests
     [InlineData("a/b/c.txt", "A/B/C.txt")]
     [InlineData("A/B/C.txt", "a/b/c.txt")]
     [InlineData("a/B/c.txt", "A/b/C.txt")]
+    [InlineData("a/B/C.txt", "a/B/c.txt")]
+    [InlineData("a/b/C/D.txt", "a/b/c/d.txt")]
     public void FileExists_CaseInsensitive(string inputPath, string actualPathOnDisk)
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
