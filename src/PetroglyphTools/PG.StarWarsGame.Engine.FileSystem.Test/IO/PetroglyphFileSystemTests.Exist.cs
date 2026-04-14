@@ -168,15 +168,17 @@ public partial class PetroglyphFileSystemTests
         var vsb = new ValueStringBuilder();
         _pgFileSystem.FileExists(path.AsSpan(), ref vsb, gameDir.AsSpan());
         
-        var resultPath = vsb.ToString();
+        var resultPath = vsb.ToString().Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+        var expectedGameDir = gameDir.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+
         if (expected)
         {
-            Assert.StartsWith(path, resultPath);
-            Assert.DoesNotContain(gameDir, resultPath);
+            Assert.StartsWith(path.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar), resultPath);
+            Assert.DoesNotContain(expectedGameDir, resultPath);
         }
         else
         {
-            Assert.Contains(gameDir, resultPath);
+            Assert.Contains(expectedGameDir, resultPath);
         }
     }
 }

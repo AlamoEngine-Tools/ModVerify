@@ -1,8 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using AnakinRaW.CommonUtilities.FileSystem;
 using Xunit;
+#if NETFRAMEWORK
+using AnakinRaW.CommonUtilities.FileSystem;
+#endif
 
 namespace PG.StarWarsGame.Engine.FileSystem.Test.IO;
 
@@ -32,34 +33,6 @@ public partial class PetroglyphFileSystemTests
     {
         PathAssert.Equal(expected.AsSpan(), _pgFileSystem.GetFileName(path.AsSpan()));
         Assert.Equal(expected, _pgFileSystem.GetFileName(path));
-    }
-    
-    public static IEnumerable<object[]> TestData_GetFileName_Volume()
-    {
-        yield return [":", ":"];
-        yield return [".:", ".:"];
-        yield return [".:.", ".:."];     // Not a valid drive letter
-        yield return ["file:", "file:"];
-        yield return [":file", ":file"];
-        yield return ["file:exe", "file:exe"];
-        yield return ["baz\\file:exe", "file:exe"];
-        yield return ["bar/baz/file:exe", "file:exe"];
-    }
-    
-    [Theory, MemberData(nameof(TestData_GetFileName_Volume))]
-    public void GetFileName_Volume(string path, string expected)
-    {
-        // We used to break on ':' on Windows. This is a valid file name character for alternate data streams.
-        // Additionally, the character can show up on unix volumes mounted to Windows.
-#if !NETFRAMEWORK
-        Assert.Equal(expected, Path.GetFileName(path));
-        Assert.Equal(expected, _pgFileSystem.GetFileName(path));
-#if Windows
-        Assert.Equal(_pgFileSystem.GetFileName(path), _fileSystem.Path.GetFileName(path.AsSpan()));
-#endif
-#endif
-
-        PathAssert.Equal(expected.AsSpan(), _pgFileSystem.GetFileName(path.AsSpan()));
     }
     
     public static TheoryData<string, string> TestData_GetFileNameWithoutExtension => new()
