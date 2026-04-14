@@ -235,22 +235,6 @@ internal ref struct ValueStringBuilder
         _pos += count;
     }
 
-    public unsafe void Append(char* value, int length)
-    {
-        var pos = _pos;
-        if (pos > _chars.Length - length)
-        {
-            Grow(length);
-        }
-
-        var dst = _chars.Slice(_pos, length);
-        for (var i = 0; i < dst.Length; i++)
-        {
-            dst[i] = *value++;
-        }
-        _pos += length;
-    }
-
     public void Append(scoped ReadOnlySpan<char> value)
     {
         var pos = _pos;
