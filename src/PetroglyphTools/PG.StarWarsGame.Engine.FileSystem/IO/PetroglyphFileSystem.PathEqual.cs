@@ -7,11 +7,6 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
-    private static readonly PathNormalizeOptions LinuxDirectorySeparatorNormalizeOptions = new PathNormalizeOptions
-    {
-        TreatBackslashAsSeparator = true,
-        UnifyDirectorySeparators = true
-    };
     
     public bool PathsAreEqual(string pathA, string pathB)
     {

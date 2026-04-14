@@ -1,8 +1,9 @@
+using AnakinRaW.CommonUtilities.FileSystem.Normalization;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PG.StarWarsGame.Engine.IO;
 
@@ -16,6 +17,13 @@ public sealed partial class PetroglyphFileSystem
 {
     private const char DirectorySeparatorChar = '/';
     private const char AltDirectorySeparatorChar = '\\';
+
+    private static readonly PathNormalizeOptions LinuxDirectorySeparatorNormalizeOptions = new()
+    {
+        TreatBackslashAsSeparator = true, // Ensure that we treat backslashes as separators on Linux
+        UnifyDirectorySeparators = true,
+        UnifySeparatorKind = DirectorySeparatorKind.System
+    };
 
     private readonly IFileSystem _underlyingFileSystem;
     
