@@ -25,9 +25,9 @@ internal class FocGameRepository : GameRepository
         if (firstFallback is not null)
         {
             var eawMegs = LoadMegArchivesFromXml(firstFallback);
-            var eawPatch = LoadMegArchive(FileSystem.Path.Combine(firstFallback, "Data\\Patch.meg"));
-            var eawPatch2 = LoadMegArchive(FileSystem.Path.Combine(firstFallback, "Data\\Patch2.meg"));
-            var eaw64Patch = LoadMegArchive(FileSystem.Path.Combine(firstFallback, "Data\\64Patch.meg"));
+            var eawPatch = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path.Combine(firstFallback, "Data/Patch.meg"));
+            var eawPatch2 = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path.Combine(firstFallback, "Data/Patch2.meg"));
+            var eaw64Patch = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path.Combine(firstFallback, "Data/64Patch.meg"));
 
             megsToConsider.AddRange(eawMegs);
             if (eawPatch is not null)
@@ -39,9 +39,9 @@ internal class FocGameRepository : GameRepository
         }
 
         var focOrModMegs = LoadMegArchivesFromXml(".");
-        var focPatch = LoadMegArchive("Data\\Patch.meg");
-        var focPatch2 = LoadMegArchive("Data\\Patch2.meg");
-        var foc64Patch = LoadMegArchive("Data\\64Patch.meg");
+        var focPatch = LoadMegArchive("Data/Patch.meg");
+        var focPatch2 = LoadMegArchive("Data/Patch2.meg");
+        var foc64Patch = LoadMegArchive("Data/64Patch.meg");
 
         megsToConsider.AddRange(focOrModMegs);
         if (focPatch is not null)

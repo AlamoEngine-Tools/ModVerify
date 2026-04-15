@@ -80,11 +80,40 @@ In general ModVerify has two operation mods.
 1. `verify` Verifying a game or mod 
 2. `createBaseline` Creating a baseline for a game or mod, that can be used for further verifications in order to verify you did not add more errors to your mods.
 
-### Example
-This is an example run configuration that analyzes a specific mod, uses a the FoC basline and writes the output into a dedicated directory: 
+### Examples
 
-```bash
+#### Example 1: Auto-detection with a custom baseline
+Analyzes a specific mod, uses the FoC baseline and writes the output into a dedicated directory:
+
+**Windows:**
+```bat
 .\ModVerify.exe verify --path "C:\My Games\FoC\Mods\MyMod" --outDir "C:\My Games\FoC\Mods\MyMod\verifyResults" --baseline ./focBaseline.json
+```
+
+**Linux:**
+```bash
+./ModVerify verify \
+  --path "/home/user/games/FoC/Mods/MyMod" \
+  --outDir "/home/user/games/FoC/Mods/MyMod/verifyResults" \
+  --baseline ./focBaseline.json
+```
+
+#### Example 2: Manual mod setup with sub-mods, EaW fallback and default baseline
+Uses manual mod setup, including sub-mods and the EaW fallback game, and uses the default embedded baseline:
+
+**Windows:**
+```bat
+.\ModVerify.exe verify --mods "C:\My Games\FoC\Mods\MySubMod;C:\My Games\FoC\Mods\MyMod" --game "C:\My Games\FoC" --fallbackGame "C:\My Games\EaW" --engine FOC --useDefaultBaseline
+```
+
+**Linux:**
+```bash
+./ModVerify verify \
+  --mods "/home/user/games/FoC/Mods/MySubMod:/home/user/games/FoC/Mods/MyMod" \
+  --game "/home/user/games/FoC" \
+  --fallbackGame "/home/user/games/EaW" \
+  --engine FOC \
+  --useDefaultBaseline
 ```
 
 ---
@@ -116,6 +145,14 @@ The following verifiers are currently implemented:
 If you want to create your own baseline use the `createBaseline` option. 
 
 ### Example
+
+**Windows**
 ```bash
 ModVerify.exe createBaseline --outFile myBaseline.json --path "C:\My Games\FoC\Mods\MyMod"
+```
+**Linux**
+```bash
+./ModVerify createBaseline \
+  --outFile myBaseline.json \
+  --path "C:\My Games\FoC\Mods\MyMod"
 ```

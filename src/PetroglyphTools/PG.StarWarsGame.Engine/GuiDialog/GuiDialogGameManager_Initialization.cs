@@ -36,10 +36,9 @@ internal partial class GuiDialogGameManager
                     GameManager = ToString(),
                     Message = "Unable to parse GuiDialogs.xml"
                 });
-                return;
             }
 
-            InitializeTextures(guiDialogs.TextureData);
+            InitializeTextures(guiDialogs?.TextureData ?? new GuiDialogsXmlTextureData([], default));
             GuiDialogsXml = guiDialogs;
         }, token);
     }
@@ -146,7 +145,7 @@ internal partial class GuiDialogGameManager
         }
         else
         {
-            var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{guiDialogs.MegaTexture}.mtd");
+            var mtdPath = PGFileSystem.CombinePath("DATA\\ART\\TEXTURES", $"{guiDialogs.MegaTexture}.mtd");
 
             if (mtdPath.Length > MegaTextureMaxFilePathLength)
             {

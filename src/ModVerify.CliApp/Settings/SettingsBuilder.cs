@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 
 namespace AET.ModVerify.App.Settings;
 
@@ -57,6 +58,20 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
             }
 
+            if (verifyOptions.UseDefaultBaseline && !string.IsNullOrEmpty(verifyOptions.Baseline))
+            {
+                var useDefaultOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.UseDefaultBaseline));
+                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
+                throw new AppArgumentException($"Options {useDefaultOption} and {baselineOption} cannot be used together.");
+            }
+
+            if (verifyOptions is { UseDefaultBaseline: true, SearchBaselineLocally: true })
+            {
+                var useDefaultOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.UseDefaultBaseline));
+                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
+                throw new AppArgumentException($"Options {useDefaultOption} and {searchOption} cannot be used together.");
+            }
+
             if (verifyOptions is { FailFast: true, MinimumFailureSeverity: null })
             {
                 var failFast = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.FailFast));
@@ -86,6 +101,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 BaselinePath = verifyOptions.Baseline,
                 MinimumReportSeverity = verifyOptions.MinimumSeverity,
                 SearchBaselineLocally = verifyOptions.SearchBaselineLocally,
+                UseDefaultBaseline = verifyOptions.UseDefaultBaseline,
                 SuppressionsPath = verifyOptions.Suppressions,
                 Verbose = verifyOptions.Verbose
             };
@@ -121,24 +137,20 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 
     private VerificationTargetSettings BuildTargetSettings(BaseModVerifyOptions options)
     {
+        var separator = _fileSystem.Path.PathSeparator;
+
         var modPaths = new List<string>();
-        if (options.ModPaths is not null)
+        if (!string.IsNullOrEmpty(options.ModPaths))
         {
-            foreach (var mod in options.ModPaths)
-            {
-                if (!string.IsNullOrEmpty(mod))
-                    modPaths.Add(_fileSystem.Path.GetFullPath(mod));
-            }
+            var split = options.ModPaths!.Split([separator], StringSplitOptions.RemoveEmptyEntries);
+            modPaths.AddRange(split.Select(s => _fileSystem.Path.GetFullPath(s)));
         }
 
         var fallbackPaths = new List<string>();
-        if (options.AdditionalFallbackPath is not null)
+        if (!string.IsNullOrEmpty(options.AdditionalFallbackPath))
         {
-            foreach (var fallback in options.AdditionalFallbackPath)
-            {
-                if (!string.IsNullOrEmpty(fallback))
-                    fallbackPaths.Add(_fileSystem.Path.GetFullPath(fallback));
-            }
+            var split = options.AdditionalFallbackPath!.Split([separator], StringSplitOptions.RemoveEmptyEntries);
+            fallbackPaths.AddRange(split.Select(s => _fileSystem.Path.GetFullPath(s)));
         }
 
         var gamePath = options.GamePath;

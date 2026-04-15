@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
@@ -240,12 +241,12 @@ public sealed class SingleModelVerifier : GameVerifierBase
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid texture file name '{texture}' in particle '{file.FileName}'",
                         VerificationSeverity.Error,
-                        [file.FileName.ToUpperInvariant()], 
+                        [NormalizeFileName(file.FileName)], 
                         texture));
                 });
         }
 
-        var fileName = FileSystem.Path.GetFileNameWithoutExtension(file.FilePath.AsSpan());
+        var fileName = GameEngine.GameRepository.PGFileSystem.GetFileNameWithoutExtension(file.FilePath.AsSpan());
         var name = file.Content.Name.AsSpan();
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
@@ -255,7 +256,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 VerifierErrorCodes.InvalidParticleName,
                 $"The particle name '{file.Content.Name}' does not match file name '{file.FileName}'",
                 VerificationSeverity.Error,
-                [file.FileName.ToUpperInvariant()],
+                [NormalizeFileName(file.FileName)],
                 file.Content.Name));
         }
 
@@ -263,7 +264,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
     private void VerifyModel(IAloModelFile file, AnimationCollection animations, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
-        IReadOnlyList<string> modelContext = [.. contextInfo, file.FileName.ToUpperInvariant()];
+        IReadOnlyList<string> modelContext = [.. contextInfo, NormalizeFileName(file.FileName)];
 
         foreach (var texture in file.Content.Textures)
         {
@@ -333,7 +334,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
     {
         if (texture == "None")
             return;
-        _textureVerifier.Verify(texture, [..contextInfo, model.FileName.ToUpperInvariant()], CancellationToken.None);
+        _textureVerifier.Verify(texture, [..contextInfo, NormalizeFileName(model.FileName)], CancellationToken.None);
     }
 
     private void VerifyProxyExists(IPetroglyphFileHolder model, string proxy, IReadOnlyCollection<string> contextInfo, CancellationToken token)
@@ -367,10 +368,15 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 VerifierErrorCodes.FileNotFound, 
                 message, 
                 VerificationSeverity.Error, 
-                [..contextInfo, model.FileName.ToUpperInvariant()], 
+                [..contextInfo, NormalizeFileName(model.FileName)], 
                 shader);
             AddError(error);
         }
+    }
+
+    private string NormalizeFileName(string fileName)
+    {
+        return GameEngine.GameRepository.PGFileSystem.GetFileName(fileName).ToUpperInvariant();
     }
 
     private void AddNotExistError(string fileName, IReadOnlyCollection<string> contextInfo)

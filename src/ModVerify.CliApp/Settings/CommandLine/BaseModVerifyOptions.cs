@@ -25,10 +25,10 @@ internal abstract class BaseModVerifyOptions
                    "The argument cannot be combined with any of --mods, --game or --fallbackGame")]
     public string? TargetPath { get; init; }
 
-    [Option("mods", SetName = "manualPaths", Required = false, Default = null, Separator = ';',
-        HelpText = "The path of the mod to verify. To support submods, multiple paths can be separated using the ';' (semicolon) character. " +
+    [Option("mods", SetName = "manualPaths", Required = false, Default = null,
+        HelpText = "The path of the mod to verify. To support submods, multiple paths can be separated using the platform-specific path separator (';' on Windows, ':' on Linux). " +
                    "Leave empty, if you want to verify a game. If you want to use the interactive mode, leave this, --game and --fallbackGame empty.")]
-    public IList<string>? ModPaths { get; init; }
+    public string? ModPaths { get; init; }
 
     [Option("game", SetName = "manualPaths", Required = false, Default = null,
         HelpText = "The path of the base game. For FoC mods this points to the FoC installation, for EaW mods this points to the EaW installation. " +
@@ -47,10 +47,10 @@ internal abstract class BaseModVerifyOptions
     public GameEngineType? Engine { get; init; }
 
 
-    [Option("additionalFallbackPaths", Required = false, Separator = ';',
+    [Option("additionalFallbackPaths", Required = false,
         HelpText = "Additional fallback paths, which may contain assets that shall be included when doing the verification. Do not add EaW here. " +
-                   "Multiple paths can be separated using the ';' (semicolon) character.")]
-    public IList<string>? AdditionalFallbackPath { get; init; }
+                   "Multiple paths can be separated using the platform-specific path separator (';' on Windows, ':' on Linux).")]
+    public string? AdditionalFallbackPath { get; init; }
 
     [Option("parallel", Default = false,
         HelpText = "When set, game verifiers will run in parallel. " +

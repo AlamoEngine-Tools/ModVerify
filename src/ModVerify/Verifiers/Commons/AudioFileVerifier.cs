@@ -14,6 +14,8 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
 {
     private readonly IAlreadyVerifiedCache? _alreadyVerifiedCache;
 
+    public override string FriendlyName => "Audio File format";
+
     public AudioFileVerifier(GameVerifierBase parent) : base(parent)
     {
         _alreadyVerifiedCache = Services.GetService<IAlreadyVerifiedCache>();
@@ -26,8 +28,6 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
     {
         _alreadyVerifiedCache = serviceProvider.GetService<IAlreadyVerifiedCache>();
     }
-
-    public override string FriendlyName => "Audio File format";
 
     public override void Verify(AudioFileInfo sampleInfo, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {

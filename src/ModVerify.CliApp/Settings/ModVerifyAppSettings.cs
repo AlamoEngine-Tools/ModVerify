@@ -17,6 +17,7 @@ public sealed class VerifyReportSettings : AppReportSettings
 {
     public string? BaselinePath { get; init; }
     public bool SearchBaselineLocally { get; init; }
+    public bool UseDefaultBaseline { get; init; }
 }
 
 internal abstract class AppSettingsBase(AppReportSettings reportSettings)

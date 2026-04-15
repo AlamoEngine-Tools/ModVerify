@@ -61,7 +61,8 @@ internal sealed class VerifyAction(AppVerifySettings settings, IServiceProvider 
         {
             Console.WriteLine();
             ModVerifyConsoleUtilities.WriteBaselineInfo(baseline, baselinePath);
-            Logger?.LogDebug("Using baseline {Baseline} from location '{Path}'", baseline.ToString(), baselinePath);
+            Logger?.LogDebug("Using baseline {Baseline} from location '{Path}'", 
+                baseline.ToString(), baselinePath ?? "Embedded");
             Console.WriteLine();
         }
         return baseline;
