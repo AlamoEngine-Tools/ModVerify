@@ -100,26 +100,23 @@ internal partial class GameRepository
     {
         Debug.Assert(MasterMegArchive is not null);
 
-        var sb = new ValueStringBuilder(stackalloc char[Math.Max(filePath.Length, PGConstants.MaxMegEntryPathLength)]);
+        if (filePath.Length > PGConstants.MaxMegEntryPathLength)
+        {
+            _logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FileName}'", filePath.ToString());
+            return default;
+        }
+        
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         sb.Append(filePath);
         PGFileSystem.NormalizePath(ref sb);
 
-        if (sb.Length > PGConstants.MaxMegEntryPathLength)
-        {
-            _logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FileName}'", sb.ToString());
-            sb.Dispose();
-            return default;
-        }
-
         Span<char> fileNameSpan = stackalloc char[PGConstants.MaxMegEntryPathLength];
-
-        if (!_megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out var length))
-        {
-            sb.Dispose();
-            return default;
-        }
-
+        
+        var normalized = _megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out var length);
         sb.Dispose();
+        
+        if (!normalized)
+            return default;
 
         var fileName = fileNameSpan.Slice(0, length);
 
