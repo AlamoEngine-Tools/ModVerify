@@ -8,9 +8,9 @@
 		<PackageTags>alamo,petroglyph,glyphx</PackageTags>
 	</PropertyGroup>
 	<PropertyGroup>
-		<!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <InheritDocEnabled>true</InheritDocEnabled>-->
+        <InheritDocEnabled>true</InheritDocEnabled>
 	</PropertyGroup>
 	<PropertyGroup>
 		<IncludeSymbols>true</IncludeSymbols>

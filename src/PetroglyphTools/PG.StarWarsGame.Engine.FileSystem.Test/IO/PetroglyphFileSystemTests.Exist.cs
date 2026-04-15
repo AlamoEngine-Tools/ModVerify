@@ -166,7 +166,7 @@ public partial class PetroglyphFileSystemTests
             // Input path uses a leading ".\" (dot-segment) AND different casing.
             // After normalization + join: tempDir/./DATA/file.txt
             // File.Exists fast-path fails (case mismatch), so the impl must resolve case-insensitively.
-            // Correct impls must handle "." as a valid path segment that resolves to the current directory,
+            // Correct implementations must handle "." as a valid path segment that resolves to the current directory,
             // not treat it as a literal directory name to look up via GetDirectories.
             var vsb = new ValueStringBuilder();
             var exists = _pgFileSystem.FileExists(@".\DATA\file.txt".AsSpan(), ref vsb, tempDir.AsSpan());
@@ -215,11 +215,9 @@ public partial class PetroglyphFileSystemTests
     [InlineData("test.txt", false)]
     public void IsPathFullyQualified_Exists_Internal(string path, bool expected)
     {
-        // This method is internal/private, but we can indirectly test it through FileExists or use reflection if we want to be explicit.
-        // Actually, FileExists calls it.
-        // If it's fully qualified, it doesn't join with gameDirectory.
-        
-        var gameDir = "Z:\\non-existent-dir";
+        // This method is internal/private, but we can indirectly test it through FileExists
+
+        const string gameDir = "Z:\\non-existent-dir";
         var vsb = new ValueStringBuilder();
         _pgFileSystem.FileExists(path.AsSpan(), ref vsb, gameDir.AsSpan());
         

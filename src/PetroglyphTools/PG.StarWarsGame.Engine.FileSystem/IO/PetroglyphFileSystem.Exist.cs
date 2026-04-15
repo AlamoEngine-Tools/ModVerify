@@ -13,10 +13,7 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
-    internal bool FileExists(
-        ReadOnlySpan<char> filePath, 
-        ref ValueStringBuilder stringBuilder,
-        ReadOnlySpan<char> gameDirectory)
+    internal bool FileExists(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> gameDirectory)
     {
         stringBuilder.Length = 0;
 

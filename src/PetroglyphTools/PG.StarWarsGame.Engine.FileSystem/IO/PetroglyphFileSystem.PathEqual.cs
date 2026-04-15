@@ -7,7 +7,14 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
-    
+    /// <summary>
+    /// Determines whether two file system paths are considered equal.
+    /// </summary>
+    /// <param name="pathA">The first path to compare.</param>
+    /// <param name="pathB">The second path to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the paths are considered equal; otherwise, <see langword="false"/>.
+    /// </returns>
     public bool PathsAreEqual(string pathA, string pathB)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

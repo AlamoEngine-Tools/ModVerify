@@ -34,6 +34,11 @@ public sealed partial class PetroglyphFileSystem
     /// </summary>
     public IFileSystem UnderlyingFileSystem => _underlyingFileSystem;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PetroglyphFileSystem"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The <see cref="IServiceProvider"/> used to resolve dependencies required by the file system.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="serviceProvider"/> is <see langword="null"/>.</exception>
     public PetroglyphFileSystem(IServiceProvider serviceProvider)
     {
         if (serviceProvider == null)
@@ -41,6 +46,16 @@ public sealed partial class PetroglyphFileSystem
         _underlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
     }
     
+    /// <summary>
+    /// Determines whether the specified path ends with a directory separator character.
+    /// </summary>
+    /// <param name="path">The path to check for a trailing directory separator.</param>
+    /// <returns>
+    /// <see langword="true"/> if the path ends with a directory separator character; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// This method always considers both <c>'/'</c> and <c>'\\'</c> as valid directory separator characters.
+    /// </remarks>
     public bool HasTrailingDirectorySeparator(ReadOnlySpan<char> path)
     {
         return path.Length > 0 && IsDirectorySeparator(path[path.Length - 1]);
