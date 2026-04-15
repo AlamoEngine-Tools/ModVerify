@@ -18,10 +18,10 @@
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="3.0.2" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="3.0.2" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MEG" Version="3.0.9" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files.MTD" Version="3.0.9" />
 		<PackageReference Include="AnakinRaW.CommonUtilities.SimplePipeline" Version="13.0.18" />
-		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="5.0.1" />
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="5.0.4" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.15.0">
@@ -35,5 +35,9 @@
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ALO\PG.StarWarsGame.Files.ALO.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.ChunkFiles\PG.StarWarsGame.Files.ChunkFiles.csproj" />
 		<ProjectReference Include="..\PG.StarWarsGame.Files.XML\PG.StarWarsGame.Files.XML.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.202" />
 	</ItemGroup>
 </Project>

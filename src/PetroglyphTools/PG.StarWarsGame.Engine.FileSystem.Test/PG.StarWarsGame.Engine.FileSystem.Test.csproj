@@ -14,11 +14,11 @@
 
     <ItemGroup>
         <PackageReference Include="AnakinRaW.CommonUtilities.Testing" Version="13.0.18" />
-        <PackageReference Include="GitHubActionsTestLogger" Version="3.0.2" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+        <PackageReference Include="GitHubActionsTestLogger" Version="3.0.3" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
         <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
-        <PackageReference Include="Microsoft.Testing.Platform" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Testing.Platform" Version="2.2.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,6 +31,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PG.StarWarsGame.Engine.FileSystem\PG.StarWarsGame.Engine.FileSystem.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.202" />
     </ItemGroup>
     
     <PropertyGroup>
