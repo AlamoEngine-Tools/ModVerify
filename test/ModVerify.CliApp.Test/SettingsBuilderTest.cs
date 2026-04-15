@@ -1,23 +1,72 @@
 using AET.ModVerify.App;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Settings.CommandLine;
-using Microsoft.Extensions.DependencyInjection;
 using System.IO.Abstractions;
-using Testably.Abstractions;
+using Testably.Abstractions.Testing;
 using Xunit;
+using AnakinRaW.CommonUtilities.Testing;
 
 namespace ModVerify.CliApp.Test;
 
-public class SettingsBuilderTest
+public class SettingsBuilderTest : TestBaseWithFileSystem
 {
     private readonly SettingsBuilder _builder;
 
     public SettingsBuilderTest()
     {
-        var services = new ServiceCollection();
-        services.AddSingleton<IFileSystem>(new RealFileSystem());
-        var provider = services.BuildServiceProvider();
-        _builder = new SettingsBuilder(provider);
+        _builder = new SettingsBuilder(ServiceProvider);
+    }
+
+    protected override IFileSystem CreateFileSystem()
+    {
+        return new MockFileSystem();
+    }
+
+    [Theory]
+    [InlineData("path1", "path2")]
+    public void BuildSettings_Paths_SplitsCorrectly(string p1, string p2)
+    {
+        var separator = FileSystem.Path.PathSeparator;
+        var paths = $"{p1}{separator}{p2}";
+        var expected = new[] { FileSystem.Path.GetFullPath(p1), FileSystem.Path.GetFullPath(p2) };
+
+        var options = new VerifyVerbOption
+        {
+            ModPaths = paths,
+            AdditionalFallbackPath = paths,
+            TargetPath = "myPath"
+        };
+
+        var settings = _builder.BuildSettings(options);
+        
+        Assert.Equal(expected, settings.VerificationTargetSettings.ModPaths);
+        Assert.Equal(expected, settings.VerificationTargetSettings.AdditionalFallbackPaths);
+    }
+
+    [Fact]
+    public void BuildSettings_FallbackGamePath_RequiresGamePath()
+    {
+        var gamePath = "game";
+        var fallbackPath = "fallback";
+
+        var options = new VerifyVerbOption
+        {
+            GamePath = gamePath,
+            FallbackGamePath = fallbackPath,
+            TargetPath = "myPath"
+        };
+
+        var settings = _builder.BuildSettings(options);
+        Assert.Equal(FileSystem.Path.GetFullPath(fallbackPath), settings.VerificationTargetSettings.FallbackGamePath);
+
+        var optionsNoGame = new VerifyVerbOption
+        {
+            FallbackGamePath = fallbackPath,
+            TargetPath = "myPath"
+        };
+
+        var settingsNoGame = _builder.BuildSettings(optionsNoGame);
+        Assert.Null(settingsNoGame.VerificationTargetSettings.FallbackGamePath);
     }
 
     [Fact]
