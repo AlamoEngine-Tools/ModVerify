@@ -100,7 +100,7 @@ public sealed partial class PetroglyphFileSystem
 
         return false;
     }
-    
+
     private bool IsPathFullyQualified_Exists(ReadOnlySpan<char> path)
     {
         // This is really tricky, because under Windows "/" or "\" do NOT
