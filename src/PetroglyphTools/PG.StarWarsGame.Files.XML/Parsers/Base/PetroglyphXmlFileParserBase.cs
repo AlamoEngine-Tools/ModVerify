@@ -23,7 +23,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
 
     protected XElement GetRootElement(Stream xmlStream, out string fileName)
     {
-        fileName = GetStrippedFileName(xmlStream.GetFilePath());
+        fileName = GetStrippedFilePath(xmlStream.GetFilePath());
 
         if (string.IsNullOrEmpty(fileName))
             throw new InvalidOperationException("Unable to parse XML from unnamed stream. Either parse from a file or MEG stream.");
@@ -62,7 +62,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
         return root;
     }
     
-    private string GetStrippedFileName(string filePath)
+    private string GetStrippedFilePath(string filePath)
     {
         if (!FileSystem.Path.IsPathFullyQualified(filePath))
             return filePath;
@@ -77,6 +77,7 @@ public abstract class PetroglyphXmlFileParserBase(IServiceProvider serviceProvid
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static string GetXmlDataFolder()
         {
+            // Required because we don't have access to the PGFileSystem here.
             return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"DATA\XML\" : "DATA/XML/";
         }
     }
