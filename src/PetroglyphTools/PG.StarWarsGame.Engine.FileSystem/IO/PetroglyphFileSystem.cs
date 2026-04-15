@@ -11,14 +11,16 @@ namespace PG.StarWarsGame.Engine.IO;
 /// A file system abstraction for the Petroglyph game engine.
 /// </summary>
 /// <remarks>
-/// The file system enforces Windows behavior for all its methods independent of the current operating system.
+/// This file system abstraction simulates Windows-like behavior for all its public methods on Linux,
+/// such as correct handling of paths containing backslashes ("\"). On Windows itself the behavior is unchanged.
 /// </remarks>
 public sealed partial class PetroglyphFileSystem
 {
     private const char DirectorySeparatorChar = '/';
     private const char AltDirectorySeparatorChar = '\\';
 
-    private static readonly PathNormalizeOptions LinuxDirectorySeparatorNormalizeOptions = new()
+    // ReSharper disable once InconsistentNaming
+    private static readonly PathNormalizeOptions PGFileSystemDirectorySeparatorNormalizeOptions = new()
     {
         TreatBackslashAsSeparator = true, // Ensure that we treat backslashes as separators on Linux
         UnifyDirectorySeparators = true,
@@ -51,7 +53,7 @@ public sealed partial class PetroglyphFileSystem
     
     private static bool IsPathRooted(ReadOnlySpan<char> path)
     {
-        // The original implementation, of course, also checks for drive signatures (e.g, c:, X:).
+        // The original implementation, obviously, also checks for drive signatures (e.g, c:, X:).
         // We don't expect such paths ever when running in linux mode, so we simply ignore these
         var length = path.Length;
         return length >= 1 && IsDirectorySeparator(path[0]);
@@ -89,6 +91,6 @@ public sealed partial class PetroglyphFileSystem
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsDirectorySeparator(char c)
     {
-        return c is '\\' or '/';
+        return c is DirectorySeparatorChar or AltDirectorySeparatorChar;
     }
 }

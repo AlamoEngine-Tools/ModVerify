@@ -13,8 +13,8 @@ public sealed partial class PetroglyphFileSystem
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             return _underlyingFileSystem.Path.AreEqual(pathA, pathB);
         
-        var normalizedA = PathNormalizer.Normalize(pathA, LinuxDirectorySeparatorNormalizeOptions);
-        var normalizedB = PathNormalizer.Normalize(pathB, LinuxDirectorySeparatorNormalizeOptions);
+        var normalizedA = PathNormalizer.Normalize(pathA, PGFileSystemDirectorySeparatorNormalizeOptions);
+        var normalizedB = PathNormalizer.Normalize(pathB, PGFileSystemDirectorySeparatorNormalizeOptions);
 
         var fullA = _underlyingFileSystem.Path.GetFullPath(normalizedA);
         var fullB = _underlyingFileSystem.Path.GetFullPath(normalizedB);

@@ -12,16 +12,7 @@ public sealed partial class PetroglyphFileSystem
     }
     
     private static void NormalizePath(Span<char> path)
-    {
-        PathNormalizer.Normalize(path, path, LinuxDirectorySeparatorNormalizeOptions);
-        
-        //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        //    return;
-        //for (var i = 0; i < path.Length; i++)
-        //{
-        //    var c = path[i];
-        //    if (IsDirectorySeparator(c))
-        //        path[i] = '/';
-        //}
+    { 
+        PathNormalizer.Normalize(path, path, PGFileSystemDirectorySeparatorNormalizeOptions);
     } 
 }
