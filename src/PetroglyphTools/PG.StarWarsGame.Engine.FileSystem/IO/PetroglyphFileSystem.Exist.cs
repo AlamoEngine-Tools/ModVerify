@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using AnakinRaW.CommonUtilities.FileSystem;
 using PG.StarWarsGame.Engine.Utilities;
+using System.IO;
+using AnakinRaW.CommonUtilities.FileSystem;
 #if NETSTANDARD2_1 || NET
 using System.Diagnostics.CodeAnalysis;
 #endif
@@ -132,4 +132,139 @@ public sealed partial class PetroglyphFileSystem
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool CloseHandle(IntPtr hObject);
+
+
+
+
+    /// <summary>
+    /// Checks whether a file exists using case-insensitive path resolution.
+    /// On success, <paramref name="stringBuilder"/> contains the actual on-disk path.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Strategy:
+    /// 1. Fast path: single stat() for exact-case match.
+    /// 2. Find deepest existing directory prefix, starting from the hint position.
+    ///    With a correct hint this costs 1 stat. Without a hint (or bad hint),
+    ///    walks backward — graceful degradation, never throws.
+    /// 3. Forward resolve: lazily enumerate only the mismatched components.
+    /// </para>
+    /// <para>
+    /// No exceptions occur in normal flow: Directory.Exists returns bool,
+    /// and we only enumerate directories whose existence has been confirmed.
+    /// </para>
+    /// </remarks>
+    /// <param name="filePath">
+    /// Normalized absolute path with forward slashes. May alias stringBuilder's buffer.
+    /// </param>
+    /// <param name="stringBuilder">
+    /// On success, overwritten with the actual on-disk path.
+    /// </param>
+    /// <param name="knownGoodPrefixLength">
+    /// Length of the path prefix known to exist with correct casing (typically gameDirectory.Length).
+    /// Pass 0 if unknown — the method falls back to a backward walk.
+    /// </param>
+    private bool FileExistsCaseInsensitive(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, int knownGoodPrefixLength)
+    {
+        Debug.Assert(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
+        var pathString = filePath.ToString();
+
+        // Fast path: exact case match — single stat() syscall
+        if (_underlyingFileSystem.File.Exists(pathString))
+            return true;
+
+        if (pathString.Length == 0)
+            return false;
+
+        
+        var path = pathString.AsSpan();
+
+        var rootLen = path[0] == '/' ? 1 : 0;
+        var resolvedEnd = rootLen;
+
+        int searchEnd;
+        if (knownGoodPrefixLength > 0)
+        {
+            searchEnd = knownGoodPrefixLength;
+            while (searchEnd > 1 && path[searchEnd - 1] == '/')
+                searchEnd--;
+        }
+        else
+        {
+            var lastSlash = path.LastIndexOf('/');
+            searchEnd = lastSlash >= 0 ? (lastSlash == 0 ? 1 : lastSlash) : 0;
+        }
+
+        // Walk backward until we find an existing directory.
+        // Save the successful prefix string to reuse as the first currentDir.
+        string? resolvedPrefix = null;
+        while (searchEnd > resolvedEnd)
+        {
+            var prefix = pathString.Substring(0, searchEnd);
+            if (_underlyingFileSystem.Directory.Exists(prefix))
+            {
+                resolvedEnd = searchEnd;
+                resolvedPrefix = prefix;
+                break;
+            }
+
+            var slash = path.Slice(0, searchEnd).LastIndexOf('/');
+            if (slash < 0)
+                break;
+            searchEnd = slash == 0 ? 1 : slash;
+        }
+
+        if (resolvedEnd == 0)
+            return false;
+
+        // Reuse the prefix from Directory.Exists if available, otherwise allocate once.
+        var currentDir = resolvedPrefix ?? pathString.Substring(0, resolvedEnd);
+
+        stringBuilder.Length = 0;
+        stringBuilder.Append(currentDir);
+
+        var pos = resolvedEnd;
+        if (pos < path.Length && path[pos] == '/')
+            pos++;
+
+        while (pos < path.Length)
+        {
+            var nextSlash = path.Slice(pos).IndexOf('/');
+            var componentEnd = nextSlash >= 0 ? pos + nextSlash : path.Length;
+            var component = path.Slice(pos, componentEnd - pos);
+
+            if (component.IsEmpty)
+            {
+                pos = componentEnd + 1;
+                continue;
+            }
+
+            var isLast = componentEnd >= path.Length;
+
+            var entries = isLast
+                ? _underlyingFileSystem.Directory.EnumerateFiles(currentDir)
+                : _underlyingFileSystem.Directory.EnumerateDirectories(currentDir);
+
+            var found = false;
+            foreach (var entry in entries)
+            {
+                if (_underlyingFileSystem.Path.GetFileName(entry.AsSpan()).Equals(component, StringComparison.OrdinalIgnoreCase))
+                {
+                    stringBuilder.Length = 0;
+                    stringBuilder.Append(entry);
+                    currentDir = entry; // entry is already a string — reuse it
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                return false;
+
+            pos = componentEnd + 1;
+        }
+
+        return true;
+    }
 }
