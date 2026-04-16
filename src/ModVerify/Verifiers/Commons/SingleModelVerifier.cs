@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
@@ -16,10 +15,6 @@ using PG.StarWarsGame.Files.ALO.Files.Animations;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.Binary;
-
-#if NETSTANDARD2_0 || NETFRAMEWORK
-using AnakinRaW.CommonUtilities.FileSystem;
-#endif
 
 namespace AET.ModVerify.Verifiers.Commons;
 
@@ -230,9 +225,11 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
     private void VerifyParticle(IAloParticleFile file, IReadOnlyCollection<string> contextInfo)
     {
+        IReadOnlyList<string> particleContext = [.. contextInfo, NormalizeFileName(file.FileName)];
+            
         foreach (var texture in file.Content.Textures)
         {
-            GuardedVerify(() => VerifyTextureExists(file, texture, contextInfo),
+            GuardedVerify(() => VerifyTextureExists(texture, particleContext),
                 e => e is ArgumentException,
                 _ =>
                 {
@@ -241,7 +238,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid texture file name '{texture}' in particle '{file.FileName}'",
                         VerificationSeverity.Error,
-                        [NormalizeFileName(file.FileName)], 
+                        particleContext, 
                         texture));
                 });
         }
@@ -256,7 +253,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 VerifierErrorCodes.InvalidParticleName,
                 $"The particle name '{file.Content.Name}' does not match file name '{file.FileName}'",
                 VerificationSeverity.Error,
-                [NormalizeFileName(file.FileName)],
+                particleContext,
                 file.Content.Name));
         }
 
@@ -268,7 +265,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
         foreach (var texture in file.Content.Textures)
         {
-            GuardedVerify(() => VerifyTextureExists(file, texture, modelContext),
+            GuardedVerify(() => VerifyTextureExists(texture, modelContext),
                 e => e is ArgumentException,
                 _ =>
                 {
@@ -330,11 +327,11 @@ public sealed class SingleModelVerifier : GameVerifierBase
         // Is there actually anything to verify for animation without looking at the model?
     }
 
-    private void VerifyTextureExists(IPetroglyphFileHolder model, string texture, IReadOnlyCollection<string> contextInfo)
+    private void VerifyTextureExists(string texture, IReadOnlyCollection<string> contextInfo)
     {
         if (texture == "None")
             return;
-        _textureVerifier.Verify(texture, [..contextInfo, NormalizeFileName(model.FileName)], CancellationToken.None);
+        _textureVerifier.Verify(texture, [..contextInfo], CancellationToken.None);
     }
 
     private void VerifyProxyExists(IPetroglyphFileHolder model, string proxy, IReadOnlyCollection<string> contextInfo, CancellationToken token)
