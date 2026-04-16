@@ -119,7 +119,11 @@ sealed class GuiDialogsVerifier : GameVerifier
                         componentType is not GuiComponentType.ButtonMiddle &&
                         componentType is not GuiComponentType.Scanlines &&
                         componentType is not GuiComponentType.FrameBackground)
+                    {
+                        if (!cached.Value.AssetExists) 
+                            AddNotFoundError(texture, component, null);
                         continue;
+                    }
                 }
 
                 var exists = GameEngine.GuiDialogManager.TextureExists(
@@ -141,8 +145,9 @@ sealed class GuiDialogsVerifier : GameVerifier
                         AddNotFoundError(texture, component, origin);
                     }
                 }
-                
-                _cache?.TryAddEntry(texture.Texture, exists);
+
+                // If the texture is "none" we store it as "asset exists" in order to reduce false warnings
+                _cache?.TryAddEntry(texture.Texture, exists || isNone);
             }
             finally
             {
@@ -155,16 +160,18 @@ sealed class GuiDialogsVerifier : GameVerifier
     private void AddNotFoundError(ComponentTextureEntry texture, string component, GuiTextureOrigin? origin)
     {
         var sb = new StringBuilder($"Could not find GUI texture '{texture.Texture}'");
-        if (origin is not null)
-            sb.Append($" at location '{origin}'");
+        if (origin is not null) 
+            sb.Append($" at origin '{origin}'");
+        sb.Append($" for component '{component}'");
         sb.Append('.');
 
         if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
             sb.Append(" The file name is too long.");
 
         AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
-            sb.ToString(), VerificationSeverity.Error,
-            [component, origin.ToString()], texture.Texture));
+            sb.ToString(), VerificationSeverity.Error, 
+            [component], // Origin is not interesting for context, but might be for the error message
+            texture.Texture));
     }
 
     private IReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> GetTextureEntriesForComponents(string component, out bool defined)
