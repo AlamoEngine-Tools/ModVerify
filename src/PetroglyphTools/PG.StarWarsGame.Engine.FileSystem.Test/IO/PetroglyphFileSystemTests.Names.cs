@@ -27,14 +27,14 @@ public partial class PetroglyphFileSystemTests
         { "foo\\bar/file.exe", "file.exe" },
         { "foo/bar\\file.exe", "file.exe" },
     };
-    
+
     [Theory, MemberData(nameof(TestData_GetFileName))]
     public void GetFileName_Span(string path, string expected)
     {
         PathAssert.Equal(expected.AsSpan(), _pgFileSystem.GetFileName(path.AsSpan()));
         Assert.Equal(expected, _pgFileSystem.GetFileName(path));
     }
-    
+
     public static TheoryData<string, string> TestData_GetFileNameWithoutExtension => new()
     {
         { "", "" },

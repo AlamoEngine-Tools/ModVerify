@@ -186,7 +186,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 message,
                 VerificationSeverity.Critical, 
                 contextInfo, 
-                fileName.ToUpperInvariant()));
+                NormalizeFileName(fileName)));
             exists = true;
             return null;
         }
@@ -206,18 +206,17 @@ public sealed class SingleModelVerifier : GameVerifierBase
         var animationCollection = AnimationCollection.Empty;
         if (alamoFile.Content is AlamoModel)
         {
-            // TODO: Enable once we support verifying animations as well.
-            //animationCollection = GameEngine.PGRender.LoadAnimations(alamoFile.FileName, alamoFile.Directory, true,
-            //    (_, _, alaFile) =>
-            //    {
-            //        AddError(VerificationError.Create(
-            //            this,
-            //            VerifierErrorCodes.BinaryFileCorrupt,
-            //            $"Invalid animation file '{alaFile}' for model '{alamoFile.FileName}'",
-            //            VerificationSeverity.Error,
-            //            [alamoFile.FileName.ToUpperInvariant()],
-            //            alaFile.ToUpperInvariant()));
-            //    });
+            animationCollection = GameEngine.PGRender.LoadAnimations(alamoFile.FileName, alamoFile.Directory, true,
+                (_, _, alaFile) =>      
+                {
+                    AddError(VerificationError.Create(
+                        this,
+                        VerifierErrorCodes.BinaryFileCorrupt,
+                        $"Invalid animation file '{alaFile}' for model '{alamoFile.FileName}'",
+                        VerificationSeverity.Error,
+                        [NormalizeFileName(fileName)],
+                        alaFile.ToUpperInvariant()));
+                });
         }
 
         return new ModelClass(alamoFile, animationCollection);
@@ -229,7 +228,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
             
         foreach (var texture in file.Content.Textures)
         {
-            GuardedVerify(() => VerifyTextureExists(texture, particleContext),
+            GuardedVerify(() => VerifyTextureExists(file, texture, particleContext),
                 e => e is ArgumentException,
                 _ =>
                 {
@@ -265,7 +264,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
         foreach (var texture in file.Content.Textures)
         {
-            GuardedVerify(() => VerifyTextureExists(texture, modelContext),
+            GuardedVerify(() => VerifyTextureExists(file, texture, modelContext),
                 e => e is ArgumentException,
                 _ =>
                 {
@@ -327,16 +326,37 @@ public sealed class SingleModelVerifier : GameVerifierBase
         // Is there actually anything to verify for animation without looking at the model?
     }
 
-    private void VerifyTextureExists(string texture, IReadOnlyCollection<string> contextInfo)
+    private void VerifyTextureExists(IPetroglyphFileHolder file, string texture, IReadOnlyCollection<string> contextInfo)
     {
+        if (string.IsNullOrEmpty(texture))
+        {
+            AddError(VerificationError.Create(this, 
+                VerifierErrorCodes.InvalidValue,
+                $"Texture string in model or particle '{file.FileName}' is empty.'",
+                VerificationSeverity.Error,
+                contextInfo,
+                NormalizeFileName(file.FileName)));
+            return;
+        }
         if (texture == "None")
             return;
-        _textureVerifier.Verify(texture, [..contextInfo], CancellationToken.None);
+        _textureVerifier.Verify(texture, contextInfo, CancellationToken.None);
     }
 
     private void VerifyProxyExists(IPetroglyphFileHolder model, string proxy, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
         var proxyName = ModelClass.GetProxyName(proxy).ToString();
+
+        if (string.IsNullOrEmpty(proxyName))
+        {
+            AddError(VerificationError.Create(this, 
+                VerifierErrorCodes.InvalidValue,
+                $"Proxy name in model '{model.FileName}' is empty.'",
+                VerificationSeverity.Error,
+                contextInfo,
+                NormalizeFileName(model.FileName)));
+            return;
+        }
         
         VerifyWithCache(proxyName, contextInfo, _ =>
         {
@@ -384,7 +404,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
             $"Unable to find Alamo file '{fileName}'",
             VerificationSeverity.Error,
             contextInfo,
-            fileName.ToUpperInvariant()));
+            NormalizeFileName(fileName)));
     }
 
     private void OnTextureError(object sender, VerificationErrorEventArgs e)

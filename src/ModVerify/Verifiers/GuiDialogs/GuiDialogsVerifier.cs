@@ -159,7 +159,7 @@ sealed class GuiDialogsVerifier : GameVerifier
 
     private void AddNotFoundError(ComponentTextureEntry texture, string component, GuiTextureOrigin? origin)
     {
-        var sb = new StringBuilder($"Could not find GUI texture '{texture.Texture}'");
+        var sb = new StringBuilder($"Could not find GUI texture '{texture.Texture}' of type '{texture.ComponentType}'");
         if (origin is not null) 
             sb.Append($" at origin '{origin}'");
         sb.Append($" for component '{component}'");

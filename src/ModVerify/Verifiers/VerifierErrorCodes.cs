@@ -12,6 +12,7 @@ public static class VerifierErrorCodes
 
     public const string BinaryFileCorrupt = "BIN00";
     public const string UnexpectedBinaryFormat = "BIN01";
+    public const string InvalidValue = "BIN02";
 
 
     public const string FileNotFound = "FILE00";
