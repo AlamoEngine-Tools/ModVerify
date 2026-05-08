@@ -206,6 +206,69 @@ public partial class PetroglyphFileSystemTests
     }
 
     [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_FullyQualifiedPathOutsideGameDirectory_ReturnsTrue()
+    {
+        // Scenario where gameDirectory is /a/b/c but actualFilePath is /x/y/foo.txt
+        // The file path is fully qualified and shares no common prefix with gameDirectory beyond "/".
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var gameDir = Path.Combine(tempDir, "game");
+        var otherDir = Path.Combine(tempDir, "other");
+
+        Directory.CreateDirectory(gameDir);
+        Directory.CreateDirectory(Path.Combine(otherDir, "DATA"));
+
+        try
+        {
+            // File lives completely outside the game directory
+            var fileOnDisk = Path.Combine(otherDir, "DATA", "FILE.TXT");
+            File.WriteAllText(fileOnDisk, "test");
+
+            // Pass a fully qualified path with wrong casing; gameDir is unrelated
+            var fullyQualifiedInput = Path.Combine(otherDir, "data", "file.txt");
+            var vsb = new ValueStringBuilder();
+            var exists = _pgFileSystem.FileExists(fullyQualifiedInput.AsSpan(), ref vsb, gameDir.AsSpan());
+
+            Assert.True(exists);
+            Assert.Equal(fileOnDisk, vsb.ToString());
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_FullyQualifiedSiblingPath_ReturnsTrue()
+    {
+        // Scenario where gameDirectory is /a/b/c but actualFilePath is /a/b/x/foo.txt
+        // They share a common parent but diverge before the game directory ends.
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var gameDir = Path.Combine(tempDir, "game");
+        var siblingDir = Path.Combine(tempDir, "sibling");
+
+        Directory.CreateDirectory(gameDir);
+        Directory.CreateDirectory(Path.Combine(siblingDir, "DATA"));
+
+        try
+        {
+            var fileOnDisk = Path.Combine(siblingDir, "DATA", "FILE.TXT");
+            File.WriteAllText(fileOnDisk, "test");
+
+            // Fully qualified path into sibling directory with wrong casing
+            var fullyQualifiedInput = Path.Combine(siblingDir, "data", "file.txt");
+            var vsb = new ValueStringBuilder();
+            var exists = _pgFileSystem.FileExists(fullyQualifiedInput.AsSpan(), ref vsb, gameDir.AsSpan());
+
+            Assert.True(exists);
+            Assert.Equal(fileOnDisk, vsb.ToString());
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
     public void FileExists_CaseInsensitive_MissingIntermediateDirectory_ReturnsFalse()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());

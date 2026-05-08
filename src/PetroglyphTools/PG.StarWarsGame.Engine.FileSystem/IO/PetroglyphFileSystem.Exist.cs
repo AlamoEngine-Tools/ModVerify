@@ -26,7 +26,9 @@ public sealed partial class PetroglyphFileSystem
             NormalizePath(ref stringBuilder);
             
             var actualFilePath = stringBuilder.AsSpan();
-            return FileExistsCaseInsensitive(actualFilePath, ref stringBuilder, gameDirectory.Length);
+            
+            var knownGoodPrefix = GetCommonDirectoryPrefixLength(actualFilePath, gameDirectory);
+            return FileExistsCaseInsensitiveWine(actualFilePath, ref stringBuilder, knownGoodPrefix);
         }
 
         // We *could* also use the slightly faster GetFileAttributesA.
@@ -305,22 +307,45 @@ public sealed partial class PetroglyphFileSystem
         return true;
     }
 
+    /// <summary>
+    /// Returns the length of the longest common directory prefix between two paths.
+    /// Comparison is ordinal (case-sensitive) and only breaks at '/' boundaries.
+    /// Both paths are expected to be normalized (forward slashes only).
+    /// </summary>
+    private static int GetCommonDirectoryPrefixLength(ReadOnlySpan<char> path, ReadOnlySpan<char> directory)
+    {
+        var minLen = Math.Min(path.Length, directory.Length);
+        var lastSlash = 0;
+
+        for (var i = 0; i < minLen; i++)
+        {
+            if (path[i] != directory[i])
+                break;
+
+            // Track the position just past the last '/' so we always
+            // snap to a directory boundary without a post-loop walk-back.
+            if (path[i] == '/')
+                lastSlash = i + 1;
+        }
+
+        return lastSlash;
+    }
+
     private static bool ContainsDotSegment(string path)
     {
-        // Check for "." or ".." as standalone path segments.
-        // Segments are delimited by '/' or string boundaries.
         var span = path.AsSpan();
-        var pos = 0;
-        while (pos < span.Length)
+        var start = 0;
+        for (var i = 0; i <= span.Length; i++)
         {
-            var nextSlash = span.Slice(pos).IndexOf('/');
-            var end = nextSlash >= 0 ? pos + nextSlash : span.Length;
-            var len = end - pos;
-            if (len == 1 && span[pos] == '.')
+            if (i < span.Length && span[i] != '/')
+                continue;
+
+            var len = i - start;
+            if (len == 1 && span[start] == '.')
                 return true;
-            if (len == 2 && span[pos] == '.' && span[pos + 1] == '.')
+            if (len == 2 && span[start] == '.' && span[start + 1] == '.')
                 return true;
-            pos = end + 1;
+            start = i + 1;
         }
         return false;
     }
@@ -397,6 +422,9 @@ public sealed partial class PetroglyphFileSystem
         if (pathString.Length == 0)
             return false;
 
+        // Pre-resolve "." and ".." segments in the path
+        pathString = ResolveDotSegments(pathString);
+
         var path = pathString.AsSpan();
         var rootLen = path[0] == '/' ? 1 : 0;
 
@@ -419,6 +447,8 @@ public sealed partial class PetroglyphFileSystem
         if (!_underlyingFileSystem.Directory.Exists(currentDir))
             return false;
 
+        // Save original content so we can restore on failure
+        var originalContent = stringBuilder.AsSpan().ToString();
         stringBuilder.Length = 0;
         stringBuilder.Append(currentDir);
 
@@ -484,7 +514,11 @@ public sealed partial class PetroglyphFileSystem
             }
 
             if (!found)
+            {
+                stringBuilder.Length = 0;
+                stringBuilder.Append(originalContent);
                 return false;
+            }
 
             if (isLast)
                 return true;
