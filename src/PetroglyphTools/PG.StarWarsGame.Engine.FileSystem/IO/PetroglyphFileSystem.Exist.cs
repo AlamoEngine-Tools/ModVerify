@@ -4,9 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using PG.StarWarsGame.Engine.Utilities;
 using System.IO;
+#if NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
-#if NETSTANDARD2_1 || NET
-using System.Diagnostics.CodeAnalysis;
 #endif
 
 namespace PG.StarWarsGame.Engine.IO;
@@ -261,6 +260,148 @@ public sealed partial class PetroglyphFileSystem
 
             if (!found)
                 return false;
+
+            pos = componentEnd + 1;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Wine-style case-insensitive file existence check.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Mirrors <c>lookup_unix_name</c> + <c>find_file_in_dir</c> in Wine's
+    /// <c>dlls/ntdll/unix/file.c</c>: walk path components forward starting from
+    /// a known-good prefix; for each component, try an exact-case stat as a fast
+    /// path before falling back to a single directory enumeration. Components
+    /// whose case already matches on disk cost one stat each; only the
+    /// mismatched components incur an enumeration.
+    /// </para>
+    /// <para>
+    /// Differs from the backward-walking variant: there's no "find deepest
+    /// existing prefix" probe. Wine trusts the prefix and walks forward
+    /// component by component, which avoids backward stats but costs one extra
+    /// stat per correctly-cased trailing component versus the backward walk
+    /// when many trailing components are missing.
+    /// </para>
+    /// </remarks>
+    /// <param name="filePath">
+    /// Normalized absolute path with forward slashes. May alias <paramref name="stringBuilder"/>'s buffer.
+    /// </param>
+    /// <param name="stringBuilder">
+    /// On success, overwritten with the actual on-disk path.
+    /// </param>
+    /// <param name="knownGoodPrefixLength">
+    /// Length of the path prefix known to exist with correct casing (typically gameDirectory.Length).
+    /// Wine's analogue is <c>root_fd</c>: the prefix is trusted, never re-validated component-wise.
+    /// Pass 0 to start from the filesystem root ("/").
+    /// </param>
+    private bool FileExistsCaseInsensitiveWine(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, int knownGoodPrefixLength)
+    {
+        Debug.Assert(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
+        var pathString = filePath.ToString();
+
+        // Top-level shortcut: matches Wine's first fstatat over the full nt_name.
+        if (_underlyingFileSystem.File.Exists(pathString))
+            return true;
+
+        if (pathString.Length == 0)
+            return false;
+
+        var path = pathString.AsSpan();
+        var rootLen = path[0] == '/' ? 1 : 0;
+
+        int prefixEnd;
+        if (knownGoodPrefixLength > rootLen)
+        {
+            prefixEnd = Math.Min(knownGoodPrefixLength, path.Length);
+            while (prefixEnd > rootLen && path[prefixEnd - 1] == '/')
+                prefixEnd--;
+        }
+        else
+        {
+            prefixEnd = rootLen;
+        }
+
+        if (prefixEnd == 0)
+            return false;
+
+        var currentDir = pathString.Substring(0, prefixEnd);
+        if (!_underlyingFileSystem.Directory.Exists(currentDir))
+            return false;
+
+        stringBuilder.Length = 0;
+        stringBuilder.Append(currentDir);
+
+        var pos = prefixEnd;
+        if (pos < path.Length && path[pos] == '/')
+            pos++;
+
+        while (pos < path.Length)
+        {
+            var rest = path.Slice(pos);
+            var nextSlash = rest.IndexOf('/');
+            var componentEnd = nextSlash >= 0 ? pos + nextSlash : path.Length;
+            var component = path.Slice(pos, componentEnd - pos);
+
+            if (component.IsEmpty)
+            {
+                pos = componentEnd + 1;
+                continue;
+            }
+
+            var isLast = componentEnd >= path.Length;
+
+            // Wine's per-component shortcut: append the literal component and
+            // stat. For non-last components require a directory; for the leaf
+            // require a file (Wine's fstatat is type-agnostic, but our public
+            // contract is FileExists, so we narrow at the leaf).
+            var savedLen = stringBuilder.Length;
+            if (savedLen == 0 || stringBuilder[savedLen - 1] != '/')
+                stringBuilder.Append('/');
+            stringBuilder.Append(component);
+
+            var literalPath = stringBuilder.AsSpan().ToString();
+            if (isLast)
+            {
+                if (_underlyingFileSystem.File.Exists(literalPath))
+                    return true;
+            }
+            else if (_underlyingFileSystem.Directory.Exists(literalPath))
+            {
+                currentDir = literalPath;
+                pos = componentEnd + 1;
+                continue;
+            }
+
+            // Literal stat missed; roll back and enumerate the parent directory.
+            stringBuilder.Length = savedLen;
+
+            var entries = isLast
+                ? _underlyingFileSystem.Directory.EnumerateFiles(currentDir)
+                : _underlyingFileSystem.Directory.EnumerateDirectories(currentDir);
+
+            var found = false;
+            foreach (var entry in entries)
+            {
+                if (_underlyingFileSystem.Path.GetFileName(entry.AsSpan()).Equals(component, StringComparison.OrdinalIgnoreCase))
+                {
+                    stringBuilder.Length = 0;
+                    stringBuilder.Append(entry);
+                    currentDir = entry;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                return false;
+
+            if (isLast)
+                return true;
 
             pos = componentEnd + 1;
         }
