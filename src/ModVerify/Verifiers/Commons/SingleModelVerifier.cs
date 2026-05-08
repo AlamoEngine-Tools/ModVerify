@@ -15,6 +15,9 @@ using PG.StarWarsGame.Files.ALO.Files.Animations;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.Binary;
+#if NETFRAMEWORK || NETSTANDARD2_0
+using AnakinRaW.CommonUtilities.FileSystem;
+#endif
 
 namespace AET.ModVerify.Verifiers.Commons;
 
@@ -141,7 +144,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 $"Expected Alamo object of type {typeof(T).Name}, but got {modelClass.RenderableContent.GetType().Name}",
                 VerificationSeverity.Error,
                 contextInfo,
-                modelClass.File.FileName.ToUpperInvariant()));
+                NormalizeFileName(modelClass.File.FileName)));
             return null;
         }
 
@@ -209,13 +212,14 @@ public sealed class SingleModelVerifier : GameVerifierBase
             animationCollection = GameEngine.PGRender.LoadAnimations(alamoFile.FileName, alamoFile.Directory, true,
                 (_, _, alaFile) =>      
                 {
+                    var alaFileName = NormalizeFileName(alaFile);
                     AddError(VerificationError.Create(
                         this,
                         VerifierErrorCodes.BinaryFileCorrupt,
-                        $"Invalid animation file '{alaFile}' for model '{alamoFile.FileName}'",
+                        $"Invalid animation file '{alaFileName}' for model '{alamoFile.FileName}'",
                         VerificationSeverity.Error,
-                        [NormalizeFileName(fileName)],
-                        alaFile.ToUpperInvariant()));
+                        [NormalizeFileName(alamoFile.FileName)],
+                        alaFileName));
                 });
         }
 
@@ -242,7 +246,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 });
         }
 
-        var fileName = GameEngine.GameRepository.PGFileSystem.GetFileNameWithoutExtension(file.FilePath.AsSpan());
+        var fileName = FileSystem.Path.GetFileNameWithoutExtension(file.FileName.AsSpan());
         var name = file.Content.Name.AsSpan();
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))

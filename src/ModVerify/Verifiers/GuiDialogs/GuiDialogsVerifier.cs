@@ -111,6 +111,17 @@ sealed class GuiDialogsVerifier : GameVerifier
                     continue;
                 }
 
+                if (texture.Texture.Equals("none", StringComparison.OrdinalIgnoreCase))
+                {
+                    // We can ignore "none" textures completely, due to two reasons:
+                    // 1. If we are in special mode, the engine already filters for "none" textures and ignores them.
+                    // 2. If we are in MegaTexture mode, the texture is rendered as a view from the mega texture.
+                    //    When the engine does not find a texture in the MegaTexture, the view becomes a rect of (0,0,0,0)
+                    //    and thus does not render anything, which is the intended effect of "none" textures.
+                    //    The engine does not log any warnings for missing textures in the MegaTexture, so we won't either.
+                    continue;
+                }
+                
                 var cached = _cache?.GetEntry(texture.Texture);
                 if (cached?.AlreadyVerified is true)
                 {
@@ -182,10 +193,5 @@ sealed class GuiDialogsVerifier : GameVerifier
             return GameEngine.GuiDialogManager.DefaultTextureEntries;
         }
         return GameEngine.GuiDialogManager.GetTextureEntries(component, out defined);
-    }
-
-    private void OnTextureError(object sender, VerificationErrorEventArgs e)
-    {
-        AddError(e.Error);
     }
 }
