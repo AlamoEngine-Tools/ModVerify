@@ -37,7 +37,8 @@ internal sealed class GameVerifierService(IServiceProvider serviceProvider) : IG
 
         VerificationCompletionStatus completionStatus;
         var start = DateTime.UtcNow;
-        
+
+        Exception? exception = null;
         try
         {
             await pipeline.RunAsync(token).ConfigureAwait(false);
@@ -46,8 +47,13 @@ internal sealed class GameVerifierService(IServiceProvider serviceProvider) : IG
         catch (OperationCanceledException)
         {
             completionStatus = settings.FailFastSettings.IsFailFast
-                ? VerificationCompletionStatus.CompletedFailFast 
+                ? VerificationCompletionStatus.CompletedFailFast
                 : VerificationCompletionStatus.Cancelled;
+        }
+        catch (Exception e)
+        {
+            exception = e;
+            completionStatus = VerificationCompletionStatus.Failed;
         }
 
         var duration = DateTime.UtcNow - start;
@@ -60,7 +66,8 @@ internal sealed class GameVerifierService(IServiceProvider serviceProvider) : IG
             Target = verificationTarget,
             UsedBaseline = baseline,
             UsedSuppressions = suppressions,
-            Verifiers = pipeline.Verifiers
+            Verifiers = pipeline.Verifiers,
+            Exception = exception
         };
     }
 }

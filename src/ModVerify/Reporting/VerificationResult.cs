@@ -41,4 +41,6 @@ public sealed record VerificationResult
     }
 
     public required TimeSpan Duration { get; init; }
+
+    public Exception? Exception { get; init; }
 }
