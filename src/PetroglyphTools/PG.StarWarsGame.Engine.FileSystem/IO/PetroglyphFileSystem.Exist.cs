@@ -27,7 +27,7 @@ public sealed partial class PetroglyphFileSystem
             NormalizePath(ref stringBuilder);
             
             var actualFilePath = stringBuilder.AsSpan();
-            return FileExistsCaseInsensitive(actualFilePath, ref stringBuilder);
+            return FileExistsCaseInsensitive(actualFilePath, ref stringBuilder, gameDirectory.Length);
         }
 
         // We *could* also use the slightly faster GetFileAttributesA.
@@ -180,11 +180,15 @@ public sealed partial class PetroglyphFileSystem
         
         var path = pathString.AsSpan();
 
+        // Pre-resolve "." and ".." segments in the path
+        pathString = ResolveDotSegments(pathString);
+        path = pathString.AsSpan();
+
         var rootLen = path[0] == '/' ? 1 : 0;
         var resolvedEnd = rootLen;
 
         int searchEnd;
-        if (knownGoodPrefixLength > 0)
+        if (knownGoodPrefixLength > 0 && knownGoodPrefixLength <= path.Length)
         {
             searchEnd = knownGoodPrefixLength;
             while (searchEnd > 1 && path[searchEnd - 1] == '/')
@@ -221,6 +225,8 @@ public sealed partial class PetroglyphFileSystem
         // Reuse the prefix from Directory.Exists if available, otherwise allocate once.
         var currentDir = resolvedPrefix ?? pathString.Substring(0, resolvedEnd);
 
+        // Save original content so we can restore on failure
+        var originalContent = stringBuilder.AsSpan().ToString();
         stringBuilder.Length = 0;
         stringBuilder.Append(currentDir);
 
@@ -236,6 +242,34 @@ public sealed partial class PetroglyphFileSystem
 
             if (component.IsEmpty)
             {
+                pos = componentEnd + 1;
+                continue;
+            }
+
+            // Handle "." (current directory) segment
+            if (component.Length == 1 && component[0] == '.')
+            {
+                pos = componentEnd + 1;
+                continue;
+            }
+
+            // Handle ".." (parent directory) segment
+            if (component.Length == 2 && component[0] == '.' && component[1] == '.')
+            {
+                var curDir = stringBuilder.AsSpan();
+                var lastSlash = curDir.LastIndexOf('/');
+                if (lastSlash > rootLen)
+                {
+                    currentDir = curDir.Slice(0, lastSlash).ToString();
+                    stringBuilder.Length = 0;
+                    stringBuilder.Append(currentDir);
+                }
+                else if (lastSlash == rootLen && rootLen > 0)
+                {
+                    currentDir = curDir.Slice(0, rootLen).ToString();
+                    stringBuilder.Length = 0;
+                    stringBuilder.Append(currentDir);
+                }
                 pos = componentEnd + 1;
                 continue;
             }
@@ -260,11 +294,63 @@ public sealed partial class PetroglyphFileSystem
             }
 
             if (!found)
+            {
+                stringBuilder.Length = 0;
+                stringBuilder.Append(originalContent);
                 return false;
+            }
 
             pos = componentEnd + 1;
         }
 
         return true;
+    }
+
+    private static bool ContainsDotSegment(string path)
+    {
+        // Check for "." or ".." as standalone path segments.
+        // Segments are delimited by '/' or string boundaries.
+        var span = path.AsSpan();
+        var pos = 0;
+        while (pos < span.Length)
+        {
+            var nextSlash = span.Slice(pos).IndexOf('/');
+            var end = nextSlash >= 0 ? pos + nextSlash : span.Length;
+            var len = end - pos;
+            if (len == 1 && span[pos] == '.')
+                return true;
+            if (len == 2 && span[pos] == '.' && span[pos + 1] == '.')
+                return true;
+            pos = end + 1;
+        }
+        return false;
+    }
+
+    private static string ResolveDotSegments(string path)
+    {
+        if (!ContainsDotSegment(path))
+            return path;
+
+        var segments = path.Split('/');
+        var stack = new System.Collections.Generic.List<string>(segments.Length);
+
+        foreach (var seg in segments)
+        {
+            if (seg == ".")
+                continue;
+
+            if (seg == "..")
+            {
+                // Don't pop past root (empty first segment for absolute paths)
+                if (stack.Count > 0 && stack[stack.Count - 1] != "" && stack[stack.Count - 1] != "..")
+                    stack.RemoveAt(stack.Count - 1);
+            }
+            else
+            {
+                stack.Add(seg);
+            }
+        }
+
+        return string.Join("/", stack);
     }
 }

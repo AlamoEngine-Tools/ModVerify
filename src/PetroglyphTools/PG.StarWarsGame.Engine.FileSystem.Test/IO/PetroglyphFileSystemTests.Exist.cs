@@ -180,6 +180,32 @@ public partial class PetroglyphFileSystemTests
     }
 
     [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_DotDotSegmentInPath_ReturnsTrue()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            // Create tempDir/DATA/FILE.TXT
+            Directory.CreateDirectory(Path.Combine(tempDir, "DATA"));
+            File.WriteAllText(Path.Combine(tempDir, "DATA", "FILE.TXT"), "test");
+
+            // Input path uses ".." to go up from a sibling directory.
+            // After join + normalization: tempDir/Other/../DATA/file.txt
+            // The implementation must resolve ".." by popping the previous component.
+            var vsb = new ValueStringBuilder();
+            var exists = _pgFileSystem.FileExists(@"Other\..\DATA\file.txt".AsSpan(), ref vsb, tempDir.AsSpan());
+
+            Assert.True(exists);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
     public void FileExists_CaseInsensitive_MissingIntermediateDirectory_ReturnsFalse()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
