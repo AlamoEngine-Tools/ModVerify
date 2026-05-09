@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -12,6 +13,12 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
+    // Directory existence cache for the wine-style case-insensitive lookup.
+    // Key: a directory path (any casing); compared case-insensitively.
+    // Value: the actual on-disk casing of the directory, or null if the directory does not exist.
+    private readonly ConcurrentDictionary<string, string?> _directoryCache =
+        new(StringComparer.OrdinalIgnoreCase);
+
     internal bool FileExists(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> gameDirectory)
     {
         stringBuilder.Length = 0;
@@ -24,9 +31,18 @@ public sealed partial class PetroglyphFileSystem
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             NormalizePath(ref stringBuilder);
-            
+
+            // Resolve dot segments once up front so both the cache fast path and the wine walk
+            // operate on canonical paths. Single forward pass over the buffer; allocation-free.
+            NormalizeDotSegmentsInPlace(ref stringBuilder);
+
             var actualFilePath = stringBuilder.AsSpan();
-            
+
+            // Cache fast path: bypass the wine walk entirely when the file's parent directory
+            // has already been resolved (or proven non-existent) by a prior call.
+            if (TryFileExistsFromDirectoryCache(actualFilePath, ref stringBuilder, out var fileExists))
+                return fileExists;
+
             var knownGoodPrefix = GetCommonDirectoryPrefixLength(actualFilePath, gameDirectory);
             return FileExistsCaseInsensitiveWine(actualFilePath, ref stringBuilder, knownGoodPrefix);
         }
@@ -331,19 +347,18 @@ public sealed partial class PetroglyphFileSystem
         return lastSlash;
     }
 
-    private static bool ContainsDotSegment(string path)
+    private static bool ContainsDotSegment(ReadOnlySpan<char> path)
     {
-        var span = path.AsSpan();
         var start = 0;
-        for (var i = 0; i <= span.Length; i++)
+        for (var i = 0; i <= path.Length; i++)
         {
-            if (i < span.Length && span[i] != '/')
+            if (i < path.Length && path[i] != '/')
                 continue;
 
             var len = i - start;
-            if (len == 1 && span[start] == '.')
+            if (len == 1 && path[start] == '.')
                 return true;
-            if (len == 2 && span[start] == '.' && span[start + 1] == '.')
+            if (len == 2 && path[start] == '.' && path[start + 1] == '.')
                 return true;
             start = i + 1;
         }
@@ -377,7 +392,7 @@ public sealed partial class PetroglyphFileSystem
 
         return string.Join("/", stack);
     }
-    
+
     /// <summary>
     /// Wine-style case-insensitive file existence check.
     /// </summary>
@@ -452,6 +467,9 @@ public sealed partial class PetroglyphFileSystem
         stringBuilder.Length = 0;
         stringBuilder.Append(currentDir);
 
+        // Record the trusted prefix for the dispatcher's fast path on later calls.
+        _directoryCache[currentDir] = currentDir;
+
         var pos = prefixEnd;
         if (pos < path.Length && path[pos] == '/')
             pos++;
@@ -489,6 +507,7 @@ public sealed partial class PetroglyphFileSystem
             else if (_underlyingFileSystem.Directory.Exists(literalPath))
             {
                 currentDir = literalPath;
+                _directoryCache[pathString.Substring(0, componentEnd)] = currentDir;
                 pos = componentEnd + 1;
                 continue;
             }
@@ -515,10 +534,16 @@ public sealed partial class PetroglyphFileSystem
 
             if (!found)
             {
+                if (!isLast)
+                    _directoryCache[pathString.Substring(0, componentEnd)] = null;
+
                 stringBuilder.Length = 0;
                 stringBuilder.Append(originalContent);
                 return false;
             }
+
+            if (!isLast)
+                _directoryCache[pathString.Substring(0, componentEnd)] = currentDir;
 
             if (isLast)
                 return true;
@@ -526,6 +551,71 @@ public sealed partial class PetroglyphFileSystem
             pos = componentEnd + 1;
         }
 
+        return true;
+    }
+
+    /// <summary>
+    /// Cache-only fast path for the wine-style case-insensitive file lookup.
+    /// Looks up the file's parent directory in <see cref="_directoryCache"/>:
+    /// hit-positive enumerates only the file in the resolved directory; hit-negative
+    /// returns false directly. On miss, returns false to signal the caller to fall
+    /// through to the full wine walk.
+    /// </summary>
+    /// <param name="filePath">
+    /// Canonical absolute path with forward slashes — caller must have already resolved any
+    /// "." / ".." segments so the dir key matches what wine wrote into the cache.
+    /// </param>
+    /// <param name="stringBuilder">On a positive resolve, contains the on-disk path; otherwise unchanged.</param>
+    /// <param name="fileExists">Set when this method returns true: the file existence answer.</param>
+    /// <returns>true if the cache resolved the lookup; false if the caller must continue.</returns>
+    private bool TryFileExistsFromDirectoryCache(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, out bool fileExists)
+    {
+        fileExists = false;
+
+        // Path is canonical here (rooted, dot-resolved, single forward slashes), so the standard
+        // helpers give us the directory and file name without any defensive slash arithmetic.
+        var dirSpan = GetDirectoryName(filePath);
+        var fileName = GetFileName(filePath);
+        if (dirSpan.Length <= 1 || fileName.IsEmpty)
+            return false;
+
+        var dirKey = dirSpan.ToString();
+        if (!_directoryCache.TryGetValue(dirKey, out var cachedDir))
+            return false;
+
+        if (cachedDir is null)
+        {
+            // Negative cache hit: caller's stringBuilder still holds the joined path; leave it.
+            return true;
+        }
+
+        // Positive cache hit: enumerate the file in the resolved directory.
+        var originalContent = stringBuilder.AsSpan().ToString();
+
+        stringBuilder.Length = 0;
+        JoinPath(cachedDir.AsSpan(), fileName, ref stringBuilder);
+
+        var literal = stringBuilder.AsSpan().ToString();
+        if (_underlyingFileSystem.File.Exists(literal))
+        {
+            fileExists = true;
+            return true;
+        }
+
+        foreach (var entry in _underlyingFileSystem.Directory.EnumerateFiles(cachedDir))
+        {
+            if (_underlyingFileSystem.Path.GetFileName(entry.AsSpan()).Equals(fileName, StringComparison.OrdinalIgnoreCase))
+            {
+                stringBuilder.Length = 0;
+                stringBuilder.Append(entry);
+                fileExists = true;
+                return true;
+            }
+        }
+
+        // Directory was cached, but the file isn't in it.
+        stringBuilder.Length = 0;
+        stringBuilder.Append(originalContent);
         return true;
     }
 }

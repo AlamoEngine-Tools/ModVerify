@@ -292,6 +292,133 @@ public partial class PetroglyphFileSystemTests
         }
     }
 
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_RepeatedCallsSameDirectory_BothResolve()
+    {
+        // Verifies the directory cache: second call to a sibling file in the same on-disk dir
+        // must still return true with correct casing — even though the cache short-circuits the walk.
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            var dataDir = Path.Combine(tempDir, "Mods", "Test", "Data", "Xml");
+            Directory.CreateDirectory(dataDir);
+            File.WriteAllText(Path.Combine(dataDir, "foo.xml"), "1");
+            File.WriteAllText(Path.Combine(dataDir, "bar.xml"), "2");
+
+            var vsb1 = new ValueStringBuilder();
+            var first = _pgFileSystem.FileExists("MODS/TEST/DATA/XML/FOO.XML".AsSpan(), ref vsb1, tempDir.AsSpan());
+            Assert.True(first);
+            Assert.Equal(Path.Combine(dataDir, "foo.xml"), vsb1.ToString());
+
+            // Second call — different file in the same dir, also wrong casing.
+            // Should hit the dir cache populated by the first call.
+            var vsb2 = new ValueStringBuilder();
+            var second = _pgFileSystem.FileExists("mods/test/data/xml/BAR.XML".AsSpan(), ref vsb2, tempDir.AsSpan());
+            Assert.True(second);
+            Assert.Equal(Path.Combine(dataDir, "bar.xml"), vsb2.ToString());
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_NegativeCacheForMissingIntermediate_StillReturnsFalse()
+    {
+        // After a miss caches a non-existent intermediate directory, a second call (different leaf)
+        // through the same missing dir must still return false — and not erroneously claim the file.
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(tempDir, "Mods", "Test", "Data", "Xml"));
+            File.WriteAllText(Path.Combine(tempDir, "Mods", "Test", "Data", "Xml", "foo.xml"), "1");
+
+            // First call: "Other" doesn't exist as a sibling of "Xml". Caches negative entry.
+            var vsb1 = new ValueStringBuilder();
+            var first = _pgFileSystem.FileExists("MODS/TEST/DATA/OTHER/foo.xml".AsSpan(), ref vsb1, tempDir.AsSpan());
+            Assert.False(first);
+
+            // Second call: same missing directory, different leaf. Negative cache hit.
+            var vsb2 = new ValueStringBuilder();
+            var second = _pgFileSystem.FileExists("mods/test/data/other/bar.xml".AsSpan(), ref vsb2, tempDir.AsSpan());
+            Assert.False(second);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_FastPathHandlesDotSegmentsAfterCachePopulated()
+    {
+        // After the cache is populated by a clean-path call, a follow-up call with dot segments
+        // pointing at the same resolved directory must still hit the fast path correctly.
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            var dataDir = Path.Combine(tempDir, "Mods", "Test", "Data", "Xml");
+            Directory.CreateDirectory(dataDir);
+            File.WriteAllText(Path.Combine(dataDir, "foo.xml"), "1");
+            File.WriteAllText(Path.Combine(dataDir, "bar.xml"), "2");
+
+            // Prime the cache.
+            var vsb1 = new ValueStringBuilder();
+            Assert.True(_pgFileSystem.FileExists("MODS/TEST/DATA/XML/FOO.XML".AsSpan(), ref vsb1, tempDir.AsSpan()));
+
+            // Same resolved parent, but the input has dot segments. Fast path must resolve dots
+            // before computing the cache key.
+            var vsb2 = new ValueStringBuilder();
+            var second = _pgFileSystem.FileExists(@"Other\..\MODS\TEST\DATA\XML\BAR.XML".AsSpan(), ref vsb2, tempDir.AsSpan());
+            Assert.True(second);
+            Assert.Equal(Path.Combine(dataDir, "bar.xml"), vsb2.ToString());
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void FileExists_CaseInsensitive_SiblingDirectoryAfterCachedParent_Resolves()
+    {
+        // After a successful call populates ancestor entries, a sibling directory under a
+        // cached parent must resolve correctly (the walk skips cached prefixes).
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            var xmlDir = Path.Combine(tempDir, "Mods", "Test", "Data", "Xml");
+            var artDir = Path.Combine(tempDir, "Mods", "Test", "Data", "Art");
+            Directory.CreateDirectory(xmlDir);
+            Directory.CreateDirectory(artDir);
+            File.WriteAllText(Path.Combine(xmlDir, "foo.xml"), "1");
+            File.WriteAllText(Path.Combine(artDir, "bar.dds"), "2");
+
+            // Populate cache for /tempDir/Mods/Test/Data and below.
+            var vsb1 = new ValueStringBuilder();
+            Assert.True(_pgFileSystem.FileExists("MODS/TEST/DATA/XML/FOO.XML".AsSpan(), ref vsb1, tempDir.AsSpan()));
+
+            // Sibling directory "Art" under the now-cached "/Mods/Test/Data".
+            var vsb2 = new ValueStringBuilder();
+            var second = _pgFileSystem.FileExists("MODS/TEST/DATA/ART/BAR.DDS".AsSpan(), ref vsb2, tempDir.AsSpan());
+            Assert.True(second);
+            Assert.Equal(Path.Combine(artDir, "bar.dds"), vsb2.ToString());
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
     [Theory]
 #if Windows
     [InlineData("C:\\test.txt", true)]
