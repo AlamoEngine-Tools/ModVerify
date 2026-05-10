@@ -3,8 +3,7 @@ using System;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
-internal class TextureRepository(GameRepository baseRepository, IServiceProvider serviceProvider) : 
-    MultiPassRepository(baseRepository, serviceProvider)
+internal class TextureRepository(GameRepository baseRepository) : MultiPassRepository(baseRepository)
 {
     private static readonly string DdsExtension = ".dds";
     private static readonly string TexturePath = "./Data/art/Textures/";

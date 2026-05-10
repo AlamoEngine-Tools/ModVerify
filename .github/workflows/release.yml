@@ -47,6 +47,8 @@ jobs:
       - name: Create Net Core Release
         # use publish for .NET Core
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
+      - name: Create Linux Release
+        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --runtime linux-x64 --self-contained true --output ./releases/linux-x64 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v7
         with:
@@ -118,3 +120,4 @@ jobs:
           files: | 
             ./releases/net481/ModVerify.exe
             ./releases/ModVerify-Net10.zip
+            ./releases/linux-x64/ModVerify

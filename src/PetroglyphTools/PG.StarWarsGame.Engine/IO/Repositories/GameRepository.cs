@@ -5,8 +5,8 @@ using System.Linq;
 using AnakinRaW.CommonUtilities.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using PG.Commons.Hashing;
-using PG.Commons.Services;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.Localization;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
@@ -19,7 +19,7 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
-internal abstract partial class GameRepository : ServiceBase, IGameRepository
+internal abstract partial class GameRepository : IGameRepository
 {
     private readonly IMegFileService _megFileService;
     private readonly IMegFileExtractor _megExtractor;
@@ -28,6 +28,9 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     private readonly IVirtualMegArchiveBuilder _virtualMegBuilder;
     private readonly IGameLanguageManagerProvider _languageManagerProvider;
     private readonly GameEngineErrorReporterWrapper _errorReporter;
+
+    private readonly ILogger _logger;
+    private readonly IServiceProvider _serviceProvider;
     
     protected readonly string GameDirectory;
 
@@ -35,22 +38,31 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
     protected readonly IList<string> FallbackPaths = new List<string>();
 
     private bool _sealed;
+    
+    public PetroglyphFileSystem PGFileSystem { get; }
 
     public string Path { get; }
+    
     public abstract GameEngineType EngineType { get; }
 
     public IRepository EffectsRepository { get; }
     public IRepository TextureRepository { get; }
     public IRepository ModelRepository { get; }
-
+    
 
     private readonly List<string> _loadedMegFiles = new();
     protected IVirtualMegArchive? MasterMegArchive { get; private set; }
 
-    protected GameRepository(GameLocations gameLocations, GameEngineErrorReporterWrapper errorReporter, IServiceProvider serviceProvider) : base(serviceProvider)
+    protected GameRepository(
+        GameLocations gameLocations,
+        GameEngineErrorReporterWrapper errorReporter,
+        IServiceProvider serviceProvider)
     {
         if (gameLocations == null)
             throw new ArgumentNullException(nameof(gameLocations));
+
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType()) ?? NullLogger.Instance;
 
         _megExtractor = serviceProvider.GetRequiredService<IMegFileExtractor>();
         _megFileService = serviceProvider.GetRequiredService<IMegFileService>();
@@ -60,39 +72,44 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         _languageManagerProvider = serviceProvider.GetRequiredService<IGameLanguageManagerProvider>();
         _errorReporter = errorReporter;
 
+        PGFileSystem = new PetroglyphFileSystem(serviceProvider);
+
         foreach (var mod in gameLocations.ModPaths)
         {
             if (string.IsNullOrEmpty(mod))
                 throw new InvalidOperationException("Mods with empty paths are not valid.");
 
-            ModPaths.Add(FileSystem.Path.GetFullPath(mod));
+            ModPaths.Add(PGFileSystem.UnderlyingFileSystem.Path.GetFullPath(mod));
         }
 
-        GameDirectory = FileSystem.Path.GetFullPath(gameLocations.GamePath);
+        // NB: We are using the native file system here, because we want to make sure that
+        // the paths are normalized to the actual file system of the current system.
 
+        GameDirectory = PGFileSystem.UnderlyingFileSystem.Path.GetFullPath(gameLocations.GamePath);
 
         foreach (var fallbackPath in gameLocations.FallbackPaths)
         {
             if (string.IsNullOrEmpty(fallbackPath))
             {
-                Logger.LogTrace("Skipping null or empty fallback path.");
+                _logger.LogTrace("Skipping null or empty fallback path.");
                 continue;
             }
-            FallbackPaths.Add(FileSystem.Path.GetFullPath(fallbackPath));
+
+            FallbackPaths.Add(PGFileSystem.UnderlyingFileSystem.Path.GetFullPath(fallbackPath));
         }
 
-        EffectsRepository = new EffectsRepository(this, serviceProvider);
-        TextureRepository = new TextureRepository(this, serviceProvider);
-        ModelRepository = new ModelRepository(this, serviceProvider);
+        EffectsRepository = new EffectsRepository(this);
+        TextureRepository = new TextureRepository(this);
+        ModelRepository = new ModelRepository(this);
 
         var path = ModPaths.Any() ? ModPaths.First() : GameDirectory;
-        if (!FileSystem.Path.HasTrailingDirectorySeparator(path))
-            path += FileSystem.Path.DirectorySeparatorChar;
-        
+        if (!PGFileSystem.UnderlyingFileSystem.Path.HasTrailingDirectorySeparator(path))
+            path += PGFileSystem.UnderlyingFileSystem.Path.DirectorySeparatorChar;
+
         Path = path;
     }
 
-    
+
     public void AddMegFiles(IList<IMegFile> megFiles)
     {
         ThrowIfSealed();
@@ -116,9 +133,9 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         if (megArchive is null)
         {
             if (IsSpeechMeg(megFile))
-                Logger.LogDebug("Unable to find Speech MEG file at '{MegFile}'", megFile);
+                _logger.LogDebug("Unable to find Speech MEG file at '{MegFile}'", megFile);
             else
-                Logger.LogWarning("Unable to find MEG file at '{MegFile}'", megFile);
+                _logger.LogWarning("Unable to find MEG file at '{MegFile}'", megFile);
             return;
         }
 
@@ -140,7 +157,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
         foreach (var loadedMegFile in _loadedMegFiles)
         {
-            var file = FileSystem.Path.GetFileName(loadedMegFile.AsSpan());
+            var file = PGFileSystem.UnderlyingFileSystem.Path.GetFileName(loadedMegFile.AsSpan());
             var speechFileName = languageFiles.SpeechMegFileName.AsSpan();
 
             if (file.Equals(speechFileName, StringComparison.OrdinalIgnoreCase)) 
@@ -159,8 +176,10 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         var firstFallback = FallbackPaths.FirstOrDefault();
         if (firstFallback is not null)
         {
-            var fallback2dNonLocalized = LoadMegArchive(FileSystem.Path.Combine(firstFallback, "DATA\\AUDIO\\SFX\\SFX2D_NON_LOCALIZED.MEG"));
-            var fallback3dNonLocalized = LoadMegArchive(FileSystem.Path.Combine(firstFallback, "DATA\\AUDIO\\SFX\\SFX3D_NON_LOCALIZED.MEG"));
+            var fallback2dNonLocalized = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path
+                .Combine(firstFallback, "DATA/AUDIO/SFX/SFX2D_NON_LOCALIZED.MEG"));
+            var fallback3dNonLocalized = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path
+                .Combine(firstFallback, "DATA/AUDIO/SFX/SFX3D_NON_LOCALIZED.MEG"));
 
             if (fallback2dNonLocalized is not null)
                 megsToAdd.Add(fallback2dNonLocalized);
@@ -169,8 +188,8 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
                 megsToAdd.Add(fallback3dNonLocalized);
         }
 
-        var nonLocalized2d = LoadMegArchive("DATA\\AUDIO\\SFX\\SFX2D_NON_LOCALIZED.MEG");
-        var nonLocalized3d =  LoadMegArchive("DATA\\AUDIO\\SFX\\SFX3D_NON_LOCALIZED.MEG");
+        var nonLocalized2d = LoadMegArchive("DATA/AUDIO/SFX/SFX2D_NON_LOCALIZED.MEG");
+        var nonLocalized3d =  LoadMegArchive("DATA/AUDIO/SFX/SFX3D_NON_LOCALIZED.MEG");
 
         if (nonLocalized2d is not null)
             megsToAdd.Add(nonLocalized2d);
@@ -191,7 +210,8 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
             if (firstFallback is not null)
             {
-                var fallback2dLang = LoadMegArchive(FileSystem.Path.Combine(firstFallback, languageFiles.Sfx2dMegFilePath));
+                var fallback2dLang = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path
+                    .Combine(firstFallback, languageFiles.Sfx2dMegFilePath));
                 if (fallback2dLang is not null)
                     megsToAdd.Add(fallback2dLang);
             }
@@ -202,7 +222,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         }
 
         if (languages.Count == 0) 
-            Logger.LogWarning("Unable to initialize any language.");
+            _logger.LogWarning("Unable to initialize any language.");
 
         AddMegFiles(megsToAdd);
 
@@ -211,17 +231,17 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
     protected IList<IMegFile> LoadMegArchivesFromXml(string lookupPath)
     {
-        var megFilesXmlPath = FileSystem.Path.Combine(lookupPath, "Data\\MegaFiles.xml");
+        var megFilesXmlPath = PGFileSystem.CombinePath(lookupPath, "Data/MegaFiles.xml");
 
         using var xmlStream = TryOpenFile(megFilesXmlPath);
 
         if (xmlStream is null)
         {
-            Logger.LogWarning("Unable to find MegaFiles.xml at '{LookupPath}'", lookupPath);
+            _logger.LogWarning("Unable to find MegaFiles.xml at '{LookupPath}'", lookupPath);
             return Array.Empty<IMegFile>();
         }
 
-        var parser = new XmlFileListParser(Services ,_errorReporter);
+        var parser = new XmlFileListParser(_serviceProvider ,_errorReporter);
         var megaFilesXml = parser.ParseFile(xmlStream);
 
         if (megaFilesXml is null)
@@ -231,7 +251,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
         foreach (var file in megaFilesXml.Files.Select(x => x.Trim()))
         {
-            var megPath = FileSystem.Path.Combine(lookupPath, file);
+            var megPath = PGFileSystem.CombinePath(lookupPath, file);
             var megFile = LoadMegArchive(megPath);
             if (megFile is not null)
                 megs.Add(megFile);
@@ -251,12 +271,12 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         if (megFileStream is not FileSystemStream fileSystemStream)
         {
             if (IsSpeechMeg(megPath))
-                Logger.LogDebug("Unable to find Speech MEG file '{MegPath}'", megPath);
+                _logger.LogDebug("Unable to find Speech MEG file '{MegPath}'", megPath);
             else
             {
                 var message = $"Unable to find MEG file '{megPath}'";
                 _errorReporter.Assert(EngineAssert.Create(EngineAssertKind.FileNotFound, megPath, [], message));
-                Logger.LogWarning("Unable to find MEG file '{MegPath}'", megPath);
+                _logger.LogWarning("Unable to find MEG file '{MegPath}'", megPath);
             }
             return null;
         }
@@ -271,7 +291,7 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
 
     private bool IsSpeechMeg(string megFile)
     {
-        return FileSystem.Path.GetFileName(megFile.AsSpan()).EndsWith("Speech.meg".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        return PGFileSystem.GetFileName(megFile.AsSpan()).EndsWith("Speech.meg".AsSpan(), StringComparison.OrdinalIgnoreCase);
     }
 
     private void ThrowIfSealed()
@@ -294,8 +314,8 @@ internal abstract partial class GameRepository : ServiceBase, IGameRepository
         {
             Language = language;
             var languageString = language.ToString().ToUpperInvariant();
-            MasterTextDatFilePath = $"DATA\\TEXT\\MasterTextFile_{languageString}.DAT";
-            Sfx2dMegFilePath = $"DATA\\AUDIO\\SFX\\SFX2D_{languageString}.MEG";
+            MasterTextDatFilePath = $"DATA/TEXT/MasterTextFile_{languageString}.DAT";
+            Sfx2dMegFilePath = $"DATA/AUDIO/SFX/SFX2D_{languageString}.MEG";
             SpeechMegFileName = $"{languageString}SPEECH.MEG";
         }
     }

@@ -5,8 +5,8 @@ using System.Xml;
 using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using PG.Commons.Hashing;
-using PG.Commons.Services;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Files.XML;
@@ -16,26 +16,32 @@ using PG.StarWarsGame.Files.XML.Parsers;
 
 namespace PG.StarWarsGame.Engine.Xml;
 
-public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXmlParserInfo
+public sealed class PetroglyphStarWarsGameXmlParser : IPetroglyphXmlParserInfo
 {
     private readonly IGameRepository _gameRepository;
+    private readonly PetroglyphFileSystem _pgFileSystem;
     private readonly PetroglyphStarWarsGameXmlParseSettings _settings;
     private readonly IGameEngineErrorReporter _reporter;
     private readonly IPetroglyphXmlFileParserFactory _fileParserFactory;
-
+    private readonly ILogger _logger;
+    private readonly IServiceProvider _serviceProvider;
+    
     public string Name { get; }
 
     public PetroglyphStarWarsGameXmlParser(
         IGameRepository gameRepository,
         PetroglyphStarWarsGameXmlParseSettings settings,
         IServiceProvider serviceProvider, 
-        IGameEngineErrorReporter reporter) 
-        : base(serviceProvider)
+        IGameEngineErrorReporter reporter)
     {
-        _gameRepository = gameRepository;
-        _settings = settings;
-        _reporter = reporter;
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _gameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _reporter = reporter ?? throw new ArgumentNullException(nameof(reporter));
+        _pgFileSystem = gameRepository.PGFileSystem;
         _fileParserFactory = serviceProvider.GetRequiredService<IPetroglyphXmlFileParserFactory>();
+        _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType()) ?? NullLogger.Instance;
+        
         Name = GetType().FullName!;
     }
 
@@ -47,7 +53,7 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
     public XmlFileList ParseFileList(string xmlFile)
     {
         return ParseCore(xmlFile, 
-            stream => new XmlFileListParser(Services, _reporter).ParseFile(stream),
+            stream => new XmlFileListParser(_serviceProvider, _reporter).ParseFile(stream),
             () => XmlFileList.Empty(new XmlLocationInfo(xmlFile, null)));
     }
 
@@ -59,9 +65,9 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
     {
         var container = ParseFileList(xmlFile);
 
-        var xmlFiles = container.Files.Select(x => FileSystem.Path.Combine(lookupPath, x)).ToList();
+        var xmlFiles = container.Files.Select(x => _pgFileSystem.CombinePath(lookupPath, x)).ToList();
 
-        var parser = new XmlContainerFileParser<T>(Services,
+        var parser = new XmlContainerFileParser<T>(_serviceProvider,
             _fileParserFactory.CreateNamedXmlObjectParser<T>(_gameRepository.EngineType, _reporter), _reporter);
 
         foreach (var file in xmlFiles)
@@ -86,14 +92,14 @@ public sealed class PetroglyphStarWarsGameXmlParser : ServiceBase, IPetroglyphXm
 
     private T ParseCore<T>(string xmlFile, Func<Stream, T> parseAction, Func<T> invalidFileAction)
     {
-        Logger.LogDebug("Parsing file '{XmlFile}'", xmlFile);
+        _logger.LogDebug("Parsing file '{XmlFile}'", xmlFile);
 
         using var fileStream = _gameRepository.TryOpenFile(xmlFile);
 
         if (fileStream is null)
         {
             var message = $"Could not find XML file '{xmlFile}'";
-            Logger.LogWarning(message);
+            _logger.LogWarning(message);
 
             _reporter.Report(new XmlError(this, locationInfo: new XmlLocationInfo(xmlFile, null))
             {

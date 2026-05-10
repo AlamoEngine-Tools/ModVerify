@@ -1,5 +1,4 @@
-﻿using AnakinRaW.CommonUtilities.FileSystem;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.ErrorReporting;
@@ -12,7 +11,6 @@ using PG.StarWarsGame.Files.ALO.Files.Animations;
 using PG.StarWarsGame.Files.ALO.Services;
 using PG.StarWarsGame.Files.Binary;
 using System;
-using System.IO.Abstractions;
 using PG.StarWarsGame.Engine.Rendering.Animations;
 
 namespace PG.StarWarsGame.Engine.Rendering;
@@ -24,7 +22,7 @@ internal class PGRender(
 {
     private readonly IAloFileService _aloFileService = serviceProvider.GetRequiredService<IAloFileService>();
     private readonly IRepository _modelRepository = gameRepository.ModelRepository;
-    private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+    private readonly PetroglyphFileSystem _pgFileSystem = gameRepository.PGFileSystem;
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(typeof(PGRender));
 
@@ -81,11 +79,11 @@ internal class PGRender(
         if (!aloFile.FileInformation.IsModel)
             return new ModelClass(aloFile);
 
-        var directory = _fileSystem.Path.GetDirectoryName(path);
-        var fileName = _fileSystem.Path.GetFileNameWithoutExtension(path);
+        var directory = _pgFileSystem.GetDirectoryName(path);
+        var fileName = _pgFileSystem.GetFileNameWithoutExtension(path);
 
         if (!string.IsNullOrEmpty(animOverrideName))
-            fileName = _fileSystem.Path.GetFileNameWithoutExtension(animOverrideName.AsSpan());
+            fileName = _pgFileSystem.GetFileNameWithoutExtension(animOverrideName.AsSpan());
 
         var animations = LoadAnimations(fileName, directory, metadataOnly, throwsException ? AnimationCorruptedHandler : null);
 
@@ -103,7 +101,7 @@ internal class PGRender(
         bool metadataOnly = true,
         Action<BinaryCorruptedException, ModelAnimationType, string>? corruptedAnimationHandler = null)
     {
-        modelFileName = _fileSystem.Path.GetFileNameWithoutExtension(modelFileName);
+        modelFileName = _pgFileSystem.GetFileNameWithoutExtension(modelFileName);
 
         var animations = new AnimationCollection();
 
@@ -119,40 +117,41 @@ internal class PGRender(
             while (loadingNumberedAnimations)
             {
                 var stringBuilder = new ValueStringBuilder(stringBuffer);
-
-                CreateAnimationFilePath(ref stringBuilder, modelFileName, animationData.Value, subIndex);
-                var animationFilenameWithoutExtension =
-                    _fileSystem.Path.GetFileNameWithoutExtension(stringBuilder.AsSpan());
-                InsertPath(ref stringBuilder, directory);
-
-                if (stringBuilder.Length > PGConstants.MaxAnimationFileName)
-                {
-                    var animFile = stringBuilder.AsSpan().ToString();
-                    errorReporter.Assert(
-                        EngineAssert.Create(EngineAssertKind.ValueOutOfRange, animFile, [],
-                            $"Cannot get animation file '{animFile}' , because animation file path is too long."));
-                    continue;
-                }
-
                 try
                 {
-                    var animationAsset = Load3DAsset(stringBuilder.AsSpan(), metadataOnly, throwsOnLoad);
-                    if (animationAsset is IAloAnimationFile animationFile)
+                    CreateAnimationFilePath(ref stringBuilder, modelFileName, animationData.Value, subIndex);
+                    var animationFilenameWithoutExtension =
+                        _pgFileSystem.GetFileNameWithoutExtension(stringBuilder.AsSpan());
+                    InsertPath(ref stringBuilder, directory);
+
+                    if (stringBuilder.Length > PGConstants.MaxAnimationFileName)
                     {
-                        loadingNumberedAnimations = true;
-                        var crc = _hashingService.GetCrc32(animationFilenameWithoutExtension,
-                            PGConstants.DefaultPGEncoding);
-                        animations.AddAnimation(animationData.Key, animationFile, crc);
+                        var animFile = stringBuilder.AsSpan().ToString();
+                        errorReporter.Assert(
+                            EngineAssert.Create(EngineAssertKind.ValueOutOfRange, animFile, [],
+                                $"Cannot get animation file '{animFile}' , because animation file path is too long."));
+                        continue;
                     }
-                    else
+
+                    try
                     {
-                        loadingNumberedAnimations = false;
+                        var animationAsset = Load3DAsset(stringBuilder.AsSpan(), metadataOnly, throwsOnLoad);
+                        if (animationAsset is IAloAnimationFile animationFile)
+                        {
+                            loadingNumberedAnimations = true;
+                            var crc = _hashingService.GetCrc32(animationFilenameWithoutExtension,
+                                PGConstants.DefaultPGEncoding);
+                            animations.AddAnimation(animationData.Key, animationFile, crc);
+                        }
+                        else
+                        {
+                            loadingNumberedAnimations = false;
+                        }
                     }
-                }
-                catch (BinaryCorruptedException e)
-                {
-                    // NB: Loading a corrupted animation does not break the loading of other numbered animations
-                    corruptedAnimationHandler?.Invoke(e, animationData.Key, stringBuilder.AsSpan().ToString());
+                    catch (BinaryCorruptedException e)
+                    {
+                        corruptedAnimationHandler?.Invoke(e, animationData.Key, stringBuilder.AsSpan().ToString());
+                    }
                 }
                 finally
                 {
@@ -166,8 +165,12 @@ internal class PGRender(
 
     private void InsertPath(ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> directory)
     {
-        if (!_fileSystem.Path.HasTrailingDirectorySeparator(directory))
+        if (!_pgFileSystem.HasTrailingDirectorySeparator(directory))
+        {
+            // This MUST NOT be changed to "/" as it will break the loading on linux
+            // (because "/" indicates an absolute path)
             stringBuilder.Insert(0, '\\', 1);
+        }
         stringBuilder.Insert(0, directory);
     }
 

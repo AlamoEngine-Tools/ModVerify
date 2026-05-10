@@ -1,4 +1,5 @@
 ﻿using AET.ModVerify.App.Settings.CommandLine;
+using AET.ModVerify.Reporting;
 using AnakinRaW.ApplicationBase.Environment;
 using System;
 using System.IO.Abstractions;
@@ -210,5 +211,74 @@ public abstract class ModVerifyOptionsParserTestBase
         Assert.False(settings.HasOptions);
         Assert.Null(settings.ModVerifyOptions);
         Assert.Null(settings.UpdateOptions);
+    }
+
+    [Theory]
+    [InlineData("verify --mods myMod --baseline myBaseline.json", "myBaseline.json", false, false)]
+    [InlineData("verify --mods myMod --searchBaseline", null, true, false)]
+    [InlineData("verify --path myMod --useDefaultBaseline", null, false, true)]
+    public void Parse_Verify_BaselineOptions(string argString, string? expectedBaseline, bool expectedSearchBaseline, bool expectedUseDefaultBaseline)
+    {
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        Assert.Equal(expectedBaseline, verify.Baseline);
+        Assert.Equal(expectedSearchBaseline, verify.SearchBaselineLocally);
+        Assert.Equal(expectedUseDefaultBaseline, verify.UseDefaultBaseline);
+    }
+
+    [Fact]
+    public void Parse_Verify_Baseline_And_SearchBaseline_CanBeParsedTogether()
+    {
+        // Mutual exclusivity of --baseline and --searchBaseline is enforced later by SettingsBuilder, not by the parser.
+        const string argString = "verify --mods myMod --baseline myBaseline.json --searchBaseline";
+
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        Assert.Equal("myBaseline.json", verify.Baseline);
+        Assert.True(verify.SearchBaselineLocally);
+    }
+
+    [Theory]
+    [InlineData("verify --path myMod --outDir myOut", "myOut")]
+    [InlineData("verify --path myMod -o myOut", "myOut")]
+    [InlineData("verify --path myMod", null)]
+    public void Parse_Verify_OutputDirectory(string argString, string? expectedOutDir)
+    {
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        Assert.Equal(expectedOutDir, verify.OutputDirectory);
+    }
+
+    [Theory]
+    [InlineData("verify --path myMod --failFast --minFailSeverity Critical", true, "Critical")]
+    [InlineData("verify --path myMod --failFast --minFailSeverity Warning", true, "Warning")]
+    [InlineData("verify --path myMod", false, null)]
+    public void Parse_Verify_FailFastOptions(string argString, bool expectedFailFast, string? expectedMinSeverity)
+    {
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        Assert.Equal(expectedFailFast, verify.FailFast);
+        var expectedSeverity = expectedMinSeverity is null ? (VerificationSeverity?)null : Enum.Parse<VerificationSeverity>(expectedMinSeverity);
+        Assert.Equal(expectedSeverity, verify.MinimumFailureSeverity);
+    }
+
+    [Theory]
+    [InlineData("verify --path myMod --ignoreAsserts", true)]
+    [InlineData("verify --path myMod", false)]
+    public void Parse_Verify_IgnoreAsserts(string argString, bool expectedIgnoreAsserts)
+    {
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
+        Assert.Equal(expectedIgnoreAsserts, verify.IgnoreAsserts);
     }
 }
