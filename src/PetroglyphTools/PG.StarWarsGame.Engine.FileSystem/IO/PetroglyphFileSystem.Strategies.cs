@@ -41,14 +41,16 @@ public sealed partial class PetroglyphFileSystem
     /// <param name="windowsFallback">
     /// <see langword="true" /> to delegate outside-game-directory lookups to the Windows
     /// <c>CreateFileA</c> strategy; <see langword="false" /> to delegate them to the Wine search
-    /// engine, which works on every host.
+    /// engine; <see langword="null" /> to pick the Windows strategy on Windows hosts and the Wine
+    /// strategy otherwise.
     /// </param>
     /// <exception cref="PlatformNotSupportedException">
     /// <paramref name="windowsFallback"/> is <see langword="true" /> and the host is not Windows.
     /// </exception>
-    public void UseVirtualStrategy(bool windowsFallback = false)
+    public void UseVirtualStrategy(bool? windowsFallback = null)
     {
-        FileExistsStrategy fallback = windowsFallback
+        var useWindows = windowsFallback ?? RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        FileExistsStrategy fallback = useWindows
             ? CreateWindowsStrategy()
             : new WineFileExistsStrategy(_underlyingFileSystem);
         UseVirtualStrategy(fallback);
