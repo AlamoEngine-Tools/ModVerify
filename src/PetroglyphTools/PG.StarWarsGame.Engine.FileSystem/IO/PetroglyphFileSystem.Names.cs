@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
+#if NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
+#endif
 #if NETSTANDARD2_1 || NET
 using System.Diagnostics.CodeAnalysis;
 #endif
