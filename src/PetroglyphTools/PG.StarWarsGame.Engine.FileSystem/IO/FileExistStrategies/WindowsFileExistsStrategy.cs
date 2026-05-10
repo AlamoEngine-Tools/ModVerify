@@ -14,7 +14,7 @@ namespace PG.StarWarsGame.Engine.IO.FileExistStrategies;
 /// </summary>
 internal sealed class WindowsFileExistsStrategy(IFileSystem fileSystem) : FileExistsStrategy(fileSystem)
 {
-    public override bool FileExists(ReadOnlySpan<char> gameDirectory, ref ValueStringBuilder stringBuilder)
+    public override bool FileExists(ReadOnlySpan<char> baseDirectory, ref ValueStringBuilder stringBuilder)
     {
         // We *could* also use the slightly faster GetFileAttributesA. However, CreateFileA and
         // GetFileAttributesA are implemented entirely independently in Windows; the game uses

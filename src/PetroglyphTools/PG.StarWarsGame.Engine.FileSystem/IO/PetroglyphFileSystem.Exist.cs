@@ -9,12 +9,12 @@ namespace PG.StarWarsGame.Engine.IO;
 public sealed partial class PetroglyphFileSystem
 {
     /// <summary>
-    /// Resolves <paramref name="filePath"/> against <paramref name="gameDirectory"/>, normalizes
+    /// Resolves <paramref name="filePath"/> against <paramref name="baseDirectory"/>, normalizes
     /// the path, and dispatches the lookup to the active <c>FileExists</c> strategy.
     /// </summary>
     /// <remarks>
     /// Fully-qualified inputs are taken as-is; relative inputs are joined to
-    /// <paramref name="gameDirectory"/> first. The buffer is then unified to the host's native
+    /// <paramref name="baseDirectory"/> first. The buffer is then unified to the host's native
     /// directory separator and dot segments (<c>.</c> and <c>..</c>) are resolved, after which
     /// the active strategy answers the lookup. On <see langword="true" /> the buffer contains
     /// the resolved on-disk path; on <see langword="false" /> the buffer content is unspecified.
@@ -24,20 +24,20 @@ public sealed partial class PetroglyphFileSystem
     /// A scratch buffer used to build and return the resolved path. The caller owns the buffer's
     /// lifetime and is responsible for disposing it.
     /// </param>
-    /// <param name="gameDirectory">
-    /// The game directory used as the base when <paramref name="filePath"/> is relative.
+    /// <param name="baseDirectory">
+    /// The base directory used as the base when <paramref name="filePath"/> is relative.
     /// </param>
     /// <returns>
     /// <see langword="true" /> if the file exists; otherwise, <see langword="false" />.
     /// </returns>
-    internal bool FileExists(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> gameDirectory)
+    internal bool FileExists(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> baseDirectory)
     {
         stringBuilder.Length = 0;
 
         if (IsPathFullyQualified_Exists(filePath))
             stringBuilder.Append(filePath);
         else
-            JoinPath(gameDirectory, filePath, ref stringBuilder);
+            JoinPath(baseDirectory, filePath, ref stringBuilder);
 
         // Canonicalize once for every strategy: unify separators to the host's native form, then
         // strip "." / ".." and trailing/duplicated separators. After this the buffer is ready to
@@ -45,7 +45,7 @@ public sealed partial class PetroglyphFileSystem
         NormalizePath(ref stringBuilder);
         NormalizeDotSegmentsInPlace(ref stringBuilder);
 
-        return _strategy.FileExists(gameDirectory, ref stringBuilder);
+        return _strategy.FileExists(baseDirectory, ref stringBuilder);
     }
     
     internal void NormalizeDotSegmentsInPlace(ref ValueStringBuilder sb)

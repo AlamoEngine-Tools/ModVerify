@@ -8,7 +8,7 @@ internal abstract class FileExistsStrategy(IFileSystem fileSystem) : IDisposable
 {
     protected readonly IFileSystem FileSystem = fileSystem;
 
-    public abstract bool FileExists(ReadOnlySpan<char> gameDirectory, ref ValueStringBuilder stringBuilder);
+    public abstract bool FileExists(ReadOnlySpan<char> baseDirectory, ref ValueStringBuilder stringBuilder);
 
     public virtual void Dispose() { }
 }

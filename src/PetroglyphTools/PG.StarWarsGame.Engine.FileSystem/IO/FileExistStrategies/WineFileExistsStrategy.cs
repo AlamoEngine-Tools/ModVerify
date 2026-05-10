@@ -10,7 +10,7 @@ namespace PG.StarWarsGame.Engine.IO.FileExistStrategies;
 
 internal sealed class WineFileExistsStrategy(IFileSystem fileSystem) : FileExistsStrategy(fileSystem)
 {
-    public override bool FileExists(ReadOnlySpan<char> gameDirectory, ref ValueStringBuilder stringBuilder)
+    public override bool FileExists(ReadOnlySpan<char> baseDirectory, ref ValueStringBuilder stringBuilder)
     {
         var pathString = stringBuilder.AsSpan().ToString();
         if (pathString.Length == 0)
@@ -35,17 +35,17 @@ internal sealed class WineFileExistsStrategy(IFileSystem fileSystem) : FileExist
             return false;
         var parentDirInput = pathString.Substring(0, parentLen);
 
-        var resolvedParent = ResolveDirectory(parentDirInput, gameDirectory, rootLen);
+        var resolvedParent = ResolveDirectory(parentDirInput, baseDirectory, rootLen);
         if (resolvedParent is null)
             return false;
 
         return ResolveLeafIn(resolvedParent, fileName, ref stringBuilder);
     }
 
-    private string? ResolveDirectory(string dirInput, ReadOnlySpan<char> gameDirectory, int rootLen)
+    private string? ResolveDirectory(string dirInput, ReadOnlySpan<char> baseDirectory, int rootLen)
     {
         var path = dirInput.AsSpan();
-        var knownGoodPrefixLength = LowLevelPath.GetCommonDirectoryPrefixLength(path, gameDirectory);
+        var knownGoodPrefixLength = LowLevelPath.GetCommonDirectoryPrefixLength(path, baseDirectory);
 
         int prefixEnd;
         if (knownGoodPrefixLength > rootLen)

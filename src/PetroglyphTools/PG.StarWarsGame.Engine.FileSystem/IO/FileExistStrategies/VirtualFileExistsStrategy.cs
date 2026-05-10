@@ -20,21 +20,21 @@ internal sealed class VirtualFileExistsStrategy(IFileSystem fileSystem, FileExis
         underlying.Dispose();
     }
 
-    public override bool FileExists(ReadOnlySpan<char> gameDirectory, ref ValueStringBuilder stringBuilder)
+    public override bool FileExists(ReadOnlySpan<char> baseDirectory, ref ValueStringBuilder stringBuilder)
     {
         var filePath = stringBuilder.AsSpan();
 
-        if (!IsUnderGameDirectory(filePath, gameDirectory))
-            return underlying.FileExists(gameDirectory, ref stringBuilder);
+        if (!IsUnderBaseDirectory(filePath, baseDirectory))
+            return underlying.FileExists(baseDirectory, ref stringBuilder);
 
         var lastSep = filePath.LastIndexOf(Path.DirectorySeparatorChar);
         if (lastSep <= 0)
-            return underlying.FileExists(gameDirectory, ref stringBuilder);
+            return underlying.FileExists(baseDirectory, ref stringBuilder);
 
         var dirSpan = filePath.Slice(0, lastSep);
         var fileName = filePath.Slice(lastSep + 1);
         if (fileName.IsEmpty)
-            return underlying.FileExists(gameDirectory, ref stringBuilder);
+            return underlying.FileExists(baseDirectory, ref stringBuilder);
 
         var dirKey = dirSpan.ToString();
         if (!_store.TryGetValue(dirKey, out var virtualDir))
@@ -155,7 +155,7 @@ internal sealed class VirtualFileExistsStrategy(IFileSystem fileSystem, FileExis
         }
     }
 
-    private bool IsUnderGameDirectory(ReadOnlySpan<char> path, ReadOnlySpan<char> gameDirectory)
+    private bool IsUnderBaseDirectory(ReadOnlySpan<char> path, ReadOnlySpan<char> gameDirectory)
     {
         return !gameDirectory.IsEmpty && FileSystem.Path.IsChildOf(gameDirectory, path);
     }
