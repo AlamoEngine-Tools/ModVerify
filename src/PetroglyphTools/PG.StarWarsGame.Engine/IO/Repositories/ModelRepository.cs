@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using PG.StarWarsGame.Engine.IO.Utilities;
 using PG.StarWarsGame.Engine.Utilities;
-#if NETSTANDARD2_0 || NETFRAMEWORK
-using AnakinRaW.CommonUtilities.FileSystem;
-#endif
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
-internal class ModelRepository(GameRepository baseRepository, IServiceProvider serviceProvider)
-    : MultiPassRepository(baseRepository, serviceProvider)
+internal class ModelRepository(GameRepository baseRepository) : MultiPassRepository(baseRepository)
 {
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 
@@ -28,8 +23,8 @@ internal class ModelRepository(GameRepository baseRepository, IServiceProvider s
 
         var stripped = StripFileName(filePath);
 
-        var path = FileSystem.Path.GetDirectoryName(filePath);
-        FileSystem.Path.Join(path, stripped, ref reusableStringBuilder);
+        var path = BaseRepository.PGFileSystem.GetDirectoryName(filePath);
+        BaseRepository.PGFileSystem.JoinPath(path, stripped, ref reusableStringBuilder);
         reusableStringBuilder.Append(".ALO");
 
         var alternatePath = reusableStringBuilder.AsSpan();

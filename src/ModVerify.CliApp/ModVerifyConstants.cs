@@ -12,6 +12,7 @@ internal static class ModVerifyConstants
     public const int Success = 0;
     public const int CompletedWithFindings = 1;
     public const int ErrorBadArguments = 0xA0;
+    public const int VerifyCancelled = -1;
 
     public static readonly EventId ConsoleEventId = new(ConsoleEventIdValue, "LogToConsole");
 }

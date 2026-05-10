@@ -1,6 +1,4 @@
-﻿using AnakinRaW.CommonUtilities.FileSystem;
-using Microsoft.Extensions.Logging;
-using PG.StarWarsGame.Engine.IO.Utilities;
+﻿using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine.Utilities;
 using PG.StarWarsGame.Files.MEG.Binary;
 using System;
@@ -8,8 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
@@ -21,7 +17,7 @@ internal partial class GameRepository
     {
         foreach (var extension in extensions)
         {
-            var newPath = FileSystem.Path.ChangeExtension(filePath, extension);
+            var newPath = PGFileSystem.ChangeExtension(filePath, extension);
             if (FileExists(newPath, megFileOnly))
                 return true;
         }
@@ -36,15 +32,21 @@ internal partial class GameRepository
     public bool FileExists(string filePath, bool megFileOnly, out bool inMeg, [NotNullWhen(true)] out string? actualFilePath)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var fileFound = FindFile(filePath, ref sb, megFileOnly);
-        var fileExists = fileFound.FileFound;
-        inMeg = fileFound.InMeg;
-        if (!fileExists)
-            actualFilePath = null;
-        else 
-            actualFilePath = fileFound.InMeg ? fileFound.MegDataEntryReference.Path : fileFound.FilePath.ToString();
-        sb.Dispose();
-        return fileExists;
+        try
+        {
+            var fileFound = FindFile(filePath, ref sb, megFileOnly);
+            var fileExists = fileFound.FileFound;
+            inMeg = fileFound.InMeg;
+            if (!fileExists)
+                actualFilePath = null;
+            else
+                actualFilePath = fileFound.InMeg ? fileFound.MegDataEntryReference.Path : fileFound.FilePath.ToString();
+            return fileExists;
+        }
+        finally
+        {
+            sb.Dispose();
+        }
     }
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
@@ -55,11 +57,17 @@ internal partial class GameRepository
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly, out bool pathTooLong)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var fileFound = FindFile(filePath, ref sb, megFileOnly);
-        var fileExists = fileFound.FileFound;
-        pathTooLong = fileFound.PathTooLong;
-        sb.Dispose();
-        return fileExists;
+        try
+        {
+            var fileFound = FindFile(filePath, ref sb, megFileOnly);
+            var fileExists = fileFound.FileFound;
+            pathTooLong = fileFound.PathTooLong;
+            return fileExists;
+        }
+        finally
+        {
+            sb.Dispose();
+        }
     }
 
     public Stream OpenFile(string filePath, bool megFileOnly = false)
@@ -84,12 +92,24 @@ internal partial class GameRepository
     public Stream? TryOpenFile(ReadOnlySpan<char> filePath, bool megFileOnly)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var fileFoundInfo = FindFile(filePath, ref sb, megFileOnly);
-        var fileStream = OpenFileCore(fileFoundInfo);
-        sb.Dispose();
-        return fileStream;
+        try
+        {
+            var fileFoundInfo = FindFile(filePath, ref sb, megFileOnly);
+            return OpenFileCore(fileFoundInfo);
+        }
+        finally
+        {
+            sb.Dispose();
+        }
     }
-
+    
+    /// <summary>
+    /// The core routine for finding a file using the game's specific lookup rules.
+    /// </summary>
+    /// <param name="filePath">The file path.</param>
+    /// <param name="pathStringBuilder">The string builder used for constructing the file path.</param>
+    /// <param name="megFileOnly">Whether to only search for files in MEG archives.</param>
+    /// <returns>The file found information.</returns>
     protected internal abstract FileFoundInfo FindFile(ReadOnlySpan<char> filePath,
         ref ValueStringBuilder pathStringBuilder, bool megFileOnly = false);
 
@@ -99,22 +119,29 @@ internal partial class GameRepository
 
         if (filePath.Length > PGConstants.MaxMegEntryPathLength)
         {
-            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FilePath}'", filePath.ToString());
+            _logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FileName}'", filePath.ToString());
             return default;
         }
-
+        
+        var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         Span<char> fileNameSpan = stackalloc char[PGConstants.MaxMegEntryPathLength];
+        bool normalized;
+        int length;
+        try
+        {
+            sb.Append(filePath);
+            PGFileSystem.NormalizePath(ref sb);
+            normalized = _megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out length);
+        }
+        finally
+        {
+            sb.Dispose();
+        }
 
-        if (!_megPathNormalizer.TryNormalize(filePath, fileNameSpan, out var length))
+        if (!normalized)
             return default;
 
         var fileName = fileNameSpan.Slice(0, length);
-
-        if (fileName.Length > PGConstants.MaxMegEntryPathLength)
-        {
-            Logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters after normalization: '{FileName}'", fileName.ToString());
-            return default;
-        }
 
         var crc = _crc32HashingService.GetCrc32(fileName, MegFileConstants.MegDataEntryPathEncoding);
 
@@ -123,41 +150,13 @@ internal partial class GameRepository
         return new FileFoundInfo(entry);
     }
 
-    protected FileFoundInfo FindFileCore(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder)
+    protected FileFoundInfo FindFileCore(
+        ReadOnlySpan<char> filePath, 
+        ref ValueStringBuilder stringBuilder,
+        ReadOnlySpan<char> lookupDirectory)
     {
-        bool exists;
-
-        stringBuilder.Length = 0;
-
-        if (FileSystem.Path.IsPathFullyQualified(filePath))
-            stringBuilder.Append(filePath);
-        else
-            FileSystem.Path.Join(GameDirectory.AsSpan(), filePath, ref stringBuilder);
-
-        var actualFilePath = stringBuilder.AsSpan();
-
-        // We accept a *possible* difference here between platforms,
-        // unless it's proven the differences are too significant.
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            exists = FileSystem.File.Exists(actualFilePath.ToString());
-        else
-        {
-            // We *could* also use the slightly faster GetFileAttributesA.
-            // However, CreateFileA and GetFileAttributesA are implemented complete independent.
-            // The game uses CreateFileA.
-            // Thus, we should stick to what the game uses in order to be as close to the engine as possible
-            // NB: It's also important that the string builder is zero-terminated, as otherwise CreateFileA might get invalid data.
-            var fileHandle = CreateFile(
-                in stringBuilder.GetPinnableReference(true),
-                FileAccess.Read,
-                FileShare.Read,
-                IntPtr.Zero,
-                FileMode.Open,
-                FileAttributes.Normal, IntPtr.Zero);
-
-            exists = IsValidAndClose(fileHandle);
-        }
-        return !exists ? new FileFoundInfo() : new FileFoundInfo(actualFilePath);
+        var exists = PGFileSystem.FileExists(filePath, ref stringBuilder, lookupDirectory);
+        return !exists ? default : new FileFoundInfo(stringBuilder.AsSpan());
     }
 
     protected FileFoundInfo FileFromAltExists(ReadOnlySpan<char> filePath, IList<string> fallbackPaths, ref ValueStringBuilder pathStringBuilder)
@@ -173,32 +172,43 @@ internal partial class GameRepository
         {
             pathStringBuilder.Length = 0;
 
-            FileSystem.Path.Join(fallbackPath.AsSpan(), pathWithNormalizedData, ref pathStringBuilder);
+            PGFileSystem.JoinPath(fallbackPath.AsSpan(), pathWithNormalizedData, ref pathStringBuilder);
             var newPath = pathStringBuilder.AsSpan();
 
-            var fileFoundInfo = FindFileCore(newPath, ref pathStringBuilder);
+            var fileFoundInfo = FindFileCore(newPath, ref pathStringBuilder, fallbackPath.AsSpan());
             if (fileFoundInfo.FileFound)
                 return fileFoundInfo;
         }
 
         return default;
     }
-
-    private static bool PathStartsWithDataDirectory(ReadOnlySpan<char> path, out int cutoffLength)
+    
+    private bool PathStartsWithDataDirectory(ReadOnlySpan<char> path, out int cutoffLength)
     {
         cutoffLength = 0;
         if (path.Length < 5)
             return false;
-        foreach (var prefix in DataPathPrefixes)
+        
+        var sb = new ValueStringBuilder(stackalloc char[265]);
+        sb.Append(path);
+        PGFileSystem.NormalizePath(ref sb);
+        try
         {
-            if (path.StartsWith(prefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            foreach (var prefix in DataPathPrefixes)
             {
-                if (path[0] == '.')
-                    cutoffLength = 2;
-                return true;
+                if (sb.AsSpan().StartsWith(prefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (path[0] == '.')
+                        cutoffLength = 2;
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        finally
+        {
+            sb.Dispose();
+        }
     }
 
     internal Stream? OpenFileCore(FileFoundInfo fileFoundInfo)
@@ -209,29 +219,6 @@ internal partial class GameRepository
         if (fileFoundInfo.InMeg)
             return _megExtractor.GetData(fileFoundInfo.MegDataEntryReference.Location);
 
-        return FileSystem.FileStream.New(fileFoundInfo.FilePath.ToString(), FileMode.Open, FileAccess.Read, FileShare.Read);
+        return PGFileSystem.OpenRead(fileFoundInfo.FilePath.ToString());
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsValidAndClose(IntPtr handle)
-    {
-        var isValid = handle != IntPtr.Zero && handle != new IntPtr(-1);
-        if (isValid)
-            CloseHandle(handle);
-        return isValid;
-    }
-
-    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern IntPtr CreateFile(
-        in char lpFileName,
-        [MarshalAs(UnmanagedType.U4)] FileAccess access,
-        [MarshalAs(UnmanagedType.U4)] FileShare share,
-        IntPtr securityAttributes,
-        [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
-        [MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
-        IntPtr templateFile);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CloseHandle(IntPtr hObject);
 }

@@ -7,9 +7,12 @@ public interface IGameRepository : IRepository
     /// <summary>
     /// Gets the full qualified path of this repository with a trailing directory separator
     /// </summary>
-    public string Path { get; }
+    string Path { get; }
+    
+    // ReSharper disable once InconsistentNaming
+    PetroglyphFileSystem PGFileSystem { get; }
 
-    public GameEngineType EngineType { get; }
+    GameEngineType EngineType { get; }
 
     IRepository EffectsRepository { get; }
 

@@ -29,13 +29,17 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
     public bool IgnoreAsserts { get; init; }
 
     
-    [Option("baseline", SetName = "baselineSelection", Required = false, 
-        HelpText = "Path to a JSON baseline file. Cannot be used together with --searchBaseline.")]
+    [Option("baseline", Required = false, 
+        HelpText = "Path to a JSON baseline file. Cannot be used together with --searchBaseline or --useDefaultBaseline.")]
     public string? Baseline { get; init; }
 
-    [Option("searchBaseline", SetName = "baselineSelection", Required = false,
-        HelpText = "When set, the application will search for baseline files and use them for verification. Cannot be used together with --baseline")]
+    [Option("searchBaseline", Required = false,
+        HelpText = "When set, the application will search for baseline files and use them for verification. Cannot be used together with --baseline or --useDefaultBaseline")]
     public bool SearchBaselineLocally { get; init; }
+
+    [Option("useDefaultBaseline", Required = false,
+        HelpText = "When set, the application will use the default embedded baseline for the detected game engine. Cannot be used together with --baseline or --searchBaseline.")]
+    public bool UseDefaultBaseline { get; init; }
 
     public bool IsRunningWithoutArguments { get; init; }
 }

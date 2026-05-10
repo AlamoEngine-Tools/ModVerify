@@ -42,7 +42,7 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
             }
         }
 
-        if (!settings.ReportSettings.SearchBaselineLocally)
+        if (settings.ReportSettings is { SearchBaselineLocally: false, UseDefaultBaseline: false })
         {
             _logger?.LogDebug(ModVerifyConstants.ConsoleEventId, 
                 "No baseline path specified and local search is not enabled. Using empty baseline.");
@@ -134,7 +134,7 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
     private VerificationBaseline FindBaselineNonInteractive(VerificationTarget target, out string? usedPath)
     {
         if (_baselineFactory.TryFindBaselineInDirectory(
-                target.Location.TargetPath, 
+                target.Location.TargetPath,
                 b => IsBaselineCompatible(b, target),
                 out var baseline,
                 out usedPath))
@@ -144,6 +144,20 @@ internal sealed class BaselineSelector(AppVerifySettings settings, IServiceProvi
         }
         _logger?.LogTrace("No baseline file found in taget path '{TargetPath}'.", target.Location.TargetPath);
         usedPath = null;
+        if (settings.ReportSettings.UseDefaultBaseline)
+        {
+            try
+            {
+                var defaultBaseline = LoadEmbeddedBaseline(target.Engine);
+                _logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Automatically applying default embedded baseline for engine '{Engine}'.", target.Engine);
+                return defaultBaseline;
+            }
+            catch (InvalidBaselineException)
+            {
+                throw new InvalidOperationException(
+                    "Invalid baseline packed along ModVerify App. Please reach out to the creators. Thanks!");
+            }
+        }
         return VerificationBaseline.Empty;
     }
 
