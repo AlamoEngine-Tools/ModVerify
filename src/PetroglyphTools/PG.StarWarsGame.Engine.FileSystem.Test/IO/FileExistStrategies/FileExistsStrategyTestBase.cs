@@ -209,6 +209,18 @@ public abstract class FileExistsStrategyTestBase : TestBaseWithPGFileSystem, IDi
         Assert.False(exists);
     }
 
+    [Fact]
+    public void FileExists_EmptyRelativePath_ReturnsFalse()
+    {
+        // After joining "" with the base directory, the dispatcher hands the strategy the bare
+        // base directory. Every strategy must treat that as not-a-file rather than reporting the
+        // directory itself as existing.
+        var dir = NewTempDir();
+        FileSystem.File.WriteAllText(FileSystem.Path.Combine(dir, "x.txt"), "x");
+
+        Assert.False(FileExists(string.Empty.AsSpan(), dir.AsSpan()));
+    }
+
     [Theory]
     [InlineData("test.txt", "TEST.txt")]
     [InlineData("dir/test.txt", "DIR/TEST.txt")]

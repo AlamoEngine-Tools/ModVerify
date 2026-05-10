@@ -41,8 +41,8 @@ internal static class LowLevelPath
         if (i == minLen)
         {
             if (path.Length == directory.Length
-                || i == directory.Length && IsDirectorySeparator(path[i])
-                || i == path.Length && IsDirectorySeparator(directory[i]))
+                || (i == directory.Length && IsDirectorySeparator(path[i]))
+                || (i == path.Length && IsDirectorySeparator(directory[i])))
                 return i;
         }
 

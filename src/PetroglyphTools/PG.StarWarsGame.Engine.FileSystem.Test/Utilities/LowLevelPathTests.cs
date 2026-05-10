@@ -37,4 +37,33 @@ public class LowLevelPathTests
     {
         Assert.Equal(expected, LowLevelPath.GetCommonDirectoryPrefixLength(path.AsSpan(), directory.AsSpan()));
     }
+    
+    [PlatformSpecificFact(TestPlatformIdentifier.Windows)]
+    public void IsHostFileSystemCaseSensitive_Windows_IsFalse()
+    {
+        Assert.False(LowLevelPath.IsHostFileSystemCaseSensitive);
+    }
+
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void IsHostFileSystemCaseSensitive_Linux_IsTrue()
+    {
+        Assert.True(LowLevelPath.IsHostFileSystemCaseSensitive);
+    }
+
+    [Theory]
+    // Sibling at root level: path and directory diverge before any separator → no shared prefix.
+    [InlineData("foo/bar", "baz/qux", 0)]
+    // Trailing separator on path side, directory does not have one — must match the no-trailing form.
+    [InlineData("a/b/", "a/b", 3)]
+    [InlineData("a/b", "a/b/", 3)]
+    // Sibling whose name is a prefix of the other — shared prefix is the parent dir, not the
+    // longest character match. "a/b" vs "a/ba" must NOT be reported as 3 chars in common.
+    [InlineData("a/b", "a/ba", 2)]
+    [InlineData("a/ba", "a/b", 2)]
+    [InlineData("a/foo", "a/foobar", 2)]
+    [InlineData("a/foobar", "a/foo", 2)]
+    public void GetCommonDirectoryPrefixLength_BoundaryCases(string path, string directory, int expected)
+    {
+        Assert.Equal(expected, LowLevelPath.GetCommonDirectoryPrefixLength(path.AsSpan(), directory.AsSpan()));
+    }
 }
