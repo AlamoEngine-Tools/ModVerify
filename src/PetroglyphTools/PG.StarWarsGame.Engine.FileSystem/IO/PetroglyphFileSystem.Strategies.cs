@@ -59,6 +59,51 @@ public sealed partial class PetroglyphFileSystem
     internal void UseVirtualStrategy(FileExistsStrategy underlying)
         => SwapStrategy(new VirtualFileExistsStrategy(_underlyingFileSystem, underlying));
 
+    /// <summary>
+    /// Switches the active file-exists strategy to a snapshot-based one that refreshes itself when
+    /// files are added, removed, or renamed in the game directory.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Equivalent to <see cref="UseVirtualStrategy(bool?)"/> for lookups, but lazily attaches a
+    /// recursive <see cref="System.IO.FileSystemWatcher"/> to every distinct base directory passed
+    /// to <see cref="LiveVirtualFileExistsStrategy.FileExists"/>. Each watcher's events invalidate cached directory listings under its
+    /// root on demand; the next lookup rebuilds the affected snapshot from disk. File
+    /// <em>content</em> changes are not tracked.
+    /// </para>
+    /// <para>
+    /// Each watcher is created on the first lookup that lands inside its base directory and is torn
+    /// down when the strategy is replaced or the file system is disposed. If a watcher's internal
+    /// buffer overflows or the OS otherwise reports an error, only that watcher is removed and only
+    /// its subtree is evicted from the cache; other roots continue to be tracked.
+    /// </para>
+    /// <para>
+    /// On Linux, each watcher consumes one inotify slot per directory in its subtree (per-user
+    /// kernel limit, <c>fs.inotify.max_user_watches</c>). Consumers tracking many large trees may
+    /// need to raise this limit.
+    /// </para>
+    /// </remarks>
+    /// <param name="windowsFallback">
+    /// <see langword="true" /> to delegate outside-game-directory lookups to the Windows
+    /// strategy; <see langword="false" /> to delegate them to the Wine search
+    /// engine; <see langword="null" /> to pick the Windows strategy on Windows hosts and the Wine
+    /// strategy otherwise.
+    /// </param>
+    /// <exception cref="PlatformNotSupportedException">
+    /// <paramref name="windowsFallback"/> is <see langword="true" /> and the host is not Windows.
+    /// </exception>
+    public void UseLiveVirtualStrategy(bool? windowsFallback = null)
+    {
+        var useWindows = windowsFallback ?? RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        FileExistsStrategy fallback = useWindows
+            ? CreateWindowsStrategy()
+            : new WineFileExistsStrategy(_underlyingFileSystem);
+        UseLiveVirtualStrategy(fallback);
+    }
+
+    internal void UseLiveVirtualStrategy(FileExistsStrategy underlying)
+        => SwapStrategy(new LiveVirtualFileExistsStrategy(_underlyingFileSystem, underlying));
+
     private WindowsFileExistsStrategy CreateWindowsStrategy()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

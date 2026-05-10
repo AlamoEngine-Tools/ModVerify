@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using PG.StarWarsGame.Engine.IO;
+using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 using PG.StarWarsGame.Engine.Utilities;
 using Testably.Abstractions;
 using Xunit;
@@ -19,6 +20,21 @@ public abstract class FileExistsStrategyTestBase : TestBaseWithPGFileSystem, IDi
     }
 
     protected abstract override void ConfigureStrategy(PetroglyphFileSystem fs);
+
+    /// <summary>
+    /// Constructs a fresh, undisposed instance of the strategy under test, so generic suite
+    /// tests (<see cref="Dispose_CalledTwice_DoesNotThrow"/>) can exercise it directly without
+    /// fighting the <see cref="PetroglyphFileSystem"/>'s ownership of the active strategy.
+    /// </summary>
+    private protected abstract FileExistsStrategy CreateStrategyForDisposeTest();
+
+    [Fact]
+    public void Dispose_CalledTwice_DoesNotThrow()
+    {
+        var strategy = CreateStrategyForDisposeTest();
+        strategy.Dispose();
+        strategy.Dispose();
+    }
 
     protected virtual void AssertResolvedPath(string expectedOnDiskPath, string actualResult)
     {
@@ -52,10 +68,6 @@ public abstract class FileExistsStrategyTestBase : TestBaseWithPGFileSystem, IDi
         _tempDirs.Add(dir);
         return dir;
     }
-
-    // ---------------------------------------------------------------------------------------------
-    // Shared tests — every strategy must satisfy.
-    // ---------------------------------------------------------------------------------------------
 
     [Theory]
     [InlineData("/gameDir")]
