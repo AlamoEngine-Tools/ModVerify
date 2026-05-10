@@ -117,40 +117,41 @@ internal class PGRender(
             while (loadingNumberedAnimations)
             {
                 var stringBuilder = new ValueStringBuilder(stringBuffer);
-
-                CreateAnimationFilePath(ref stringBuilder, modelFileName, animationData.Value, subIndex);
-                var animationFilenameWithoutExtension =
-                    _pgFileSystem.GetFileNameWithoutExtension(stringBuilder.AsSpan());
-                InsertPath(ref stringBuilder, directory);
-
-                if (stringBuilder.Length > PGConstants.MaxAnimationFileName)
-                {
-                    var animFile = stringBuilder.AsSpan().ToString();
-                    errorReporter.Assert(
-                        EngineAssert.Create(EngineAssertKind.ValueOutOfRange, animFile, [],
-                            $"Cannot get animation file '{animFile}' , because animation file path is too long."));
-                    continue;
-                }
-
                 try
                 {
-                    var animationAsset = Load3DAsset(stringBuilder.AsSpan(), metadataOnly, throwsOnLoad);
-                    if (animationAsset is IAloAnimationFile animationFile)
+                    CreateAnimationFilePath(ref stringBuilder, modelFileName, animationData.Value, subIndex);
+                    var animationFilenameWithoutExtension =
+                        _pgFileSystem.GetFileNameWithoutExtension(stringBuilder.AsSpan());
+                    InsertPath(ref stringBuilder, directory);
+
+                    if (stringBuilder.Length > PGConstants.MaxAnimationFileName)
                     {
-                        loadingNumberedAnimations = true;
-                        var crc = _hashingService.GetCrc32(animationFilenameWithoutExtension,
-                            PGConstants.DefaultPGEncoding);
-                        animations.AddAnimation(animationData.Key, animationFile, crc);
+                        var animFile = stringBuilder.AsSpan().ToString();
+                        errorReporter.Assert(
+                            EngineAssert.Create(EngineAssertKind.ValueOutOfRange, animFile, [],
+                                $"Cannot get animation file '{animFile}' , because animation file path is too long."));
+                        continue;
                     }
-                    else
+
+                    try
                     {
-                        loadingNumberedAnimations = false;
+                        var animationAsset = Load3DAsset(stringBuilder.AsSpan(), metadataOnly, throwsOnLoad);
+                        if (animationAsset is IAloAnimationFile animationFile)
+                        {
+                            loadingNumberedAnimations = true;
+                            var crc = _hashingService.GetCrc32(animationFilenameWithoutExtension,
+                                PGConstants.DefaultPGEncoding);
+                            animations.AddAnimation(animationData.Key, animationFile, crc);
+                        }
+                        else
+                        {
+                            loadingNumberedAnimations = false;
+                        }
                     }
-                }
-                catch (BinaryCorruptedException e)
-                {
-                    // NB: Loading a corrupted animation does not break the loading of other numbered animations
-                    corruptedAnimationHandler?.Invoke(e, animationData.Key, stringBuilder.AsSpan().ToString());
+                    catch (BinaryCorruptedException e)
+                    {
+                        corruptedAnimationHandler?.Invoke(e, animationData.Key, stringBuilder.AsSpan().ToString());
+                    }
                 }
                 finally
                 {

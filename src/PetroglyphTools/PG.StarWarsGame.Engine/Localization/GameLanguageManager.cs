@@ -123,24 +123,34 @@ internal abstract class GameLanguageManager(IServiceProvider serviceProvider) : 
         }
 
         var stringBuilder = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        LocalizeFileName(fileName.AsSpan(), language, ref stringBuilder, out localized);
-        if (!localized)
+        try
+        {
+            LocalizeFileName(fileName.AsSpan(), language, ref stringBuilder, out localized);
+            if (!localized)
+                return fileName;
+
+            Debug.Assert(stringBuilder.Length == fileName.Length);
+            return stringBuilder.ToString();
+        }
+        finally
         {
             stringBuilder.Dispose();
-            return fileName;
         }
-
-        Debug.Assert(stringBuilder.Length == fileName.Length);
-        return stringBuilder.ToString();
     }
 
     public int LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, Span<char> destination, out bool localized)
     {
         var sb = new ValueStringBuilder(destination.Length);
-        LocalizeFileName(fileName, language, ref sb, out localized);
-        sb.TryCopyTo(destination, out var written);
-        sb.Dispose();
-        return written;
+        try
+        {
+            LocalizeFileName(fileName, language, ref sb, out localized);
+            sb.TryCopyTo(destination, out var written);
+            return written;
+        }
+        finally
+        {
+            sb.Dispose();
+        }
     }
 
     public void LocalizeFileName(ReadOnlySpan<char> fileName, LanguageType language, ref ValueStringBuilder stringBuilder, out bool localized)

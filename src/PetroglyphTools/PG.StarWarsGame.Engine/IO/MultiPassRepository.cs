@@ -32,16 +32,22 @@ internal abstract class MultiPassRepository(GameRepository baseRepository) : IRe
     {
         var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var result = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
-        var fileFound = result.FileFound;
-        inMeg = result.InMeg;
-        if (!fileFound)
-            actualFilePath = null;
-        else
-            actualFilePath = result.InMeg ? result.MegDataEntryReference.Path : result.FilePath.ToString();
-        multiPassSb.Dispose();
-        destinationSb.Dispose();
-        return fileFound;
+        try
+        {
+            var result = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
+            var fileFound = result.FileFound;
+            inMeg = result.InMeg;
+            if (!fileFound)
+                actualFilePath = null;
+            else
+                actualFilePath = result.InMeg ? result.MegDataEntryReference.Path : result.FilePath.ToString();
+            return fileFound;
+        }
+        finally
+        {
+            multiPassSb.Dispose();
+            destinationSb.Dispose();
+        }
     }
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
@@ -53,12 +59,17 @@ internal abstract class MultiPassRepository(GameRepository baseRepository) : IRe
     {
         var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var result = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
-        var fileFound = result.FileFound;
-        pathTooLong = result.PathTooLong;
-        multiPassSb.Dispose();
-        destinationSb.Dispose();
-        return fileFound;
+        try
+        {
+            var result = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
+            pathTooLong = result.PathTooLong;
+            return result.FileFound;
+        }
+        finally
+        {
+            multiPassSb.Dispose();
+            destinationSb.Dispose();
+        }
     }
 
     private protected abstract FileFoundInfo MultiPassAction(
@@ -76,10 +87,15 @@ internal abstract class MultiPassRepository(GameRepository baseRepository) : IRe
     {
         var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
-        var result = BaseRepository.OpenFileCore(fileFound);
-        multiPassSb.Dispose();
-        destinationSb.Dispose();
-        return result;
+        try
+        {
+            var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
+            return BaseRepository.OpenFileCore(fileFound);
+        }
+        finally
+        {
+            multiPassSb.Dispose();
+            destinationSb.Dispose();
+        }
     }
 }

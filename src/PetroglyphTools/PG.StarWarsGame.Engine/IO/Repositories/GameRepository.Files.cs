@@ -32,6 +32,8 @@ internal partial class GameRepository
     public bool FileExists(string filePath, bool megFileOnly, out bool inMeg, [NotNullWhen(true)] out string? actualFilePath)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        try
+        {
         var fileFound = FindFile(filePath, ref sb, megFileOnly);
         var fileExists = fileFound.FileFound;
         inMeg = fileFound.InMeg;
@@ -42,6 +44,11 @@ internal partial class GameRepository
         sb.Dispose();
         return fileExists;
     }
+        finally
+        {
+            sb.Dispose();
+        }
+    }
 
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly = false)
     {
@@ -51,11 +58,18 @@ internal partial class GameRepository
     public bool FileExists(ReadOnlySpan<char> filePath, bool megFileOnly, out bool pathTooLong)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        try
+        {
         var fileFound = FindFile(filePath, ref sb, megFileOnly);
         var fileExists = fileFound.FileFound;
         pathTooLong = fileFound.PathTooLong;
         sb.Dispose();
         return fileExists;
+    }
+        finally
+        {
+            sb.Dispose();
+        }
     }
 
     public Stream OpenFile(string filePath, bool megFileOnly = false)
@@ -80,10 +94,15 @@ internal partial class GameRepository
     public Stream? TryOpenFile(ReadOnlySpan<char> filePath, bool megFileOnly)
     {
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        try
+        {
         var fileFoundInfo = FindFile(filePath, ref sb, megFileOnly);
-        var fileStream = OpenFileCore(fileFoundInfo);
+            return OpenFileCore(fileFoundInfo);
+        }
+        finally
+        {
         sb.Dispose();
-        return fileStream;
+    }
     }
     
     /// <summary>
@@ -107,13 +126,19 @@ internal partial class GameRepository
         }
         
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        Span<char> fileNameSpan = stackalloc char[PGConstants.MaxMegEntryPathLength];
+        bool normalized;
+        int length;
+        try
+        {
         sb.Append(filePath);
         PGFileSystem.NormalizePath(ref sb);
-
-        Span<char> fileNameSpan = stackalloc char[PGConstants.MaxMegEntryPathLength];
-        
-        var normalized = _megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out var length);
+            normalized = _megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out length);
+        }
+        finally
+        {
         sb.Dispose();
+        }
         
         if (!normalized)
             return default;
