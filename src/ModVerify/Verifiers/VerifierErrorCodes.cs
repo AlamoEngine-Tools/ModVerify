@@ -18,6 +18,7 @@ public static class VerifierErrorCodes
     public const string FileNotFound = "FILE00";
     public const string FilePathTooLong = "FILE01";
     public const string InvalidFilePath = "FILE02";
+    public const string UnexpectedFileLoad = "FILE03";
 
     public const string Duplicate = "DUP00";
     public const string MissingXRef = "XREF00";
