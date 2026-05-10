@@ -23,9 +23,9 @@ public sealed partial class PetroglyphFileSystem
     /// <remarks>
     /// <note type="warning">
     /// Selecting this strategy directly is rarely correct. Prefer
-    /// <see cref="UseVirtualStrategy"/> on non-Windows hosts and <see cref="UseWindowsStrategy"/>
+    /// <see cref="UseVirtualStrategy(bool?)"/> on non-Windows hosts and <see cref="UseWindowsStrategy"/>
     /// on Windows. This method exists primarily to support the search engine used internally by
-    /// <see cref="UseVirtualStrategy"/> for paths outside the game directory.
+    /// <see cref="UseVirtualStrategy(bool?)"/> for paths outside the game directory.
     /// </note>
     /// <para>Provides full mediation: every lookup re-walks the path with no caching.</para>
     /// </remarks>
