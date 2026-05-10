@@ -208,8 +208,9 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
         var animationCollection = AnimationCollection.Empty;
         if (alamoFile.Content is AlamoModel)
-        {
-            animationCollection = GameEngine.PGRender.LoadAnimations(alamoFile.FileName, alamoFile.Directory, true,
+        { 
+            animationCollection = GameEngine.PGRender.LoadAnimations(
+                alamoFile.FileName, @"DATA\ART\MODELS", true,
                 (_, _, alaFile) =>      
                 {
                     var alaFileName = NormalizeFileName(alaFile);
