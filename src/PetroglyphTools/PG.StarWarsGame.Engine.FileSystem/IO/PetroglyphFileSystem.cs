@@ -4,6 +4,8 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 
 namespace PG.StarWarsGame.Engine.IO;
 
@@ -44,6 +46,10 @@ public sealed partial class PetroglyphFileSystem
         if (serviceProvider == null)
             throw new ArgumentNullException(nameof(serviceProvider));
         _underlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+
+        _strategy = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? new WindowsFileExistsStrategy(_underlyingFileSystem)
+            : new VirtualFileExistsStrategy(_underlyingFileSystem, new WineFileExistsStrategy(_underlyingFileSystem));
     }
     
     /// <summary>
@@ -74,7 +80,7 @@ public sealed partial class PetroglyphFileSystem
         return length >= 1 && IsDirectorySeparator(path[0]);
     }
     
-    private static ReadOnlySpan<char> GetPathRoot(ReadOnlySpan<char> path)
+    internal static ReadOnlySpan<char> GetPathRoot(ReadOnlySpan<char> path)
     {
         if (IsEffectivelyEmpty(path))
             return ReadOnlySpan<char>.Empty;
@@ -83,11 +89,29 @@ public sealed partial class PetroglyphFileSystem
         return pathRoot <= 0 ? ReadOnlySpan<char>.Empty : path.Slice(0, pathRoot);
     }
 
+    /// <summary>
+    /// Returns the length of the path's root: 1 for a leading separator (<c>/foo</c>), or 3 for a
+    /// Windows-style drive root (<c>C:\foo</c> or <c>C:/foo</c>). 0 otherwise. Both <c>/</c> and <c>\</c>
+    /// are accepted as separators so this is safe to call on host-OS paths from either platform.
+    /// </summary>
     private static int GetRootLength(ReadOnlySpan<char> path)
     {
-        // We don't ever expect drive signatures or UCN paths in a linux environment.
-        // Thus, we keep the simple linux check, augmented supporting backslash
-        return path.Length > 0 && IsDirectorySeparator(path[0]) ? 1 : 0;
+        if (path.Length == 0)
+            return 0;
+
+        if (IsDirectorySeparator(path[0]))
+            return 1;
+
+        if (path.Length >= 3 && IsAsciiLetter(path[0]) && path[1] == ':' && IsDirectorySeparator(path[2]))
+            return 3;
+
+        return 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsAsciiLetter(char c)
+    {
+        return c is >= 'A' and <= 'Z' or >= 'a' and <= 'z';
     }
     
     private static bool IsEffectivelyEmpty(ReadOnlySpan<char> path)
@@ -104,7 +128,7 @@ public sealed partial class PetroglyphFileSystem
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsDirectorySeparator(char c)
+    internal static bool IsDirectorySeparator(char c)
     {
         return c is DirectorySeparatorChar or AltDirectorySeparatorChar;
     }

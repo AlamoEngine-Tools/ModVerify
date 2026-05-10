@@ -62,7 +62,7 @@ internal class FocGameRepository : GameRepository
             if (fileFoundInfo.FileFound)
                 return fileFoundInfo;
 
-            fileFoundInfo = FindFileCore(filePath, ref pathStringBuilder);
+            fileFoundInfo = FindFileCore(filePath, ref pathStringBuilder, GameDirectory.AsSpan());
             if (fileFoundInfo.FileFound)
                 return fileFoundInfo;
         }

@@ -72,11 +72,18 @@ public partial class PetroglyphFileSystemTests
     public void JoinPath(string path1, string path2, string expected)
     {
         var vsb = new ValueStringBuilder();
-        _pgFileSystem.JoinPath(path1.AsSpan(), path2.AsSpan(), ref vsb);
-        var result = vsb.ToString();
-        Assert.Equal(expected, result);
+        try
+        {
+            _pgFileSystem.JoinPath(path1.AsSpan(), path2.AsSpan(), ref vsb);
+            var result = vsb.ToString();
+            Assert.Equal(expected, result);
 #if Windows
-        Assert.Equal(result, _fileSystem.Path.Join(path1, path2));
+            Assert.Equal(result, _fileSystem.Path.Join(path1, path2));
 #endif
+        }
+        finally
+        {
+            vsb.Dispose();
+        }
     }
 }

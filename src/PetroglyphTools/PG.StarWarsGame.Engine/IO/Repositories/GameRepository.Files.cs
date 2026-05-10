@@ -34,16 +34,15 @@ internal partial class GameRepository
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         try
         {
-        var fileFound = FindFile(filePath, ref sb, megFileOnly);
-        var fileExists = fileFound.FileFound;
-        inMeg = fileFound.InMeg;
-        if (!fileExists)
-            actualFilePath = null;
-        else 
-            actualFilePath = fileFound.InMeg ? fileFound.MegDataEntryReference.Path : fileFound.FilePath.ToString();
-        sb.Dispose();
-        return fileExists;
-    }
+            var fileFound = FindFile(filePath, ref sb, megFileOnly);
+            var fileExists = fileFound.FileFound;
+            inMeg = fileFound.InMeg;
+            if (!fileExists)
+                actualFilePath = null;
+            else
+                actualFilePath = fileFound.InMeg ? fileFound.MegDataEntryReference.Path : fileFound.FilePath.ToString();
+            return fileExists;
+        }
         finally
         {
             sb.Dispose();
@@ -60,12 +59,11 @@ internal partial class GameRepository
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         try
         {
-        var fileFound = FindFile(filePath, ref sb, megFileOnly);
-        var fileExists = fileFound.FileFound;
-        pathTooLong = fileFound.PathTooLong;
-        sb.Dispose();
-        return fileExists;
-    }
+            var fileFound = FindFile(filePath, ref sb, megFileOnly);
+            var fileExists = fileFound.FileFound;
+            pathTooLong = fileFound.PathTooLong;
+            return fileExists;
+        }
         finally
         {
             sb.Dispose();
@@ -96,13 +94,13 @@ internal partial class GameRepository
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
         try
         {
-        var fileFoundInfo = FindFile(filePath, ref sb, megFileOnly);
+            var fileFoundInfo = FindFile(filePath, ref sb, megFileOnly);
             return OpenFileCore(fileFoundInfo);
         }
         finally
         {
-        sb.Dispose();
-    }
+            sb.Dispose();
+        }
     }
     
     /// <summary>
@@ -131,15 +129,15 @@ internal partial class GameRepository
         int length;
         try
         {
-        sb.Append(filePath);
-        PGFileSystem.NormalizePath(ref sb);
+            sb.Append(filePath);
+            PGFileSystem.NormalizePath(ref sb);
             normalized = _megPathNormalizer.TryNormalize(sb.AsSpan(), fileNameSpan, out length);
         }
         finally
         {
-        sb.Dispose();
+            sb.Dispose();
         }
-        
+
         if (!normalized)
             return default;
 
@@ -152,9 +150,12 @@ internal partial class GameRepository
         return new FileFoundInfo(entry);
     }
 
-    protected FileFoundInfo FindFileCore(ReadOnlySpan<char> filePath, ref ValueStringBuilder stringBuilder)
+    protected FileFoundInfo FindFileCore(
+        ReadOnlySpan<char> filePath, 
+        ref ValueStringBuilder stringBuilder,
+        ReadOnlySpan<char> lookupDirectory)
     {
-        var exists = PGFileSystem.FileExists(filePath, ref stringBuilder, GameDirectory.AsSpan());
+        var exists = PGFileSystem.FileExists(filePath, ref stringBuilder, lookupDirectory);
         return !exists ? default : new FileFoundInfo(stringBuilder.AsSpan());
     }
 
@@ -174,7 +175,7 @@ internal partial class GameRepository
             PGFileSystem.JoinPath(fallbackPath.AsSpan(), pathWithNormalizedData, ref pathStringBuilder);
             var newPath = pathStringBuilder.AsSpan();
 
-            var fileFoundInfo = FindFileCore(newPath, ref pathStringBuilder);
+            var fileFoundInfo = FindFileCore(newPath, ref pathStringBuilder, fallbackPath.AsSpan());
             if (fileFoundInfo.FileFound)
                 return fileFoundInfo;
         }
