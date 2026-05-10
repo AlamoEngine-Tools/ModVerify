@@ -9,7 +9,6 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
-
     /// <summary>
     /// The path string from which to obtain the file name and extension.
     /// </summary>
