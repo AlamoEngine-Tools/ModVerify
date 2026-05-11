@@ -1,8 +1,7 @@
-﻿using AET.ModVerify.App.Reporting;
+using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
-using AET.ModVerify.Reporting.Baseline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -15,7 +14,7 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
     : ModVerifyApplicationAction<AppBaselineSettings>(settings, serviceProvider)
 {
     private readonly IFileSystem _fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
-    
+
     protected override void PrintAction(VerificationTarget target)
     {
         Console.WriteLine();
@@ -29,11 +28,11 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
     protected override async Task<int> ProcessResult(VerificationResult result)
     {
         var baselineFactory = ServiceProvider.GetRequiredService<IBaselineFactory>();
-        var baseline = baselineFactory.CreateBaseline(result.Target, Settings, result.Errors);
+        var baseline = baselineFactory.CreateBaseline(result.Target, Settings, result.Errors.NewErrors);
 
         var fullPath = _fileSystem.Path.GetFullPath(Settings.NewBaselinePath);
-        Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, 
-            "Writing Baseline to '{FullPath}' with {Number} findings", fullPath, result.Errors.Count);
+        Logger?.LogInformation(ModVerifyConstants.ConsoleEventId,
+            "Writing Baseline to '{FullPath}' with {Number} findings", fullPath, result.Errors.NewErrors.Count);
 
         await baselineFactory.WriteBaselineAsync(baseline, Settings.NewBaselinePath);
 
@@ -45,10 +44,5 @@ internal sealed class CreateBaselineAction(AppBaselineSettings settings, IServic
         Console.ResetColor();
 
         return ModVerifyConstants.Success;
-    }
-
-    protected override VerificationBaseline GetBaseline(VerificationTarget verificationTarget)
-    {
-        return VerificationBaseline.Empty;
     }
 }

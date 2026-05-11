@@ -51,27 +51,6 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 
         void ValidateVerb()
         {
-            if (verifyOptions.SearchBaselineLocally && !string.IsNullOrEmpty(verifyOptions.Baseline))
-            {
-                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
-                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
-                throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
-            }
-
-            if (verifyOptions.UseDefaultBaseline && !string.IsNullOrEmpty(verifyOptions.Baseline))
-            {
-                var useDefaultOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.UseDefaultBaseline));
-                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
-                throw new AppArgumentException($"Options {useDefaultOption} and {baselineOption} cannot be used together.");
-            }
-
-            if (verifyOptions is { UseDefaultBaseline: true, SearchBaselineLocally: true })
-            {
-                var useDefaultOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.UseDefaultBaseline));
-                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
-                throw new AppArgumentException($"Options {useDefaultOption} and {searchOption} cannot be used together.");
-            }
-
             if (verifyOptions is { FailFast: true, MinimumFailureSeverity: null })
             {
                 var failFast = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.FailFast));
@@ -94,13 +73,12 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 verifyOptions.OutputDirectory ?? "ModVerifyResults"));
         }
 
-        VerifyReportSettings BuildReportSettings()
+        AppReportSettings BuildReportSettings()
         {
-            return new VerifyReportSettings
+            return new AppReportSettings
             {
-                BaselinePath = verifyOptions.Baseline,
+                BaselinePaths = SplitBaselinePaths(verifyOptions.BaselinePaths),
                 MinimumReportSeverity = verifyOptions.MinimumSeverity,
-                SearchBaselineLocally = verifyOptions.SearchBaselineLocally,
                 UseDefaultBaseline = verifyOptions.UseDefaultBaseline,
                 SuppressionsPath = verifyOptions.Suppressions,
                 Verbose = verifyOptions.Verbose
@@ -130,9 +108,22 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             {
                 MinimumReportSeverity = baselineVerb.MinimumSeverity,
                 SuppressionsPath = baselineVerb.Suppressions,
-                Verbose = baselineVerb.Verbose
+                Verbose = baselineVerb.Verbose,
+                BaselinePaths = SplitBaselinePaths(baselineVerb.BaselinePaths),
+                UseDefaultBaseline = baselineVerb.UseDefaultBaseline
             };
         }
+    }
+
+    private IReadOnlyList<string> SplitBaselinePaths(string? rawPaths)
+    {
+        if (string.IsNullOrEmpty(rawPaths))
+            return [];
+        var separator = _fileSystem.Path.PathSeparator;
+        return [..
+            rawPaths!.Split([separator], StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => _fileSystem.Path.GetFullPath(p))
+        ];
     }
 
     private VerificationTargetSettings BuildTargetSettings(BaseModVerifyOptions options)
