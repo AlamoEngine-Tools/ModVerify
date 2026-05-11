@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Progress;
 using AET.ModVerify.Reporting;
@@ -14,7 +14,7 @@ public interface IGameVerifierService
     Task<VerificationResult> VerifyAsync(
         VerificationTarget verificationTarget,
         VerifierServiceSettings settings,
-        VerificationBaseline baseline,
+        BaselineCollection baselines,
         SuppressionList suppressions,
         IVerifyProgressReporter? progressReporter,
         IGameEngineInitializationReporter? engineInitializationReporter,

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AET.ModVerify.Progress;
@@ -13,11 +13,11 @@ namespace AET.ModVerify;
 internal sealed class GameVerifierService(IServiceProvider serviceProvider) : IGameVerifierService
 {
     public async Task<VerificationResult> VerifyAsync(
-        VerificationTarget verificationTarget, 
+        VerificationTarget verificationTarget,
         VerifierServiceSettings settings,
-        VerificationBaseline baseline,
+        BaselineCollection baselines,
         SuppressionList suppressions,
-        IVerifyProgressReporter? progressReporter, 
+        IVerifyProgressReporter? progressReporter,
         IGameEngineInitializationReporter? engineInitializationReporter,
         CancellationToken token = default)
     {
@@ -25,12 +25,14 @@ internal sealed class GameVerifierService(IServiceProvider serviceProvider) : IG
             throw new ArgumentNullException(nameof(verificationTarget));
         if (settings == null)
             throw new ArgumentNullException(nameof(settings));
+        if (baselines == null)
+            throw new ArgumentNullException(nameof(baselines));
 
         using var pipeline = new GameVerifyPipeline(
-            verificationTarget, 
-            settings, 
+            verificationTarget,
+            settings,
             serviceProvider,
-            baseline,
+            baselines,
             suppressions,
             progressReporter,
             engineInitializationReporter);
@@ -64,7 +66,7 @@ internal sealed class GameVerifierService(IServiceProvider serviceProvider) : IG
             Errors = pipeline.Errors,
             Status = completionStatus,
             Target = verificationTarget,
-            UsedBaseline = baseline,
+            UsedBaselines = baselines,
             UsedSuppressions = suppressions,
             Verifiers = pipeline.Verifiers,
             Exception = exception
