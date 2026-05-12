@@ -92,7 +92,9 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         {
             VerifierServiceSettings = new VerifierServiceSettings
             {
-                ParallelVerifiers = baselineVerb.Parallel ? 4 : 1,
+                // Always sequential: baseline creation must be deterministic — error ordering
+                // and any other parallelism-sensitive behavior would otherwise vary between runs.
+                ParallelVerifiers = 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
                 GameVerifySettings = GameVerifySettings.Default,
                 FailFastSettings = FailFastSetting.NoFailFast,

@@ -27,5 +27,10 @@ internal sealed class VerifyVerbOption : BaseModVerifyOptions
         HelpText = "When this flag is present, the application will not report engine assertions.")]
     public bool IgnoreAsserts { get; init; }
 
+    [Option("parallel", Default = false,
+        HelpText = "When set, game verifiers will run in parallel. " +
+                   "While this may reduce analysis time, console output might be harder to read.")]
+    public bool Parallel { get; init; }
+
     public bool IsRunningWithoutArguments { get; init; }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using CommandLine;
 using PG.StarWarsGame.Engine;
 
@@ -51,12 +50,6 @@ internal abstract class BaseModVerifyOptions
         HelpText = "Additional fallback paths, which may contain assets that shall be included when doing the verification. Do not add EaW here. " +
                    "Multiple paths can be separated using the platform-specific path separator (';' on Windows, ':' on Linux).")]
     public string? AdditionalFallbackPath { get; init; }
-
-    // TODO: Should not be supported for creating baselines, because we want deterministic baselines.
-    [Option("parallel", Default = false,
-        HelpText = "When set, game verifiers will run in parallel. " +
-                   "While this may reduce analysis time, console output might be harder to read.")]
-    public bool Parallel { get; init; }
 
     [Option("baseline", Required = false,
         HelpText = "Path(s) to one or more JSON baseline files. Multiple paths can be separated using the platform-specific path separator (';' on Windows, ':' on Linux). " +
