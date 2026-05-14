@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Abstractions;
 using AnakinRaW.CommonUtilities.FileSystem;
@@ -13,8 +13,7 @@ internal sealed class LiveVirtualFileExistsStrategy(IFileSystem fileSystem, File
     private const int WatcherBufferSize = 64 * 1024;
 
     private readonly object _watchersLock = new();
-    private readonly Dictionary<string, IFileSystemWatcher> _watchers = new(StringComparer.OrdinalIgnoreCase);
-    private bool _disposed;
+    private readonly ConcurrentDictionary<string, IFileSystemWatcher> _watchers = new(StringComparer.OrdinalIgnoreCase);
 
     public override bool FileExists(ReadOnlySpan<char> baseDirectory, ref ValueStringBuilder stringBuilder)
     {
@@ -23,18 +22,37 @@ internal sealed class LiveVirtualFileExistsStrategy(IFileSystem fileSystem, File
         return base.FileExists(baseDirectory, ref stringBuilder);
     }
 
+    internal override void Cleanup()
+    {
+        IFileSystemWatcher[] watchers;
+        lock (_watchersLock)
+        {
+            watchers = new IFileSystemWatcher[_watchers.Count];
+            _watchers.Values.CopyTo(watchers, 0);
+            _watchers.Clear();
+        }
+
+        foreach (var watcher in watchers)
+            TearDownWatcher(watcher);
+
+        base.Cleanup();
+    }
+
     private void EnsureWatcher(ReadOnlySpan<char> baseDirectory)
     {
-        if (_disposed)
+        var rootStr = baseDirectory.ToString();
+
+        // Fast path: already watching this directory — lockless, no OS call.
+        if (_watchers.ContainsKey(rootStr))
             return;
 
-        var rootStr = baseDirectory.ToString();
+        // Only pay for the Directory.Exists syscall when the watcher might be missing.
         if (!FileSystem.Directory.Exists(rootStr))
             return;
 
         lock (_watchersLock)
         {
-            if (_disposed || _watchers.ContainsKey(rootStr))
+            if (_watchers.ContainsKey(rootStr))
                 return;
 
             var watcher = FileSystem.FileSystemWatcher.New(rootStr);
@@ -51,25 +69,6 @@ internal sealed class LiveVirtualFileExistsStrategy(IFileSystem fileSystem, File
             watcher.EnableRaisingEvents = true;
             _watchers[rootStr] = watcher;
         }
-    }
-
-    public override void Dispose()
-    {
-        IFileSystemWatcher[] watchers;
-        lock (_watchersLock)
-        {
-            if (_disposed)
-                return;
-            _disposed = true;
-            watchers = new IFileSystemWatcher[_watchers.Count];
-            _watchers.Values.CopyTo(watchers, 0);
-            _watchers.Clear();
-        }
-
-        foreach (var watcher in watchers)
-            TearDownWatcher(watcher);
-
-        base.Dispose();
     }
 
     private void OnFileEvent(object sender, FileSystemEventArgs e)
@@ -89,8 +88,6 @@ internal sealed class LiveVirtualFileExistsStrategy(IFileSystem fileSystem, File
         string? brokenRoot = null;
         lock (_watchersLock)
         {
-            if (_disposed)
-                return;
             foreach (var kv in _watchers)
             {
                 if (ReferenceEquals(kv.Value, sender))
@@ -102,7 +99,7 @@ internal sealed class LiveVirtualFileExistsStrategy(IFileSystem fileSystem, File
             }
             if (broken is null)
                 return;
-            _watchers.Remove(brokenRoot!);
+            _watchers.TryRemove(brokenRoot!, out _);
         }
 
         ClearCacheUnder(brokenRoot!);

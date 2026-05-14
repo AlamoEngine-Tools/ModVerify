@@ -15,10 +15,10 @@ internal abstract class VirtualFileExistsStrategyBase(IFileSystem fileSystem, Fi
 
     protected readonly FileExistsStrategy Underlying = underlying;
 
-    public override void Dispose()
+    internal override void Cleanup()
     {
         Store.Clear();
-        Underlying.Dispose();
+        Underlying.Cleanup();
     }
 
     public override bool FileExists(ReadOnlySpan<char> baseDirectory, ref ValueStringBuilder stringBuilder)

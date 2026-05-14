@@ -8,6 +8,15 @@ public sealed partial class PetroglyphFileSystem
 {
     private FileExistsStrategy _strategy;
 
+    internal void CleanupStrategy() => _strategy.Cleanup();
+
+    private FileExistsStrategy CreateDefaultStrategy()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? new WindowsFileExistsStrategy(_underlyingFileSystem)
+            : new VirtualFileExistsStrategy(_underlyingFileSystem, new WineFileExistsStrategy(_underlyingFileSystem));
+    }
+
     /// <summary>
     /// Switches the active file-exists strategy to one that issues a Win32 <c>CreateFileA</c> call per lookup.
     /// </summary>
@@ -116,6 +125,6 @@ public sealed partial class PetroglyphFileSystem
     {
         var old = _strategy;
         _strategy = next;
-        old?.Dispose();
+        old.Cleanup();
     }
 }

@@ -4,8 +4,6 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 
 namespace PG.StarWarsGame.Engine.IO;
 
@@ -47,9 +45,7 @@ public sealed partial class PetroglyphFileSystem
             throw new ArgumentNullException(nameof(serviceProvider));
         _underlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-        _strategy = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? new WindowsFileExistsStrategy(_underlyingFileSystem)
-            : new VirtualFileExistsStrategy(_underlyingFileSystem, new WineFileExistsStrategy(_underlyingFileSystem));
+        _strategy = CreateDefaultStrategy();
     }
     
     /// <summary>
