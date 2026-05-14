@@ -30,7 +30,7 @@ public sealed partial class PetroglyphFileSystem
     public string CombinePath(string pathA, string pathB)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
-            return _underlyingFileSystem.Path.Combine(pathA, pathB);
+            return UnderlyingFileSystem.Path.Combine(pathA, pathB);
         
         if (pathA == null)
             throw new ArgumentNullException(nameof(pathA));
@@ -55,7 +55,7 @@ public sealed partial class PetroglyphFileSystem
         
         var hasSeparator = IsDirectorySeparator(path1[path1.Length - 1]) || IsDirectorySeparator(path2[0]);
         if (!hasSeparator)
-            stringBuilder.Append(_underlyingFileSystem.Path.DirectorySeparatorChar);
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
         
         stringBuilder.Append(path2);
     }
@@ -79,6 +79,6 @@ public sealed partial class PetroglyphFileSystem
         var hasSeparator = IsDirectorySeparator(first[first.Length - 1]) || IsDirectorySeparator(second[0]);
         return hasSeparator
             ? string.Concat(first, second)
-            : string.Concat(first, _underlyingFileSystem.Path.DirectorySeparatorChar, second);
+            : string.Concat(first, UnderlyingFileSystem.Path.DirectorySeparatorChar, second);
     }
 }

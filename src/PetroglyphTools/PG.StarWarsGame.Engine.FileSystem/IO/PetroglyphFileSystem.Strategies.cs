@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 
@@ -6,15 +8,17 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
-    private FileExistsStrategy _strategy;
+    [ExcludeFromCodeCoverage]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    internal FileExistsStrategy Strategy { get; private set; }
 
-    internal void CleanupStrategy() => _strategy.Cleanup();
+    internal void CleanupStrategy() => Strategy.Cleanup();
 
     private FileExistsStrategy CreateDefaultStrategy()
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? new WindowsFileExistsStrategy(_underlyingFileSystem)
-            : new VirtualFileExistsStrategy(_underlyingFileSystem, new WineFileExistsStrategy(_underlyingFileSystem));
+            ? new WindowsFileExistsStrategy(UnderlyingFileSystem)
+            : new VirtualFileExistsStrategy(UnderlyingFileSystem, new WineFileExistsStrategy(UnderlyingFileSystem));
     }
 
     /// <summary>
@@ -38,7 +42,7 @@ public sealed partial class PetroglyphFileSystem
     /// </note>
     /// <para>Provides full mediation: every lookup re-walks the path with no caching.</para>
     /// </remarks>
-    public void UseWineStrategy() => SwapStrategy(new WineFileExistsStrategy(_underlyingFileSystem));
+    public void UseWineStrategy() => SwapStrategy(new WineFileExistsStrategy(UnderlyingFileSystem));
 
     /// <summary>
     /// Switches the active file-exists strategy to an immutable per-directory snapshot scoped to the game directory.
@@ -61,12 +65,12 @@ public sealed partial class PetroglyphFileSystem
         var useWindows = windowsFallback ?? RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         FileExistsStrategy fallback = useWindows
             ? CreateWindowsStrategy()
-            : new WineFileExistsStrategy(_underlyingFileSystem);
+            : new WineFileExistsStrategy(UnderlyingFileSystem);
         UseVirtualStrategy(fallback);
     }
 
     internal void UseVirtualStrategy(FileExistsStrategy underlying)
-        => SwapStrategy(new VirtualFileExistsStrategy(_underlyingFileSystem, underlying));
+        => SwapStrategy(new VirtualFileExistsStrategy(UnderlyingFileSystem, underlying));
 
     /// <summary>
     /// Switches the active file-exists strategy to a snapshot-based one that refreshes itself when
@@ -106,25 +110,25 @@ public sealed partial class PetroglyphFileSystem
         var useWindows = windowsFallback ?? RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         FileExistsStrategy fallback = useWindows
             ? CreateWindowsStrategy()
-            : new WineFileExistsStrategy(_underlyingFileSystem);
+            : new WineFileExistsStrategy(UnderlyingFileSystem);
         UseLiveVirtualStrategy(fallback);
     }
 
     internal void UseLiveVirtualStrategy(FileExistsStrategy underlying)
-        => SwapStrategy(new LiveVirtualFileExistsStrategy(_underlyingFileSystem, underlying));
+        => SwapStrategy(new LiveVirtualFileExistsStrategy(UnderlyingFileSystem, underlying));
 
     private WindowsFileExistsStrategy CreateWindowsStrategy()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             throw new PlatformNotSupportedException(
                 "The Windows file-exists strategy relies on Win32 CreateFileA and is only supported on Windows hosts.");
-        return new WindowsFileExistsStrategy(_underlyingFileSystem);
+        return new WindowsFileExistsStrategy(UnderlyingFileSystem);
     }
 
     private void SwapStrategy(FileExistsStrategy next)
     {
-        var old = _strategy;
-        _strategy = next;
+        var old = Strategy;
+        Strategy = next;
         old.Cleanup();
     }
 }

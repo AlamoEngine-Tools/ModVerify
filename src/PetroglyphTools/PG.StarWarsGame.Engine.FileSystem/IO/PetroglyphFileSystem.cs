@@ -27,12 +27,10 @@ public sealed partial class PetroglyphFileSystem
         UnifySeparatorKind = DirectorySeparatorKind.System
     };
 
-    private readonly IFileSystem _underlyingFileSystem;
-    
     /// <summary>
     /// Gets the underlying file system abstraction.
     /// </summary>
-    public IFileSystem UnderlyingFileSystem => _underlyingFileSystem;
+    public IFileSystem UnderlyingFileSystem { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PetroglyphFileSystem"/> class.
@@ -43,9 +41,9 @@ public sealed partial class PetroglyphFileSystem
     {
         if (serviceProvider == null)
             throw new ArgumentNullException(nameof(serviceProvider));
-        _underlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+        UnderlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-        _strategy = CreateDefaultStrategy();
+        Strategy = CreateDefaultStrategy();
     }
     
     /// <summary>
@@ -65,7 +63,7 @@ public sealed partial class PetroglyphFileSystem
     
     internal FileSystemStream OpenRead(string filePath)
     {
-        return _underlyingFileSystem.FileStream.New(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return UnderlyingFileSystem.FileStream.New(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
     }
     
     private static bool IsPathRooted(ReadOnlySpan<char> path)
