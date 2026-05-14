@@ -45,7 +45,7 @@ public sealed partial class PetroglyphFileSystem
         NormalizePath(ref stringBuilder);
         NormalizeDotSegmentsInPlace(ref stringBuilder);
 
-        return _strategy.FileExists(baseDirectory, ref stringBuilder);
+        return Strategy.FileExists(baseDirectory, ref stringBuilder);
     }
     
     internal void NormalizeDotSegmentsInPlace(ref ValueStringBuilder sb)
@@ -54,7 +54,7 @@ public sealed partial class PetroglyphFileSystem
         if (len == 0)
             return;
 
-        var dirSeparator = _underlyingFileSystem.Path.DirectorySeparatorChar;
+        var dirSeparator = UnderlyingFileSystem.Path.DirectorySeparatorChar;
 
         var rootLen = GetPathRoot(sb.AsSpan()).Length;
         var writeEnd = rootLen;
@@ -106,6 +106,6 @@ public sealed partial class PetroglyphFileSystem
         // However, this must not happen here, since we are operating on the actual file system.
         // E.g, \\Data\\Art\\... MUST not be treated as a fully qualified path.
         // This means, ultimately, we can just delegate to the underlying file system.
-        return _underlyingFileSystem.Path.IsPathFullyQualified(path);
+        return UnderlyingFileSystem.Path.IsPathFullyQualified(path);
     }
 }

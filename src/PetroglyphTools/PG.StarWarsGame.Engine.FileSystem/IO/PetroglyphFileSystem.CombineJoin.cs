@@ -6,10 +6,31 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
+    /// <summary>
+    /// Combines strings into a path.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method is intended to concatenate individual strings into a single string that represents a file path.
+    /// However, if an argument other than the first contains a rooted path, any previous path components are ignored,
+    /// and the returned string begins with that rooted path component.
+    /// </para>
+    /// <para>
+    /// This method supports the directory separator characters ("/") and ("\").
+    /// </para>
+    /// </remarks>
+    /// <param name="pathA">The first path to combine.</param>
+    /// <param name="pathB">The second path to combine.</param>
+    /// <returns>
+    /// The combined paths. If one of the specified paths is a zero-length string, this method returns the other path.
+    /// If <paramref name="pathB"/> contains an absolute path, this method returns <paramref name="pathB"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="pathA"/> or <paramref name="pathB"/> is <see langword="null"/>.
+    /// </exception>
     public string CombinePath(string pathA, string pathB)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
-            return _underlyingFileSystem.Path.Combine(pathA, pathB);
+            return UnderlyingFileSystem.Path.Combine(pathA, pathB);
         
         if (pathA == null)
             throw new ArgumentNullException(nameof(pathA));
@@ -34,7 +55,7 @@ public sealed partial class PetroglyphFileSystem
         
         var hasSeparator = IsDirectorySeparator(path1[path1.Length - 1]) || IsDirectorySeparator(path2[0]);
         if (!hasSeparator)
-            stringBuilder.Append(_underlyingFileSystem.Path.DirectorySeparatorChar);
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
         
         stringBuilder.Append(path2);
     }
@@ -58,6 +79,6 @@ public sealed partial class PetroglyphFileSystem
         var hasSeparator = IsDirectorySeparator(first[first.Length - 1]) || IsDirectorySeparator(second[0]);
         return hasSeparator
             ? string.Concat(first, second)
-            : string.Concat(first, _underlyingFileSystem.Path.DirectorySeparatorChar, second);
+            : string.Concat(first, UnderlyingFileSystem.Path.DirectorySeparatorChar, second);
     }
 }

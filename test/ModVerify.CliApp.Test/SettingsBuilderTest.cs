@@ -132,4 +132,20 @@ public class SettingsBuilderTest : TestBaseWithFileSystem
             [FileSystem.Path.GetFullPath("first.json"), FileSystem.Path.GetFullPath("second.json")],
             verifySettings.ReportSettings.BaselinePaths);
     }
+
+    [Fact]
+    public void BuildSettings_VerifyVerb_UsesLiveVirtualFileSystem()
+    {
+        var options = new VerifyVerbOption { TargetPath = "myPath" };
+        var settings = (AppVerifySettings)_builder.BuildSettings(options);
+        Assert.True(settings.VerifierServiceSettings.UseLiveVirtualFileSystem);
+    }
+
+    [Fact]
+    public void BuildSettings_CreateBaselineVerb_DoesNotUseLiveVirtualFileSystem()
+    {
+        var options = new CreateBaselineVerbOption { TargetPath = "myPath", OutputFile = "out.json" };
+        var settings = (AppBaselineSettings)_builder.BuildSettings(options);
+        Assert.False(settings.VerifierServiceSettings.UseLiveVirtualFileSystem);
+    }
 }

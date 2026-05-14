@@ -18,6 +18,7 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.IO;
 
 namespace AET.ModVerify;
 
@@ -34,6 +35,8 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     private readonly BaselineCollection _baselines;
     private readonly SuppressionList _suppressions;
     private VerificationErrors _errors = VerificationErrors.Empty;
+
+    private IStarWarsGameEngineHandle? _gameEngine;
 
     internal VerificationErrors Errors => _errors;
 
@@ -78,17 +81,20 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         _verifiers.Clear();
         _errors = VerificationErrors.Empty;
 
-        IStarWarsGameEngine gameEngine;
-
         try
         {
             var engineService = ServiceProvider.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
-            gameEngine = await engineService.InitializeAsync(
+            Action<PetroglyphFileSystem>? configureFs = _serviceSettings.UseLiveVirtualFileSystem
+                ? static fs => fs.UseLiveVirtualStrategy()
+                : null;
+
+            _gameEngine = await engineService.InitializeAsync(
                 _verificationTarget.Engine,
                 _verificationTarget.Location,
                 _engineErrorReporter,
                 _engineInitializationReporter,
                 false,
+                configureFs,
                 CancellationToken.None).ConfigureAwait(false);
         }
         catch (Exception e)
@@ -97,9 +103,9 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
             throw;
         }
 
-        AddStep(new GameEngineErrorCollector(_engineErrorReporter, gameEngine, _serviceSettings.GameVerifySettings, ServiceProvider));
+        AddStep(new GameEngineErrorCollector(_engineErrorReporter, _gameEngine, _serviceSettings.GameVerifySettings, ServiceProvider));
 
-        foreach (var gameVerificationStep in CreateVerifiers(gameEngine))
+        foreach (var gameVerificationStep in CreateVerifiers(_gameEngine))
             AddStep(gameVerificationStep);
     }
 
@@ -153,6 +159,8 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         _engineErrorReporter.Clear();
         _aggregatedVerifyProgressReporter?.Dispose();
         _aggregatedVerifyProgressReporter = null;
+        _gameEngine?.Dispose();
+        _gameEngine = null;
     }
 
     private void AddStep(GameVerifier verifier)

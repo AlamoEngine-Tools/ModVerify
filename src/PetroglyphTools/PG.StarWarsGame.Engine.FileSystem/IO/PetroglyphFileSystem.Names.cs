@@ -28,7 +28,7 @@ public sealed partial class PetroglyphFileSystem
     public string? GetFileName(string? path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return _underlyingFileSystem.Path.GetFileName(path);
+            return UnderlyingFileSystem.Path.GetFileName(path);
         
         if (path == null)
             return null;
@@ -51,7 +51,7 @@ public sealed partial class PetroglyphFileSystem
     public ReadOnlySpan<char> GetFileName(ReadOnlySpan<char> path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
-            return _underlyingFileSystem.Path.GetFileName(path);
+            return UnderlyingFileSystem.Path.GetFileName(path);
         
         var root = GetPathRoot(path).Length;
         var i = path.LastIndexOfAny(DirectorySeparatorChar, AltDirectorySeparatorChar);
@@ -69,7 +69,7 @@ public sealed partial class PetroglyphFileSystem
     public string? GetFileNameWithoutExtension(string? path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return _underlyingFileSystem.Path.GetFileNameWithoutExtension(path);
+            return UnderlyingFileSystem.Path.GetFileNameWithoutExtension(path);
 
         if (path == null)
             return null;
@@ -88,7 +88,7 @@ public sealed partial class PetroglyphFileSystem
     public ReadOnlySpan<char> GetFileNameWithoutExtension(ReadOnlySpan<char> path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return _underlyingFileSystem.Path.GetFileNameWithoutExtension(path);
+            return UnderlyingFileSystem.Path.GetFileNameWithoutExtension(path);
         var fileName = GetFileName(path);
         var lastPeriod = fileName.LastIndexOf('.');
         return lastPeriod < 0
@@ -146,7 +146,7 @@ public sealed partial class PetroglyphFileSystem
     public string? ChangeExtension(string? path, string? extension)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return _underlyingFileSystem.Path.ChangeExtension(path, extension);
+            return UnderlyingFileSystem.Path.ChangeExtension(path, extension);
 
         if (path == null)
             return null;
@@ -194,7 +194,7 @@ public sealed partial class PetroglyphFileSystem
     public ReadOnlySpan<char> GetDirectoryName(ReadOnlySpan<char> path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return _underlyingFileSystem.Path.GetDirectoryName(path);
+            return UnderlyingFileSystem.Path.GetDirectoryName(path);
         
         if (IsEffectivelyEmpty(path))
             return ReadOnlySpan<char>.Empty;

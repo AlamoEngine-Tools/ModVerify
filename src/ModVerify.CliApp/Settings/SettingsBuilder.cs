@@ -36,13 +36,14 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 ParallelVerifiers = verifyOptions.Parallel ? 4 : 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
                 FailFastSettings = failFastSetting,
+                UseLiveVirtualFileSystem = true,
                 GameVerifySettings = new GameVerifySettings
                 {
                     IgnoreAsserts = verifyOptions.IgnoreAsserts,
-                    ThrowsOnMinimumSeverity = failFastSetting.IsFailFast 
+                    ThrowsOnMinimumSeverity = failFastSetting.IsFailFast
                         ? failFastSetting.MinumumSeverity
                         // The app shall not make a specific verifier throw, but it should always run to completion.
-                        : null 
+                        : null
                 }
             },
             AppFailsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
