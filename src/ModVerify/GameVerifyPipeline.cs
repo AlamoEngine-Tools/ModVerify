@@ -18,6 +18,7 @@ using AnakinRaW.CommonUtilities.SimplePipeline.Runners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.StarWarsGame.Engine;
+using PG.StarWarsGame.Engine.IO;
 
 namespace AET.ModVerify;
 
@@ -83,14 +84,18 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         try
         {
             var engineService = ServiceProvider.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
+            Action<PetroglyphFileSystem>? configureFs = _serviceSettings.UseLiveVirtualFileSystem
+                ? static fs => fs.UseLiveVirtualStrategy()
+                : null;
+
             _gameEngine = await engineService.InitializeAsync(
                 _verificationTarget.Engine,
                 _verificationTarget.Location,
                 _engineErrorReporter,
                 _engineInitializationReporter,
                 false,
-                configureFileSystem:fs => fs.UseLiveVirtualStrategy(),
-                cancellationToken: CancellationToken.None).ConfigureAwait(false);
+                configureFs,
+                CancellationToken.None).ConfigureAwait(false);
         }
         catch (Exception e)
         {
