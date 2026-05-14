@@ -35,6 +35,8 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     private readonly VerificationBaseline _baseline;
     private readonly SuppressionList _suppressions;
 
+    private IStarWarsGameEngineHandle? _gameEngine;
+
     internal IReadOnlyCollection<VerificationError> Errors => [.._errors];
 
     internal IReadOnlyCollection<IGameVerifierInfo> Verifiers => [.. _verifiers];
@@ -78,18 +80,17 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         _verifiers.Clear();
         _errors.Clear();
 
-        IStarWarsGameEngine gameEngine;
-
         try
         {
             var engineService = ServiceProvider.GetRequiredService<IPetroglyphStarWarsGameEngineService>();
-            gameEngine = await engineService.InitializeAsync(
+            _gameEngine = await engineService.InitializeAsync(
                 _verificationTarget.Engine,
                 _verificationTarget.Location,
                 _engineErrorReporter,
                 _engineInitializationReporter,
                 false,
-                CancellationToken.None).ConfigureAwait(false);
+                configureFileSystem:fs => fs.UseLiveVirtualStrategy(),
+                cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -97,9 +98,9 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
             throw;
         }
 
-        AddStep(new GameEngineErrorCollector(_engineErrorReporter, gameEngine, _serviceSettings.GameVerifySettings, ServiceProvider));
+        AddStep(new GameEngineErrorCollector(_engineErrorReporter, _gameEngine, _serviceSettings.GameVerifySettings, ServiceProvider));
 
-        foreach (var gameVerificationStep in CreateVerifiers(gameEngine))
+        foreach (var gameVerificationStep in CreateVerifiers(_gameEngine))
             AddStep(gameVerificationStep);
     }
 
@@ -147,6 +148,8 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         _engineErrorReporter.Clear();
         _aggregatedVerifyProgressReporter?.Dispose();
         _aggregatedVerifyProgressReporter = null;
+        _gameEngine?.Dispose();
+        _gameEngine = null;
     }
 
     private void AddStep(GameVerifier verifier)

@@ -23,12 +23,13 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
     private readonly ILogger? _logger = serviceProvider.GetService<ILoggerFactory>()
         ?.CreateLogger(typeof(PetroglyphStarWarsGameEngineService));
 
-    public async Task<IStarWarsGameEngine> InitializeAsync(
+    public async Task<IStarWarsGameEngineHandle> InitializeAsync(
         GameEngineType engineType,
         GameLocations gameLocations,
         IGameEngineErrorReporter? errorReporter = null,
         IGameEngineInitializationReporter? initReporter = null,
         bool cancelOnInitializationError = false,
+        Action<PetroglyphFileSystem>? configureFileSystem = null,
         CancellationToken cancellationToken = default)
 
     {
@@ -39,7 +40,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
 
         try
         {
-            return await InitializeEngineAsync(engineType, gameLocations, errorListenerWrapper, initReporter, cts.Token)
+            return await InitializeEngineAsync(engineType, gameLocations, errorListenerWrapper, initReporter, configureFileSystem, cts.Token)
                 .ConfigureAwait(false);
         }
         finally
@@ -57,11 +58,12 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
         }
     }
 
-    private async Task<IStarWarsGameEngine> InitializeEngineAsync(
+    private async Task<IStarWarsGameEngineHandle> InitializeEngineAsync(
         GameEngineType engineType,
         GameLocations gameLocations,
         GameEngineErrorReporterWrapper errorReporter,
         IGameEngineInitializationReporter? initReporter,
+        Action<PetroglyphFileSystem>? configureFileSystem,
         CancellationToken token)
     {
         try
@@ -71,6 +73,7 @@ internal sealed class PetroglyphStarWarsGameEngineService(IServiceProvider servi
 
             var repoFactory = _serviceProvider.GetRequiredService<IGameRepositoryFactory>();
             var repository = repoFactory.Create(engineType, gameLocations, errorReporter);
+            configureFileSystem?.Invoke(repository.PGFileSystem);
 
             var pgRender = new PGRender(repository, errorReporter, serviceProvider);
 
