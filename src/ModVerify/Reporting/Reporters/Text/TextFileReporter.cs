@@ -28,7 +28,7 @@ internal sealed class TextFileReporter(TextFileReporterSettings settings, IServi
 
         await WriteHeader(result.Target, DateTime.Now, null, streamWriter);
 
-        foreach (var error in result.Errors.OrderBy(x => x.Id))
+        foreach (var error in result.Errors.NewErrors.OrderBy(x => x.Id))
             await WriteError(error, streamWriter);
 
     }
@@ -36,7 +36,7 @@ internal sealed class TextFileReporter(TextFileReporterSettings settings, IServi
     private async Task ReportByVerifier(VerificationResult result)
     {
         var time = DateTime.Now;
-        var grouped = result.Errors.GroupBy(x => x.VerifierChain.Last().Name);
+        var grouped = result.Errors.NewErrors.GroupBy(x => x.VerifierChain.Last().Name);
         foreach (var group in grouped) 
             await ReportToSingleFile(group, result.Target, time);
     }

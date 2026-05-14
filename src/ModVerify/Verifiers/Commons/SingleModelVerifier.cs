@@ -439,7 +439,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
     private bool CheckBinaryCorruptedFileIsActuallyRenderable(string fileName, out string actualFilePath)
     {
         var filePath = FileSystem.Path.Join(@"DATA\ART\MODELS", fileName);
-        var exists = GameEngine.GameRepository.FileExists(filePath, false, out _, out actualFilePath!);
+        var exists = GameEngine.GameRepository.ModelRepository.FileExists(filePath, false, out _, out actualFilePath!);
         Debug.Assert(exists);
 
         var extension = FileSystem.Path.GetExtension(actualFilePath);

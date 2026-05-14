@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 
 namespace AET.ModVerify.App.Settings.CommandLine;
 
@@ -7,7 +7,7 @@ internal sealed class CreateBaselineVerbOption : BaseModVerifyOptions
 {
     [Option('o', "outFile", Required = true, HelpText = "The file path of the new baseline file.")]
     public required string OutputFile { get; init; }
-    
+
     [Option("skipLocation", Required = false, HelpText = "Skips writing the target location to the baseline.")]
     public bool SkipLocation { get; init; }
 }
