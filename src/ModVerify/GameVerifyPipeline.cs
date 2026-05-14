@@ -25,20 +25,20 @@ namespace AET.ModVerify;
 internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunner>
 {
     private readonly List<GameVerifier> _verifiers = [];
-    private readonly List<VerificationError> _errors = [];
     private readonly List<GameVerifierPipelineStep> _verificationSteps = [];
-    
+
     private readonly GameEngineErrorCollection _engineErrorReporter = new();
     private readonly VerificationTarget _verificationTarget;
     private readonly VerifierServiceSettings _serviceSettings;
     private readonly IVerifyProgressReporter? _progressReporter;
     private readonly IGameEngineInitializationReporter? _engineInitializationReporter;
-    private readonly VerificationBaseline _baseline;
+    private readonly BaselineCollection _baselines;
     private readonly SuppressionList _suppressions;
+    private VerificationErrors _errors = VerificationErrors.Empty;
 
     private IStarWarsGameEngineHandle? _gameEngine;
 
-    internal IReadOnlyCollection<VerificationError> Errors => [.._errors];
+    internal VerificationErrors Errors => _errors;
 
     internal IReadOnlyCollection<IGameVerifierInfo> Verifiers => [.. _verifiers];
 
@@ -48,7 +48,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         VerificationTarget verificationTarget,
         VerifierServiceSettings serviceSettings,
         IServiceProvider serviceProvider,
-        VerificationBaseline baseline,
+        BaselineCollection baselines,
         SuppressionList suppressions,
         IVerifyProgressReporter? progressReporter = null,
         IGameEngineInitializationReporter? engineInitializationReporter = null)
@@ -56,7 +56,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     {
         _verificationTarget = verificationTarget ?? throw new ArgumentNullException(nameof(verificationTarget));
         _serviceSettings = serviceSettings ?? throw new ArgumentNullException(nameof(serviceSettings));
-        _baseline = baseline ?? throw new ArgumentNullException(nameof(baseline));
+        _baselines = baselines ?? throw new ArgumentNullException(nameof(baselines));
         _suppressions = suppressions ?? throw new ArgumentNullException(nameof(suppressions));
         _progressReporter = progressReporter;
         _engineInitializationReporter = engineInitializationReporter;
@@ -79,7 +79,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     protected override async Task PrepareCoreAsync(CancellationToken token)
     {
         _verifiers.Clear();
-        _errors.Clear();
+        _errors = VerificationErrors.Empty;
 
         try
         {
@@ -123,8 +123,14 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     protected override void OnExecuteCompleted()
     {
         Logger?.LogInformation("Game verifiers finished.");
-        _errors.AddRange(GetReportableErrors(_verifiers.SelectMany(s => s.VerifyErrors)));
-        _progressReporter?.Report(1.0, $"Finished Verifying {_verificationTarget.Name}", 
+        // Suppressions are policy filters and run first so they never contaminate
+        // baseline attribution; the baselines then categorize what remains as
+        // new (unseen), existing (still present), or resolved (gone since baseline).
+        var afterSuppressions = _verifiers
+            .SelectMany(s => s.VerifyErrors)
+            .ApplySuppressions(_suppressions);
+        _errors = _baselines.Categorize(afterSuppressions);
+        _progressReporter?.Report(1.0, $"Finished Verifying {_verificationTarget.Name}",
             VerifyProgress.ProgressType, default);
     }
 
@@ -135,7 +141,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
             var minSeverity = _serviceSettings.FailFastSettings.MinumumSeverity;
             var ignoreError = verificationException.Errors
                 .Where(error => error.Severity >= minSeverity)
-                .All(error => _baseline.Contains(error) || _suppressions.Suppresses(error));
+                .All(error => _baselines.Contains(error) || _suppressions.Suppresses(error));
             if (ignoreError)
                 return;
         }
@@ -163,14 +169,6 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         StepRunner.AddStep(verificationStep);
         _verificationSteps.Add(verificationStep);
         _verifiers.Add(verifier);
-    }
-
-    private IEnumerable<VerificationError> GetReportableErrors(IEnumerable<VerificationError> errors)
-    {
-        Logger?.LogDebug("Applying baseline and suppressions.");
-        // NB: We don't filter for severity here, as the individual reporters handle that. 
-        // This allows better control over what gets reported. 
-        return errors.ApplyBaseline(_baseline).ApplySuppressions(_suppressions);
     }
 
     private IEnumerable<GameVerifier> CreateVerifiers(IStarWarsGameEngine engine)

@@ -70,29 +70,20 @@ public class SettingsBuilderTest : TestBaseWithFileSystem
     }
 
     [Fact]
-    public void BuildSettings_UseDefaultBaseline_And_Baseline_Throws()
+    public void BuildSettings_UseDefaultBaseline_And_Baseline()
     {
         var options = new VerifyVerbOption
         {
             UseDefaultBaseline = true,
-            Baseline = "myBaseline.json",
+            BaselinePaths = "myBaseline.json",
             TargetPath = "myPath",
         };
 
-        Assert.Throws<AppArgumentException>(() => _builder.BuildSettings(options));
-    }
-
-    [Fact]
-    public void BuildSettings_UseDefaultBaseline_And_SearchBaseline_Throws()
-    {
-        var options = new VerifyVerbOption
-        {
-            UseDefaultBaseline = true,
-            SearchBaselineLocally = true,
-            TargetPath = "myPath",
-        };
-
-        Assert.Throws<AppArgumentException>(() => _builder.BuildSettings(options));
+        var settings = _builder.BuildSettings(options);
+        Assert.NotNull(settings);
+        var verifySettings = Assert.IsType<AppVerifySettings>(settings);
+        Assert.Equal([FileSystem.Path.GetFullPath("myBaseline.json")], verifySettings.ReportSettings.BaselinePaths);
+        Assert.True(verifySettings.ReportSettings.UseDefaultBaseline);
     }
 
     [Fact]
@@ -106,6 +97,40 @@ public class SettingsBuilderTest : TestBaseWithFileSystem
 
         var settings = _builder.BuildSettings(options);
         Assert.NotNull(settings);
+    }
+
+    [Fact]
+    public void BuildSettings_CreateBaseline_Baseline_And_UseDefaultBaseline()
+    {
+        var options = new CreateBaselineVerbOption
+        {
+            OutputFile = "out.json",
+            BaselinePaths = "input.json",
+            UseDefaultBaseline = true,
+            TargetPath = "myPath",
+        };
+
+        var settings = _builder.BuildSettings(options);
+        var baselineSettings = Assert.IsType<AppBaselineSettings>(settings);
+        Assert.Equal([FileSystem.Path.GetFullPath("input.json")], baselineSettings.ReportSettings.BaselinePaths);
+        Assert.True(baselineSettings.ReportSettings.UseDefaultBaseline);
+    }
+
+    [Fact]
+    public void BuildSettings_Baselines_SplitsByPathSeparator()
+    {
+        var separator = FileSystem.Path.PathSeparator;
+        var options = new VerifyVerbOption
+        {
+            BaselinePaths = $"first.json{separator}second.json",
+            TargetPath = "myPath",
+        };
+
+        var settings = _builder.BuildSettings(options);
+        var verifySettings = Assert.IsType<AppVerifySettings>(settings);
+        Assert.Equal(
+            [FileSystem.Path.GetFullPath("first.json"), FileSystem.Path.GetFullPath("second.json")],
+            verifySettings.ReportSettings.BaselinePaths);
     }
 
     [Fact]

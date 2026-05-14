@@ -214,32 +214,16 @@ public abstract class ModVerifyOptionsParserTestBase
     }
 
     [Theory]
-    [InlineData("verify --mods myMod --baseline myBaseline.json", "myBaseline.json", false, false)]
-    [InlineData("verify --mods myMod --searchBaseline", null, true, false)]
-    [InlineData("verify --path myMod --useDefaultBaseline", null, false, true)]
-    public void Parse_Verify_BaselineOptions(string argString, string? expectedBaseline, bool expectedSearchBaseline, bool expectedUseDefaultBaseline)
+    [InlineData("verify --mods myMod --baseline myBaseline.json", "myBaseline.json", false)]
+    [InlineData("verify --path myMod --useDefaultBaseline", null, true)]
+    public void Parse_Verify_BaselineOptions(string argString, string? expectedBaseline, bool expectedUseDefaultBaseline)
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
         Assert.True(settings.HasOptions);
         var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
-        Assert.Equal(expectedBaseline, verify.Baseline);
-        Assert.Equal(expectedSearchBaseline, verify.SearchBaselineLocally);
+        Assert.Equal(expectedBaseline, verify.BaselinePaths);
         Assert.Equal(expectedUseDefaultBaseline, verify.UseDefaultBaseline);
-    }
-
-    [Fact]
-    public void Parse_Verify_Baseline_And_SearchBaseline_CanBeParsedTogether()
-    {
-        // Mutual exclusivity of --baseline and --searchBaseline is enforced later by SettingsBuilder, not by the parser.
-        const string argString = "verify --mods myMod --baseline myBaseline.json --searchBaseline";
-
-        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
-
-        Assert.True(settings.HasOptions);
-        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
-        Assert.Equal("myBaseline.json", verify.Baseline);
-        Assert.True(verify.SearchBaselineLocally);
     }
 
     [Theory]

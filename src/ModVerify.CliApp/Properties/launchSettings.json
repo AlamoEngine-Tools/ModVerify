@@ -6,7 +6,7 @@
     },
     "Verify (Interactive)": {
       "commandName": "Project",
-      "commandLineArgs": "verify  -o verifyResults --offline --minFailSeverity Information --searchBaseline"
+      "commandLineArgs": "verify  -o verifyResults --offline --minFailSeverity Information --useDefaultBaseline"
     },
     "Verify (Automatic Target Selection)": {
       "commandName": "Project",
