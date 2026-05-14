@@ -22,18 +22,36 @@ public abstract class FileExistsStrategyTestBase : TestBaseWithPGFileSystem, IDi
     protected abstract override void ConfigureStrategy(PetroglyphFileSystem fs);
 
     /// <summary>
-    /// Constructs a fresh, undisposed instance of the strategy under test, so generic suite
-    /// tests (<see cref="Dispose_CalledTwice_DoesNotThrow"/>) can exercise it directly without
+    /// Constructs a fresh instance of the strategy under test, so generic suite
+    /// tests (<see cref="Cleanup_CalledTwice_DoesNotThrow"/>) can exercise it directly without
     /// fighting the <see cref="PetroglyphFileSystem"/>'s ownership of the active strategy.
     /// </summary>
-    private protected abstract FileExistsStrategy CreateStrategyForDisposeTest();
+    private protected abstract FileExistsStrategy CreateStrategyForCleanupTest();
 
     [Fact]
-    public void Dispose_CalledTwice_DoesNotThrow()
+    public void Cleanup_CalledTwice_DoesNotThrow()
     {
-        var strategy = CreateStrategyForDisposeTest();
-        strategy.Dispose();
-        strategy.Dispose();
+        var strategy = CreateStrategyForCleanupTest();
+        strategy.Cleanup();
+        strategy.Cleanup();
+    }
+
+    [Fact]
+    public void FileExists_AfterCleanup_RemainsUsable()
+    {
+        var dir = NewTempDir();
+        var file = FileSystem.Path.Combine(dir, "test.txt");
+        FileSystem.File.WriteAllText(file, "x");
+
+        // Warm up the strategy.
+        Assert.True(FileExists("test.txt".AsSpan(), dir.AsSpan()));
+
+        // Cleanup must not permanently break the strategy.
+        PgFileSystem.Strategy.Cleanup();
+
+        // Must still serve correct lookups after Cleanup.
+        Assert.True(FileExists("test.txt".AsSpan(), dir.AsSpan()));
+        Assert.False(FileExists("missing.txt".AsSpan(), dir.AsSpan()));
     }
 
     protected virtual void AssertResolvedPath(string expectedOnDiskPath, string actualResult)

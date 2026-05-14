@@ -26,7 +26,7 @@ public abstract class VirtualFileExistsStrategyTests : VirtualFileExistsStrategy
     private protected override void ConfigureStrategy(PetroglyphFileSystem fs, FileExistsStrategy underlying)
         => fs.UseVirtualStrategy(underlying);
 
-    private protected override FileExistsStrategy CreateStrategyForDisposeTest()
+    private protected override FileExistsStrategy CreateStrategyForCleanupTest()
         => new VirtualFileExistsStrategy(FileSystem, new WineFileExistsStrategy(FileSystem));
 
     [Fact]

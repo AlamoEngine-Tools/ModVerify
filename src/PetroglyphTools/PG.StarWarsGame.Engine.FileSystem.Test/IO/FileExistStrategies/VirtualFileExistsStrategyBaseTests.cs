@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Reflection;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 using PG.StarWarsGame.Engine.Utilities;
@@ -118,5 +120,42 @@ public abstract class VirtualFileExistsStrategyBaseTests : FileExistsStrategyTes
         Assert.False(FileExists("Data/Other/bar.xml".AsSpan(), dir.AsSpan()));
 
         Assert.Equal(0, tracking.CallCount);
+    }
+
+    [Fact]
+    public void Cleanup_ClearsSnapshotCache_FreshSnapshotOnNextLookup()
+    {
+        var dir = NewTempDir();
+        var dataDir = FileSystem.Path.Combine(dir, "Data");
+        FileSystem.Directory.CreateDirectory(dataDir);
+        FileSystem.File.WriteAllText(FileSystem.Path.Combine(dataDir, "foo.xml"), "x");
+
+        // Prime the snapshot — foo.xml is in cache.
+        Assert.True(FileExists("Data/foo.xml".AsSpan(), dir.AsSpan()));
+        Assert.NotEmpty(GetSnapshotStore());
+
+        // Cleanup evicts the snapshot cache.
+        GetActiveVirtualStrategy().Cleanup();
+        Assert.Empty(GetSnapshotStore());
+
+        // Add a file to disk after cleanup; the post-cleanup re-snapshot must pick it up.
+        FileSystem.File.WriteAllText(FileSystem.Path.Combine(dataDir, "bar.xml"), "y");
+
+        // Post-cleanup: fresh snapshot taken on next lookup — both files visible.
+        Assert.True(FileExists("Data/foo.xml".AsSpan(), dir.AsSpan()));
+        Assert.True(FileExists("Data/bar.xml".AsSpan(), dir.AsSpan()));
+    }
+
+    private VirtualFileExistsStrategyBase GetActiveVirtualStrategy()
+    {
+        var field = typeof(PetroglyphFileSystem).GetField("_strategy", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        return (VirtualFileExistsStrategyBase)field.GetValue(PgFileSystem)!;
+    }
+
+    private ConcurrentDictionary<string, VirtualDirectory?> GetSnapshotStore()
+    {
+        var strategy = GetActiveVirtualStrategy();
+        var field = typeof(VirtualFileExistsStrategyBase).GetField("Store", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        return (ConcurrentDictionary<string, VirtualDirectory?>)field.GetValue(strategy)!;
     }
 }

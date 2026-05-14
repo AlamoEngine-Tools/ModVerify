@@ -8,6 +8,6 @@ public sealed class WineFileExistsStrategyTests : FileExistsStrategyTestBase
     protected override void ConfigureStrategy(PetroglyphFileSystem fs)
         => fs.UseWineStrategy();
 
-    private protected override FileExistsStrategy CreateStrategyForDisposeTest()
+    private protected override FileExistsStrategy CreateStrategyForCleanupTest()
         => new WineFileExistsStrategy(FileSystem);
 }

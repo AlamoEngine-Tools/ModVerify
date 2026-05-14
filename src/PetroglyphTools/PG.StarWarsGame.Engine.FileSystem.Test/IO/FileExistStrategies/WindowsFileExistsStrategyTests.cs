@@ -19,7 +19,7 @@ public sealed class WindowsFileExistsStrategyTests : FileExistsStrategyTestBase
         fs.UseWindowsStrategy();
     }
 
-    private protected override FileExistsStrategy CreateStrategyForDisposeTest()
+    private protected override FileExistsStrategy CreateStrategyForCleanupTest()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Assert.Skip("Windows strategy requires a Windows host.");

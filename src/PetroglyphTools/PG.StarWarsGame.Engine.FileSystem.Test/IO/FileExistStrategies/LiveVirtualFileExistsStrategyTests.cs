@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
@@ -43,7 +43,7 @@ public abstract class LiveVirtualFileExistsStrategyTests : VirtualFileExistsStra
     private protected override void ConfigureStrategy(PetroglyphFileSystem fs, FileExistsStrategy underlying)
         => fs.UseLiveVirtualStrategy(underlying);
 
-    private protected override FileExistsStrategy CreateStrategyForDisposeTest()
+    private protected override FileExistsStrategy CreateStrategyForCleanupTest()
         => new LiveVirtualFileExistsStrategy(FileSystem, new WineFileExistsStrategy(FileSystem));
 
     [Fact]
@@ -317,19 +317,46 @@ public abstract class LiveVirtualFileExistsStrategyTests : VirtualFileExistsStra
             "gameDir snapshot to invalidate after g.xml deleted (post-Error rebuild)");
     }
 
+    [Fact]
+    public async Task Cleanup_RemovesWatchersAndClearsCache_WatchersReinstalledOnNextLookup()
+    {
+        var dir = NewTempDir();
+        var dataDir = FileSystem.Path.Combine(dir, "Data");
+        FileSystem.Directory.CreateDirectory(dataDir);
+        var file = FileSystem.Path.Combine(dataDir, "foo.xml");
+        FileSystem.File.WriteAllText(file, "x");
+
+        // Prime: install a watcher and warm the snapshot.
+        Assert.True(FileExists("Data/foo.xml".AsSpan(), dir.AsSpan()));
+
+        var strategyBefore = GetActiveLiveStrategy();
+        Assert.True(GetWatchers(strategyBefore).ContainsKey(dir));
+
+        // Cleanup: teardown watchers and clear the snapshot cache.
+        strategyBefore.Cleanup();
+
+        // Lookups must still work after Cleanup — the strategy re-snapshots lazily.
+        Assert.True(FileExists("Data/foo.xml".AsSpan(), dir.AsSpan()));
+
+        // After the first post-cleanup lookup the watcher must be re-armed: disk changes are tracked again.
+        await AwaitCacheInvalidationAsync(
+            () => FileSystem.File.Delete(file),
+            () => !FileExists("Data/foo.xml".AsSpan(), dir.AsSpan()),
+            "snapshot to invalidate after Data/foo.xml deleted (post-Cleanup re-arm)");
+    }
+
     private LiveVirtualFileExistsStrategy GetActiveLiveStrategy()
     {
-        var field = typeof(PetroglyphFileSystem).GetField("_strategy", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        return (LiveVirtualFileExistsStrategy)field.GetValue(PgFileSystem)!;
+        return (LiveVirtualFileExistsStrategy)PgFileSystem.Strategy;
     }
 
     // GetWatchers / InvokeOnWatcherError exist only to *synthesize* an Error event (no portable
     // way to make a real FSW fire one). The Error tests themselves assert observable behavior,
     // not the watcher dictionary's contents.
-    private static Dictionary<string, IFileSystemWatcher> GetWatchers(LiveVirtualFileExistsStrategy strategy)
+    private static ConcurrentDictionary<string, IFileSystemWatcher> GetWatchers(LiveVirtualFileExistsStrategy strategy)
     {
         var field = typeof(LiveVirtualFileExistsStrategy).GetField("_watchers", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        return (Dictionary<string, IFileSystemWatcher>)field.GetValue(strategy)!;
+        return (ConcurrentDictionary<string, IFileSystemWatcher>)field.GetValue(strategy)!;
     }
 
     private static void InvokeOnWatcherError(LiveVirtualFileExistsStrategy strategy, IFileSystemWatcher sender, ErrorEventArgs args)
