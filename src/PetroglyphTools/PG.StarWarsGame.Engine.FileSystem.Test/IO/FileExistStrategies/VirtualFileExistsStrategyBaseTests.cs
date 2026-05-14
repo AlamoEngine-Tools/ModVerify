@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Reflection;
 using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 using PG.StarWarsGame.Engine.Utilities;
@@ -147,15 +146,12 @@ public abstract class VirtualFileExistsStrategyBaseTests : FileExistsStrategyTes
     }
 
     private VirtualFileExistsStrategyBase GetActiveVirtualStrategy()
-    {
-        var field = typeof(PetroglyphFileSystem).GetField("_strategy", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        return (VirtualFileExistsStrategyBase)field.GetValue(PgFileSystem)!;
-    }
+        => (VirtualFileExistsStrategyBase)PgFileSystem.Strategy;
 
     private ConcurrentDictionary<string, VirtualDirectory?> GetSnapshotStore()
     {
         var strategy = GetActiveVirtualStrategy();
-        var field = typeof(VirtualFileExistsStrategyBase).GetField("Store", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var field = typeof(VirtualFileExistsStrategyBase).GetField("Store", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
         return (ConcurrentDictionary<string, VirtualDirectory?>)field.GetValue(strategy)!;
     }
 }
