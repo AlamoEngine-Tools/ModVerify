@@ -8,6 +8,7 @@
   <Folder Name="/ModdingToolBase/DeployTools/">
     <Project Path="modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj" />
     <Project Path="modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj" />
+    <Project Path="modules/ModdingToolBase/test/AnakinApps/ApplicationManifestCreator.Test/ApplicationManifestCreator.Test.csproj" />
   </Folder>
   <Folder Name="/ModdingToolBase/UpdateFrameworks/">
     <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework.Attributes/AppUpdaterFramework.Attributes.csproj" />
@@ -15,6 +16,11 @@
     <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework/AppUpdaterFramework.csproj" />
     <Project Path="modules/ModdingToolBase/src/Updater/ExternalUpdater.App/ExternalUpdater.App.csproj" />
     <Project Path="modules/ModdingToolBase/src/Updater/ExternalUpdater.Core/ExternalUpdater.Core.csproj" />
+  </Folder>
+  <Folder Name="/ModdingToolBase/UpdateFrameworks/test/">
+    <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework.Signing.Testing/AppUpdaterFramework.Signing.Testing.csproj" />
+    <Project Path="modules/ModdingToolBase/test/Updater/AppUpdaterFramework.Manifest.Test/AppUpdaterFramework.Manifest.Test.csproj" />
+    <Project Path="modules/ModdingToolBase/test/Updater/AppUpdaterFramework.Test/AppUpdaterFramework.Test.csproj" />
   </Folder>
   <Folder Name="/PetroglyphTools/">
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.FileSystem.Test/PG.StarWarsGame.Engine.FileSystem.Test.csproj" />
