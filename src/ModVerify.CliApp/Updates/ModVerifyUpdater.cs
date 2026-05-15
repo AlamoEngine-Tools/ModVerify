@@ -51,7 +51,9 @@ internal sealed class ModVerifyUpdater
         var updater = new ModVerifyApplicationUpdater(updatableEnvironment, _serviceProvider);
 
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
-        var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
+        var branch = !string.IsNullOrEmpty(updateOptions.ServerUrl)
+            ? updater.CreateBranchFromServerUrl(updateOptions.ServerUrl!, actualBranchName)
+            : updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
 
         using (ConsoleUtilities.CreateHorizontalFrame(length: 40, startWithNewLine: true, newLineAtEnd: true))
         {
