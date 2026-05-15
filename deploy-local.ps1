@@ -1,5 +1,16 @@
 # Local deployment script for ModVerify to test the update feature.
-# This script builds the application, creates an update manifest, and "deploys" it to a local directory.
+# This script builds the application twice at different versions, creates an update manifest
+# for the newer one, and stages an "installed" copy of the older one — so triggering the
+# update flow against the local server actually finds an update.
+
+param(
+    # Version baked into the "already installed" copy. Must be lower than $ServerVersion
+    # so the updater treats the server build as newer.
+    [string]$InstalledVersion = "0.0.1-local",
+
+    # Version baked into the build that ends up on the local "server" / in the manifest.
+    [string]$ServerVersion = "0.0.2-local"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -26,13 +37,36 @@ $devPfx = Join-Path $deployRoot "dev-signing.pfx"
 $devCer = Join-Path $deployRoot "dev-trust.cer"
 $devPwd = "devpass"
 
+$versionJsonPath = Join-Path $root "version.json"
+$versionJsonBackup = [IO.File]::ReadAllText($versionJsonPath)
+
+function Set-NbgvVersion {
+    param([string]$Version)
+    $json = $versionJsonBackup | ConvertFrom-Json
+    $json.version = $Version
+    # publicReleaseRefSpec defaults the build to non-public; clearing it gives us a clean
+    # "X.Y.Z" InformationalVersion locally without the +gitHash height suffix making
+    # comparisons noisier than they need to be.
+    if ($json.PSObject.Properties.Name -contains 'publicReleaseRefSpec') {
+        $json.publicReleaseRefSpec = @()
+    }
+    ($json | ConvertTo-Json -Depth 32) | Set-Content -Path $versionJsonPath -Encoding UTF8
+}
+
+try {
+
 # 1. Clean and Create directories
 if (Test-Path $deployRoot) { Remove-Item -Recurse -Force $deployRoot }
 New-Item -ItemType Directory -Path $stagingDir | Out-Null
 New-Item -ItemType Directory -Path $serverDir | Out-Null
 New-Item -ItemType Directory -Path $installDir | Out-Null
 
-Write-Host "--- Building ModVerify (net481) ---" -ForegroundColor Cyan
+Write-Host "--- Building ModVerify (net481) @ installed v$InstalledVersion ---" -ForegroundColor Cyan
+Set-NbgvVersion -Version $InstalledVersion
+dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\bin\install" /p:DebugType=None /p:DebugSymbols=false
+
+Write-Host "--- Building ModVerify (net481) @ server v$ServerVersion ---" -ForegroundColor Cyan
+Set-NbgvVersion -Version $ServerVersion
 dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\bin\tool" /p:DebugType=None /p:DebugSymbols=false
 
 Write-Host "--- Building Manifest Creator ---" -ForegroundColor Cyan
@@ -92,17 +126,27 @@ dotnet "$deployRoot\bin\signer\$manifestSignerDll" `
 Write-Host "--- Deploying to Local Server ---" -ForegroundColor Cyan
 dotnet "$deployRoot\bin\uploader\$uploaderDll" local --base "$serverDir" --source "$stagingDir"
 
-# 5. Setup a "test" installation
-Write-Host "--- Setting up Test Installation ---" -ForegroundColor Cyan
-Copy-Item "$deployRoot\bin\tool\*" $installDir -Recurse
+# 5. Setup a "test" installation — uses the older-version build so the updater sees the
+#    staged server build as an upgrade.
+Write-Host "--- Setting up Test Installation (v$InstalledVersion) ---" -ForegroundColor Cyan
+Copy-Item "$deployRoot\bin\install\*" $installDir -Recurse
 
 Write-Host "`nLocal deployment complete!" -ForegroundColor Green
-Write-Host "Server directory: $serverDir"
+Write-Host "Installed version: $InstalledVersion"
+Write-Host "Server version:    $ServerVersion"
+Write-Host "Server directory:  $serverDir"
 Write-Host "Install directory: $installDir"
 Write-Host "`nTo test the update:"
-Write-Host "1. (Optional) Modify the version in version.json and run this script again to 'push' a new version to the local server."
-Write-Host "2. Run ModVerify from the install directory with the following command:"
+Write-Host "1. Run ModVerify from the install directory with the following command:"
 Write-Host "   cd '$installDir'"
 Write-Host "   .\ModVerify.exe updateApplication --updateBranch beta --updateServerUrl '$serverUri'"
 Write-Host "`n   Note: --updateServerUrl takes a server base URL and resolves to <server>/<branch>/manifest.json."
 Write-Host "         Use --updateManifestUrl instead if you want to point directly at a full manifest URL."
+Write-Host "`n2. To re-test, just rerun this script — every run produces v$InstalledVersion installed against v$ServerVersion on the server."
+Write-Host "   Override with -InstalledVersion / -ServerVersion to exercise other version transitions."
+
+}
+finally {
+    # Always restore version.json verbatim (bytes-in == bytes-out), even if a build step above failed.
+    [IO.File]::WriteAllText($versionJsonPath, $versionJsonBackup)
+}
