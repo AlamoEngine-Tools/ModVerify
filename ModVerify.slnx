@@ -7,8 +7,9 @@
   </Folder>
   <Folder Name="/ModdingToolBase/DeployTools/">
     <Project Path="modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj" />
+    <Project Path="modules/ModdingToolBase/src/AnakinApps/ApplicationManifestSigner/ApplicationManifestSigner.csproj" />
     <Project Path="modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj" />
-    <Project Path="modules/ModdingToolBase/test/AnakinApps/ApplicationManifestCreator.Test/ApplicationManifestCreator.Test.csproj" />
+    <Project Path="modules/ModdingToolBase/test/AnakinApps/ApplicationManifestSigner.Test/ApplicationManifestSigner.Test.csproj" />
   </Folder>
   <Folder Name="/ModdingToolBase/UpdateFrameworks/">
     <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework.Attributes/AppUpdaterFramework.Attributes.csproj" />
