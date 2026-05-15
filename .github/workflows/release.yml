@@ -14,10 +14,12 @@ on:
 env:
   TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
   CREATOR_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
+  SIGNER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestSigner/ApplicationManifestSigner.csproj
   UPLOADER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
   TOOL_EXE: ModVerify.exe
   UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
   MANIFEST_CREATOR: AnakinRaW.ApplicationManifestCreator.dll
+  MANIFEST_SIGNER: AnakinRaW.ApplicationManifestSigner.dll
   SFTP_UPLOADER: AnakinRaW.FtpUploader.dll
   ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify
   ORIGIN_BASE_PART: downloads/ModVerify/
@@ -59,9 +61,12 @@ jobs:
 
   deploy:
     name: Deploy
-    # Deploy on push to main or manual trigger
+    # Stable deploys are gated to 'main'. Non-stable channels (beta, canary, etc.) can be
+    # workflow_dispatched from any branch.
     if: |
-      (github.ref == 'refs/heads/main' &&  github.event_name == 'push') || github.event_name == 'workflow_dispatch'
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' &&
+       (github.event.inputs.branch != 'stable' || github.ref == 'refs/heads/main'))
     needs: [pack]
     runs-on: ubuntu-latest
     steps:
@@ -82,6 +87,8 @@ jobs:
             dotnet-version: 10.0.x
       - name: Build Creator
         run: dotnet build ${{env.CREATOR_PROJ_PATH}} --configuration Release --output ./dev
+      - name: Build Signer
+        run: dotnet build ${{env.SIGNER_PROJ_PATH}} --configuration Release --output ./dev
       - name: Build Uploader
         run: dotnet build ${{env.UPLOADER_PROJ_PATH}} --configuration Release --output ./dev
       - name: Create binaries directory
@@ -92,6 +99,14 @@ jobs:
           cp ./releases/net481/${{env.UPDATER_EXE}} ./deploy/
       - name: Create Manifest
         run: dotnet ./dev/${{env.MANIFEST_CREATOR}} -a deploy/${{env.TOOL_EXE}} --appDataFiles deploy/${{env.UPDATER_EXE}} --origin ${{env.ORIGIN_BASE}} -o ./deploy -b ${{env.BRANCH_NAME}}
+      - name: Decode signing pfx
+        shell: bash
+        run: echo "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" | base64 -d > $RUNNER_TEMP/signing.pfx
+      - name: Sign Manifest
+        run: dotnet ./dev/${{env.MANIFEST_SIGNER}} --manifest ./deploy/manifest.json --pfx $RUNNER_TEMP/signing.pfx --password "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}"
+      - name: Wipe pfx
+        if: always()
+        run: rm -f $RUNNER_TEMP/signing.pfx
       - name: Upload Build
         run: dotnet ./dev/${{env.SFTP_UPLOADER}} ftp --host $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
         env:

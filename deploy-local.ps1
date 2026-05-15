@@ -13,12 +13,18 @@ $installDir = Join-Path $deployRoot "install"
 
 $toolProj = Join-Path $root "src\ModVerify.CliApp\ModVerify.CliApp.csproj"
 $creatorProj = Join-Path $root "modules\ModdingToolBase\src\AnakinApps\ApplicationManifestCreator\ApplicationManifestCreator.csproj"
+$signerProj = Join-Path $root "modules\ModdingToolBase\src\AnakinApps\ApplicationManifestSigner\ApplicationManifestSigner.csproj"
 $uploaderProj = Join-Path $root "modules\ModdingToolBase\src\AnakinApps\FtpUploader\FtpUploader.csproj"
 
 $toolExe = "ModVerify.exe"
 $updaterExe = "AnakinRaW.ExternalUpdater.exe"
 $manifestCreatorDll = "AnakinRaW.ApplicationManifestCreator.dll"
+$manifestSignerDll = "AnakinRaW.ApplicationManifestSigner.dll"
 $uploaderDll = "AnakinRaW.FtpUploader.dll"
+
+$devPfx = Join-Path $deployRoot "dev-signing.pfx"
+$devCer = Join-Path $deployRoot "dev-trust.cer"
+$devPwd = "devpass"
 
 # 1. Clean and Create directories
 if (Test-Path $deployRoot) { Remove-Item -Recurse -Force $deployRoot }
@@ -32,8 +38,28 @@ dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\b
 Write-Host "--- Building Manifest Creator ---" -ForegroundColor Cyan
 dotnet build $creatorProj --configuration Release --output "$deployRoot\bin\creator"
 
+Write-Host "--- Building Manifest Signer ---" -ForegroundColor Cyan
+dotnet build $signerProj --configuration Release --output "$deployRoot\bin\signer"
+
 Write-Host "--- Building Local Uploader ---" -ForegroundColor Cyan
 dotnet build $uploaderProj --configuration Release --output "$deployRoot\bin\uploader"
+
+Write-Host "--- Generating dev signing cert ---" -ForegroundColor Cyan
+$curve = [System.Security.Cryptography.ECCurve]::CreateFromFriendlyName("nistP256")
+$ecdsa = [System.Security.Cryptography.ECDsa]::Create($curve)
+$req = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new(
+    "CN=ModVerify Dev Signing",
+    $ecdsa,
+    [System.Security.Cryptography.HashAlgorithmName]::SHA256)
+$cert = $req.CreateSelfSigned(
+    [DateTimeOffset]::UtcNow.AddDays(-1),
+    [DateTimeOffset]::UtcNow.AddYears(10))
+[IO.File]::WriteAllBytes($devPfx, $cert.Export(
+    [System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $devPwd))
+[IO.File]::WriteAllBytes($devCer, $cert.Export(
+    [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert))
+$cert.Dispose()
+$ecdsa.Dispose()
 
 # 2. Prepare staging
 Write-Host "--- Preparing Staging ---" -ForegroundColor Cyan
@@ -55,6 +81,12 @@ dotnet "$deployRoot\bin\creator\$manifestCreatorDll" `
     --origin "$serverUri" `
     -o "$stagingDir" `
     -b "beta"
+
+Write-Host "--- Signing Manifest ---" -ForegroundColor Cyan
+dotnet "$deployRoot\bin\signer\$manifestSignerDll" `
+    --manifest "$stagingDir\manifest.json" `
+    --pfx $devPfx `
+    --password $devPwd
 
 # 4. "Deploy" to server using the local uploader
 Write-Host "--- Deploying to Local Server ---" -ForegroundColor Cyan
