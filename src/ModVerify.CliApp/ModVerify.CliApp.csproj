@@ -25,8 +25,17 @@
 		<NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
 	</PropertyGroup>
 
+	<!-- Set /p:LocalDeploy=true (e.g. from deploy-local.ps1) to compile in the local-deploy dev
+	     trust cert pickup path. Off by default; release builds never see it. -->
+	<PropertyGroup Condition="'$(LocalDeploy)' == 'true'">
+		<DefineConstants>$(DefineConstants);LOCAL_DEPLOY</DefineConstants>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Baselines\baseline-foc.json" />
+	  <EmbeddedResource Include="Resources\Certs\modverify-trust.cer"
+	                    LogicalName="AET.ModVerify.App.Resources.Certs.modverify-trust.cer"
+	                    Condition="Exists('Resources\Certs\modverify-trust.cer')" />
 	</ItemGroup>
 
 	<ItemGroup>
