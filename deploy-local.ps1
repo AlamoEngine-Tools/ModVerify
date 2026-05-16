@@ -63,11 +63,11 @@ New-Item -ItemType Directory -Path $installDir | Out-Null
 
 Write-Host "--- Building ModVerify (net481) @ installed v$InstalledVersion ---" -ForegroundColor Cyan
 Set-NbgvVersion -Version $InstalledVersion
-dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\bin\install" /p:DebugType=None /p:DebugSymbols=false
+dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\bin\install" /p:DebugType=None /p:DebugSymbols=false /p:LocalDeploy=true
 
 Write-Host "--- Building ModVerify (net481) @ server v$ServerVersion ---" -ForegroundColor Cyan
 Set-NbgvVersion -Version $ServerVersion
-dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\bin\tool" /p:DebugType=None /p:DebugSymbols=false
+dotnet build $toolProj --configuration Release -f net481 --output "$deployRoot\bin\tool" /p:DebugType=None /p:DebugSymbols=false /p:LocalDeploy=true
 
 Write-Host "--- Building Manifest Creator ---" -ForegroundColor Cyan
 dotnet build $creatorProj --configuration Release --output "$deployRoot\bin\creator"
