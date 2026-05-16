@@ -75,6 +75,26 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Verify embedded trust cert
+        shell: pwsh
+        run: |
+          $certPath = "src/ModVerify.CliApp/Resources/Certs/modverify-trust.cer"
+          if (-not (Test-Path $certPath)) {
+            Write-Error "$certPath is missing. Generate the production trust cert per docs/update-signing-setup.md and commit it before releasing."
+            exit 1
+          }
+          try {
+            $bytes = [IO.File]::ReadAllBytes($certPath)
+            $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
+          } catch {
+            Write-Error "Failed to load $certPath as an X.509 certificate: $_"
+            exit 1
+          }
+          if ($cert.HasPrivateKey) {
+            Write-Error "$certPath contains a private key. Only the public DER (.cer) is allowed; embedding a PFX would ship the signing key to every consumer."
+            exit 1
+          }
+          Write-Host "OK: $certPath is public-only ($($cert.Subject))."
       - uses: actions/download-artifact@v8
         with:
           name: Binary Releases
