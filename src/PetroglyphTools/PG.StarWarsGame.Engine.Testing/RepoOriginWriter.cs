@@ -8,6 +8,8 @@ internal sealed class RepoOriginWriter(IFileSystem fileSystem, string originPath
 {
     private readonly IFileSystem _fs = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
 
+    public IFileSystem FileSystem => _fs;
+
     public string OriginPath { get; } = originPath ?? throw new ArgumentNullException(nameof(originPath));
 
     public void Write(string relativePath, string content)

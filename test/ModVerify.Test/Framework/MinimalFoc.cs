@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine.Testing;
-using PG.StarWarsGame.Files.MEG.Data;
-using PG.StarWarsGame.Files.MEG.Files;
 using PG.StarWarsGame.Files.MEG.Services;
 
 namespace ModVerify.Test.Framework;
@@ -30,40 +26,17 @@ public static class MinimalFoc
         if (services == null)
             throw new ArgumentNullException(nameof(services));
 
-        var fs = services.GetRequiredService<IFileSystem>();
         var megService = services.GetRequiredService<IMegFileService>();
 
         return builder.WithGame(g =>
         {
-            WriteEmptyMeg(g, fs, megService, "Data/Patch.meg");
-            WriteEmptyMeg(g, fs, megService, "Data/Patch2.meg");
-            WriteEmptyMeg(g, fs, megService, "Data/64Patch.meg");
-            WriteEmptyMeg(g, fs, megService, "Data/Audio/SFX/SFX2D_NON_LOCALIZED.MEG");
-            WriteEmptyMeg(g, fs, megService, "Data/Audio/SFX/SFX3D_NON_LOCALIZED.MEG");
+            g.WriteEmptyMeg("Data/Patch.meg", megService);
+            g.WriteEmptyMeg("Data/Patch2.meg", megService);
+            g.WriteEmptyMeg("Data/64Patch.meg", megService);
+            g.WriteEmptyMeg("Data/Audio/SFX/SFX2D_NON_LOCALIZED.MEG", megService);
+            g.WriteEmptyMeg("Data/Audio/SFX/SFX3D_NON_LOCALIZED.MEG", megService);
 
             g.WriteEmbeddedTree("MinimalFoc", Asm);
         });
-    }
-
-    private static void WriteEmptyMeg(
-        IRepoOriginWriter g, IFileSystem fs, IMegFileService megService, string relativePath)
-    {
-        var tempPath = fs.Path.Combine(fs.Path.GetTempPath(),
-            $"empty-meg-{Guid.NewGuid():N}.meg");
-        try
-        {
-            using (var stream = fs.FileStream.New(tempPath, System.IO.FileMode.Create,
-                System.IO.FileAccess.Write))
-            {
-                megService.CreateMegArchive(stream, MegFileVersion.V1, null,
-                    new List<MegDataEntryBuilderInfo>());
-            }
-            g.Write(relativePath, fs.File.ReadAllBytes(tempPath));
-        }
-        finally
-        {
-            if (fs.File.Exists(tempPath))
-                fs.File.Delete(tempPath);
-        }
     }
 }

@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Reflection;
 
 namespace PG.StarWarsGame.Engine.Testing;
@@ -5,6 +6,9 @@ namespace PG.StarWarsGame.Engine.Testing;
 /// <summary>Provides per-origin write operations against the underlying file system.</summary>
 public interface IRepoOriginWriter
 {
+    /// <summary>Gets the file system backing this origin.</summary>
+    IFileSystem FileSystem { get; }
+
     /// <summary>Gets the absolute path of this origin's root.</summary>
     string OriginPath { get; }
 
