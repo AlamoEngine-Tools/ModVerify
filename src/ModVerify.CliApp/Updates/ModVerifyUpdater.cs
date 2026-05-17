@@ -83,7 +83,7 @@ internal sealed class ModVerifyUpdater
 
                 if (mode == ModVerifyUpdateMode.InteractiveUpdate)
                 {
-                    var shallUpdate = ConsoleUtilities.UserYesNoQuestion("Do you want to update now?");
+                    var shallUpdate = ConsoleUtilities.UserYesNoQuestion("Do you want to update now?", defaultAnswer: true);
                     if (!shallUpdate)
                         return;
                 }
