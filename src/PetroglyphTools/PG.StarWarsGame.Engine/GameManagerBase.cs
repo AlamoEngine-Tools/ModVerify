@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.CommonUtilities.Collections;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.ErrorReporting;
+using PG.StarWarsGame.Engine.IO;
 using PG.StarWarsGame.Engine.IO.Repositories;
 
 namespace PG.StarWarsGame.Engine;
@@ -37,7 +37,9 @@ internal abstract class GameManagerBase
     private bool _initialized;
     private protected readonly GameRepository GameRepository;
     protected readonly IServiceProvider ServiceProvider;
-    protected readonly IFileSystem FileSystem;
+
+    // ReSharper disable once InconsistentNaming
+    protected readonly PetroglyphFileSystem PGFileSystem;
     protected readonly ILogger? Logger;
 
     protected readonly GameEngineErrorReporterWrapper ErrorReporter;
@@ -55,7 +57,7 @@ internal abstract class GameManagerBase
         ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         EngineType = repository.EngineType;
         Logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
-        FileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+        PGFileSystem = repository.PGFileSystem;
         ErrorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
     }
 

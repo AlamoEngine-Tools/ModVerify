@@ -116,39 +116,31 @@ internal partial class GuiDialogGameManager(
 
         return textures.TryGetValue(key, out texture);
     }
-    
+
+    private static bool IsNone(string texture)
+    {
+        return texture.Equals("none", StringComparison.OrdinalIgnoreCase);
+    }
+
     public bool TextureExists(
         in ComponentTextureEntry textureInfo,
         out GuiTextureOrigin textureOrigin,
         out bool isNone,
         bool buttonMiddleInRepoMode = false)
     {
-        if (textureInfo.Texture == "none")
-        {
-            textureOrigin = default;
-            isNone = true;
-            return false;
-        }
-
         isNone = false;
-
-        // Apparently, Scanlines only use the repository and not the MTD.
+        
+        // Scanlines use the repository and not the MTD.
         if (textureInfo.ComponentType == GuiComponentType.Scanlines)
-        {
-            textureOrigin = GuiTextureOrigin.Repository;
-            return GameRepository.TextureRepository.FileExists(textureInfo.Texture);
-        }
+            return GuiSpecialTextureExists(textureInfo, out textureOrigin, out isNone);
 
         // The engine uses ButtonMiddle to switch to the special button mode.
         // It searches first in the repo and then falls back to MTD
         // (but only for this very type; the variants do not fallback to MTD).
         if (textureInfo.ComponentType == GuiComponentType.ButtonMiddle)
         {
-            if (GameRepository.TextureRepository.FileExists(textureInfo.Texture))
-            {
-                textureOrigin = GuiTextureOrigin.Repository;
+            if (GuiSpecialTextureExists(textureInfo, out textureOrigin, out isNone))
                 return true;
-            }
         }
 
         // The engine does not fallback to MTD once it is in this special Button mode.
@@ -156,10 +148,7 @@ internal partial class GuiDialogGameManager(
                 GuiComponentType.ButtonMiddleDisabled or
                 GuiComponentType.ButtonMiddleMouseOver or 
                 GuiComponentType.ButtonMiddlePressed)
-        {
-            textureOrigin = GuiTextureOrigin.Repository;
-            return GameRepository.TextureRepository.FileExists(textureInfo.Texture);
-        }
+            return GuiSpecialTextureExists(textureInfo, out textureOrigin, out isNone);
 
         if (textureInfo.Texture.Length <= 63 && MtdFile is not null && _megaTextureExists)
         {
@@ -173,12 +162,25 @@ internal partial class GuiDialogGameManager(
 
         // The background image for frames include a fallback the repository.
         if (textureInfo.ComponentType == GuiComponentType.FrameBackground)
-        {
-            textureOrigin = GuiTextureOrigin.Repository;
-            return GameRepository.TextureRepository.FileExists(textureInfo.Texture);
-        }
+            return GuiSpecialTextureExists(textureInfo, out textureOrigin, out isNone);
 
         textureOrigin = default;
         return false;
+    }
+
+    private bool GuiSpecialTextureExists(
+        in ComponentTextureEntry textureInfo,
+        out GuiTextureOrigin textureOrigin,
+        out bool isNone)
+    {
+        isNone = IsNone(textureInfo.Texture);
+        if (isNone)
+        {
+            textureOrigin = default;
+            return false;
+        }
+
+        textureOrigin = GuiTextureOrigin.Repository;
+        return GameRepository.TextureRepository.FileExists(textureInfo.Texture);
     }
 }

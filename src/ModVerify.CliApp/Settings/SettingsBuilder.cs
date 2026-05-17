@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 
 namespace AET.ModVerify.App.Settings;
 
@@ -35,13 +36,14 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 ParallelVerifiers = verifyOptions.Parallel ? 4 : 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
                 FailFastSettings = failFastSetting,
+                UseLiveVirtualFileSystem = true,
                 GameVerifySettings = new GameVerifySettings
                 {
                     IgnoreAsserts = verifyOptions.IgnoreAsserts,
-                    ThrowsOnMinimumSeverity = failFastSetting.IsFailFast 
+                    ThrowsOnMinimumSeverity = failFastSetting.IsFailFast
                         ? failFastSetting.MinumumSeverity
                         // The app shall not make a specific verifier throw, but it should always run to completion.
-                        : null 
+                        : null
                 }
             },
             AppFailsOnMinimumSeverity = verifyOptions.MinimumFailureSeverity,
@@ -50,13 +52,6 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
 
         void ValidateVerb()
         {
-            if (verifyOptions.SearchBaselineLocally && !string.IsNullOrEmpty(verifyOptions.Baseline))
-            {
-                var searchOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.SearchBaselineLocally));
-                var baselineOption = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.Baseline));
-                throw new AppArgumentException($"Options {searchOption} and {baselineOption} cannot be used together.");
-            }
-
             if (verifyOptions is { FailFast: true, MinimumFailureSeverity: null })
             {
                 var failFast = typeof(VerifyVerbOption).GetOptionName(nameof(VerifyVerbOption.FailFast));
@@ -79,13 +74,13 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 verifyOptions.OutputDirectory ?? "ModVerifyResults"));
         }
 
-        VerifyReportSettings BuildReportSettings()
+        AppReportSettings BuildReportSettings()
         {
-            return new VerifyReportSettings
+            return new AppReportSettings
             {
-                BaselinePath = verifyOptions.Baseline,
+                BaselinePaths = SplitBaselinePaths(verifyOptions.BaselinePaths),
                 MinimumReportSeverity = verifyOptions.MinimumSeverity,
-                SearchBaselineLocally = verifyOptions.SearchBaselineLocally,
+                UseDefaultBaseline = verifyOptions.UseDefaultBaseline,
                 SuppressionsPath = verifyOptions.Suppressions,
                 Verbose = verifyOptions.Verbose
             };
@@ -98,7 +93,9 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
         {
             VerifierServiceSettings = new VerifierServiceSettings
             {
-                ParallelVerifiers = baselineVerb.Parallel ? 4 : 1,
+                // Always sequential: baseline creation must be deterministic — error ordering
+                // and any other parallelism-sensitive behavior would otherwise vary between runs.
+                ParallelVerifiers = 1,
                 VerifiersProvider = new DefaultGameVerifiersProvider(),
                 GameVerifySettings = GameVerifySettings.Default,
                 FailFastSettings = FailFastSetting.NoFailFast,
@@ -114,31 +111,40 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
             {
                 MinimumReportSeverity = baselineVerb.MinimumSeverity,
                 SuppressionsPath = baselineVerb.Suppressions,
-                Verbose = baselineVerb.Verbose
+                Verbose = baselineVerb.Verbose,
+                BaselinePaths = SplitBaselinePaths(baselineVerb.BaselinePaths),
+                UseDefaultBaseline = baselineVerb.UseDefaultBaseline
             };
         }
     }
 
+    private IReadOnlyList<string> SplitBaselinePaths(string? rawPaths)
+    {
+        if (string.IsNullOrEmpty(rawPaths))
+            return [];
+        var separator = _fileSystem.Path.PathSeparator;
+        return [..
+            rawPaths!.Split([separator], StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => _fileSystem.Path.GetFullPath(p))
+        ];
+    }
+
     private VerificationTargetSettings BuildTargetSettings(BaseModVerifyOptions options)
     {
+        var separator = _fileSystem.Path.PathSeparator;
+
         var modPaths = new List<string>();
-        if (options.ModPaths is not null)
+        if (!string.IsNullOrEmpty(options.ModPaths))
         {
-            foreach (var mod in options.ModPaths)
-            {
-                if (!string.IsNullOrEmpty(mod))
-                    modPaths.Add(_fileSystem.Path.GetFullPath(mod));
-            }
+            var split = options.ModPaths!.Split([separator], StringSplitOptions.RemoveEmptyEntries);
+            modPaths.AddRange(split.Select(s => _fileSystem.Path.GetFullPath(s)));
         }
 
         var fallbackPaths = new List<string>();
-        if (options.AdditionalFallbackPath is not null)
+        if (!string.IsNullOrEmpty(options.AdditionalFallbackPath))
         {
-            foreach (var fallback in options.AdditionalFallbackPath)
-            {
-                if (!string.IsNullOrEmpty(fallback))
-                    fallbackPaths.Add(_fileSystem.Path.GetFullPath(fallback));
-            }
+            var split = options.AdditionalFallbackPath!.Split([separator], StringSplitOptions.RemoveEmptyEntries);
+            fallbackPaths.AddRange(split.Select(s => _fileSystem.Path.GetFullPath(s)));
         }
 
         var gamePath = options.GamePath;

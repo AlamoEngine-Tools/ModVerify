@@ -5,4 +5,5 @@ public enum VerificationCompletionStatus
     Completed,
     CompletedFailFast,
     Cancelled,
+    Failed
 }

@@ -1,14 +1,17 @@
 ﻿using System;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
 using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.TargetSelectors;
+using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Baseline;
 using AET.ModVerify.Reporting.Suppressions;
 using AnakinRaW.ApplicationBase;
+using AnakinRaW.CommonUtilities.SimplePipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -74,18 +77,59 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
         var verificationResult = await VerifyTargetAsync(verificationTarget)
             .ConfigureAwait(false);
 
+        Console.WriteLine();
+
+        switch (verificationResult.Status)
+        {
+            case VerificationCompletionStatus.Cancelled:
+                return ModVerifyConstants.VerifyCancelled;
+            case VerificationCompletionStatus.Failed:
+                return ReportVerificationFailure(verificationResult.Exception!);
+        }
+
         return await ProcessResult(verificationResult);
     }
 
+    private int ReportVerificationFailure(Exception verificationException)
+    {
+        var exceptionToReport = verificationException switch
+        {
+            AggregateException aggregate => aggregate.InnerExceptions.FirstOrDefault() ?? aggregate,
+            StepFailureException stepFailure => stepFailure.FailedSteps.First().Error!,
+            _ => verificationException
+        };
+
+        ConsoleUtilities.WriteApplicationFatalError(_appEnvironment.ApplicationName, exceptionToReport);
+        Logger?.LogError(exceptionToReport, exceptionToReport.Message);
+
+        return exceptionToReport.HResult;
+    }
+
     protected abstract Task<int> ProcessResult(VerificationResult result);
-    
-    protected abstract VerificationBaseline GetBaseline(VerificationTarget verificationTarget);
+
+    protected virtual BaselineCollection GetBaselines(VerificationTarget verificationTarget)
+    {
+        var baselineSelector = new BaselineSelector(Settings, ServiceProvider);
+        var baselines = baselineSelector.SelectBaselines(verificationTarget);
+        if (!baselines.IsEmpty)
+        {
+            Console.WriteLine();
+            ModVerifyConsoleUtilities.WriteBaselineInfo(baselines);
+            foreach (var entry in baselines)
+            {
+                Logger?.LogDebug("Using baseline {Baseline} from source '{Identifier}'",
+                    entry.Baseline.ToString(), entry.Identifier);
+            }
+            Console.WriteLine();
+        }
+        return baselines;
+    }
 
     private async Task<VerificationResult> VerifyTargetAsync(VerificationTarget verificationTarget)
     {
         var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name, Settings.ReportSettings);
 
-        var baseline = GetBaseline(verificationTarget);
+        var baselines = GetBaselines(verificationTarget);
         var suppressions = GetSuppressions();
 
         try
@@ -95,11 +139,11 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
             Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{Target}'...", verificationTarget.Name);
             
             var verificationResult = await verifierService.VerifyAsync(
-                verificationTarget, 
+                verificationTarget,
                 Settings.VerifierServiceSettings,
-                baseline, 
+                baselines,
                 suppressions,
-                progressReporter, 
+                progressReporter,
                 new EngineInitializeProgressReporter(verificationTarget.Engine));
 
             progressReporter.Report(string.Empty, 1.0);
@@ -111,6 +155,10 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
                     break;
                 case VerificationCompletionStatus.Cancelled:
                     Logger?.LogWarning(ModVerifyConstants.ConsoleEventId, "Verification was cancelled.");
+                    break;
+                case VerificationCompletionStatus.Failed:
+                    progressReporter.ReportError("Verification failed!", 
+                        $"An unexpected error occurred while verifying '{verificationTarget.Name}'.");
                     break;
                 case VerificationCompletionStatus.Completed:
                 default:

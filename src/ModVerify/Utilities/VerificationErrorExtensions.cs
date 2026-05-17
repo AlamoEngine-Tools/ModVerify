@@ -12,11 +12,20 @@ public static class VerificationErrorExtensions
     {
         public IEnumerable<VerificationError> ApplyBaseline(VerificationBaseline baseline)
         {
-            if (errors == null) 
+            if (errors == null)
                 throw new ArgumentNullException(nameof(errors));
             if (baseline == null)
                 throw new ArgumentNullException(nameof(baseline));
             return baseline.Apply(errors);
+        }
+
+        public IEnumerable<VerificationError> ApplyBaselines(BaselineCollection baselines)
+        {
+            if (errors == null)
+                throw new ArgumentNullException(nameof(errors));
+            if (baselines == null)
+                throw new ArgumentNullException(nameof(baselines));
+            return baselines.Apply(errors);
         }
 
         public IEnumerable<VerificationError> ApplySuppressions(SuppressionList suppressions)

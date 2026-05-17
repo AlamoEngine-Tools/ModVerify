@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
@@ -15,8 +16,7 @@ using PG.StarWarsGame.Files.ALO.Files.Animations;
 using PG.StarWarsGame.Files.ALO.Files.Models;
 using PG.StarWarsGame.Files.ALO.Files.Particles;
 using PG.StarWarsGame.Files.Binary;
-
-#if NETSTANDARD2_0 || NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD2_0
 using AnakinRaW.CommonUtilities.FileSystem;
 #endif
 
@@ -145,7 +145,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 $"Expected Alamo object of type {typeof(T).Name}, but got {modelClass.RenderableContent.GetType().Name}",
                 VerificationSeverity.Error,
                 contextInfo,
-                modelClass.File.FileName.ToUpperInvariant()));
+                NormalizeFileName(modelClass.File.FileName)));
             return null;
         }
 
@@ -183,14 +183,31 @@ public sealed class SingleModelVerifier : GameVerifierBase
         }
         catch (BinaryCorruptedException e)
         {
-            var message = $"'{fileName}' is corrupted: {e.Message}";
-            AddError(VerificationError.Create(
-                this, 
-                VerifierErrorCodes.BinaryFileCorrupt,
-                message,
-                VerificationSeverity.Critical, 
-                contextInfo, 
-                fileName.ToUpperInvariant()));
+            if (!CheckBinaryCorruptedFileIsActuallyRenderable(fileName, out var actualFilePath))
+            {
+                var message = $"Possible file CRC32 collision: '{fileName}' was requested but '{actualFilePath}' was found by the engine."; 
+                AddError(VerificationError.Create(
+                    this,
+                    VerifierErrorCodes.UnexpectedFileLoad,
+                    message,
+                    // Error, because loading a model/particle directly impacts game behavior and would be very hard to debug
+                    // for mod creators, unaware of the CRC32 collision issue.
+                    VerificationSeverity.Error,
+                    contextInfo,
+                    NormalizeFileName(fileName)));
+            }
+            else
+            {
+                var message = $"'{fileName}' is corrupted: {e.Message}";
+                AddError(VerificationError.Create(
+                    this,
+                    VerifierErrorCodes.BinaryFileCorrupt,
+                    message,
+                    VerificationSeverity.Critical,
+                    contextInfo,
+                    NormalizeFileName(fileName)));
+            }
+
             exists = true;
             return null;
         }
@@ -209,29 +226,51 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
         var animationCollection = AnimationCollection.Empty;
         if (alamoFile.Content is AlamoModel)
-        {
-            // TODO: Enable once we support verifying animations as well.
-            //animationCollection = GameEngine.PGRender.LoadAnimations(alamoFile.FileName, alamoFile.Directory, true,
-            //    (_, _, alaFile) =>
-            //    {
-            //        AddError(VerificationError.Create(
-            //            this,
-            //            VerifierErrorCodes.BinaryFileCorrupt,
-            //            $"Invalid animation file '{alaFile}' for model '{alamoFile.FileName}'",
-            //            VerificationSeverity.Error,
-            //            [alamoFile.FileName.ToUpperInvariant()],
-            //            alaFile.ToUpperInvariant()));
-            //    });
+        { 
+            animationCollection = GameEngine.PGRender.LoadAnimations(
+                alamoFile.FileName, @"DATA\ART\MODELS", true,
+                (_, _, alaFile) =>      
+                {
+                   var alaFileName = NormalizeFileName(alaFile);
+
+                   if (!CheckBinaryCorruptedFileIsActuallyRenderable(alaFileName, out var actualFilePath))
+                   {
+                       var message =
+                           $"Possible file CRC32 collision: '{fileName}' was requested but '{actualFilePath}' was found by the engine.";
+                       AddError(VerificationError.Create(
+                           this,
+                           VerifierErrorCodes.UnexpectedFileLoad,
+                           message,
+                           // Information, because for animations, as there is more likely to be a CRC32 collision than an actual corrupted file.
+                           // This is because the engine attempts to load all possible animations for each model and thus
+                           // there are simply more chances for a CRC32 collision.
+                           VerificationSeverity.Information,
+                           contextInfo,
+                           NormalizeFileName(fileName)));
+                   }
+                   else
+                   {
+                       AddError(VerificationError.Create(
+                           this,
+                           VerifierErrorCodes.BinaryFileCorrupt,
+                           $"Invalid animation file '{alaFileName}' for model '{alamoFile.FileName}'",
+                           VerificationSeverity.Error,
+                           [NormalizeFileName(alamoFile.FileName)],
+                           alaFileName));
+                   }
+                });
         }
 
         return new ModelClass(alamoFile, animationCollection);
     }
-
+    
     private void VerifyParticle(IAloParticleFile file, IReadOnlyCollection<string> contextInfo)
     {
+        IReadOnlyList<string> particleContext = [.. contextInfo, NormalizeFileName(file.FileName)];
+            
         foreach (var texture in file.Content.Textures)
         {
-            GuardedVerify(() => VerifyTextureExists(file, texture, contextInfo),
+            GuardedVerify(() => VerifyTextureExists(file, texture, particleContext),
                 e => e is ArgumentException,
                 _ =>
                 {
@@ -240,12 +279,12 @@ public sealed class SingleModelVerifier : GameVerifierBase
                         VerifierErrorCodes.InvalidFilePath,
                         $"Invalid texture file name '{texture}' in particle '{file.FileName}'",
                         VerificationSeverity.Error,
-                        [file.FileName.ToUpperInvariant()], 
+                        particleContext, 
                         texture));
                 });
         }
 
-        var fileName = FileSystem.Path.GetFileNameWithoutExtension(file.FilePath.AsSpan());
+        var fileName = FileSystem.Path.GetFileNameWithoutExtension(file.FileName.AsSpan());
         var name = file.Content.Name.AsSpan();
 
         if (!fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
@@ -255,7 +294,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 VerifierErrorCodes.InvalidParticleName,
                 $"The particle name '{file.Content.Name}' does not match file name '{file.FileName}'",
                 VerificationSeverity.Error,
-                [file.FileName.ToUpperInvariant()],
+                particleContext,
                 file.Content.Name));
         }
 
@@ -263,7 +302,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
 
     private void VerifyModel(IAloModelFile file, AnimationCollection animations, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
-        IReadOnlyList<string> modelContext = [.. contextInfo, file.FileName.ToUpperInvariant()];
+        IReadOnlyList<string> modelContext = [.. contextInfo, NormalizeFileName(file.FileName)];
 
         foreach (var texture in file.Content.Textures)
         {
@@ -329,16 +368,37 @@ public sealed class SingleModelVerifier : GameVerifierBase
         // Is there actually anything to verify for animation without looking at the model?
     }
 
-    private void VerifyTextureExists(IPetroglyphFileHolder model, string texture, IReadOnlyCollection<string> contextInfo)
+    private void VerifyTextureExists(IPetroglyphFileHolder file, string texture, IReadOnlyCollection<string> contextInfo)
     {
+        if (string.IsNullOrEmpty(texture))
+        {
+            AddError(VerificationError.Create(this, 
+                VerifierErrorCodes.InvalidValue,
+                $"Texture string in model or particle '{file.FileName}' is empty.'",
+                VerificationSeverity.Error,
+                contextInfo,
+                NormalizeFileName(file.FileName)));
+            return;
+        }
         if (texture == "None")
             return;
-        _textureVerifier.Verify(texture, [..contextInfo, model.FileName.ToUpperInvariant()], CancellationToken.None);
+        _textureVerifier.Verify(texture, contextInfo, CancellationToken.None);
     }
 
     private void VerifyProxyExists(IPetroglyphFileHolder model, string proxy, IReadOnlyCollection<string> contextInfo, CancellationToken token)
     {
         var proxyName = ModelClass.GetProxyName(proxy).ToString();
+
+        if (string.IsNullOrEmpty(proxyName))
+        {
+            AddError(VerificationError.Create(this, 
+                VerifierErrorCodes.InvalidValue,
+                $"Proxy name in model '{model.FileName}' is empty.'",
+                VerificationSeverity.Error,
+                contextInfo,
+                NormalizeFileName(model.FileName)));
+            return;
+        }
         
         VerifyWithCache(proxyName, contextInfo, _ =>
         {
@@ -367,10 +427,30 @@ public sealed class SingleModelVerifier : GameVerifierBase
                 VerifierErrorCodes.FileNotFound, 
                 message, 
                 VerificationSeverity.Error, 
-                [..contextInfo, model.FileName.ToUpperInvariant()], 
+                [..contextInfo, NormalizeFileName(model.FileName)], 
                 shader);
             AddError(error);
         }
+    }
+
+    // NB: This method assures that the BinaryCorruptedException resulted from a file
+    // that is actually an Alamo file (and thus should be reported as a corrupted file),
+    // and not from some other file that was found due to e.g., CRC32 collision.
+    private bool CheckBinaryCorruptedFileIsActuallyRenderable(string fileName, out string actualFilePath)
+    {
+        var filePath = FileSystem.Path.Join(@"DATA\ART\MODELS", fileName);
+        var exists = GameEngine.GameRepository.ModelRepository.FileExists(filePath, false, out _, out actualFilePath!);
+        Debug.Assert(exists);
+
+        var extension = FileSystem.Path.GetExtension(actualFilePath);
+
+        return string.IsNullOrEmpty(actualFilePath) || extension.Equals(".alo", StringComparison.OrdinalIgnoreCase) ||
+               extension.Equals(".ala", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string NormalizeFileName(string fileName)
+    {
+        return GameEngine.GameRepository.PGFileSystem.GetFileName(fileName).ToUpperInvariant();
     }
 
     private void AddNotExistError(string fileName, IReadOnlyCollection<string> contextInfo)
@@ -381,7 +461,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
             $"Unable to find Alamo file '{fileName}'",
             VerificationSeverity.Error,
             contextInfo,
-            fileName.ToUpperInvariant()));
+            NormalizeFileName(fileName)));
     }
 
     private void OnTextureError(object sender, VerificationErrorEventArgs e)

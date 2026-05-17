@@ -18,6 +18,6 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files" Version="3.0.2" />
+	  <PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Files" Version="3.0.17" />
 	</ItemGroup>
 </Project>

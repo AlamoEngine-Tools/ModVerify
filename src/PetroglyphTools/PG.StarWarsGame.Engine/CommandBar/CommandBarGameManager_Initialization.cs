@@ -196,7 +196,7 @@ internal partial class CommandBarGameManager
         if (Components.FirstOrDefault(x => x is CommandBarShellComponent) is null)
             return;
         // Note: The tag <Mega_Texture_Name> is not used by the engine
-        var mtdPath = FileSystem.Path.Combine("DATA\\ART\\TEXTURES", $"{CommandBarConstants.MegaTextureBaseName}.mtd");
+        var mtdPath = PGFileSystem.CombinePath("DATA\\ART\\TEXTURES", $"{CommandBarConstants.MegaTextureBaseName}.mtd");
         using var megaTexture = GameRepository.TryOpenFile(mtdPath);
 
         try
@@ -211,7 +211,7 @@ internal partial class CommandBarGameManager
         }
         
         GameRepository.TextureRepository.FileExists($"{CommandBarConstants.MegaTextureBaseName}.tga", false, out _, out var actualFilePath);
-        MegaTextureFileName = FileSystem.Path.GetFileName(actualFilePath);
+        MegaTextureFileName = PGFileSystem.GetFileName(actualFilePath);
     }
 
     private void SetComponentGroup(IEnumerable<CommandBarBaseComponent> components)

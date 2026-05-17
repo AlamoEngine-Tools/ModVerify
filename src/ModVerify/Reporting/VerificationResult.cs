@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AET.ModVerify.Reporting.Baseline;
 using AET.ModVerify.Reporting.Suppressions;
@@ -10,13 +10,13 @@ public sealed record VerificationResult
 {
     public required VerificationCompletionStatus Status { get; init; }
 
-    public required IReadOnlyCollection<VerificationError> Errors
+    public required VerificationErrors Errors
     {
         get;
         init => field = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public required VerificationBaseline UsedBaseline
+    public required BaselineCollection UsedBaselines
     {
         get;
         init => field = value ?? throw new ArgumentNullException(nameof(value));
@@ -28,8 +28,8 @@ public sealed record VerificationResult
         init => field = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public required IReadOnlyCollection<IGameVerifierInfo> Verifiers 
-    { 
+    public required IReadOnlyCollection<IGameVerifierInfo> Verifiers
+    {
         get;
         init => field = value ?? throw new ArgumentNullException(nameof(value));
     }
@@ -41,4 +41,6 @@ public sealed record VerificationResult
     }
 
     public required TimeSpan Duration { get; init; }
+
+    public Exception? Exception { get; init; }
 }

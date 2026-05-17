@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Settings;
 
@@ -7,16 +8,14 @@ namespace AET.ModVerify.App.Settings;
 public class AppReportSettings
 {
     public VerificationSeverity MinimumReportSeverity { get; init; }
-    
+
     public string? SuppressionsPath { get; init; }
 
     public bool Verbose { get; init; }
-}
 
-public sealed class VerifyReportSettings : AppReportSettings
-{
-    public string? BaselinePath { get; init; }
-    public bool SearchBaselineLocally { get; init; }
+    public IReadOnlyList<string> BaselinePaths { get; init; } = [];
+
+    public bool UseDefaultBaseline { get; init; }
 }
 
 internal abstract class AppSettingsBase(AppReportSettings reportSettings)
@@ -38,13 +37,7 @@ internal abstract class AppSettingsBase(AppReportSettings reportSettings)
     public AppReportSettings ReportSettings { get; } = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
 }
 
-internal abstract class AppSettingsBase<T>(T reportSettings) : AppSettingsBase(reportSettings)
-    where T : AppReportSettings
-{
-    public new T ReportSettings { get; } = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
-}
-
-internal sealed class AppVerifySettings(VerifyReportSettings reportSettings) : AppSettingsBase<VerifyReportSettings>(reportSettings)
+internal sealed class AppVerifySettings(AppReportSettings reportSettings) : AppSettingsBase(reportSettings)
 {
     public VerificationSeverity? AppFailsOnMinimumSeverity { get; init; }
 
