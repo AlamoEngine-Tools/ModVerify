@@ -19,6 +19,7 @@
   <Folder Name="/PetroglyphTools/">
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.FileSystem.Test/PG.StarWarsGame.Engine.FileSystem.Test.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.FileSystem/PG.StarWarsGame.Engine.FileSystem.csproj" />
+    <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.Testing/PG.StarWarsGame.Engine.Testing.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine/PG.StarWarsGame.Engine.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.ALO/PG.StarWarsGame.Files.ALO.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.ChunkFiles/PG.StarWarsGame.Files.ChunkFiles.csproj" />
@@ -27,4 +28,5 @@
   <Project Path="src/ModVerify.CliApp/ModVerify.CliApp.csproj" />
   <Project Path="src/ModVerify/ModVerify.csproj" />
   <Project Path="test/ModVerify.CliApp.Test/ModVerify.CliApp.Test.csproj" />
+  <Project Path="test/ModVerify.Test/ModVerify.Test.csproj" />
 </Solution>
