@@ -13,17 +13,29 @@ on:
 
 env:
   TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
-  CREATOR_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
-  SIGNER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestSigner/ApplicationManifestSigner.csproj
-  UPLOADER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
+  PUBLISH_SCRIPT: ./modules/ModdingToolBase/scripts/Publish-Release.ps1
   TOOL_EXE: ModVerify.exe
   UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
-  MANIFEST_CREATOR: AnakinRaW.ApplicationManifestCreator.dll
-  MANIFEST_SIGNER: AnakinRaW.ApplicationManifestSigner.dll
-  SFTP_UPLOADER: AnakinRaW.FtpUploader.dll
+  EMBEDDED_TRUST_CERT: src/ModVerify.CliApp/Resources/Certs/modverify-trust.cer
   ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify
-  ORIGIN_BASE_PART: downloads/ModVerify/
+  SFTP_BASE_PATH: downloads/ModVerify/
   BRANCH_NAME: ${{ github.event.inputs.branch || 'stable' }}
+
+  # ---- Optional release knobs -------------------------------------------------------------
+  # Valid combinations:  none  |  (A) only  |  (A) + (B). (B) on its own is rejected.
+  #
+  # (A) Dual-publish to a next-generation channel. Use for URL migrations — the next-gen
+  #     channel gets seeded alongside the primary path. Pair the two lines below with the
+  #     matching -NextOrigin / -NextSftpBasePath args in the deploy step.
+  # NEXT_ORIGIN_BASE:    https://republicatwar.com/downloads/ModVerify/v2
+  # NEXT_SFTP_BASE_PATH: downloads/ModVerify/v2/
+  #
+  # (B) Override the updater binary used for the PRIMARY deploy. Use for releases that ship
+  #     a new external-updater CLI: deployed clients still execute the previously-deployed
+  #     binary, so the manifest must keep listing that older binary. Pair with the matching
+  #     -CompatibilityUpdaterExePath arg in the deploy step. Requires (A) — the new updater
+  #     needs a next-gen channel to migrate clients to.
+  # COMPAT_UPDATER: tools/legacy/AnakinRaW.ExternalUpdater.exe
 
 jobs:
 
@@ -75,65 +87,37 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: Verify embedded trust cert
-        shell: pwsh
-        run: |
-          $certPath = "src/ModVerify.CliApp/Resources/Certs/modverify-trust.cer"
-          if (-not (Test-Path $certPath)) {
-            Write-Error "$certPath is missing. Generate the production trust cert per docs/update-signing-setup.md and commit it before releasing."
-            exit 1
-          }
-          try {
-            $bytes = [IO.File]::ReadAllBytes($certPath)
-            $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
-          } catch {
-            Write-Error "Failed to load $certPath as an X.509 certificate: $_"
-            exit 1
-          }
-          if ($cert.HasPrivateKey) {
-            Write-Error "$certPath contains a private key. Only the public DER (.cer) is allowed; embedding a PFX would ship the signing key to every consumer."
-            exit 1
-          }
-          Write-Host "OK: $certPath is public-only ($($cert.Subject))."
       - uses: actions/download-artifact@v8
         with:
           name: Binary Releases
           path: ./releases
 
-      # Deploy .NET Framework self-update release
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
             dotnet-version: 10.0.x
-      - name: Build Creator
-        run: dotnet build ${{env.CREATOR_PROJ_PATH}} --configuration Release --output ./dev
-      - name: Build Signer
-        run: dotnet build ${{env.SIGNER_PROJ_PATH}} --configuration Release --output ./dev
-      - name: Build Uploader
-        run: dotnet build ${{env.UPLOADER_PROJ_PATH}} --configuration Release --output ./dev
-      - name: Create binaries directory
-        run: mkdir -p ./deploy
-      - name: Copy self-update files
+
+      - name: Publish self-update release
+        shell: pwsh
         run: |
-          cp ./releases/net481/${{env.TOOL_EXE}} ./deploy/
-          cp ./releases/net481/${{env.UPDATER_EXE}} ./deploy/
-      - name: Create Manifest
-        run: dotnet ./dev/${{env.MANIFEST_CREATOR}} -a deploy/${{env.TOOL_EXE}} --appDataFiles deploy/${{env.UPDATER_EXE}} --origin ${{env.ORIGIN_BASE}} -o ./deploy -b ${{env.BRANCH_NAME}}
-      - name: Decode signing pfx
-        shell: bash
-        run: echo "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" | base64 -d > $RUNNER_TEMP/signing.pfx
-      - name: Sign Manifest
-        run: dotnet ./dev/${{env.MANIFEST_SIGNER}} --manifest ./deploy/manifest.json --pfx $RUNNER_TEMP/signing.pfx --password "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}"
-      - name: Wipe pfx
-        if: always()
-        run: rm -f $RUNNER_TEMP/signing.pfx
-      - name: Upload Build
-        run: dotnet ./dev/${{env.SFTP_UPLOADER}} ftp --host $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
-        env:
-          host: republicatwar.com
-          port: 1579
-          base_path: ${{env.ORIGIN_BASE_PART}}
-          source: ./deploy
+          & ${{ env.PUBLISH_SCRIPT }} `
+            -AppExePath              "./releases/net481/${{ env.TOOL_EXE }}" `
+            -UpdaterExePath          "./releases/net481/${{ env.UPDATER_EXE }}" `
+            -EmbeddedTrustCertPath   "${{ env.EMBEDDED_TRUST_CERT }}" `
+            -Origin                  "${{ env.ORIGIN_BASE }}" `
+            -SftpBasePath            "${{ env.SFTP_BASE_PATH }}" `
+            -Branch                  "${{ env.BRANCH_NAME }}" `
+            -SigningPfxBase64        "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" `
+            -SigningPfxPassword      "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}" `
+            -SftpHost                "republicatwar.com" `
+            -SftpPort                1579 `
+            -SftpUser                "${{ secrets.SFTP_USER }}" `
+            -SftpPassword            "${{ secrets.SFTP_PASSWORD }}"
+            # (A) Dual-publish — uncomment with NEXT_ORIGIN_BASE / NEXT_SFTP_BASE_PATH above.
+            # -NextOrigin                  "${{ env.NEXT_ORIGIN_BASE }}" `
+            # -NextSftpBasePath            "${{ env.NEXT_SFTP_BASE_PATH }}" `
+            # (B) Compatibility updater — uncomment with COMPAT_UPDATER above.
+            # -CompatibilityUpdaterExePath "${{ env.COMPAT_UPDATER }}"
 
       # Deploy .NET Core and .NET Framework apps to Github
       - name: Create NET Core .zip

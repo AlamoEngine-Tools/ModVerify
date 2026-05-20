@@ -26,12 +26,15 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
 
 #if NETFRAMEWORK
 
+    // The /v2/ path segment is the post-migration update channel: deployed legacy clients
+    // still fetch from the historical /downloads/ModVerify path (frozen with the migration
+    // release), while this and every subsequent build pulls from /v2/.
     public override ICollection<Uri> UpdateMirrors { get; } = new List<Uri>
     {
 #if DEBUG
-        new(CreateDebugPath()),    
+        new(CreateDebugPath()),
 #endif
-        new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}")
+        new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}/v2")
     };
 
     private static string CreateDebugPath()
