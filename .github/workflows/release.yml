@@ -21,21 +21,18 @@ env:
   SFTP_BASE_PATH: downloads/ModVerify/
   BRANCH_NAME: ${{ github.event.inputs.branch || 'stable' }}
 
-  # ---- Optional release knobs -------------------------------------------------------------
-  # Valid combinations:  none  |  (A) only  |  (A) + (B). (B) on its own is rejected.
+  # Migration-release values. Leave empty for a normal release; populate to enable.
   #
-  # (A) Dual-publish to a next-generation channel. Use for URL migrations — the next-gen
-  #     channel gets seeded alongside the primary path. Pair the two lines below with the
-  #     matching -NextOrigin / -NextSftpBasePath args in the deploy step.
-  # NEXT_ORIGIN_BASE:    https://republicatwar.com/downloads/ModVerify/v2
-  # NEXT_SFTP_BASE_PATH: downloads/ModVerify/v2/
-  #
-  # (B) Override the updater binary used for the PRIMARY deploy. Use for releases that ship
-  #     a new external-updater CLI: deployed clients still execute the previously-deployed
-  #     binary, so the manifest must keep listing that older binary. Pair with the matching
-  #     -CompatibilityUpdaterExePath arg in the deploy step. Requires (A) — the new updater
-  #     needs a next-gen channel to migrate clients to.
-  # COMPAT_UPDATER: tools/legacy/AnakinRaW.ExternalUpdater.exe
+  # Origin URL of the next-generation channel, written into the manifest's componentOriginInfo.
+  NEXT_ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify/v2
+
+  # SFTP path the next-generation channel uploads to. Set together with NEXT_ORIGIN_BASE.
+  NEXT_SFTP_BASE_PATH: downloads/ModVerify/v2/
+
+  # Previously-deployed updater used in place of the build-output one for the primary deploy.
+  # Only the old-gen manifest lists this binary; the next-gen manifest still uses the build-output updater.
+  # Requires NEXT_ORIGIN_BASE + NEXT_SFTP_BASE_PATH to be set.
+  COMPAT_UPDATER: tools/v1/AnakinRaW.ExternalUpdater.exe
 
 jobs:
 
@@ -100,24 +97,22 @@ jobs:
       - name: Publish self-update release
         shell: pwsh
         run: |
-          & ${{ env.PUBLISH_SCRIPT }} `
-            -AppExePath              "./releases/net481/${{ env.TOOL_EXE }}" `
-            -UpdaterExePath          "./releases/net481/${{ env.UPDATER_EXE }}" `
-            -EmbeddedTrustCertPath   "${{ env.EMBEDDED_TRUST_CERT }}" `
-            -Origin                  "${{ env.ORIGIN_BASE }}" `
-            -SftpBasePath            "${{ env.SFTP_BASE_PATH }}" `
-            -Branch                  "${{ env.BRANCH_NAME }}" `
-            -SigningPfxBase64        "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" `
-            -SigningPfxPassword      "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}" `
-            -SftpHost                "republicatwar.com" `
-            -SftpPort                1579 `
-            -SftpUser                "${{ secrets.SFTP_USER }}" `
-            -SftpPassword            "${{ secrets.SFTP_PASSWORD }}"
-            # (A) Dual-publish — uncomment with NEXT_ORIGIN_BASE / NEXT_SFTP_BASE_PATH above.
-            # -NextOrigin                  "${{ env.NEXT_ORIGIN_BASE }}" `
-            # -NextSftpBasePath            "${{ env.NEXT_SFTP_BASE_PATH }}" `
-            # (B) Compatibility updater — uncomment with COMPAT_UPDATER above.
-            # -CompatibilityUpdaterExePath "${{ env.COMPAT_UPDATER }}"
+          & $env:PUBLISH_SCRIPT `
+              -AppExePath                  "./releases/net481/$env:TOOL_EXE" `
+              -UpdaterExePath              "./releases/net481/$env:UPDATER_EXE" `
+              -EmbeddedTrustCertPath       "$env:EMBEDDED_TRUST_CERT" `
+              -Origin                      "$env:ORIGIN_BASE" `
+              -SftpBasePath                "$env:SFTP_BASE_PATH" `
+              -Branch                      "$env:BRANCH_NAME" `
+              -SigningPfxBase64            "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" `
+              -SigningPfxPassword          "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}" `
+              -SftpHost                    "republicatwar.com" `
+              -SftpPort                    1579 `
+              -SftpUser                    "${{ secrets.SFTP_USER }}" `
+              -SftpPassword                "${{ secrets.SFTP_PASSWORD }}" `
+              -NextOrigin                  "$env:NEXT_ORIGIN_BASE" `
+              -NextSftpBasePath            "$env:NEXT_SFTP_BASE_PATH" `
+              -CompatibilityUpdaterExePath "$env:COMPAT_UPDATER"
 
       # Deploy .NET Core and .NET Framework apps to Github
       - name: Create NET Core .zip
