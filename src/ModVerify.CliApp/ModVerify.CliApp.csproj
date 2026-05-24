@@ -37,11 +37,11 @@
 		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
 		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="5.0.7" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
@@ -51,7 +51,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Costura.Fody" Version="6.1.0">
+		<PackageReference Include="Costura.Fody" Version="6.2.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="PolySharp" Version="1.15.0">
@@ -62,7 +62,7 @@
 
 	<!-- Exclude System.Index from all dependencies, excluding Microsoft.Bcl.Memory -->
 	<ItemGroup>
-		<PackageReference Include="Vanara.Core" Version="5.0.4" Condition="'$(TargetFramework)' == 'net481'">
+		<PackageReference Include="Vanara.Core" Version="5.0.5" Condition="'$(TargetFramework)' == 'net481'">
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -70,7 +70,7 @@
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.7" Condition="'$(TargetFramework)' == 'net481'" />
+		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.8" Condition="'$(TargetFramework)' == 'net481'" />
 	</ItemGroup>
 
 	<ItemGroup>
