@@ -187,19 +187,22 @@ internal class Program : SelfUpdateableAppLifecycle
 
     private const string EmbeddedTrustCertResource = "AET.ModVerify.App.Resources.Certs.modverify-trust.cer";
 
+    protected override void RegisterTrustedCertificates(IServiceProvider appServices)
+    {
+        if (!IsUpdateableApplication)
+            return;
+
+        string? devCertPath = null;
+#if DEBUG || LOCAL_DEPLOY
+        devCertPath = System.IO.Path.GetFullPath(
+            System.IO.Path.Combine(AppContext.BaseDirectory, "..", "dev-trust.cer"));
+#endif
+        appServices.GetRequiredService<CertificateManager>()
+            .RegisterTrustedCertificates(typeof(Program).Assembly, EmbeddedTrustCertResource, devCertPath);
+    }
+
     protected override async Task<int> RunAppAsync(string[] args, IServiceProvider appServiceProvider)
     {
-        if (IsUpdateableApplication)
-        {
-            string? devCertPath = null;
-#if DEBUG || LOCAL_DEPLOY
-            devCertPath = System.IO.Path.GetFullPath(
-                System.IO.Path.Combine(AppContext.BaseDirectory, "..", "dev-trust.cer"));
-#endif
-            appServiceProvider.GetRequiredService<CertificateManager>()
-                .RegisterTrustedCertificates(typeof(Program).Assembly, EmbeddedTrustCertResource, devCertPath);
-        }
-
         var result = await HandleUpdate(appServiceProvider);
         if (result != 0 || _modVerifyAppSettings is null)
             return result;
