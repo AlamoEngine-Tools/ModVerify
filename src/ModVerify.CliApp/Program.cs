@@ -51,6 +51,8 @@ internal class MainClass
 
 internal class Program : SelfUpdateableAppLifecycle
 {
+    private const string EmbeddedTrustCertResource = "AET.ModVerify.App.Resources.Certs.modverify-trust.cer";
+
     private static readonly string EngineParserNamespace = typeof(PetroglyphStarWarsGameXmlParser).Namespace!;
     private static readonly string ParserNamespace = typeof(XmlFileParser<>).Namespace!;
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
@@ -184,8 +186,6 @@ internal class Program : SelfUpdateableAppLifecycle
             ? new InMemoryRegistry(InMemoryRegistryCreationFlags.WindowsLike)
             : new WindowsRegistry();
     }
-
-    private const string EmbeddedTrustCertResource = "AET.ModVerify.App.Resources.Certs.modverify-trust.cer";
 
     protected override void RegisterTrustedCertificates(IServiceProvider appServices)
     {
