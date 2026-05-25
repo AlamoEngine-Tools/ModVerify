@@ -48,7 +48,7 @@ internal sealed class ModVerifyUpdater
             return;
         }
 
-        var updater = new ModVerifyApplicationUpdater(updatableEnvironment, _serviceProvider);
+        var updater = new ModVerifyApplicationUpdater(updatableEnvironment, _serviceProvider, restartHostAfterUpdate: !updateOptions.NoRestart);
 
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
         var branch = !string.IsNullOrEmpty(updateOptions.ServerUrl)
