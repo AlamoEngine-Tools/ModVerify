@@ -40,6 +40,11 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
+  # End-to-end self-update test (single-channel + dual-channel via /v2/).
+  integration-test:
+    needs: [test]
+    uses: ./.github/workflows/integration-test.yml
+
   pack:
     name: Pack
     needs: [test]
@@ -76,7 +81,7 @@ jobs:
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_dispatch' &&
        (github.event.inputs.branch != 'stable' || github.ref == 'refs/heads/main'))
-    needs: [pack]
+    needs: [pack, integration-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
