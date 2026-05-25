@@ -198,7 +198,7 @@ internal class Program : SelfUpdateableAppLifecycle
             System.IO.Path.Combine(AppContext.BaseDirectory, "..", "dev-trust.cer"));
 #endif
         appServices.GetRequiredService<CertificateManager>()
-            .RegisterTrustedCertificates(typeof(Program).Assembly, EmbeddedTrustCertResource, devCertPath);
+            .RegisterTrustedCertificates(typeof(Program).Assembly, [EmbeddedTrustCertResource], devCertPath);
     }
 
     protected override async Task<int> RunAppAsync(string[] args, IServiceProvider appServiceProvider)
