@@ -1,12 +1,15 @@
 {
   "profiles": {
+    "Verify (no args)": {
+      "commandName": "Project"
+    },
     "Verify": {
       "commandName": "Project",
-      "commandLineArgs": "verify --offline"
+      "commandLineArgs": "verify"
     },
     "Verify (Interactive)": {
       "commandName": "Project",
-      "commandLineArgs": "verify  -o verifyResults --offline --minFailSeverity Information --useDefaultBaseline"
+      "commandLineArgs": "verify  -o verifyResults --minFailSeverity Information --useDefaultBaseline"
     },
     "Verify (Automatic Target Selection)": {
       "commandName": "Project",
