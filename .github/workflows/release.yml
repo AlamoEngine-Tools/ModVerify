@@ -16,7 +16,7 @@ env:
   PUBLISH_SCRIPT: ./modules/ModdingToolBase/scripts/Publish-Release.ps1
   TOOL_EXE: ModVerify.exe
   UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
-  EMBEDDED_TRUST_CERT: src/ModVerify.CliApp/Resources/Certs/modverify-trust.cer
+  EMBEDDED_TRUST_CERT: src/ModVerify.CliApp/Resources/Certs/AET-root.cer
   ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify
   SFTP_BASE_PATH: downloads/ModVerify/
   BRANCH_NAME: ${{ github.event.inputs.branch || 'stable' }}

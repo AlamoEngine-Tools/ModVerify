@@ -33,9 +33,9 @@
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Baselines\baseline-foc.json" />
-	  <EmbeddedResource Include="Resources\Certs\AET-root-trust.cer" 
-	                    LogicalName="AET.ModVerify.App.Resources.Certs.AET-root-trust.cer" 
-	                    Condition="Exists('Resources\Certs\AET-root-trust.cer')" />
+	  <EmbeddedResource Include="Resources\Certs\AET-root.cer" 
+	                    LogicalName="AET.ModVerify.App.Resources.Certs.AET-root.cer" 
+	                    Condition="Exists('Resources\Certs\AET-root.cer')" />
 	</ItemGroup>
 
 	<ItemGroup>
