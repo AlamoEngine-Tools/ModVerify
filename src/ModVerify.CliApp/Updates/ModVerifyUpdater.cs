@@ -124,7 +124,20 @@ internal sealed class ModVerifyUpdater
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine("New Update Available!");
                     Console.ResetColor();
-                    Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+                    if (_appEnvironment.IsUpdatable())
+                    {
+                        Console.WriteLine($"Version: {updateInfo.NewVersion}, More info: {updateInfo.DownloadLink}");
+                        Console.WriteLine();
+                        Console.WriteLine(
+                            $"To install the update, start {ModVerifyConstants.AppNameString} without any arguments, " +
+                            "or run it with the 'updateApplication' verb.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+                        Console.WriteLine();
+                        Console.WriteLine("Download the new version from the link above and replace your current installation.");
+                    }
                 }
             }
             else
