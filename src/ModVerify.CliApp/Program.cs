@@ -51,7 +51,7 @@ internal class MainClass
 
 internal class Program : SelfUpdateableAppLifecycle
 {
-    private const string EmbeddedTrustCertResource = "AET.ModVerify.App.Resources.Certs.modverify-trust.cer";
+    private const string EmbeddedTrustCertResource = "AET.ModVerify.App.Resources.Certs.AET-root-trust.cer";
 
     private static readonly string EngineParserNamespace = typeof(PetroglyphStarWarsGameXmlParser).Namespace!;
     private static readonly string ParserNamespace = typeof(XmlFileParser<>).Namespace!;
