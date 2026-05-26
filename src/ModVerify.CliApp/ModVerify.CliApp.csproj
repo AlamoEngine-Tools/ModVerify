@@ -25,23 +25,32 @@
 		<NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
 	</PropertyGroup>
 
+	<!-- Set /p:LocalDeploy=true (e.g. from deploy-local.ps1) to compile in the local-deploy dev
+	     trust cert pickup path. Off by default; release builds never see it. -->
+	<PropertyGroup Condition="'$(LocalDeploy)' == 'true'">
+		<DefineConstants>$(DefineConstants);LOCAL_DEPLOY</DefineConstants>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Baselines\baseline-foc.json" />
+	  <EmbeddedResource Include="Resources\Certs\AET-root.cer" 
+	                    LogicalName="AET.ModVerify.App.Resources.Certs.AET-root.cer" 
+	                    Condition="Exists('Resources\Certs\AET-root.cer')" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="5.0.7" />
-		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="5.0.7" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure" Version="5.0.19" />
+		<PackageReference Include="AlamoEngineTools.PG.StarWarsGame.Infrastructure.Steam" Version="5.0.19" />
 		<PackageReference Include="Figgle" Version="0.6.6" />
 		<PackageReference Include="Figgle.Generator" Version="0.6.6" />
 		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="5.0.7" />
+		<PackageReference Include="AlamoEngineTools.SteamAbstraction" Version="5.0.19" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
@@ -51,10 +60,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Costura.Fody" Version="6.1.0">
+		<PackageReference Include="Costura.Fody" Version="6.2.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="PolySharp" Version="1.15.0">
+		<PackageReference Include="PolySharp" Version="1.16.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -62,7 +71,7 @@
 
 	<!-- Exclude System.Index from all dependencies, excluding Microsoft.Bcl.Memory -->
 	<ItemGroup>
-		<PackageReference Include="Vanara.Core" Version="5.0.4" Condition="'$(TargetFramework)' == 'net481'">
+		<PackageReference Include="Vanara.Core" Version="5.0.5" Condition="'$(TargetFramework)' == 'net481'">
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -70,7 +79,7 @@
 			<ExcludeAssets>compile</ExcludeAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.7" Condition="'$(TargetFramework)' == 'net481'" />
+		<PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.8" Condition="'$(TargetFramework)' == 'net481'" />
 	</ItemGroup>
 
 	<ItemGroup>

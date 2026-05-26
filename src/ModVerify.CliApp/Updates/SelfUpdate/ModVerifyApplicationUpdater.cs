@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AnakinRaW.ApplicationBase.Environment;
@@ -8,10 +8,10 @@ using AnakinRaW.AppUpdaterFramework.Metadata.Update;
 
 namespace AET.ModVerify.App.Updates.SelfUpdate;
 
-
 internal class ModVerifyApplicationUpdater(
     UpdatableApplicationEnvironment environment,
-    IServiceProvider serviceProvider)
+    IServiceProvider serviceProvider,
+    bool restartHostAfterUpdate = true)
     : ApplicationUpdater(environment, serviceProvider)
 {
     public override async Task<UpdateCatalog> CheckForUpdateAsync(ProductBranch branch, CancellationToken token = default)
@@ -31,10 +31,7 @@ internal class ModVerifyApplicationUpdater(
     public override async Task UpdateAsync(UpdateCatalog updateCatalog, CancellationToken token = default)
     {
         var updateResult = await UpdateService.UpdateAsync(updateCatalog, token).ConfigureAwait(false);
-        if (updateResult is null)
-            throw new InvalidOperationException("There is already an update running.");
-
-        var resultHandler = new ModVerifyUpdateResultHandler(Environment, ServiceProvider);
+        var resultHandler = new ModVerifyUpdateResultHandler(Environment, ServiceProvider, restartHostAfterUpdate);
         await resultHandler.Handle(updateResult).ConfigureAwait(false);
     }
 }
