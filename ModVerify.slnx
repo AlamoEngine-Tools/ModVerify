@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/.github/">
+    <File Path=".github/workflows/integration-test.yml" />
+    <File Path=".github/workflows/release.yml" />
+    <File Path=".github/workflows/test.yml" />
+  </Folder>
   <Folder Name="/ModdingToolBase/" />
   <Folder Name="/ModdingToolBase/AnakinApps/">
     <Project Path="modules/ModdingToolBase/src/AnakinApps/ApplicationBase.CommandLine/ApplicationBase.CommandLine.csproj" />
@@ -7,7 +12,14 @@
   </Folder>
   <Folder Name="/ModdingToolBase/DeployTools/">
     <Project Path="modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj" />
+    <Project Path="modules/ModdingToolBase/src/AnakinApps/ApplicationManifestSigner/ApplicationManifestSigner.csproj" />
     <Project Path="modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj" />
+    <Project Path="modules/ModdingToolBase/test/AnakinApps/ApplicationManifestSigner.Test/ApplicationManifestSigner.Test.csproj" />
+  </Folder>
+  <Folder Name="/ModdingToolBase/Scripts/">
+    <File Path="modules/ModdingToolBase/scripts/Publish-LocalRelease.ps1" />
+    <File Path="modules/ModdingToolBase/scripts/Publish-Release.ps1" />
+    <File Path="modules/ModdingToolBase/scripts/Test-LocalUpdateCycle.ps1" />
   </Folder>
   <Folder Name="/ModdingToolBase/UpdateFrameworks/">
     <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework.Attributes/AppUpdaterFramework.Attributes.csproj" />
@@ -15,6 +27,13 @@
     <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework/AppUpdaterFramework.csproj" />
     <Project Path="modules/ModdingToolBase/src/Updater/ExternalUpdater.App/ExternalUpdater.App.csproj" />
     <Project Path="modules/ModdingToolBase/src/Updater/ExternalUpdater.Core/ExternalUpdater.Core.csproj" />
+  </Folder>
+  <Folder Name="/ModdingToolBase/UpdateFrameworks/test/">
+    <Project Path="modules/ModdingToolBase/src/Updater/AppUpdaterFramework.Signing.Testing/AppUpdaterFramework.Signing.Testing.csproj" />
+    <Project Path="modules/ModdingToolBase/test/Updater/AppUpdaterFramework.Manifest.Test/AppUpdaterFramework.Manifest.Test.csproj" />
+    <Project Path="modules/ModdingToolBase/test/Updater/AppUpdaterFramework.Test/AppUpdaterFramework.Test.csproj" />
+    <Project Path="modules/ModdingToolBase/test/Updater/ExternalUpdater.App.Test/ExternalUpdater.App.Test.csproj" />
+    <Project Path="modules/ModdingToolBase/test/Updater/ExternalUpdater.Core.Test/ExternalUpdater.Core.Test.csproj" />
   </Folder>
   <Folder Name="/PetroglyphTools/">
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.FileSystem.Test/PG.StarWarsGame.Engine.FileSystem.Test.csproj" />

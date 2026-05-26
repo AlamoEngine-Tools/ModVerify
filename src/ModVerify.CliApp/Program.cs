@@ -51,6 +51,8 @@ internal class MainClass
 
 internal class Program : SelfUpdateableAppLifecycle
 {
+    private const string EmbeddedTrustCertResource = "AET.ModVerify.App.Resources.Certs.AET-root.cer";
+
     private static readonly string EngineParserNamespace = typeof(PetroglyphStarWarsGameXmlParser).Namespace!;
     private static readonly string ParserNamespace = typeof(XmlFileParser<>).Namespace!;
     private static readonly string ModVerifyRootNameSpace = typeof(Program).Namespace!;
@@ -183,6 +185,20 @@ internal class Program : SelfUpdateableAppLifecycle
         return !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? new InMemoryRegistry(InMemoryRegistryCreationFlags.WindowsLike)
             : new WindowsRegistry();
+    }
+
+    protected override void RegisterTrustedCertificates(IServiceProvider appServices)
+    {
+        if (!IsUpdateableApplication)
+            return;
+
+        string? devCertPath = null;
+#if DEBUG || LOCAL_DEPLOY
+        devCertPath = System.IO.Path.GetFullPath(
+            System.IO.Path.Combine(AppContext.BaseDirectory, "..", "dev-trust.cer"));
+#endif
+        appServices.GetRequiredService<CertificateManager>()
+            .RegisterTrustedCertificates(typeof(Program).Assembly, [EmbeddedTrustCertResource], devCertPath);
     }
 
     protected override async Task<int> RunAppAsync(string[] args, IServiceProvider appServiceProvider)

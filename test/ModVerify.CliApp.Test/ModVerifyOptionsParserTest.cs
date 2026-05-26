@@ -34,6 +34,34 @@ public class ModVerifyOptionsParserTest_Updateable : ModVerifyOptionsParserTestB
         Assert.NotNull(settings.UpdateOptions);
         Assert.Equal("test", settings.UpdateOptions.BranchName);
         Assert.Equal("https://examlple.com", settings.UpdateOptions.ManifestUrl);
+        Assert.Null(settings.UpdateOptions.ServerUrl);
+    }
+
+    [Fact]
+    public void Parse_UpdateAppArg_ServerUrl()
+    {
+        const string argString = "updateApplication --updateBranch test --updateServerUrl https://example.com/updates";
+
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
+        Assert.NotNull(settings.UpdateOptions);
+        Assert.Equal("test", settings.UpdateOptions.BranchName);
+        Assert.Equal("https://example.com/updates", settings.UpdateOptions.ServerUrl);
+        Assert.Null(settings.UpdateOptions.ManifestUrl);
+    }
+
+    [Fact]
+    public void Parse_UpdateAppArg_ManifestAndServerUrl_AreMutuallyExclusive()
+    {
+        const string argString = "updateApplication --updateManifestUrl https://example.com/manifest.json --updateServerUrl https://example.com";
+
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
+        Assert.Null(settings.UpdateOptions);
     }
 
     [Fact]
@@ -65,6 +93,7 @@ public class ModVerifyOptionsParserTest_NotUpdateable : ModVerifyOptionsParserTe
     [InlineData("createBaseline --junkOption")]
     [InlineData("updateApplication")]
     [InlineData("updateApplication --updateBranch test --updateManifestUrl https://examlple.com")]
+    [InlineData("updateApplication --updateBranch test --updateServerUrl https://example.com")]
     public void Parse_InvalidArgs_NotUpdateable(string argString)
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));

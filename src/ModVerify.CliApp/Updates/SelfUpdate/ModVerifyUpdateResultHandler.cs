@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using AnakinRaW.ApplicationBase.Environment;
 using AnakinRaW.ApplicationBase.Update;
@@ -9,9 +9,12 @@ namespace AET.ModVerify.App.Updates.SelfUpdate;
 
 internal sealed class ModVerifyUpdateResultHandler(
     UpdatableApplicationEnvironment applicationEnvironment,
-    IServiceProvider serviceProvider)
+    IServiceProvider serviceProvider,
+    bool restartHostAfterUpdate = true)
     : ApplicationUpdateResultHandler(applicationEnvironment, serviceProvider)
 {
+    protected override bool RestartHostAfterUpdate => restartHostAfterUpdate;
+
     protected override Task ShowError(UpdateResult updateResult)
     {
         Console.WriteLine();
@@ -22,7 +25,10 @@ internal sealed class ModVerifyUpdateResultHandler(
     protected override void RestartApplication(RestartReason reason)
     {
         Console.WriteLine();
-        Console.WriteLine("Restarting application to complete update...");
+        if (reason == RestartReason.Update && !restartHostAfterUpdate)
+            Console.WriteLine("Applying update and exiting; the application will not be relaunched.");
+        else
+            Console.WriteLine("Restarting application to complete update...");
         base.RestartApplication(reason);
     }
 }
