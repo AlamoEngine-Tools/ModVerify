@@ -38,6 +38,7 @@
   <Folder Name="/PetroglyphTools/">
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.FileSystem.Test/PG.StarWarsGame.Engine.FileSystem.Test.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.FileSystem/PG.StarWarsGame.Engine.FileSystem.csproj" />
+    <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.Test/PG.StarWarsGame.Engine.Test.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine.Testing/PG.StarWarsGame.Engine.Testing.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Engine/PG.StarWarsGame.Engine.csproj" />
     <Project Path="src/PetroglyphTools/PG.StarWarsGame.Files.ALO/PG.StarWarsGame.Files.ALO.csproj" />
