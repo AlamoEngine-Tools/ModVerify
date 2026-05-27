@@ -12,7 +12,7 @@ public class SuppressionFilteringTest : ModVerifyTestBase
     [Fact]
     public async Task RunPipeline_SuppressedError_IsFilteredBeforeBaselineCategorization()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var suppressions = new SuppressionList(
         [

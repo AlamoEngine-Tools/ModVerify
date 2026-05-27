@@ -1,25 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PG.StarWarsGame.Engine.Testing;
 
 /// <summary>Builds a temp-directory-backed <see cref="VirtualGameRepo"/> from raw file content.</summary>
 public sealed class VirtualGameRepoBuilder
 {
+    private readonly IServiceProvider _services;
     private readonly IFileSystem _fs;
     private readonly string _tempRoot;
     private readonly string _gameRoot;
-    private readonly List<string> _modPaths = new();
-    private readonly List<string> _fallbackPaths = new();
+    private readonly List<string> _modPaths = [];
+    private readonly List<string> _fallbackPaths = [];
     private string? _fallbackGamePath;
 
     /// <summary>Initializes a new instance of the <see cref="VirtualGameRepoBuilder"/> class.</summary>
-    /// <param name="fileSystem">The file system used for all builder I/O.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="fileSystem"/> is <see langword="null"/>.</exception>
-    public VirtualGameRepoBuilder(IFileSystem fileSystem)
+    /// <param name="services">The service provider supplying the file system and file-format services used by the builder.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="services"/> is <see langword="null"/>.</exception>
+    public VirtualGameRepoBuilder(IServiceProvider services)
     {
-        _fs = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+        _services = services ?? throw new ArgumentNullException(nameof(services));
+        _fs = services.GetRequiredService<IFileSystem>();
         _tempRoot = _fs.Path.Combine(_fs.Path.GetTempPath(),
             $"PG.StarWarsGame.Engine.Testing.{Guid.NewGuid():N}");
         _gameRoot = _fs.Path.Combine(_tempRoot, "game");
@@ -31,10 +34,10 @@ public sealed class VirtualGameRepoBuilder
     /// <exception cref="ArgumentNullException"><paramref name="configure"/> is <see langword="null"/>.</exception>
     public VirtualGameRepoBuilder WithGame(Action<IRepoOriginWriter> configure)
     {
-        if (configure == null) 
+        if (configure == null)
             throw new ArgumentNullException(nameof(configure));
-        
-        configure(new RepoOriginWriter(_fs, _gameRoot));
+
+        configure(new RepoOriginWriter(_services, _gameRoot));
         return this;
     }
 
@@ -45,13 +48,13 @@ public sealed class VirtualGameRepoBuilder
     {
         if (configure == null)
             throw new ArgumentNullException(nameof(configure));
-        
+
         if (_fallbackGamePath == null)
         {
             _fallbackGamePath = _fs.Path.Combine(_tempRoot, "fallback", "_primary");
             _fs.Directory.CreateDirectory(_fallbackGamePath);
         }
-        configure(new RepoOriginWriter(_fs, _fallbackGamePath));
+        configure(new RepoOriginWriter(_services, _fallbackGamePath));
         return this;
     }
 
@@ -62,18 +65,18 @@ public sealed class VirtualGameRepoBuilder
     /// <exception cref="ArgumentNullException"><paramref name="configure"/> is <see langword="null"/>.</exception>
     public VirtualGameRepoBuilder WithFallback(string name, Action<IRepoOriginWriter> configure)
     {
-        if (string.IsNullOrEmpty(name)) 
+        if (string.IsNullOrEmpty(name))
             throw new ArgumentException("Fallback name must be non-empty.", nameof(name));
-        if (configure == null) 
+        if (configure == null)
             throw new ArgumentNullException(nameof(configure));
-        
+
         var dir = _fs.Path.Combine(_tempRoot, "fallback", name);
         if (!_fallbackPaths.Contains(dir))
         {
             _fs.Directory.CreateDirectory(dir);
             _fallbackPaths.Add(dir);
         }
-        configure(new RepoOriginWriter(_fs, dir));
+        configure(new RepoOriginWriter(_services, dir));
         return this;
     }
 
@@ -89,14 +92,14 @@ public sealed class VirtualGameRepoBuilder
             throw new ArgumentException("Mod name must be non-empty.", nameof(name));
         if (configure == null)
             throw new ArgumentNullException(nameof(configure));
-        
+
         var dir = _fs.Path.Combine(_tempRoot, "mods", name);
         if (!_modPaths.Contains(dir))
         {
             _fs.Directory.CreateDirectory(dir);
             _modPaths.Add(dir);
         }
-        configure(new RepoOriginWriter(_fs, dir));
+        configure(new RepoOriginWriter(_services, dir));
         return this;
     }
 

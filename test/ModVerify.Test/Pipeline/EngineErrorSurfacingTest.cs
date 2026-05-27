@@ -13,7 +13,7 @@ public class EngineErrorSurfacingTest : ModVerifyTestBase
     public async Task Verify_MalformedXml_SurfacesAsVerificationError()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .WithGame(g => g.WriteXml("SFXEventFiles.xml", "<<not-xml"))
             .Build();
 

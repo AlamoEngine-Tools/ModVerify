@@ -1,8 +1,6 @@
 using System;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 using PG.StarWarsGame.Engine.Testing;
-using PG.StarWarsGame.Files.MEG.Services;
 
 namespace ModVerify.Test.Framework;
 
@@ -17,24 +15,18 @@ public static class MinimalFoc
     /// Hand-authoring binary MEG files in <c>Fixtures/</c> would require committing platform-specific bytes.
     /// </remarks>
     /// <param name="builder">The builder to populate.</param>
-    /// <param name="services">A service provider supplying file-format helpers (MEG creation).</param>
-    public static VirtualGameRepoBuilder WithMinimalFoc(
-        this VirtualGameRepoBuilder builder, IServiceProvider services)
+    public static VirtualGameRepoBuilder WithMinimalFoc(this VirtualGameRepoBuilder builder)
     {
         if (builder == null)
             throw new ArgumentNullException(nameof(builder));
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        var megService = services.GetRequiredService<IMegFileService>();
 
         return builder.WithGame(g =>
         {
-            g.WriteEmptyMeg("Data/Patch.meg", megService);
-            g.WriteEmptyMeg("Data/Patch2.meg", megService);
-            g.WriteEmptyMeg("Data/64Patch.meg", megService);
-            g.WriteEmptyMeg("Data/Audio/SFX/SFX2D_NON_LOCALIZED.MEG", megService);
-            g.WriteEmptyMeg("Data/Audio/SFX/SFX3D_NON_LOCALIZED.MEG", megService);
+            g.WriteEmptyMeg("Data/Patch.meg");
+            g.WriteEmptyMeg("Data/Patch2.meg");
+            g.WriteEmptyMeg("Data/64Patch.meg");
+            g.WriteEmptyMeg("Data/Audio/SFX/SFX2D_NON_LOCALIZED.MEG");
+            g.WriteEmptyMeg("Data/Audio/SFX/SFX3D_NON_LOCALIZED.MEG");
 
             g.WriteEmbeddedTree("MinimalFoc", Asm);
         });

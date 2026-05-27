@@ -12,7 +12,7 @@ public class SfxEventVerifierTest : VerifierTestBase<SfxEventVerifier>
     public async Task Verify_SfxEventWithMissingSample_EmitsFileNotFound()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .WithGame(g =>
             {
                 g.WriteXml("Empty_SFXEvents.xml", """

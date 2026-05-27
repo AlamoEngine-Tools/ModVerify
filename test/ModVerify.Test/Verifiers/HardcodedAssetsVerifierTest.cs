@@ -12,7 +12,7 @@ public class HardcodedAssetsVerifierTest : VerifierTestBase<HardcodedAssetsVerif
     public async Task Verify_MissingHardcodedAsset_EmitsFileNotFound()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .Build();
 
         var errors = await RunAsync(repo,

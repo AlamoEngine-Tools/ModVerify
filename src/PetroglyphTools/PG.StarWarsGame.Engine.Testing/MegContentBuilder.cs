@@ -1,18 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using PG.StarWarsGame.Files.MEG.Services.Builder.Normalization;
+using PG.StarWarsGame.Files.MEG.Services.Builder;
 
 namespace PG.StarWarsGame.Engine.Testing;
 
-internal sealed class MegContentBuilder : IMegContentBuilder
+internal sealed class MegContentBuilder(IMegBuilder inner) : IMegContentBuilder
 {
-    private static readonly EmpireAtWarMegDataEntryPathNormalizer Normalizer = new();
-
-    private readonly List<PendingEntry> _entries = new();
-
-    public IReadOnlyList<PendingEntry> Entries => _entries;
+    private readonly IMegBuilder _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     public IMegContentBuilder Add(string entryName, byte[] content)
     {
@@ -21,8 +16,10 @@ internal sealed class MegContentBuilder : IMegContentBuilder
         if (content == null)
             throw new ArgumentNullException(nameof(content));
 
-        _entries.Add(new PendingEntry(Normalize(entryName), content));
-        return this;
+        var result = _inner.AddBytes(content, entryName, encrypt: false);
+        return !result.Added 
+            ? throw new InvalidOperationException($"Failed to add MEG entry '{entryName}': {result.Status} ({result.Message ?? "no message"}).") 
+            : this;
     }
 
     public IMegContentBuilder Add(string entryName, string content)
@@ -37,16 +34,5 @@ internal sealed class MegContentBuilder : IMegContentBuilder
     {
         var asm = source ?? Assembly.GetCallingAssembly();
         return Add(entryName, EmbeddedFixtures.Load(resourceName, asm));
-    }
-
-    private static string Normalize(string entryName)
-    {
-        return Normalizer.Normalize(entryName);
-    }
-
-    internal readonly struct PendingEntry(string normalizedName, byte[] content)
-    {
-        public string NormalizedName { get; } = normalizedName;
-        public byte[] Content { get; } = content;
     }
 }

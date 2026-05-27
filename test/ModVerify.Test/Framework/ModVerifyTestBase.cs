@@ -42,10 +42,10 @@ public abstract class ModVerifyTestBase : TestBaseWithFileSystem
         return new RealFileSystem();
     }
 
-    /// <summary>Creates a builder bound to the test base's <see cref="IFileSystem"/>.</summary>
+    /// <summary>Creates a builder bound to the test base's service provider.</summary>
     protected VirtualGameRepoBuilder CreateBuilder()
     {
-        return new VirtualGameRepoBuilder(ServiceProvider.GetRequiredService<IFileSystem>());
+        return new VirtualGameRepoBuilder(ServiceProvider);
     }
 
     /// <summary>Creates the default <see cref="VerifierServiceSettings"/> for a pipeline run.</summary>
@@ -78,7 +78,7 @@ public abstract class ModVerifyTestBase : TestBaseWithFileSystem
         {
             Engine = GameEngineType.Foc,
             Location = repo.GameLocations,
-            Name = "test-target",
+            Name = "test-target"
         };
 
         using var pipeline = new GameVerifyPipeline(

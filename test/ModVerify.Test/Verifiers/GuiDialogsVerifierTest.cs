@@ -12,7 +12,7 @@ public class GuiDialogsVerifierTest : VerifierTestBase<GuiDialogsVerifier>
     public async Task Verify_MissingMtdFile_EmitsFileNotFound()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .Build();
 
         var errors = await RunAsync(repo,

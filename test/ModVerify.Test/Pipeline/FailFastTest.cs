@@ -15,7 +15,7 @@ public class FailFastTest : ModVerifyTestBase
     [Fact]
     public async Task RunPipeline_ErrorAboveThreshold_AbortsBeforeSubsequentVerifiers()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var provider = ErrorThenTrackingProvider.Create(
             id: "TEST00", asset: "asset-1", context: ["ctx"],
@@ -33,7 +33,7 @@ public class FailFastTest : ModVerifyTestBase
     [Fact]
     public async Task RunPipeline_SuppressedErrorAboveThreshold_DoesNotAbort()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var provider = ErrorThenTrackingProvider.Create(
             id: "TEST00", asset: "asset-1", context: ["ctx"],

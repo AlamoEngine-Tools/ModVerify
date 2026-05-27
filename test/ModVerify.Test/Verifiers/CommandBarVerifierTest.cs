@@ -11,7 +11,7 @@ public class CommandBarVerifierTest : VerifierTestBase<CommandBarVerifier>
     public async Task Verify_NoShellsGroup_EmitsCmdBarError()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .Build();
 
         var errors = await RunAsync(repo,

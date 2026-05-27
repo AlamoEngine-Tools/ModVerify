@@ -17,7 +17,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
     [Fact]
     public async Task Categorize_ErrorInRunAndBaseline_IsExisting()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var baseline = BuildBaseline(("TEST00", "asset-1", ["ctx"]));
         var provider = StaticErrorProvider.Create(
@@ -32,7 +32,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
     [Fact]
     public async Task Categorize_ErrorOnlyInRun_IsNew()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
         var provider = StaticErrorProvider.Create(
             id: "TEST00", asset: "asset-1", context: ["ctx"]);
 
@@ -44,7 +44,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
     [Fact]
     public async Task Categorize_ErrorOnlyInBaseline_IsResolved()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
         var baseline = BuildBaseline(("TEST00", "asset-1", ["ctx"]));
 
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider(), baselines: baseline);
@@ -57,7 +57,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
     [Fact]
     public async Task Categorize_SuppressedErrorAlsoInBaseline_IsResolved()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var baseline = BuildBaseline(("TEST00", "asset-1", ["ctx"]));
         var suppressions = new SuppressionList(
@@ -78,7 +78,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
     [Fact]
     public async Task Categorize_OneOfTwoEmittedErrorsSuppressed_BothInBaseline_SuppressedIsResolved_OtherIsExisting()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var baseline = BuildBaseline(
             ("TEST00", "asset-1", ["ctx"]),
@@ -103,7 +103,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
     [Fact]
     public async Task Categorize_NewErrorAndSuppressedError_OnlyUnsuppressedAppearsAsNew()
     {
-        using var repo = CreateBuilder().WithMinimalFoc(ServiceProvider).Build();
+        using var repo = CreateBuilder().WithMinimalFoc().Build();
 
         var suppressions = new SuppressionList(
         [

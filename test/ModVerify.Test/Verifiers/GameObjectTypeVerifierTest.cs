@@ -12,7 +12,7 @@ public class GameObjectTypeVerifierTest : VerifierTestBase<GameObjectTypeVerifie
     public async Task Verify_GameObjectWithMissingLandModel_EmitsFileNotFound()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .WithGame(g =>
             {
                 g.WriteXml("Empty_GameObjects.xml", """

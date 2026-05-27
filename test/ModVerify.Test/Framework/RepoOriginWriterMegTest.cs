@@ -1,12 +1,11 @@
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using PG.StarWarsGame.Engine.Testing;
 using PG.StarWarsGame.Files.MEG.Services;
 using Xunit;
 
 namespace ModVerify.Test.Framework;
 
-public class MegWriterExtensionsTest : ModVerifyTestBase
+public class RepoOriginWriterMegTest : ModVerifyTestBase
 {
     [Fact]
     public void WriteMeg_ForwardSlashEntryName_NormalizedToUppercaseBackslash()
@@ -17,7 +16,6 @@ public class MegWriterExtensionsTest : ModVerifyTestBase
         using var repo = CreateBuilder()
             .WithGame(g => g.WriteMeg(
                 "Data/test.meg",
-                megService,
                 meg => meg.Add("scripts/init.lua", "print('hello')")))
             .Build();
 

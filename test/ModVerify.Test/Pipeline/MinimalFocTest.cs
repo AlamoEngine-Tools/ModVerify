@@ -12,7 +12,7 @@ public class MinimalFocTest : ModVerifyTestBase
     public async Task Verify_MinimalFoc_BootsCleanWithoutInitErrors()
     {
         using var repo = CreateBuilder()
-            .WithMinimalFoc(ServiceProvider)
+            .WithMinimalFoc()
             .Build();
 
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider());
