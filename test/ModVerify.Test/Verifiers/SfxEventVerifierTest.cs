@@ -13,7 +13,7 @@ public class SfxEventVerifierTest : VerifierTestBase<SfxEventVerifier>
     {
         using var repo = CreateBuilder()
             .WithMinimalFoc()
-            .WithGame(g =>
+            .ConfigureGame(g =>
             {
                 g.WriteXml("Empty_SFXEvents.xml", """
                     <?xml version="1.0" encoding="utf-8"?>

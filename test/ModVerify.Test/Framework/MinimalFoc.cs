@@ -20,7 +20,7 @@ public static class MinimalFoc
         if (builder == null)
             throw new ArgumentNullException(nameof(builder));
 
-        return builder.WithGame(g =>
+        return builder.ConfigureGame(g =>
         {
             g.WriteEmptyMeg("Data/Patch.meg");
             g.WriteEmptyMeg("Data/Patch2.meg");

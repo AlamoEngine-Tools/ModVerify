@@ -14,7 +14,7 @@ public class EngineErrorSurfacingTest : ModVerifyTestBase
     {
         using var repo = CreateBuilder()
             .WithMinimalFoc()
-            .WithGame(g => g.WriteXml("SFXEventFiles.xml", "<<not-xml"))
+            .ConfigureGame(g => g.WriteXml("SFXEventFiles.xml", "<<not-xml"))
             .Build();
 
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider());

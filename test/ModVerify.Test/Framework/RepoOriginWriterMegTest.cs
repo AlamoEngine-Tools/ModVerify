@@ -14,7 +14,7 @@ public class RepoOriginWriterMegTest : ModVerifyTestBase
         var fs = ServiceProvider.GetRequiredService<IFileSystem>();
 
         using var repo = CreateBuilder()
-            .WithGame(g => g.WriteMeg(
+            .ConfigureGame(g => g.WriteMeg(
                 "Data/test.meg",
                 meg => meg.Add("scripts/init.lua", "print('hello')")))
             .Build();

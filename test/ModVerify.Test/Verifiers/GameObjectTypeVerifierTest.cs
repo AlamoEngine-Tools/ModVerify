@@ -13,7 +13,7 @@ public class GameObjectTypeVerifierTest : VerifierTestBase<GameObjectTypeVerifie
     {
         using var repo = CreateBuilder()
             .WithMinimalFoc()
-            .WithGame(g =>
+            .ConfigureGame(g =>
             {
                 g.WriteXml("Empty_GameObjects.xml", """
                     <?xml version="1.0" encoding="utf-8"?>

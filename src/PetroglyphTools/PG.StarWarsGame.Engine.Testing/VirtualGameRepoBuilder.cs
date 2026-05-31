@@ -30,9 +30,11 @@ public sealed class VirtualGameRepoBuilder
     }
 
     /// <summary>Configures files under the base game directory.</summary>
+    /// <remarks>The base game directory always exists; this populates it. Unlike <see cref="WithMod"/> and
+    /// <see cref="WithFallback"/>, it does not add an optional origin.</remarks>
     /// <param name="configure">The writer callback.</param>
     /// <exception cref="ArgumentNullException"><paramref name="configure"/> is <see langword="null"/>.</exception>
-    public VirtualGameRepoBuilder WithGame(Action<IRepoOriginWriter> configure)
+    public VirtualGameRepoBuilder ConfigureGame(Action<IRepoOriginWriter> configure)
     {
         if (configure == null)
             throw new ArgumentNullException(nameof(configure));
