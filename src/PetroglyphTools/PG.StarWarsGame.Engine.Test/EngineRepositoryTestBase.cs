@@ -1,19 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text;
-using AnakinRaW.CommonUtilities.Hashing;
-using AnakinRaW.CommonUtilities.Testing;
 using AnakinRaW.CommonUtilities.Testing.Extensions;
-using Microsoft.Extensions.DependencyInjection;
-using PG.Commons;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
+using PG.StarWarsGame.Engine.IO.Repositories;
 using PG.StarWarsGame.Engine.Testing;
-using PG.StarWarsGame.Files.ALO;
-using PG.StarWarsGame.Files.MEG;
-using PG.StarWarsGame.Files.MTD;
-using PG.StarWarsGame.Files.XML;
 using Testably.Abstractions;
 using Xunit;
 
@@ -21,30 +15,54 @@ namespace PG.StarWarsGame.Engine.Test;
 
 /// <summary>
 /// Base class for engine-bound repository tests.
-/// One concrete subclass per <see cref="GameEngineType"/> declares the engine via <see cref="Engine"/>;
-/// tests defined on the abstract per-category base classes (e.g. <c>GameRepositoryFileLookupTests</c>) are
-/// discovered through inheritance and run once per engine-specific subclass.
 /// </summary>
-public abstract class EngineRepositoryTestBase : TestBaseWithFileSystem
+public abstract class EngineRepositoryTestBase : EngineTestBase
 {
-    /// <summary>The engine targeted by this test class. Each concrete leaf class declares its engine here.</summary>
+    /// <summary>Gets the engine targeted by this test class.</summary>
     protected abstract GameEngineType Engine { get; }
 
-    protected override void SetupServices(IServiceCollection serviceCollection)
+    /// <summary>
+    /// Builds a <see cref="CaseInsensitivityFixture"/> instance that provides test data and logic 
+    /// for verifying case and separator insensitivity in repository lookups.
+    /// </summary>
+    /// <remarks>
+    /// Path casing and separators automatically randomized by the underlying test logic.
+    /// </remarks>
+    /// <returns>
+    /// A <see cref="CaseInsensitivityFixture"/> containing the configuration and data 
+    /// necessary for case insensitivity tests.
+    /// </returns>
+    protected abstract CaseInsensitivityFixture BuildCaseInsensitivityFixture();
+
+    /// <summary>
+    /// Builds the <see cref="RepositoryPriorityFixture"/> describing the asset this test class resolves
+    /// through the loading chain, exercised by the cross-origin priority tests.
+    /// </summary>
+    protected abstract RepositoryPriorityFixture BuildPriorityFixture();
+
+    /// <summary>
+    /// The repository origins in descending lookup priority for this test class's <see cref="Engine"/>.
+    /// </summary>
+    private IReadOnlyList<RepositoryLayer> ExpectedLoadOrder => Engine switch
     {
-        base.SetupServices(serviceCollection);
-
-        serviceCollection.AddSingleton<IHashingService>(sp => new HashingService(sp));
-
-        serviceCollection.SupportMTD();
-        serviceCollection.SupportMEG();
-        serviceCollection.SupportALO();
-        serviceCollection.SupportXML();
-        PetroglyphCommons.ContributeServices(serviceCollection);
-        PetroglyphEngineServiceContribution.ContributeServices(serviceCollection);
-    }
-
-    protected override IFileSystem CreateFileSystem()
+        GameEngineType.Foc =>
+        [
+            RepositoryLayer.Mod,
+            RepositoryLayer.Game,
+            RepositoryLayer.MasterMeg,
+            RepositoryLayer.Fallback,
+        ],
+        GameEngineType.Eaw =>
+        [
+            RepositoryLayer.Mod,
+            RepositoryLayer.Game,
+            RepositoryLayer.Fallback,
+            RepositoryLayer.MasterMeg,
+        ],
+        _ => throw new ArgumentOutOfRangeException()
+    };
+    
+    protected sealed override IFileSystem CreateFileSystem()
     {
         // Real file system is required to test integration
         // with PG.StarWarsGame.Engine.FileSystem
@@ -60,19 +78,18 @@ public abstract class EngineRepositoryTestBase : TestBaseWithFileSystem
     /// <summary>Constructs an <see cref="IGameRepository"/> for this test class's <see cref="Engine"/>.</summary>
     /// <remarks>The returned repository is sealed against further MEG modifications, matching the engine-init lifecycle.</remarks>
     protected IGameRepository CreateRepository(VirtualGameRepo repo)
-        => CreateRepository(Engine, repo, errorReporter: null);
+    {
+        return CreateRepository(Engine, repo, errorReporter: null);
+    }
 
     /// <summary>Constructs an <see cref="IGameRepository"/> for this test class's <see cref="Engine"/> with a custom error reporter
     /// to observe init-time assertions (e.g. <see cref="EngineAssertKind.FileNotFound"/> for missing patches).</summary>
     protected IGameRepository CreateRepository(VirtualGameRepo repo, IGameEngineErrorReporter? errorReporter)
-        => CreateRepository(Engine, repo, errorReporter);
+    {
+        return CreateRepository(Engine, repo, errorReporter);
+    }
 
-    /// <summary>Constructs an <see cref="IGameRepository"/> for an explicit engine. Use only when a test must
-    /// exercise a non-current engine (e.g. asserting factory dispatch for another engine).</summary>
-    protected IGameRepository CreateRepository(GameEngineType engine, VirtualGameRepo repo)
-        => CreateRepository(engine, repo, errorReporter: null);
-
-    private IGameRepository CreateRepository(GameEngineType engine, VirtualGameRepo repo, IGameEngineErrorReporter? errorReporter)
+    private GameRepository CreateRepository(GameEngineType engine, VirtualGameRepo repo, IGameEngineErrorReporter? errorReporter)
     {
         if (repo == null)
             throw new ArgumentNullException(nameof(repo));
@@ -94,58 +111,122 @@ public abstract class EngineRepositoryTestBase : TestBaseWithFileSystem
         using (var reader = new StreamReader(stream, Encoding.UTF8))
             return reader.ReadToEnd();
     }
-
-    /// <summary>
-    /// Describes the repository facet under test and the fixtures used by the inherited
-    /// <see cref="Lookup_IsCaseAndSeparatorInsensitive_AcrossFilesystemAndMeg"/> test.
-    /// The default targets the base <see cref="IGameRepository"/>; derived classes override
-    /// to target their specialized facet (Effects, Texture, Model).
-    /// </summary>
-    protected virtual RepositoryLookupSetup GetLookupSetup() => new(
-        PopulateGame: g =>
-        {
-            g.Write("Data/XML/Foo.xml", "fs-content");
-            g.WriteMeg("Data/Patch.meg", meg => meg.Add("Data/Audio/Bar.wav", "meg-content"));
-        },
-        SelectRepository: gameRepo => gameRepo,
-        FilesystemLookup: "Data/XML/Foo.xml",
-        FilesystemContent: "fs-content",
-        MegLookup: "Data/Audio/Bar.wav",
-        MegContent: "meg-content");
-
-    /// <summary>
-    /// Sanity check that lookups through the engine layer remain case- and separator-insensitive for both
-    /// filesystem-backed and MEG-backed files, against whichever <see cref="IRepository"/> facet the
-    /// derived class exercises.
-    /// </summary>
-    /// <remarks>
-    /// Defined on the base class so xUnit discovers it in every concrete repository-test class. Case shuffling
-    /// uses <see cref="StringExtensions.ShuffleCasing(string)"/>; separator shuffling uses a seeded local
-    /// <see cref="Random"/> so a separator-related failure stays reproducible.
-    /// </remarks>
-    [Fact]
-    public void Lookup_IsCaseAndSeparatorInsensitive_AcrossFilesystemAndMeg()
+    
+    public static TheoryData<PetroglyphFileSystemStrategy> SupportedFileSystemStrategies()
     {
-        var setup = GetLookupSetup();
+        var data = new TheoryData<PetroglyphFileSystemStrategy>();
+        foreach (var strategy in PetroglyphFileSystemTestHelpers.SupportedForCurrentOS())
+            data.Add(strategy);
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(SupportedFileSystemStrategies))]
+    public void Lookup_IsCaseAndSeparatorInsensitive_AcrossFilesystemAndMeg(PetroglyphFileSystemStrategy strategy)
+    {
+        var fixture = BuildCaseInsensitivityFixture();
 
         using var virt = CreateBuilder()
-            .WithGame(setup.PopulateGame)
+            .ConfigureGame(fixture.PopulateGame)
             .Build();
         var gameRepo = CreateRepository(virt);
-        var repoUnderTest = setup.SelectRepository(gameRepo);
+        gameRepo.PGFileSystem.ApplyStrategy(strategy);
+        var repoUnderTest = fixture.SelectRepository(gameRepo);
 
         var separatorRandom = new Random(42);
         for (var i = 0; i < 32; i++)
         {
-            var fsVariant = JitterSeparators(string.ShuffleCasing(setup.FilesystemLookup), separatorRandom);
-            var megVariant = JitterSeparators(string.ShuffleCasing(setup.MegLookup), separatorRandom);
+            var fsVariant = JitterSeparators(string.ShuffleCasing(fixture.FilesystemLookup), separatorRandom);
+            var megVariant = JitterSeparators(string.ShuffleCasing(fixture.MegLookup), separatorRandom);
 
             Assert.True(repoUnderTest.FileExists(fsVariant), $"Filesystem variant '{fsVariant}' should resolve.");
             Assert.True(repoUnderTest.FileExists(megVariant), $"MEG variant '{megVariant}' should resolve.");
-            Assert.Equal(setup.FilesystemContent, ReadAll(repoUnderTest.OpenFile(fsVariant)));
-            Assert.Equal(setup.MegContent, ReadAll(repoUnderTest.OpenFile(megVariant)));
+            Assert.Equal(fixture.FilesystemContent, ReadAll(repoUnderTest.OpenFile(fsVariant)));
+            Assert.Equal(fixture.MegContent, ReadAll(repoUnderTest.OpenFile(megVariant)));
         }
     }
+
+    #region Default loading chain priority
+
+    [Theory]
+    [MemberData(nameof(SupportedFileSystemStrategies))]
+    public void Priority_ResolvesAccordingToEngineLoadOrder(PetroglyphFileSystemStrategy strategy)
+    {
+        var fixture = BuildPriorityFixture();
+        var order = ExpectedLoadOrder;
+
+        // Sliding 'top' down the list makes each origin,
+        // in turn, the highest-priority one holding the file (Example for FOC):
+        //   top = mod      -> all four origins hold it      -> mod must win
+        //   top = game     -> game, MEG, fallback hold it   -> game must win  (mod is empty)
+        //   top = MEG      -> MEG, fallback hold it          -> MEG must win   (mod, game empty)
+        //   top = fallback -> only fallback holds it         -> fallback wins
+        for (var top = 0; top < order.Count; top++)
+        {
+            var builder = CreateBuilder();
+            for (var i = top; i < order.Count; i++)
+                WriteLayer(builder, order[i], fixture.ResolvablePath, order[i].ToString());
+
+            using var repo = builder.Build();
+            var gameRepo = CreateRepository(repo);
+            gameRepo.PGFileSystem.ApplyStrategy(strategy);
+            var repoUnderTest = fixture.SelectRepository(gameRepo);
+
+            var winner = order[top];
+            Assert.Equal(winner.ToString(), ReadAll(repoUnderTest.OpenFile(fixture.ResolvablePath)));
+        }
+    }
+
+    private static void WriteLayer(VirtualGameRepoBuilder builder, RepositoryLayer layer, string path, string content)
+    {
+        switch (layer)
+        {
+            case RepositoryLayer.Mod:
+                builder.WithMod("Mod", w => w.Write(path, content));
+                break;
+            case RepositoryLayer.Game:
+                builder.ConfigureGame(g => g.Write(path, content));
+                break;
+            case RepositoryLayer.MasterMeg:
+                builder.ConfigureGame(g => g.WriteMeg("Data/Patch.meg", meg => meg.Add(path, content)));
+                break;
+            case RepositoryLayer.Fallback:
+                builder.WithFallbackGame(f => f.Write(path, content));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(layer), layer, null);
+        }
+    }
+
+    [Fact]
+    public void Priority_ModDeclarationOrderIsRespected()
+    {
+        var fixture = BuildPriorityFixture();
+
+        using var repo = CreateBuilder()
+            .WithMod("ModA", m => m.Write(fixture.ResolvablePath, "A"))
+            .WithMod("ModB", m => m.Write(fixture.ResolvablePath, "B"))
+            .Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.Equal("A", ReadAll(repoUnderTest.OpenFile(fixture.ResolvablePath)));
+    }
+
+    [Fact]
+    public void Priority_FallbackDeclarationOrderIsRespected()
+    {
+        var fixture = BuildPriorityFixture();
+
+        using var repo = CreateBuilder()
+            .WithFallback("FallbackA", w => w.Write(fixture.ResolvablePath, "A"))
+            .WithFallback("FallbackB", w => w.Write(fixture.ResolvablePath, "B"))
+            .Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.Equal("A", ReadAll(repoUnderTest.OpenFile(fixture.ResolvablePath)));
+    }
+
+    #endregion
 
     private static string JitterSeparators(string path, Random random)
     {

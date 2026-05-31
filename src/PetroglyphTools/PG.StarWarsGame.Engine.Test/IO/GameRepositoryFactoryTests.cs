@@ -1,31 +1,40 @@
 using System;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
+using PG.StarWarsGame.Engine.IO.Repositories;
+using PG.StarWarsGame.Engine.Testing;
 using Xunit;
 
 namespace PG.StarWarsGame.Engine.Test.IO;
 
-public abstract class GameRepositoryFactoryTests : EngineRepositoryTestBase
+/// <summary>
+/// Tests <see cref="GameRepositoryFactory"/> engine dispatch in isolation. The factory is engine-agnostic
+/// infrastructure, so it is a standalone test class rather than an engine-bound repository test.
+/// </summary>
+public class GameRepositoryFactoryTests : EngineTestBase
 {
-    [Fact]
-    public void Create_ReportsMatchingEngineType()
+    private GameRepository Create(GameEngineType engine, VirtualGameRepo repo)
     {
-        using var repo = CreateBuilder().Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.Equal(Engine, gameRepo.EngineType);
+        var factory = new GameRepositoryFactory(ServiceProvider);
+        return factory.Create(engine, repo.GameLocations, new GameEngineErrorReporterWrapper(null));
     }
 
     [Fact]
-    public void Create_EawEngine_ThrowsNotImplemented()
+    public void Create_Foc_ReturnsFocGameRepositoryWithMatchingEngineType()
     {
-        // Cross-engine: assert the factory rejects EaW today, regardless of the current engine.
-        // Once EaW lands this test should be removed (or relocated to the EaW concrete class as
-        // a "returns EawGameRepository" assertion).
-        using var repo = CreateBuilder().Build();
-        var factory = new GameRepositoryFactory(ServiceProvider);
+        using var repo = new VirtualGameRepoBuilder(ServiceProvider).Build();
 
-        Assert.Throws<NotImplementedException>(() =>
-            factory.Create(GameEngineType.Eaw, repo.GameLocations, new GameEngineErrorReporterWrapper(null)));
+        var gameRepo = Create(GameEngineType.Foc, repo);
+
+        Assert.IsType<FocGameRepository>(gameRepo);
+        Assert.Equal(GameEngineType.Foc, gameRepo.EngineType);
+    }
+
+    [Fact]
+    public void Create_Eaw_ThrowsNotImplemented()
+    {
+        using var repo = new VirtualGameRepoBuilder(ServiceProvider).Build();
+
+        Assert.Throws<NotImplementedException>(() => Create(GameEngineType.Eaw, repo));
     }
 }
