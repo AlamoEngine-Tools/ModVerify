@@ -16,8 +16,8 @@ namespace PG.StarWarsGame.Engine.IO;
 /// </remarks>
 public sealed partial class PetroglyphFileSystem
 {
-    private const char DirectorySeparatorChar = '/';
-    private const char AltDirectorySeparatorChar = '\\';
+    internal const char DirectorySeparatorChar = '/';
+    internal const char AltDirectorySeparatorChar = '\\';
 
     // ReSharper disable once InconsistentNaming
     private static readonly PathNormalizeOptions PGFileSystemDirectorySeparatorNormalizeOptions = new()

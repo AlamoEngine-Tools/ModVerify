@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Xml;
 using AET.ModVerify.Utilities;
 using AET.ModVerify.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
