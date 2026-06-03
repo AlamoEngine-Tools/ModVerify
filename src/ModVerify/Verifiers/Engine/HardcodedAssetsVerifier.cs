@@ -1,8 +1,9 @@
-﻿using System;
-using System.Threading;
-using AET.ModVerify.Settings;
+﻿using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
 using PG.StarWarsGame.Engine;
+using System;
+using System.Threading;
+using AET.ModVerify.Reporting;
 
 namespace AET.ModVerify.Verifiers.Engine;
 
@@ -18,7 +19,9 @@ public sealed class HardcodedAssetsVerifier : GameVerifier
 
     public override void Verify(CancellationToken token)
     {
-        OnProgress(0.0d, "Verifying Hardcoded Models");
+        OnProgress(0.0d, "Verifying Hardcoded Shaders");
+        VerifyShaders(token);
+        OnProgress(0.5d, "Verifying Hardcoded Models");
         VerifyModels(token);
         OnProgress(1.0, null);
     }
@@ -32,5 +35,32 @@ public sealed class HardcodedAssetsVerifier : GameVerifier
 
         foreach (var error in _modelVerifier.VerifyErrors) 
             AddError(error);
+    }
+
+    // TODO: Create a shader verifier that reports a warning if a shader is located at the game's root 
+    //  as this can cause compatibility issues with mods and in general is not recommended.
+    
+    private void VerifyShaders(CancellationToken token)
+    {
+        var repo = GameEngine.GameRepository.EffectsRepository;
+        // The engine loads the following shaders at startup
+        foreach (var shadersName in HardcodedEngineAssets.HardcodedEngineShadersNames)
+        {
+            token.ThrowIfCancellationRequested();
+            
+            if (!repo.FileExists(shadersName))
+                AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
+                    $"Unable to find shader '{shadersName}'", VerificationSeverity.Error, [], shadersName));
+        }
+
+        // The engine loads the following shaders on terrain load. For simplicity, we try to find them once here
+        foreach (var shadersName in HardcodedEngineAssets.HardcodedTerrainShadersNames)
+        {
+            token.ThrowIfCancellationRequested();
+
+            if (!repo.FileExists(shadersName))
+                AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
+                    $"Unable to find terrain shader '{shadersName}'", VerificationSeverity.Error, [], shadersName));
+        }
     }
 }
