@@ -5,8 +5,8 @@ namespace PG.StarWarsGame.Engine.IO.Repositories;
 
 internal class TextureRepository(GameRepository baseRepository) : MultiPassRepository(baseRepository)
 {
-    private static readonly string DdsExtension = ".dds";
-    private static readonly string TexturePath = "./Data/art/Textures/";
+    private const string DdsExtension = ".dds";
+    private const string TexturePath = "./Data/art/Textures/";
 
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 
