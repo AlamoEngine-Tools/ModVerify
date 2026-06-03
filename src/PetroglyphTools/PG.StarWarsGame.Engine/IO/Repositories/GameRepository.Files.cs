@@ -109,7 +109,7 @@ internal partial class GameRepository
         if (filePath.Length > PGConstants.MaxMegEntryPathLength)
         {
             _logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FileName}'", filePath.ToString());
-            return default;
+            return new FileFoundInfo { PathTooLong = true };
         }
         
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
