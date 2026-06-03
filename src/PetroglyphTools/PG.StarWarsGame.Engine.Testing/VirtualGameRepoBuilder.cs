@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Text;
+using AnakinRaW.CommonUtilities.Collections;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace PG.StarWarsGame.Engine.Testing;
@@ -14,6 +16,7 @@ public sealed class VirtualGameRepoBuilder
     private readonly string _gameRoot;
     private readonly List<string> _modPaths = [];
     private readonly List<string> _fallbackPaths = [];
+    private readonly ValueListDictionary<string, string> _registeredMegsByOrigin = new();
     private string? _fallbackGamePath;
 
     /// <summary>Initializes a new instance of the <see cref="VirtualGameRepoBuilder"/> class.</summary>
@@ -39,7 +42,7 @@ public sealed class VirtualGameRepoBuilder
         if (configure == null)
             throw new ArgumentNullException(nameof(configure));
 
-        configure(new RepoOriginWriter(_services, _gameRoot));
+        configure(CreateWriter(_gameRoot));
         return this;
     }
 
@@ -56,7 +59,7 @@ public sealed class VirtualGameRepoBuilder
             _fallbackGamePath = _fs.Path.Combine(_tempRoot, "fallback", "_primary");
             _fs.Directory.CreateDirectory(_fallbackGamePath);
         }
-        configure(new RepoOriginWriter(_services, _fallbackGamePath));
+        configure(CreateWriter(_fallbackGamePath));
         return this;
     }
 
@@ -78,7 +81,7 @@ public sealed class VirtualGameRepoBuilder
             _fs.Directory.CreateDirectory(dir);
             _fallbackPaths.Add(dir);
         }
-        configure(new RepoOriginWriter(_services, dir));
+        configure(CreateWriter(dir));
         return this;
     }
 
@@ -101,18 +104,44 @@ public sealed class VirtualGameRepoBuilder
             _fs.Directory.CreateDirectory(dir);
             _modPaths.Add(dir);
         }
-        configure(new RepoOriginWriter(_services, dir));
+        configure(CreateWriter(dir));
         return this;
     }
 
     /// <summary>Builds the configured repository.</summary>
     public VirtualGameRepo Build()
     {
+        WriteRegisteredMegaFiles();
+
         var fallbacks = new List<string>();
         if (_fallbackGamePath != null)
             fallbacks.Add(_fallbackGamePath);
         fallbacks.AddRange(_fallbackPaths);
         var locations = new GameLocations(_modPaths, _gameRoot, fallbacks);
         return new VirtualGameRepo(_fs, _tempRoot, locations);
+    }
+
+    private RepoOriginWriter CreateWriter(string originRoot)
+    {
+        return new RepoOriginWriter(_services, originRoot, relativePath => _registeredMegsByOrigin.Add(originRoot, relativePath));
+    }
+
+    // Emits a Data/MegaFiles.xml per origin that had MEGs registered via RegisterAndWriteMeg, in
+    // registration order (which is the master-MEG load order).
+    private void WriteRegisteredMegaFiles()
+    {
+        foreach (var originRoot in _registeredMegsByOrigin.Keys)
+            CreateWriter(originRoot).Write("Data/MegaFiles.xml", BuildMegaFilesXml(_registeredMegsByOrigin.GetValues(originRoot)));
+    }
+
+    private static string BuildMegaFilesXml(IReadOnlyList<string> megs)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("<?xml version=\"1.0\"?>");
+        sb.AppendLine("<MegaFiles>");
+        foreach (var meg in megs)
+            sb.AppendLine($"  <File>{meg}</File>");
+        sb.Append("</MegaFiles>");
+        return sb.ToString();
     }
 }

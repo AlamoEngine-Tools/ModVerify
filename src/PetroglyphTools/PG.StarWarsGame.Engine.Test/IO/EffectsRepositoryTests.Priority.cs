@@ -131,7 +131,7 @@ public abstract partial class EffectsRepositoryTests
     {
         using var repo = CreateBuilder()
             .WithFallbackGame(f => f.Write("MyShader.fx", "fb-root-unreachable"))
-            .ConfigureGame(g => g.WriteMeg("Data/Patch.meg", m => m.Add("MyShader.fx", "meg")))
+            .ConfigureGame(g => g.RegisterAndWriteMeg("Data/Shaders.meg", m => m.Add("MyShader.fx", "meg")))
             .Build();
         var gameRepo = CreateRepository(repo);
 
@@ -146,7 +146,7 @@ public abstract partial class EffectsRepositoryTests
             .ConfigureGame(g =>
             {
                 g.Write("MyShader.fx", "game-root");
-                g.WriteMeg("Data/Patch.meg", m => m.Add("MyShader.fx", "meg-root"));
+                g.RegisterAndWriteMeg("Data/Shaders.meg", m => m.Add("MyShader.fx", "meg-root"));
             })
             .Build();
         var gameRepo = CreateRepository(repo);
@@ -171,7 +171,7 @@ public abstract partial class EffectsRepositoryTests
             {
                 g.Write("Data/Art/Shaders/MyShader.fx", "L3");
                 g.Write("Data/Art/Shaders/Engine/MyShader.fx", "L4");
-                g.WriteMeg("Data/Patch.meg", meg =>
+                g.RegisterAndWriteMeg("Data/Shaders.meg", meg =>
                 {
                     meg.Add("Data/Art/Shaders/MyShader.fx", "L5");
                     meg.Add("Data/Art/Shaders/MyShader.fxo", "L6");

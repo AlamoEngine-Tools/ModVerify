@@ -10,7 +10,7 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
             PopulateGame: g =>
             {
                 g.Write("Data/Art/Shaders/MyShader.fx", "fs-fx");
-                g.WriteMeg("Data/Patch.meg", meg => meg.Add("Data/Art/Shaders/OtherShader.fx", "meg-fx"));
+                g.RegisterAndWriteMeg("Data/Shaders.meg", meg => meg.Add("Data/Art/Shaders/OtherShader.fx", "meg-fx"));
             },
             SelectRepository: gameRepo => gameRepo.EffectsRepository,
             FilesystemLookup: "MyShader",
@@ -87,7 +87,7 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
     public void FileExists_ShaderInMeg_Resolves(string input)
     {
         using var repo = CreateBuilder()
-            .ConfigureGame(g => g.WriteMeg("Data/Patch.meg",
+            .ConfigureGame(g => g.RegisterAndWriteMeg("Data/Shaders.meg",
                 meg => meg.Add("MyShader.fx", "fx-in-meg")))
             .Build();
         var gameRepo = CreateRepository(repo);

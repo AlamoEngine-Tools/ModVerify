@@ -14,7 +14,7 @@ public abstract partial class GameRepositoryTests : EngineRepositoryTestBase
             PopulateGame: g =>
             {
                 g.Write("Data/XML/Foo.xml", "fs-content");
-                g.WriteMeg("Data/Patch.meg", meg => meg.Add("Data/Audio/Bar.wav", "meg-content"));
+                g.RegisterAndWriteMeg("Data/Content.meg", meg => meg.Add("Data/Audio/Bar.wav", "meg-content"));
             },
             SelectRepository: gameRepo => gameRepo,
             FilesystemLookup: "Data/XML/Foo.xml",

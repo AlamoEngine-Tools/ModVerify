@@ -7,11 +7,12 @@ using PG.StarWarsGame.Files.MEG.Services.Builder;
 
 namespace PG.StarWarsGame.Engine.Testing;
 
-internal sealed class RepoOriginWriter(IServiceProvider services, string originPath) : IRepoOriginWriter
+internal sealed class RepoOriginWriter(IServiceProvider services, string originPath, Action<string> registerMeg) : IRepoOriginWriter
 {
     private readonly IServiceProvider _services = services ?? throw new ArgumentNullException(nameof(services));
     private readonly IFileSystem _fileSystem = services.GetRequiredService<IFileSystem>();
     private readonly string _originPath = originPath ?? throw new ArgumentNullException(nameof(originPath));
+    private readonly Action<string> _registerMeg = registerMeg ?? throw new ArgumentNullException(nameof(registerMeg));
 
     public void Write(string relativePath, string content)
     {
@@ -72,6 +73,12 @@ internal sealed class RepoOriginWriter(IServiceProvider services, string originP
     public void WriteEmptyMeg(string relativePath)
     {
         WriteMeg(relativePath, _ => { });
+    }
+
+    public void RegisterAndWriteMeg(string relativePath, Action<IMegContentBuilder> configure)
+    {
+        WriteMeg(relativePath, configure);
+        _registerMeg(relativePath);
     }
 
     private string Resolve(string relativePath)

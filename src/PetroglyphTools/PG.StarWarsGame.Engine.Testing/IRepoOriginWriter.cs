@@ -30,6 +30,12 @@ public interface IRepoOriginWriter
     /// <param name="configure">The callback that populates the archive entries.</param>
     void WriteMeg(string relativePath, Action<IMegContentBuilder> configure);
 
+    /// <summary>Writes a MEG archive and registers it in this origin's <c>Data/MegaFiles.xml</c>,
+    /// which the builder emits when the repository is built.</summary>
+    /// <param name="relativePath">The destination path relative to the origin root, also listed in <c>MegaFiles.xml</c>.</param>
+    /// <param name="configure">The callback that populates the archive entries.</param>
+    void RegisterAndWriteMeg(string relativePath, Action<IMegContentBuilder> configure);
+
     /// <summary>Writes an empty MEG archive to a file relative to the origin root.</summary>
     /// <param name="relativePath">The destination path relative to the origin root.</param>
     void WriteEmptyMeg(string relativePath);
