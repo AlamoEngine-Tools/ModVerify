@@ -56,6 +56,9 @@ internal class FocGameRepository : GameRepository
     
     protected internal override FileFoundInfo FindFile(ReadOnlySpan<char> filePath, ref ValueStringBuilder pathStringBuilder, bool megFileOnly = false)
     {
+        if (filePath.IsEmpty)
+            return default;
+        
         if (!megFileOnly)
         {
             var fileFoundInfo = FileFromAltExists(filePath, ModPaths, ref pathStringBuilder);
