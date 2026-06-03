@@ -8,6 +8,10 @@ namespace PG.StarWarsGame.Engine.Test.IO;
 /// </summary>
 public abstract partial class GameRepositoryTests : EngineRepositoryTestBase
 {
+    protected override bool ResolvesFileNameWithoutDirectory => false;
+
+    protected override bool SurfacesPathTooLong => false;
+
     protected override CaseInsensitivityFixture BuildCaseInsensitivityFixture()
     {
         return new CaseInsensitivityFixture(
@@ -23,9 +27,9 @@ public abstract partial class GameRepositoryTests : EngineRepositoryTestBase
             MegContent: "meg-content");
     }
 
-    protected override RepositoryPriorityFixture BuildPriorityFixture()
+    protected override RepositoryFixture BuildRepositoryFixture()
     {
-        return new RepositoryPriorityFixture(
+        return new RepositoryFixture(
             SelectRepository: gameRepo => gameRepo,
             ResolvablePath: "Data/XML/Foo.xml");
     }

@@ -1,98 +1,53 @@
-using System;
 using Xunit;
 
 namespace PG.StarWarsGame.Engine.Test.IO;
 
-public abstract class TextureRepositoryTests : EngineRepositoryTestBase
+public abstract class TextureRepositoryTests : ExtensionFallbackRepositoryTests
 {
-    protected override RepositoryLookupSetup GetLookupSetup() => new(
-        PopulateGame: g =>
-        {
-            g.Write("Data/Art/Textures/MyTex.tga", "fs-tga");
-            g.WriteMeg("Data/Patch.meg", meg => meg.Add("Data/Art/Textures/OtherTex.tga", "meg-tga"));
-        },
-        SelectRepository: gameRepo => gameRepo.TextureRepository,
-        FilesystemLookup: "Data/Art/Textures/MyTex.tga",
-        FilesystemContent: "fs-tga",
-        MegLookup: "Data/Art/Textures/OtherTex.tga",
-        MegContent: "meg-tga");
+    protected override bool ResolvesFileNameWithoutDirectory => true;
+
+    protected override bool SurfacesPathTooLong => true;
+
+    protected override string FallbackExtension => ".dds";
+
+    protected override string SecondaryExtension => ".tga";
+
+    protected override CaseInsensitivityFixture BuildCaseInsensitivityFixture()
+    {
+        return new CaseInsensitivityFixture(
+            PopulateGame: g =>
+            {
+                g.Write("Data/Art/Textures/MyTex.tga", "fs-tga");
+                g.RegisterAndWriteMeg("Data/Textures.meg", meg => meg.Add("Data/Art/Textures/OtherTex.tga", "meg-tga"));
+            },
+            SelectRepository: gameRepo => gameRepo.TextureRepository,
+            FilesystemLookup: "Data/Art/Textures/MyTex.tga",
+            FilesystemContent: "fs-tga",
+            MegLookup: "Data/Art/Textures/OtherTex.tga",
+            MegContent: "meg-tga");
+    }
+
+    protected override RepositoryFixture BuildRepositoryFixture()
+    {
+        return new RepositoryFixture(
+            SelectRepository: gameRepo => gameRepo.TextureRepository,
+            ResolvablePath: "Data/Art/Textures/MyTex.tga");
+    }
 
     [Fact]
-    public void FileExists_AsIs_ReturnsTrue()
+    public void Priority_AsIsLocationBeatsTexturesDirectory()
     {
+        // For a bare request the path is probed as-is (here: the game root) before it is retried under the
+        // implicit ./Data/Art/Textures/ directory.
         using var repo = CreateBuilder()
-            .WithGame(g => g.Write("Data/Art/Textures/MyTex.tga", "tga"))
+            .ConfigureGame(g =>
+            {
+                g.Write("MyTex.tga", "root");
+                g.Write("Data/Art/Textures/MyTex.tga", "textures-dir");
+            })
             .Build();
         var gameRepo = CreateRepository(repo);
 
-        Assert.True(gameRepo.TextureRepository.FileExists("Data/Art/Textures/MyTex.tga"));
-    }
-
-    [Fact]
-    public void FileExists_DdsFallback_OnlyDdsExists()
-    {
-        using var repo = CreateBuilder()
-            .WithGame(g => g.Write("Data/Art/Textures/MyTex.dds", "dds"))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        // Engine asks for .tga; .dds is what's on disk.
-        Assert.True(gameRepo.TextureRepository.FileExists("Data/Art/Textures/MyTex.tga"));
-    }
-
-    [Fact]
-    public void FileExists_BareName_FoundUnderTexturesDirectory()
-    {
-        using var repo = CreateBuilder()
-            .WithGame(g => g.Write("Data/Art/Textures/MyTex.tga", "tga"))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.True(gameRepo.TextureRepository.FileExists("MyTex.tga"));
-    }
-
-    [Fact]
-    public void FileExists_BareNameDdsFallback_FoundUnderTexturesDirectory()
-    {
-        using var repo = CreateBuilder()
-            .WithGame(g => g.Write("Data/Art/Textures/MyTex.dds", "dds"))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.True(gameRepo.TextureRepository.FileExists("MyTex.tga"));
-    }
-
-    [Fact]
-    public void FileExists_Missing_ReturnsFalse()
-    {
-        using var repo = CreateBuilder().Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.False(gameRepo.TextureRepository.FileExists("Missing.tga"));
-    }
-
-    [Fact]
-    public void FileExists_TextureInMeg_Resolves()
-    {
-        using var repo = CreateBuilder()
-            .WithGame(g => g.WriteMeg("Data/Patch.meg",
-                meg => meg.Add("Data/Art/Textures/MyTex.tga", "tga")))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.True(gameRepo.TextureRepository.FileExists("Data/Art/Textures/MyTex.tga"));
-    }
-
-    [Fact]
-    public void FileExists_OverlongPath_FlagsPathTooLong()
-    {
-        using var repo = CreateBuilder().Build();
-        var gameRepo = CreateRepository(repo);
-
-        var path = new string('a', 300) + ".tga";
-        var found = gameRepo.TextureRepository.FileExists(path.AsSpan(), megFileOnly: false, out var pathTooLong);
-
-        Assert.False(found);
-        Assert.True(pathTooLong);
+        Assert.Equal("root", ReadAll(gameRepo.TextureRepository.OpenFile("MyTex.tga")));
     }
 }

@@ -4,6 +4,10 @@ namespace PG.StarWarsGame.Engine.Test.IO;
 
 public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
 {
+    protected override bool ResolvesFileNameWithoutDirectory => true;
+
+    protected override bool SurfacesPathTooLong => false;
+
     protected override CaseInsensitivityFixture BuildCaseInsensitivityFixture()
     {
         return new CaseInsensitivityFixture(
@@ -19,9 +23,9 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
             MegContent: "meg-fx");
     }
 
-    protected override RepositoryPriorityFixture BuildPriorityFixture()
+    protected override RepositoryFixture BuildRepositoryFixture()
     {
-        return new RepositoryPriorityFixture(
+        return new RepositoryFixture(
             SelectRepository: gameRepo => gameRepo.EffectsRepository,
             ResolvablePath: "Data/Art/Shaders/MyShader.fx");
     }
@@ -73,31 +77,6 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
-    public void FileExists_MissingShader_ReturnsFalse(string input)
-    {
-        using var repo = CreateBuilder().Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.False(gameRepo.EffectsRepository.FileExists(input));
-    }
-
-    [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
-    public void FileExists_ShaderInMeg_Resolves(string input)
-    {
-        using var repo = CreateBuilder()
-            .ConfigureGame(g => g.RegisterAndWriteMeg("Data/Shaders.meg",
-                meg => meg.Add("MyShader.fx", "fx-in-meg")))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.True(gameRepo.EffectsRepository.FileExists(input));
-    }
-
-    #region Mods
-
-    [Theory]
     [MemberData(nameof(ResolvableShaderLocations_Root))]
     public void FileExists_ShaderInModRoot_ShouldNotResolve(string writtenPath, string input)
     { 
@@ -111,38 +90,8 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
     }
 
     [Theory]
-    [MemberData(nameof(ResolvableShaderLocations_DataArts))]
-    public void FileExists_ShaderInModDataArts_Resolves(string writtenPath, string input)
-    {
-        using var repo = CreateBuilder()
-            .ConfigureGame(g => { })
-            .WithMod("MyMod", w => w.Write(writtenPath, "fx-in-mod"))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.True(gameRepo.EffectsRepository.FileExists(input));
-    }
-
-    #endregion
-
-    #region Fallback
-
-    [Theory]
     [MemberData(nameof(ResolvableShaderLocations_Root))]
     public void FileExists_ShaderInFallbackRoot_ShouldNotResolve(string writtenPath, string input)
-    {
-        using var repo = CreateBuilder()
-            .ConfigureGame(g => { })
-            .WithFallback("fallback",w => w.Write(writtenPath, "fx-in-fallback"))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.False(gameRepo.EffectsRepository.FileExists(input));
-    }
-
-    [Theory]
-    [MemberData(nameof(ResolvableShaderLocations_DataArts))]
-    public void FileExists_ShaderInFallbackDataArts_Resolves(string writtenPath, string input)
     {
         using var repo = CreateBuilder()
             .ConfigureGame(g => { })
@@ -150,16 +99,14 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
             .Build();
         var gameRepo = CreateRepository(repo);
 
-        Assert.True(gameRepo.EffectsRepository.FileExists(input));
+        Assert.False(gameRepo.EffectsRepository.FileExists(input));
     }
-
-    #endregion
 
     private static TheoryData<string, string> ShaderLocationsTheoryData(params string[] locations)
     {
         var data = new TheoryData<string, string>();
         foreach (var location in locations)
-        foreach (var input in ShaderTestData.EquivalentShaderNames)
+        foreach (var input in RepositoryTestData.EquivalentShaderNames)
             data.Add(location, input);
         return data;
     }

@@ -21,24 +21,11 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     /// <summary>Gets the engine targeted by this test class.</summary>
     protected abstract GameEngineType Engine { get; }
 
-    /// <summary>
-    /// Builds a <see cref="CaseInsensitivityFixture"/> instance that provides test data and logic 
-    /// for verifying case and separator insensitivity in repository lookups.
-    /// </summary>
-    /// <remarks>
-    /// Path casing and separators automatically randomized by the underlying test logic.
-    /// </remarks>
-    /// <returns>
-    /// A <see cref="CaseInsensitivityFixture"/> containing the configuration and data 
-    /// necessary for case insensitivity tests.
-    /// </returns>
-    protected abstract CaseInsensitivityFixture BuildCaseInsensitivityFixture();
+    /// <summary>Whether the repository resolves a file requested by name only, without its directory.</summary>
+    protected abstract bool ResolvesFileNameWithoutDirectory { get; }
 
-    /// <summary>
-    /// Builds the <see cref="RepositoryPriorityFixture"/> describing the asset this test class resolves
-    /// through the loading chain, exercised by the cross-origin priority tests.
-    /// </summary>
-    protected abstract RepositoryPriorityFixture BuildPriorityFixture();
+    /// <summary>Whether the repository surfaces the path-too-long condition for an overlong request.</summary>
+    protected abstract bool SurfacesPathTooLong { get; }
 
     /// <summary>
     /// The repository origins in descending lookup priority for this test class's <see cref="Engine"/>.
@@ -61,7 +48,23 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
         ],
         _ => throw new ArgumentOutOfRangeException()
     };
-    
+
+    /// <summary>
+    /// Builds a <see cref="CaseInsensitivityFixture"/> instance that provides test data and logic 
+    /// for verifying case and separator insensitivity in repository lookups.
+    /// </summary>
+    /// <remarks>
+    /// Path casing and separators automatically randomized by the underlying test logic.
+    /// </remarks>
+    /// <returns>
+    /// A <see cref="CaseInsensitivityFixture"/> containing the configuration and data 
+    /// necessary for case insensitivity tests.
+    /// </returns>
+    protected abstract CaseInsensitivityFixture BuildCaseInsensitivityFixture();
+
+    /// <summary>Builds a simple fixture to test basic file existence tests for this test class's repository.</summary>
+    protected abstract RepositoryFixture BuildRepositoryFixture();
+
     protected sealed override IFileSystem CreateFileSystem()
     {
         // Real file system is required to test integration
@@ -146,13 +149,106 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
         }
     }
 
+    #region Asset existence
+
+    public static TheoryData<RepositoryLayer> AllOrigins()
+    {
+        return [RepositoryLayer.Mod, RepositoryLayer.Game, RepositoryLayer.MasterMeg, RepositoryLayer.Fallback];
+    }
+
+    [Theory]
+    [MemberData(nameof(AllOrigins))]
+    public void FileExists_ResolvesFromOrigin(RepositoryLayer origin)
+    {
+        var fixture = BuildRepositoryFixture();
+
+        var builder = CreateBuilder();
+        WriteLayer(builder, origin, fixture.ResolvablePath, "content");
+        using var repo = builder.Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.True(repoUnderTest.FileExists(fixture.ResolvablePath));
+    }
+
+    [Theory]
+    [MemberData(nameof(AllOrigins))]
+    public void FileExists_EmptyPath_ReturnsFalse(RepositoryLayer origin)
+    {
+        var fixture = BuildRepositoryFixture();
+
+        var builder = CreateBuilder();
+        WriteLayer(builder, origin, fixture.ResolvablePath, "content");
+        using var repo = builder.Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.False(repoUnderTest.FileExists(""));
+    }
+
+    [Theory]
+    [MemberData(nameof(AllOrigins))]
+    public void FileExists_NullPath_ReturnsFalse(RepositoryLayer origin)
+    {
+        var fixture = BuildRepositoryFixture();
+
+        var builder = CreateBuilder();
+        WriteLayer(builder, origin, fixture.ResolvablePath, "content");
+        using var repo = builder.Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.False(repoUnderTest.FileExists(null!));
+    }
+
+    [Fact]
+    public void FileExists_MissingAsset_ReturnsFalse()
+    {
+        var fixture = BuildRepositoryFixture();
+
+        using var repo = CreateBuilder().Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.False(repoUnderTest.FileExists(fixture.ResolvablePath));
+    }
+
+    [Fact]
+    public void FileExists_FileNameWithoutDirectory_ResolvesWhenSupported()
+    {
+        // The file is written at its full path; whether its name alone resolves depends on the repository
+        // prepending a built-in directory (effects, textures) or not (models, base lookup).
+        var fixture = BuildRepositoryFixture();
+        var fileName = FileSystem.Path.GetFileName(fixture.ResolvablePath);
+
+        using var repo = CreateBuilder()
+            .ConfigureGame(g => g.Write(fixture.ResolvablePath, "content"))
+            .Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        Assert.Equal(ResolvesFileNameWithoutDirectory, repoUnderTest.FileExists(fileName));
+    }
+
+    [Fact]
+    public void FileExists_OverlongPath_IsMissingAndFlagsPathTooLongWhenSupported()
+    {
+        var fixture = BuildRepositoryFixture();
+
+        using var repo = CreateBuilder().Build();
+        var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
+
+        var overlong = new string('a', 300);
+        var found = repoUnderTest.FileExists(overlong.AsSpan(), megFileOnly: false, out var pathTooLong);
+
+        Assert.False(found);
+        Assert.Equal(SurfacesPathTooLong, pathTooLong);
+    }
+
+    #endregion
+
     #region Default loading chain priority
 
     [Theory]
     [MemberData(nameof(SupportedFileSystemStrategies))]
     public void Priority_ResolvesAccordingToEngineLoadOrder(PetroglyphFileSystemStrategy strategy)
     {
-        var fixture = BuildPriorityFixture();
+        var fixture = BuildRepositoryFixture();
         var order = ExpectedLoadOrder;
 
         // Sliding 'top' down the list makes each origin,
@@ -201,7 +297,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [Fact]
     public void Priority_ModDeclarationOrderIsRespected()
     {
-        var fixture = BuildPriorityFixture();
+        var fixture = BuildRepositoryFixture();
 
         using var repo = CreateBuilder()
             .WithMod("ModA", m => m.Write(fixture.ResolvablePath, "A"))
@@ -215,7 +311,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [Fact]
     public void Priority_FallbackDeclarationOrderIsRespected()
     {
-        var fixture = BuildPriorityFixture();
+        var fixture = BuildRepositoryFixture();
 
         using var repo = CreateBuilder()
             .WithFallback("FallbackA", w => w.Write(fixture.ResolvablePath, "A"))

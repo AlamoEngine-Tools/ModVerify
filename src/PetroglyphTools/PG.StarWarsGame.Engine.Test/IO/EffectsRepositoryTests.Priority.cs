@@ -7,7 +7,7 @@ public abstract partial class EffectsRepositoryTests
     #region Extension priority (outer loop)
     
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void Extension_FxBeatsOtherExtensions_SameLocation(string input)
     {
         using var repo = CreateBuilder()
@@ -24,7 +24,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void Extension_FxoBeatsFxh_SameLocation(string input)
     {
         using var repo = CreateBuilder()
@@ -40,7 +40,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void Extension_FxInDeepestDir_BeatsFxoAtBare(string input)
     {
         // Extension is the outer key in the lookup loop:
@@ -58,7 +58,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void Extension_FxInFallback_BeatsFxoInModSameDir(string input)
     {
         // Extension priority dominates over chain position:
@@ -77,7 +77,7 @@ public abstract partial class EffectsRepositoryTests
     #region Directory priority (middle loop)
     
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void Directory_BareBeatsShaders_SameExtension(string input)
     {
         using var repo = CreateBuilder()
@@ -93,7 +93,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void Directory_ShadersBeatsTerrain(string input)
     {
         using var repo = CreateBuilder()
@@ -113,7 +113,7 @@ public abstract partial class EffectsRepositoryTests
     #region Root vs Data priority (inner loop)
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void RootLevel_ModIsInvisible_GameDirWins(string input)
     {
         using var repo = CreateBuilder()
@@ -126,7 +126,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void RootLevel_FallbackIsInvisible_MegWins(string input)
     {
         using var repo = CreateBuilder()
@@ -139,7 +139,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void RootLevel_GameBeatsMeg(string input)
     {
         using var repo = CreateBuilder()
@@ -157,7 +157,7 @@ public abstract partial class EffectsRepositoryTests
     #endregion
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void FullMatrix_HighestReachablePriorityWins(string input)
     {
         using var repo = CreateBuilder()
@@ -189,7 +189,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void GameRootFx_BeatsModShadersFx(string input)
     {
         using var repo = CreateBuilder()
@@ -202,7 +202,7 @@ public abstract partial class EffectsRepositoryTests
     }
 
     [Theory]
-    [MemberData(nameof(ShaderTestData.Inputs), MemberType = typeof(ShaderTestData))]
+    [MemberData(nameof(RepositoryTestData.ShaderInputs), MemberType = typeof(RepositoryTestData))]
     public void OnlyFxh_StillResolves(string input)
     {
         using var repo = CreateBuilder()
