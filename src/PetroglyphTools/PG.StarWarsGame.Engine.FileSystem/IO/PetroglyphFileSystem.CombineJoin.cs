@@ -38,7 +38,7 @@ public sealed partial class PetroglyphFileSystem
             throw new ArgumentNullException(nameof(pathB));
         return CombineInternal(pathA, pathB);
     }
-    
+
     internal void JoinPath(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ref ValueStringBuilder stringBuilder)
     {
         if (path1.Length == 0 && path2.Length == 0)
@@ -59,7 +59,44 @@ public sealed partial class PetroglyphFileSystem
         
         stringBuilder.Append(path2);
     }
-    
+
+    internal void JoinPath(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, ref ValueStringBuilder stringBuilder)
+    {
+        if (path1.IsEmpty)
+        {
+            JoinPath(path2, path3, ref stringBuilder);
+            return;
+        }
+
+        if (path2.IsEmpty)
+        {
+            JoinPath(path1, path3, ref stringBuilder);
+            return;
+        }
+
+        if (path3.IsEmpty)
+        {
+            JoinPath(path1, path2, ref stringBuilder);
+            return;
+        }
+        
+        stringBuilder.Append(path1);
+
+        var firstHasSeparator = IsDirectorySeparator(path1[path1.Length - 1]) || IsDirectorySeparator(path2[0]);
+        var secondHasSeparator = IsDirectorySeparator(path2[path2.Length - 1]) || IsDirectorySeparator(path3[0]);
+        
+        if (!firstHasSeparator)
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
+        
+        stringBuilder.Append(path2);
+
+        if (!secondHasSeparator)
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
+
+        stringBuilder.Append(path3);
+    }
+
+
     private string CombineInternal(string first, string second)
     {
         if (string.IsNullOrEmpty(first))

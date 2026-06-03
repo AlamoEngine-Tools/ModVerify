@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GuiDialogs>
+  <Textures File="empty" Compressed_File="empty">
+    <Default_Component>
+      <Scanlines>placeholder</Scanlines>
+    </Default_Component>
+  </Textures>
+</GuiDialogs>

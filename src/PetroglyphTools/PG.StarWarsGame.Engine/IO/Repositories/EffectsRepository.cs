@@ -10,7 +10,7 @@ internal class EffectsRepository(GameRepository baseRepository) : MultiPassRepos
         "DATA\\ART\\SHADERS",
         "DATA\\ART\\SHADERS\\TERRAIN",
         // This path is not coded to the engine
-        "DATA\\ART\\SHADERS\\ENGINE",
+        //"DATA\\ART\\SHADERS\\ENGINE",
     ];
 
     // The engine does not support ".fxh" as a shader lookup, but as there might be some pre-compiling going on, this should be OK. 

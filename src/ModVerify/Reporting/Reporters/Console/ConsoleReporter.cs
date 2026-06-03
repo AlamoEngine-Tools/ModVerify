@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +24,9 @@ internal class ConsoleReporter(ConsoleReporterSettings settings, IServiceProvide
         Console.WriteLine("      Error Report     ");
         Console.WriteLine("***********************");
         Console.WriteLine();
+
+        PrintResolvedStats(verificationResult);
+
         if (verificationResult.Errors.NewErrors.Count == 0)
         {
             if (Settings.SummaryOnly)
@@ -61,5 +64,33 @@ internal class ConsoleReporter(ConsoleReporterSettings settings, IServiceProvide
 
         foreach (var error in filteredErrors)
             Console.WriteLine($"[{error.Severity}] [{error.Id}] Message={error.Message}");
+    }
+
+    private void PrintResolvedStats(VerificationResult verificationResult)
+    {
+        var resolvedErrors = verificationResult.Errors.ResolvedErrors;
+        var resolvedCount = resolvedErrors.Sum(x => x.Value.Count);
+        if (resolvedCount == 0)
+            return;
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine(
+            $"Reduced issues: {resolvedCount} error(s) present in the baseline are no longer reported.");
+        Console.ResetColor();
+
+        if (Settings.Verbose
+#if DEBUG
+            || true
+#endif
+            )
+        {
+            foreach (var baseline in resolvedErrors)
+            {
+                foreach (var error in baseline.Value)
+                    Console.WriteLine($"  [Resolved] [{baseline.Key}] [{error.Id}] Message={error.Message}");
+            }
+        }
+
+        Console.WriteLine();
     }
 }

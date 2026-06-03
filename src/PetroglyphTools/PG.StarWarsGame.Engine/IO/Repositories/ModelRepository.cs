@@ -12,8 +12,8 @@ internal class ModelRepository(GameRepository baseRepository) : MultiPassReposit
         ref ValueStringBuilder destination, 
         bool megFileOnly)
     {
-        if (!IsValidSize(filePath))
-            return default;
+        if (!IsValidSize(filePath, out var pathTooLong))
+            return new FileFoundInfo { PathTooLong = pathTooLong };
 
         var fileInfo = BaseRepository.FindFile(filePath, ref destination, megFileOnly);
         if (fileInfo.FileFound)
@@ -28,15 +28,26 @@ internal class ModelRepository(GameRepository baseRepository) : MultiPassReposit
         reusableStringBuilder.Append(".ALO");
 
         var alternatePath = reusableStringBuilder.AsSpan();
-        return !IsValidSize(alternatePath)
-            ? default
+        return !IsValidSize(alternatePath, out pathTooLong)
+            ? new FileFoundInfo { PathTooLong = pathTooLong }
             : BaseRepository.FindFile(alternatePath, ref destination, megFileOnly);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsValidSize(ReadOnlySpan<char> path)
-    {
-        return path.Length != 0 && path.Length < PGConstants.MaxModelFileName;
+    private static bool IsValidSize(ReadOnlySpan<char> path, out bool pathTooLong)
+    { 
+        switch (path.Length)
+        {
+            case 0:
+                pathTooLong = false;
+                return false;
+            case >= PGConstants.MaxModelFileName:
+                pathTooLong = true;
+                return false;
+            default:
+                pathTooLong = false;
+                return true;
+        }
     }
 
     private static ReadOnlySpan<char> StripFileName(ReadOnlySpan<char> src)

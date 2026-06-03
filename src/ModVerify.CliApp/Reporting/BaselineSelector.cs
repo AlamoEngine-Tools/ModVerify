@@ -159,7 +159,7 @@ internal sealed class BaselineSelector(AppSettingsBase settings, IServiceProvide
             ? $"Apply the default baseline for engine '{engineType}' as a base? Findings already covered by it will be excluded from your new baseline."
             : $"Do you want to load the default baseline for game engine '{engineType}'?";
 
-        if (!ConsoleUtilities.UserYesNoQuestion(question))
+        if (!ConsoleUtilities.UserYesNoQuestion(question, defaultAnswer: true))
             return false;
 
         return TryLoadEmbeddedBaseline(engineType, out baseline, out identifier);
@@ -197,6 +197,6 @@ internal sealed class BaselineSelector(AppSettingsBase settings, IServiceProvide
             ? "Use it as a base? Findings already covered by it will be excluded from your new baseline."
             : "Do you want to use it?";
         Console.ResetColor();
-        return ConsoleUtilities.UserYesNoQuestion(question);
+        return ConsoleUtilities.UserYesNoQuestion(question, defaultAnswer: true);
     }
 }

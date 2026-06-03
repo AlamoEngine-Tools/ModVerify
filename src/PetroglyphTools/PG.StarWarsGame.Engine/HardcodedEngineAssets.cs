@@ -5,10 +5,53 @@ namespace PG.StarWarsGame.Engine;
 
 public static class HardcodedEngineAssets
 {
+    public static IReadOnlyList<string> HardcodedEngineShadersNames { get; } = new List<string>
+    {
+        "Engine\\Global",
+        "AlamoEngine",
+        "RSkinGloss",
+        "MeshGloss",
+        "FillRateTest",
+        "Engine\\FrameEffectWipe",
+        "Engine\\FrameEffectAlpha",
+        "Engine\\PrimOpaque",
+        "Engine\\PrimAdditive",
+        "Engine\\PrimAlpha",
+        "Engine\\PrimModulate",
+        "Engine\\PrimDepthSpriteAdditive",
+        "Engine\\PrimDepthSpriteAlpha",
+        "Engine\\PrimDepthSpriteModulate",
+        "Engine\\StencilDarkenToAlpha",
+        "Engine\\StencilDarkenFinalBlur",
+        "Engine\\PrimDiffuseAlpha",
+        "Engine\\PrimHeat",
+        "Engine\\PrimParticleBumpAlpha",
+        "Engine\\PrimDecalBumpAlpha",
+        "Engine\\PrimAlphaScanlines",
+        "Engine\\SceneBloom",
+        "Engine\\SceneHeat",
+        "Engine\\FrameEffectFakeMotionBlur",
+        "SpaceFogOfWar",
+        "MeshOccludedUnit",
+        "RSkinOccludedUnit"
+    };
+
+    public static IReadOnlyList<string> HardcodedTerrainShadersNames { get; } = new List<string>
+    {
+        "TerrainRenderBump",
+        "TerrainRenderBumpDual",
+        "TerrainPassability",
+        "TerrainWater",
+        "TerrainLava",
+        "TerrainIce",
+        "TerrainFogOfWar",
+        "TerrainRenderBaked"
+    };
+
     /// <summary>
     /// These models / particles are hardcoded into StarWarsG.exe.
     /// </summary>
-    public static IList<string> HardcodedFocModelsParticles { get; } = new List<string>
+    public static IReadOnlyList<string> HardcodedFocModelsParticles { get; } = new List<string>
     {
         "i_tutorial_arrow.alo",
         "p_hero_empire_fx.alo",
@@ -24,7 +67,7 @@ public static class HardcodedEngineAssets
     /// <summary>
     /// These models / particles are hardcoded into StarWarsG.exe.
     /// </summary>
-    public static IList<string> HardcodedEawModelsParticles { get; } = new List<string>
+    public static IReadOnlyList<string> HardcodedEawModelsParticles { get; } = new List<string>
     {
         "i_tutorial_arrow.alo",
         "p_hero_empire_fx.alo",
@@ -34,7 +77,7 @@ public static class HardcodedEngineAssets
         "W_TextScroll.alo"
     };
 
-    public static IList<string> HardcodedFocTextures { get; } = new List<string>
+    public static IReadOnlyList<string> HardcodedFocTextures { get; } = new List<string>
     {
         "splash.tga",
         "SPLASH_E3.tga",
@@ -172,7 +215,7 @@ public static class HardcodedEngineAssets
         "W_Space_Reinforce_FOW_Grid.tga",
     };
 
-    public static IList<string> HardcodedEawTextures { get; } = new List<string>
+    public static IReadOnlyList<string> HardcodedEawTextures { get; } = new List<string>
     {
         "splash.tga",
         "i_button_temporary.tga",
@@ -280,7 +323,7 @@ public static class HardcodedEngineAssets
         "W_Space_Reinforce_FOW_Grid.tga",
     };
 
-    public static IList<string> GetHardcodedModelsAndParticles(GameEngineType engine)
+    public static IReadOnlyList<string> GetHardcodedModelsAndParticles(GameEngineType engine)
     {
         return engine switch
         {
@@ -290,7 +333,7 @@ public static class HardcodedEngineAssets
         };
     }
 
-    public static IList<string> GetHardcodedTextures(GameEngineType engine)
+    public static IReadOnlyList<string> GetHardcodedTextures(GameEngineType engine)
     {
         return engine switch
         {

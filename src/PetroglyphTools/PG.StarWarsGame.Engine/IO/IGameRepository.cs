@@ -1,11 +1,12 @@
-﻿using PG.StarWarsGame.Engine.Localization;
+using PG.StarWarsGame.Engine.Localization;
 
 namespace PG.StarWarsGame.Engine.IO;
 
 public interface IGameRepository : IRepository
 {
     /// <summary>
-    /// Gets the full qualified path of this repository with a trailing directory separator
+    /// Gets the fully qualified path of the repository's top-most root — the first mod directory when mods
+    /// are configured, otherwise the base game directory — with a trailing directory separator.
     /// </summary>
     string Path { get; }
     
@@ -19,8 +20,6 @@ public interface IGameRepository : IRepository
     IRepository TextureRepository { get; }
 
     IRepository ModelRepository { get; }
-
-    bool FileExists(string filePath, string[] extensions, bool megFileOnly = false);
 
     bool IsLanguageInstalled(LanguageType languageType);
 }

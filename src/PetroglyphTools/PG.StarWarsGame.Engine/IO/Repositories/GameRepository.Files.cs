@@ -13,17 +13,6 @@ internal partial class GameRepository
 {
     private static readonly string[] DataPathPrefixes = ["DATA/", "DATA\\", "./DATA/", ".\\DATA\\"];
 
-    public bool FileExists(string filePath, string[] extensions, bool megFileOnly = false)
-    {
-        foreach (var extension in extensions)
-        {
-            var newPath = PGFileSystem.ChangeExtension(filePath, extension);
-            if (FileExists(newPath, megFileOnly))
-                return true;
-        }
-        return false;
-    }
-
     public bool FileExists(string filePath, bool megFileOnly = false)
     {
         return FileExists(filePath.AsSpan(), megFileOnly);
@@ -120,7 +109,7 @@ internal partial class GameRepository
         if (filePath.Length > PGConstants.MaxMegEntryPathLength)
         {
             _logger.LogWarning("Trying to open a MEG entry which is longer than 259 characters: '{FileName}'", filePath.ToString());
-            return default;
+            return new FileFoundInfo { PathTooLong = true };
         }
         
         var sb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
@@ -172,7 +161,7 @@ internal partial class GameRepository
         {
             pathStringBuilder.Length = 0;
 
-            PGFileSystem.JoinPath(fallbackPath.AsSpan(), pathWithNormalizedData, ref pathStringBuilder);
+            PGFileSystem.JoinPath(fallbackPath.AsSpan(), "Data", pathWithNormalizedData, ref pathStringBuilder);
             var newPath = pathStringBuilder.AsSpan();
 
             var fileFoundInfo = FindFileCore(newPath, ref pathStringBuilder, fallbackPath.AsSpan());
@@ -185,12 +174,12 @@ internal partial class GameRepository
     
     private bool PathStartsWithDataDirectory(ReadOnlySpan<char> path, out int cutoffLength)
     {
-        cutoffLength = 0;
-        if (path.Length < 5)
-            return false;
-        
         var sb = new ValueStringBuilder(stackalloc char[265]);
         sb.Append(path);
+
+        // Normalizing is necessary because a previous Join/Combine uses the systems directory separator,
+        // while hardcoded paths usually use backslashes. This might lead to "asymmetric" separator usage.
+        // DataPathPrefixes paths only cover symmetric cases.
         PGFileSystem.NormalizePath(ref sb);
         try
         {
@@ -198,11 +187,12 @@ internal partial class GameRepository
             {
                 if (sb.AsSpan().StartsWith(prefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
                 {
-                    if (path[0] == '.')
-                        cutoffLength = 2;
+                    cutoffLength = prefix.Length;
                     return true;
                 }
             }
+
+            cutoffLength = 0;
             return false;
         }
         finally
