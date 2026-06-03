@@ -38,8 +38,7 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
     {
         return ShaderLocationsTheoryData(
             "Data/Art/Shaders/MyShader.fx",
-            "Data/Art/Shaders/Terrain/MyShader.fx",
-            "Data/Art/Shaders/Engine/MyShader.fx");
+            "Data/Art/Shaders/Terrain/MyShader.fx");
     }
 
     [Theory]
@@ -53,6 +52,24 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
         var gameRepo = CreateRepository(repo);
 
         Assert.True(gameRepo.EffectsRepository.FileExists(input));
+    }
+
+    [Theory]
+    [InlineData("Engine\\MyShader")]
+    [InlineData("Engine/MyShader")]
+    [InlineData("Engine\\MyShader.fx")]
+    [InlineData("Engine\\MyShader.bogus")]
+    public void FileExists_ShaderAddressedWithEngineSubdirPrefix_Resolves(string input)
+    {
+        // The Engine directory is not one of the hardcoded shader search paths, but a shader placed there is
+        // still reachable when the request carries the "Engine\" prefix: it resolves under the SHADERS base.
+        using var repo = CreateBuilder()
+            .ConfigureGame(g => g.Write("Data/Art/Shaders/Engine/MyShader.fx", "engine-fx"))
+            .Build();
+        var gameRepo = CreateRepository(repo);
+
+        Assert.True(gameRepo.EffectsRepository.FileExists(input));
+        Assert.Equal("engine-fx", ReadAll(gameRepo.EffectsRepository.OpenFile(input)));
     }
 
     [Theory]

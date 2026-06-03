@@ -48,7 +48,7 @@ public abstract partial class EffectsRepositoryTests
         using var repo = CreateBuilder()
             .ConfigureGame(g =>
             {
-                g.Write("Data/Art/Shaders/Engine/MyShader.fx", "fx-deepest");
+                g.Write("Data/Art/Shaders/MyShader.fx", "fx-deepest");
                 g.Write("MyShader.fxo", "fxo-bare");
             })
             .Build();
@@ -206,7 +206,7 @@ public abstract partial class EffectsRepositoryTests
     public void OnlyFxh_StillResolves(string input)
     {
         using var repo = CreateBuilder()
-            .ConfigureGame(g => g.Write("Data/Art/Shaders/Engine/MyShader.fxh", "fxh-deepest"))
+            .ConfigureGame(g => g.Write("Data/Art/Shaders/MyShader.fxh", "fxh-deepest"))
             .Build();
         var gameRepo = CreateRepository(repo);
 
