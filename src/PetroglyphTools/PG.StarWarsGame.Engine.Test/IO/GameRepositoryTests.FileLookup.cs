@@ -196,4 +196,14 @@ public abstract partial class GameRepositoryTests
         Assert.True(gameRepo.FileExists("./Data\\XML\\Foo.xml"));
         Assert.True(gameRepo.FileExists(".\\Data/XML\\Foo.xml"));
     }
+
+    [Fact]
+    public void EmptyRepository_NoErrors_LookupReturnsFalse()
+    {
+        using var repo = CreateBuilder().Build();
+        var gameRepo = CreateRepository(repo);
+
+        Assert.False(gameRepo.FileExists("anything.txt"));
+        Assert.Null(gameRepo.TryOpenFile("anything.txt"));
+    }
 }
