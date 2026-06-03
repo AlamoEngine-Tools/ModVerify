@@ -23,12 +23,9 @@ public abstract partial class EffectsRepositoryTests : EngineRepositoryTestBase
             MegContent: "meg-fx");
     }
 
-    protected override RepositoryFixture BuildRepositoryFixture()
-    {
-        return new RepositoryFixture(
-            SelectRepository: gameRepo => gameRepo.EffectsRepository,
-            ResolvablePath: "Data/Art/Shaders/MyShader.fx");
-    }
+    protected override RepositoryFixture RepositoryFixture => new(
+        SelectRepository: gameRepo => gameRepo.EffectsRepository,
+        ResolvablePath: "Data/Art/Shaders/MyShader.fx");
 
     public static TheoryData<string, string> ResolvableShaderLocations_Root()
     {

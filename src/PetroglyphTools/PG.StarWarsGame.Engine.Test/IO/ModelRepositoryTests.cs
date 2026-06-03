@@ -25,10 +25,7 @@ public abstract class ModelRepositoryTests : ExtensionFallbackRepositoryTests
             MegContent: "meg-alo");
     }
 
-    protected override RepositoryFixture BuildRepositoryFixture()
-    {
-        return new RepositoryFixture(
-            SelectRepository: gameRepo => gameRepo.ModelRepository,
-            ResolvablePath: "Data/Art/Models/Ship.alo");
-    }
+    protected override RepositoryFixture RepositoryFixture => new(
+        SelectRepository: gameRepo => gameRepo.ModelRepository,
+        ResolvablePath: "Data/Art/Models/Ship.alo");
 }

@@ -62,8 +62,8 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     /// </returns>
     protected abstract CaseInsensitivityFixture BuildCaseInsensitivityFixture();
 
-    /// <summary>Builds a simple fixture to test basic file existence tests for this test class's repository.</summary>
-    protected abstract RepositoryFixture BuildRepositoryFixture();
+    /// <summary>A simple fixture describing basic file existence tests for this test class's repository.</summary>
+    protected abstract RepositoryFixture RepositoryFixture { get; }
 
     protected sealed override IFileSystem CreateFileSystem()
     {
@@ -160,7 +160,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [MemberData(nameof(AllOrigins))]
     public void FileExists_ResolvesFromOrigin(RepositoryLayer origin)
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         var builder = CreateBuilder();
         WriteLayer(builder, origin, fixture.ResolvablePath, "content");
@@ -174,7 +174,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [MemberData(nameof(AllOrigins))]
     public void FileExists_EmptyPath_ReturnsFalse(RepositoryLayer origin)
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         var builder = CreateBuilder();
         WriteLayer(builder, origin, fixture.ResolvablePath, "content");
@@ -188,7 +188,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [MemberData(nameof(AllOrigins))]
     public void FileExists_NullPath_ReturnsFalse(RepositoryLayer origin)
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         var builder = CreateBuilder();
         WriteLayer(builder, origin, fixture.ResolvablePath, "content");
@@ -201,7 +201,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [Fact]
     public void FileExists_MissingAsset_ReturnsFalse()
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         using var repo = CreateBuilder().Build();
         var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
@@ -214,7 +214,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     {
         // The file is written at its full path; whether its name alone resolves depends on the repository
         // prepending a built-in directory (effects, textures) or not (models, base lookup).
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
         var fileName = FileSystem.Path.GetFileName(fixture.ResolvablePath);
 
         using var repo = CreateBuilder()
@@ -228,7 +228,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [Fact]
     public void FileExists_OverlongPath_IsMissingAndFlagsPathTooLongWhenSupported()
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         using var repo = CreateBuilder().Build();
         var repoUnderTest = fixture.SelectRepository(CreateRepository(repo));
@@ -248,7 +248,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [MemberData(nameof(SupportedFileSystemStrategies))]
     public void Priority_ResolvesAccordingToEngineLoadOrder(PetroglyphFileSystemStrategy strategy)
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
         var order = ExpectedLoadOrder;
 
         // Sliding 'top' down the list makes each origin,
@@ -297,7 +297,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [Fact]
     public void Priority_ModDeclarationOrderIsRespected()
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         using var repo = CreateBuilder()
             .WithMod("ModA", m => m.Write(fixture.ResolvablePath, "A"))
@@ -311,7 +311,7 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
     [Fact]
     public void Priority_FallbackDeclarationOrderIsRespected()
     {
-        var fixture = BuildRepositoryFixture();
+        var fixture = RepositoryFixture;
 
         using var repo = CreateBuilder()
             .WithFallback("FallbackA", w => w.Write(fixture.ResolvablePath, "A"))

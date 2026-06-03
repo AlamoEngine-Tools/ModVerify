@@ -27,12 +27,9 @@ public abstract class TextureRepositoryTests : ExtensionFallbackRepositoryTests
             MegContent: "meg-tga");
     }
 
-    protected override RepositoryFixture BuildRepositoryFixture()
-    {
-        return new RepositoryFixture(
-            SelectRepository: gameRepo => gameRepo.TextureRepository,
-            ResolvablePath: "Data/Art/Textures/MyTex.tga");
-    }
+    protected override RepositoryFixture RepositoryFixture => new(
+        SelectRepository: gameRepo => gameRepo.TextureRepository,
+        ResolvablePath: "Data/Art/Textures/MyTex.tga");
 
     [Fact]
     public void Priority_AsIsLocationBeatsTexturesDirectory()

@@ -27,12 +27,9 @@ public abstract partial class GameRepositoryTests : EngineRepositoryTestBase
             MegContent: "meg-content");
     }
 
-    protected override RepositoryFixture BuildRepositoryFixture()
-    {
-        return new RepositoryFixture(
-            SelectRepository: gameRepo => gameRepo,
-            ResolvablePath: "Data/XML/Foo.xml");
-    }
+    protected override RepositoryFixture RepositoryFixture => new(
+        SelectRepository: gameRepo => gameRepo,
+        ResolvablePath: "Data/XML/Foo.xml");
 
     [Fact]
     public void Path_NoModConfigured_PointsToGameDirectory()

@@ -13,7 +13,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     [Fact]
     public void FileExists_EachSupportedExtension_ResolvesByItsOwnName()
     {
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g =>
             {
@@ -24,13 +24,15 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
         var repoUnderTest = select(CreateRepository(repo));
 
         Assert.True(repoUnderTest.FileExists(AssetPath(FallbackExtension)));
+        Assert.Equal("fallback", ReadAll(repoUnderTest.OpenFile(AssetPath(FallbackExtension))));
         Assert.True(repoUnderTest.FileExists(AssetPath(SecondaryExtension)));
+        Assert.Equal("secondary", ReadAll(repoUnderTest.OpenFile(AssetPath(SecondaryExtension))));
     }
 
     [Fact]
     public void FileExists_UnsupportedExtension_FallsBackToFallbackExtension()
     {
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g => g.Write(AssetPath(FallbackExtension), "fallback"))
             .Build();
@@ -42,7 +44,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     [Fact]
     public void FileExists_UnsupportedExtension_FallsBackToFallbackExtensionInMeg()
     {
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g => g.RegisterAndWriteMeg("Data/Assets.meg",
                 meg => meg.Add(AssetPath(FallbackExtension), "fallback")))
@@ -55,7 +57,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     [Fact]
     public void FileExists_UnsupportedExtension_DoesNotResolveSecondaryFile()
     {
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g => g.Write(AssetPath(SecondaryExtension), "secondary"))
             .Build();
@@ -67,7 +69,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     [Fact]
     public void FileExists_ExtensionlessRequest_FallsBackToFallbackExtension()
     {
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g => g.Write(AssetPath(FallbackExtension), "fallback"))
             .Build();
@@ -81,7 +83,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     {
         // Resolving a bare name with a non-fallback extension needs both the implicit directory and the
         // extension fallback, so it succeeds only where the repository has an implicit directory.
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g => g.Write(AssetPath(FallbackExtension), "fallback"))
             .Build();
@@ -94,7 +96,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     [Fact]
     public void Priority_ExactExtensionBeatsFallbackExtension_SameOrigin()
     {
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .ConfigureGame(g =>
             {
@@ -112,7 +114,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     {
         // The exact-extension pass walks the whole chain before the fallback-extension pass, so an exact hit
         // in the fallback origin outranks a fallback-extension hit in a mod — extension dominates chain position.
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .WithMod("Mod", m => m.Write(AssetPath(FallbackExtension), "mod-fallback"))
             .WithFallbackGame(f => f.Write(AssetPath(SecondaryExtension), "fb-secondary"))
@@ -126,7 +128,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
     public void Priority_FallbackExtension_RespectsChainOrder()
     {
         // With no exact match anywhere, the fallback-extension pass still honors the chain: a mod's copy wins.
-        var select = BuildRepositoryFixture().SelectRepository;
+        var select = RepositoryFixture.SelectRepository;
         using var repo = CreateBuilder()
             .WithMod("Mod", m => m.Write(AssetPath(FallbackExtension), "mod-fallback"))
             .ConfigureGame(g => g.Write(AssetPath(FallbackExtension), "game-fallback"))
@@ -138,7 +140,7 @@ public abstract class ExtensionFallbackRepositoryTests : EngineRepositoryTestBas
 
     private string AssetPath(string extension)
     {
-        var resolvable = BuildRepositoryFixture().ResolvablePath;
+        var resolvable = RepositoryFixture.ResolvablePath;
         return resolvable.Substring(0, resolvable.LastIndexOf('.')) + extension;
     }
 }
