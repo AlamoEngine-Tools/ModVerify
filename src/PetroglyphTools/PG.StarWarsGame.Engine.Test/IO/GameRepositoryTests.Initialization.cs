@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using Xunit;
@@ -141,7 +140,7 @@ public abstract partial class GameRepositoryTests
 
         var fileNotFoundNames = reporter.Asserts
             .Where(a => a.Kind == EngineAssertKind.FileNotFound)
-            .Select(a => Path.GetFileName(a.Value))
+            .Select(a => EngineFileName(a.Value))
             .ToList();
         Assert.Contains("Patch.meg",   fileNotFoundNames);
         Assert.Contains("Patch2.meg",  fileNotFoundNames);
@@ -165,7 +164,7 @@ public abstract partial class GameRepositoryTests
 
         var fileNotFoundNames = reporter.Asserts
             .Where(a => a.Kind == EngineAssertKind.FileNotFound)
-            .Select(a => Path.GetFileName(a.Value))
+            .Select(a => EngineFileName(a.Value))
             .ToList();
         Assert.DoesNotContain("Patch.meg",   fileNotFoundNames);
         Assert.DoesNotContain("Patch2.meg",  fileNotFoundNames);
@@ -189,7 +188,7 @@ public abstract partial class GameRepositoryTests
         _ = CreateRepository(repo, reporter);
 
         Assert.Contains(reporter.Asserts, a =>
-            a.Kind == EngineAssertKind.FileNotFound && Path.GetFileName(a.Value) == "DoesNotExist.meg");
+            a.Kind == EngineAssertKind.FileNotFound && EngineFileName(a.Value) == "DoesNotExist.meg");
     }
 
     [Fact]
@@ -210,6 +209,6 @@ public abstract partial class GameRepositoryTests
         _ = CreateRepository(repo, reporter);
 
         Assert.DoesNotContain(reporter.Asserts, a =>
-            a.Kind == EngineAssertKind.FileNotFound && Path.GetFileName(a.Value) == "EnglishSpeech.meg");
+            a.Kind == EngineAssertKind.FileNotFound && EngineFileName(a.Value) == "EnglishSpeech.meg");
     }
 }

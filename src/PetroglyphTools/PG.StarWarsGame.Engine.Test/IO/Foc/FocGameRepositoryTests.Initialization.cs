@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using Xunit;
@@ -124,7 +123,7 @@ public partial class FocGameRepositoryTests
 
         var names = reporter.Asserts
             .Where(a => a.Kind == EngineAssertKind.FileNotFound)
-            .Select(a => Path.GetFileName(a.Value))
+            .Select(a => EngineFileName(a.Value))
             .ToList();
         // 6 missing: Patch / Patch2 / 64Patch in both the fallback and the FoC dir.
         Assert.Equal(2, names.Count(v => v == "Patch.meg"));

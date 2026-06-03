@@ -334,4 +334,13 @@ public abstract class EngineRepositoryTestBase : EngineTestBase
         }
         return new string(chars);
     }
+
+    /// <summary>
+    /// Returns the last segment of an engine path, treating both '/' and '\' as separators.
+    /// </summary>
+    // Engine paths always use '\'; System.IO.Path.GetFileName only splits on '\' on Windows.
+    protected static string EngineFileName(string path)
+    {
+        return path.Substring(path.LastIndexOfAny(['/', '\\']) + 1);
+    }
 }
