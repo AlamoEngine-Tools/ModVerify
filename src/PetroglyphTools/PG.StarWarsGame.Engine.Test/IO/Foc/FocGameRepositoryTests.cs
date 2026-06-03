@@ -1,6 +1,6 @@
 namespace PG.StarWarsGame.Engine.Test.IO.Foc;
 
-public class FocGameRepositoryFileLookupTests : GameRepositoryFileLookupTests
+public partial class FocGameRepositoryTests : GameRepositoryTests
 {
     protected override GameEngineType Engine => GameEngineType.Foc;
 }
