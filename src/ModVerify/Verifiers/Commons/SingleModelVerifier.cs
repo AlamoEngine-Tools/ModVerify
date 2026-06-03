@@ -236,7 +236,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                    if (!CheckBinaryCorruptedFileIsActuallyRenderable(alaFileName, out var actualFilePath))
                    {
                        var message =
-                           $"Possible file CRC32 collision: '{fileName}' was requested but '{actualFilePath}' was found by the engine.";
+                           $"Possible file CRC32 collision: '{alaFileName}' was requested but '{actualFilePath}' was found by the engine.";
                        AddError(VerificationError.Create(
                            this,
                            VerifierErrorCodes.UnexpectedFileLoad,
@@ -246,7 +246,7 @@ public sealed class SingleModelVerifier : GameVerifierBase
                            // there are simply more chances for a CRC32 collision.
                            VerificationSeverity.Information,
                            contextInfo,
-                           NormalizeFileName(fileName)));
+                           NormalizeFileName(alaFileName)));
                    }
                    else
                    {
