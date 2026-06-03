@@ -23,6 +23,27 @@ internal abstract class MultiPassRepository(GameRepository baseRepository) : IRe
         return fileStream;
     }
 
+    public Stream? TryOpenFile(string filePath, bool megFileOnly = false)
+    {
+        return TryOpenFile(filePath.AsSpan(), megFileOnly);
+    }
+
+    public Stream? TryOpenFile(ReadOnlySpan<char> filePath, bool megFileOnly = false)
+    {
+        var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
+        try
+        {
+            var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
+            return BaseRepository.OpenFileCore(fileFound);
+        }
+        finally
+        {
+            multiPassSb.Dispose();
+            destinationSb.Dispose();
+        }
+    }
+
     public bool FileExists(string filePath, bool megFileOnly = false)
     {
         return FileExists(filePath.AsSpan(), megFileOnly);
@@ -73,29 +94,8 @@ internal abstract class MultiPassRepository(GameRepository baseRepository) : IRe
     }
 
     private protected abstract FileFoundInfo MultiPassAction(
-        ReadOnlySpan<char> filePath, 
+        ReadOnlySpan<char> filePath,
         ref ValueStringBuilder reusableStringBuilder,
         ref ValueStringBuilder destination,
         bool megFileOnly);
-
-    public Stream? TryOpenFile(string filePath, bool megFileOnly = false)
-    {
-        return TryOpenFile(filePath.AsSpan(), megFileOnly);
-    }
-
-    public Stream? TryOpenFile(ReadOnlySpan<char> filePath, bool megFileOnly = false)
-    {
-        var multiPassSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        var destinationSb = new ValueStringBuilder(stackalloc char[PGConstants.MaxMegEntryPathLength]);
-        try
-        {
-            var fileFound = MultiPassAction(filePath, ref multiPassSb, ref destinationSb, megFileOnly);
-            return BaseRepository.OpenFileCore(fileFound);
-        }
-        finally
-        {
-            multiPassSb.Dispose();
-            destinationSb.Dispose();
-        }
-    }
 }
