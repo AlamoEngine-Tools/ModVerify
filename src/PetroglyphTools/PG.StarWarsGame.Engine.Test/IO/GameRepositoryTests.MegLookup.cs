@@ -125,4 +125,31 @@ public abstract partial class GameRepositoryTests
 
         Assert.False(gameRepo.FileExists("anything.txt"));
     }
+
+    [Fact]
+    public void RegisterAndWriteMeg_LoadsMegViaGeneratedMegaFilesXml()
+    {
+        using var repo = CreateBuilder()
+            .ConfigureGame(g => g.RegisterAndWriteMeg("Data/Custom.meg",
+                m => m.Add(TextEntry, "registered")))
+            .Build();
+        var gameRepo = CreateRepository(repo);
+
+        Assert.Equal("registered", ReadAll(gameRepo.OpenFile(TextEntry, megFileOnly: true)));
+    }
+
+    [Fact]
+    public void RegisterAndWriteMeg_RegistrationOrderIsLoadOrder()
+    {
+        using var repo = CreateBuilder()
+            .ConfigureGame(g =>
+            {
+                g.RegisterAndWriteMeg("Data/First.meg", m => m.Add(TextEntry, "first"));
+                g.RegisterAndWriteMeg("Data/Second.meg", m => m.Add(TextEntry, "second"));
+            })
+            .Build();
+        var gameRepo = CreateRepository(repo);
+
+        Assert.Equal("second", ReadAll(gameRepo.OpenFile(TextEntry, megFileOnly: true)));
+    }
 }

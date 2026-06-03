@@ -6,7 +6,7 @@ public abstract partial class GameRepositoryTests
 {
     private const string TextEntry = "Data/Text/text.txt";
 
-    // ----------------------- intra-origin: several MEGs in the same game -----------------------
+    #region Intra-origin: several MEGs in the same game
 
     [Fact]
     public void MegaFilesXml_ThreeListedMegs_LastListedWins()
@@ -58,7 +58,9 @@ public abstract partial class GameRepositoryTests
         Assert.Equal("64Patch", ReadAll(gameRepo.OpenFile(TextEntry, megFileOnly: true)));
     }
 
-    // ----------------------- inter-origin: mod MEGs shadow game MEGs -----------------------
+    #endregion
+
+    #region Inter-origin: mod MEGs shadow game MEGs
 
     [Fact]
     public void ModPatchMeg_ShadowsGamePatchMeg()
@@ -133,32 +135,37 @@ public abstract partial class GameRepositoryTests
         Assert.Equal("game", ReadAll(gameRepo.OpenFile(TextEntry, megFileOnly: true)));
     }
 
-    // ----------------------- RegisterAndWriteMeg convenience -----------------------
+    #endregion
+
+    // Both of these normalized paths hash to CRC32 0x2AAF63A4:
+    //   model      : DATA\ART\MODELS\MOV_EMPIRE_INTRO_SHUTTLE_FIRE_DIE_00.ALA
+    //   WAV entry  : U000_EMP0212_ENG.WAV
+    // The model request collides with the bare WAV entry once the engine has prefixed the model directory,
+    // which is why the lookup is driven through DATA\ART\MODELS below.
+    private const string ModelLookup = @"Data\Art\Models\MOV_EMPIRE_INTRO_SHUTTLE_FIRE_DIE_00.ALA";
+    private const string CollidingWav = "U000_EMP0212_ENG.WAV";
 
     [Fact]
-    public void RegisterAndWriteMeg_LoadsMegViaGeneratedMegaFilesXml()
+    public void Crc32Collision_ModelLoadedFirst_ShadowedByLaterWav()
     {
-        using var repo = CreateBuilder()
-            .ConfigureGame(g => g.RegisterAndWriteMeg("Data/Custom.meg",
-                m => m.Add(TextEntry, "registered")))
-            .Build();
-        var gameRepo = CreateRepository(repo);
-
-        Assert.Equal("registered", ReadAll(gameRepo.OpenFile(TextEntry, megFileOnly: true)));
-    }
-
-    [Fact]
-    public void RegisterAndWriteMeg_RegistrationOrderIsLoadOrder()
-    {
+        // Both files genuinely exist in the master MEG. The model's MEG (First.meg) is loaded before the
+        // WAV's MEG (Second.meg), so the later WAV takes over the shared CRC32 slot.
         using var repo = CreateBuilder()
             .ConfigureGame(g =>
             {
-                g.RegisterAndWriteMeg("Data/First.meg", m => m.Add(TextEntry, "first"));
-                g.RegisterAndWriteMeg("Data/Second.meg", m => m.Add(TextEntry, "second"));
+                g.RegisterAndWriteMeg("Data/First.meg", meg => meg.Add(ModelLookup, "model-bytes"));
+                g.RegisterAndWriteMeg("Data/Second.meg", meg => meg.Add(CollidingWav, "wav-bytes"));
             })
             .Build();
-        var gameRepo = CreateRepository(repo);
+        var modelRepo = CreateRepository(repo).ModelRepository;
 
-        Assert.Equal("second", ReadAll(gameRepo.OpenFile(TextEntry, megFileOnly: true)));
+        var found = modelRepo.FileExists(ModelLookup, megFileOnly: false, out var inMeg, out var actualFilePath);
+
+        // The model exists, yet requesting it resolves to the colliding WAV that was loaded later: the
+        // engine reports the WAV's path and hands back the WAV's bytes instead of the model.
+        Assert.True(found);
+        Assert.True(inMeg);
+        Assert.Equal(CollidingWav, actualFilePath);
+        Assert.Equal("wav-bytes", ReadAll(modelRepo.OpenFile(ModelLookup)));
     }
 }
