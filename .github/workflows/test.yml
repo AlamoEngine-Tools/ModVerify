@@ -11,19 +11,23 @@ on:
 jobs:
   build-test:
     name: Build & Test
-    runs-on: windows-latest
-        
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          submodules: recursive
-      - uses: actions/setup-dotnet@v5
-        with:
-           dotnet-version: 10.0.x
-        
-      - name: Build in Release Mode
-        run: dotnet test --configuration Release --report-github
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    - uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+    - name: Build & Test in Release Mode
+      run: dotnet test --configuration Release --report-github
 
   test-moddingtoolbase:
     name: Test ModdingToolBase
