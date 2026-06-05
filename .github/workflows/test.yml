@@ -43,3 +43,20 @@ jobs:
         for proj in $(find . -name '*.Test.csproj' -not -path '*/ExternalUpdater.App.Test/*'); do
           dotnet test "$proj" --no-build --configuration Release --report-github
         done
+
+  test-moddingtoolbase:
+    name: Test ModdingToolBase
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Test ModdingToolBase (submodule)
+        shell: pwsh
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          & "$($c.scriptsDir)/Test-ModdingToolBase.ps1"

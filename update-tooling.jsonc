@@ -1,0 +1,40 @@
+// Per-app configuration for the shared ModdingToolBase release/deploy tooling.
+// Consumed by ModdingToolBase/scripts/*.ps1 (local dev/test) and by .github/workflows/release.yml (CI).
+//
+// Parsed only with PowerShell's ConvertFrom-Json, which tolerates // and /* */ comments and
+// trailing commas. Keep it that way: don't point a strict JSON validator at this file.
+{
+  // ===== SHARED -- consumed by BOTH dev/test (local scripts) and prod (release.yml CI) =======
+  "toolProject": "./src/ModVerify.CliApp/ModVerify.CliApp.csproj", // app csproj to build
+  "appExe": "ModVerify.exe", // built app exe name
+  "updaterExe": "AnakinRaW.ExternalUpdater.exe", // external updater exe name
+  "scriptsDir": "./modules/ModdingToolBase/scripts", // ModdingToolBase scripts dir (its submodule path)
+
+  // ===== DEV/TEST ONLY -- the local self-update test scripts; never used by a prod release ===
+  // testUpdateBranch: the update-server channel the local test publishes to and reads from
+  // (feeds --updateBranch). It's an update channel, NOT a git branch; prod uses "stable"
+  // (set in release.yml's BRANCH_NAME). Note what is NOT here:
+  //   - targetFramework: fixed at net481 by the tooling (external updater is net481-only),
+  //                      so it's a Build-LocalRelease.ps1 default, not a per-app value.
+  //   - noUpdateMessage: the test now asserts the re-check exits 0 and leaves the exe version
+  //                      unchanged, instead of scraping a host-specific console string.
+  "testUpdateBranch": "beta",
+  "appLogDir": "ModVerify", // %APPDATA% subfolder with the app log (failure diagnostics)
+
+  // ===== PROD / RELEASE ONLY -- published by release.yml (CI); unused by the local test ======
+  "embeddedTrustCert": "src/ModVerify.CliApp/Resources/Certs/AET-root.cer", // public trust .cer shipped in the app
+  "origin": "https://republicatwar.com/downloads/ModVerify", // manifest origin URL
+  "sftpBasePath": "downloads/ModVerify", // SFTP upload base path
+  "sftpHost": "republicatwar.com",
+  "sftpPort": 1579,
+
+  // Migration release (cross-API). Leave all three empty for a normal release; populate them to
+  // publish a next-generation channel alongside the current one. See Publish-Release.ps1.
+  //   nextOrigin       - origin URL of the next-gen channel
+  //   nextSftpBasePath - SFTP base path for the next-gen channel (set together with nextOrigin)
+  //   compatUpdater    - previous-gen updater used for the PRIMARY deploy during the cutover
+  //                      (only valid when nextOrigin + nextSftpBasePath are set)
+  "nextOrigin": "https://republicatwar.com/downloads/ModVerify/v2",
+  "nextSftpBasePath": "downloads/ModVerify/v2",
+  "compatUpdater": "tools/v1/AnakinRaW.ExternalUpdater.exe"
+}
