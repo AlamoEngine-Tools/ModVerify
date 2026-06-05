@@ -127,8 +127,8 @@ jobs:
               -Branch                      "$env:BRANCH_NAME" `
               -SigningPfxBase64            "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" `
               -SigningPfxPassword          "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}" `
-              -SftpHost                    "republicatwar.com" `
-              -SftpPort                    1579 `
+              -SftpHost                    "$env:SFTP_HOST" `
+              -SftpPort                    $env:SFTP_PORT `
               -SftpUser                    "${{ secrets.SFTP_USER }}" `
               -SftpPassword                "${{ secrets.SFTP_PASSWORD }}" `
               -NextOrigin                  "$env:NEXT_ORIGIN_BASE" `
