@@ -45,7 +45,9 @@ public sealed class VerificationError : IEquatable<VerificationError>
         Message = message ?? throw new ArgumentNullException(nameof(message));
         VerifierChain = verifier.VerifierChain;
         Severity = severity;
-        ContextEntries = _contextEntries = [.. contextEntries];
+        var orderedContext = contextEntries.Distinct().ToList();
+        ContextEntries = orderedContext;
+        _contextEntries = [.. orderedContext];
         Asset = asset;
     }
 
@@ -54,8 +56,9 @@ public sealed class VerificationError : IEquatable<VerificationError>
         Id = error.Id;
         Message = error.Message;
         VerifierChain = RestoreVerifierChain(error.VerifierChain);
-        _contextEntries = [..error.ContextEntries];
-        ContextEntries = _contextEntries.ToList();
+        var orderedContext = error.ContextEntries.Distinct().ToList();
+        ContextEntries = orderedContext;
+        _contextEntries = [.. orderedContext];
         Asset = error.Asset;
     }
 
