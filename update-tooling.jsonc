@@ -13,8 +13,8 @@
 
   // ===== PROD / RELEASE ONLY -- published by release.yml (CI) ======
   "embeddedTrustCert": "src/ModVerify.CliApp/Resources/Certs/AET-root.cer", // public trust .cer shipped in the app
-  "origin": "https://republicatwar.com/downloads/ModVerify", // manifest origin URL
-  "sftpBasePath": "downloads/ModVerify", // SFTP upload base path
+  "origin": "https://republicatwar.com/downloads/ModVerify/v2", // manifest origin URL
+  "sftpBasePath": "downloads/ModVerify/v2", // SFTP upload base path
   "sftpHost": "republicatwar.com",
   "sftpPort": 1579,
 
@@ -24,7 +24,7 @@
   //   nextSftpBasePath - SFTP base path for the next-gen channel (set together with nextOrigin)
   //   compatUpdater    - previous-gen updater used for the PRIMARY deploy during the cutover
   //                      (only valid when nextOrigin + nextSftpBasePath are set)
-  "nextOrigin": "https://republicatwar.com/downloads/ModVerify/v2",
-  "nextSftpBasePath": "downloads/ModVerify/v2",
-  "compatUpdater": "tools/v1/AnakinRaW.ExternalUpdater.exe"
+  "nextOrigin": "",
+  "nextSftpBasePath": "",
+  "compatUpdater": ""
 }
