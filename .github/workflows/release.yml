@@ -12,15 +12,8 @@ on:
         required: true
 
 env:
-  TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
-  CREATOR_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/ApplicationManifestCreator/ApplicationManifestCreator.csproj
-  UPLOADER_PROJ_PATH: ./modules/ModdingToolBase/src/AnakinApps/FtpUploader/FtpUploader.csproj
-  TOOL_EXE: ModVerify.exe
-  UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
-  MANIFEST_CREATOR: AnakinRaW.ApplicationManifestCreator.dll
-  SFTP_UPLOADER: AnakinRaW.FtpUploader.dll
-  ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify
-  ORIGIN_BASE_PART: downloads/ModVerify/
+  # Per-run release channel. Every other per-app value lives in update-tooling.jsonc and is loaded
+  # into the environment by the "Load app config" step in each job below.
   BRANCH_NAME: ${{ github.event.inputs.branch || 'stable' }}
 
 jobs:
@@ -28,6 +21,25 @@ jobs:
 # Builds and tests the solution.
   test:
     uses: ./.github/workflows/test.yml
+
+  # End-to-end self-update test.
+  integration-test:
+    name: Integration test
+    needs: [test]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Run self-update integration suite
+        shell: pwsh
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          & "$($c.scriptsDir)/Test-LocalUpdateSuite.ps1" -ConfigPath ./update-tooling.jsonc
 
   pack:
     name: Pack
@@ -39,6 +51,11 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Load app config
+        shell: pwsh
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          "TOOL_PROJ_PATH=$($c.toolProject)" >> $env:GITHUB_ENV
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
@@ -47,8 +64,6 @@ jobs:
       - name: Create Net Core Release
         # use publish for .NET Core
         run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --output ./releases/net10.0 /p:DebugType=None /p:DebugSymbols=false
-      - name: Create Linux Release
-        run:  dotnet publish ${{ env.TOOL_PROJ_PATH }} --configuration Release -f net10.0 --runtime linux-x64 --self-contained true --output ./releases/linux-x64 /p:DebugType=None /p:DebugSymbols=false
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v7
         with:
@@ -59,10 +74,13 @@ jobs:
 
   deploy:
     name: Deploy
-    # Deploy on push to main or manual trigger
+    # Stable deploys are gated to 'main'. Non-stable channels (beta, canary, etc.) can be
+    # workflow_dispatched from any branch.
     if: |
-      (github.ref == 'refs/heads/main' &&  github.event_name == 'push') || github.event_name == 'workflow_dispatch'
-    needs: [pack]
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' &&
+       (github.event.inputs.branch != 'stable' || github.ref == 'refs/heads/main'))
+    needs: [pack, integration-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -75,37 +93,54 @@ jobs:
           name: Binary Releases
           path: ./releases
 
-      # Deploy .NET Framework self-update release
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
             dotnet-version: 10.0.x
-      - name: Build Creator
-        run: dotnet build ${{env.CREATOR_PROJ_PATH}} --configuration Release --output ./dev
-      - name: Build Uploader
-        run: dotnet build ${{env.UPLOADER_PROJ_PATH}} --configuration Release --output ./dev
-      - name: Create binaries directory
-        run: mkdir -p ./deploy
-      - name: Copy self-update files
+
+      - name: Load app config
+        shell: pwsh
+        # Per-app release values come from update-tooling.jsonc.
         run: |
-          cp ./releases/net481/${{env.TOOL_EXE}} ./deploy/
-          cp ./releases/net481/${{env.UPDATER_EXE}} ./deploy/
-      - name: Create Manifest
-        run: dotnet ./dev/${{env.MANIFEST_CREATOR}} -a deploy/${{env.TOOL_EXE}} --appDataFiles deploy/${{env.UPDATER_EXE}} --origin ${{env.ORIGIN_BASE}} -o ./deploy -b ${{env.BRANCH_NAME}}
-      - name: Upload Build
-        run: dotnet ./dev/${{env.SFTP_UPLOADER}} ftp --host $host --port $port -u ${{secrets.SFTP_USER}} -p ${{secrets.SFTP_PASSWORD}} --base $base_path -s $source
-        env:
-          host: republicatwar.com
-          port: 1579
-          base_path: ${{env.ORIGIN_BASE_PART}}
-          source: ./deploy
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          "PUBLISH_SCRIPT=$($c.scriptsDir)/Publish-Release.ps1" >> $env:GITHUB_ENV
+          "TOOL_EXE=$($c.appExe)"                       >> $env:GITHUB_ENV
+          "UPDATER_EXE=$($c.updaterExe)"                >> $env:GITHUB_ENV
+          "EMBEDDED_TRUST_CERT=$($c.embeddedTrustCert)" >> $env:GITHUB_ENV
+          "ORIGIN_BASE=$($c.origin)"                    >> $env:GITHUB_ENV
+          "SFTP_BASE_PATH=$($c.sftpBasePath)"           >> $env:GITHUB_ENV
+          "SFTP_HOST=$($c.sftpHost)"                    >> $env:GITHUB_ENV
+          "SFTP_PORT=$($c.sftpPort)"                    >> $env:GITHUB_ENV
+          "NEXT_ORIGIN_BASE=$($c.nextOrigin)"           >> $env:GITHUB_ENV
+          "NEXT_SFTP_BASE_PATH=$($c.nextSftpBasePath)"  >> $env:GITHUB_ENV
+          "COMPAT_UPDATER=$($c.compatUpdater)"          >> $env:GITHUB_ENV
+
+      - name: Publish self-update release
+        shell: pwsh
+        run: |
+          & $env:PUBLISH_SCRIPT `
+              -AppExePath                  "./releases/net481/$env:TOOL_EXE" `
+              -UpdaterExePath              "./releases/net481/$env:UPDATER_EXE" `
+              -EmbeddedTrustCertPath       "$env:EMBEDDED_TRUST_CERT" `
+              -Origin                      "$env:ORIGIN_BASE" `
+              -SftpBasePath                "$env:SFTP_BASE_PATH" `
+              -Branch                      "$env:BRANCH_NAME" `
+              -SigningPfxBase64            "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" `
+              -SigningPfxPassword          "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}" `
+              -SftpHost                    "$env:SFTP_HOST" `
+              -SftpPort                    $env:SFTP_PORT `
+              -SftpUser                    "${{ secrets.SFTP_USER }}" `
+              -SftpPassword                "${{ secrets.SFTP_PASSWORD }}" `
+              -NextOrigin                  "$env:NEXT_ORIGIN_BASE" `
+              -NextSftpBasePath            "$env:NEXT_SFTP_BASE_PATH" `
+              -CompatibilityUpdaterExePath "$env:COMPAT_UPDATER"
 
       # Deploy .NET Core and .NET Framework apps to Github
       - name: Create NET Core .zip
         # Change into the artifacts directory to avoid including the directory itself in the zip archive
         working-directory: ./releases/net10.0
         run: zip -r ../ModVerify-Net10.zip .
-      - uses: dotnet/nbgv@v0.5.1
+      - uses: dotnet/nbgv@v0.5.2
         id: nbgv
       - name: Create GitHub release
         # Create a GitHub release on push to main only
@@ -117,7 +152,6 @@ jobs:
           tag_name: v${{ steps.nbgv.outputs.SemVer2 }}
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
-          files: | 
-            ./releases/net481/ModVerify.exe
+          files: |
+            ./releases/net481/${{ env.TOOL_EXE }}
             ./releases/ModVerify-Net10.zip
-            ./releases/linux-x64/ModVerify

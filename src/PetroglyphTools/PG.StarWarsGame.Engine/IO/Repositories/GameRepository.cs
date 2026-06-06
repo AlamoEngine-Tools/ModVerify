@@ -177,9 +177,9 @@ internal abstract partial class GameRepository : IGameRepository
         if (firstFallback is not null)
         {
             var fallback2dNonLocalized = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path
-                .Combine(firstFallback, "DATA/AUDIO/SFX/SFX2D_NON_LOCALIZED.MEG"));
+                .Combine(firstFallback, "DATA\\AUDIO\\SFX\\SFX2D_NON_LOCALIZED.MEG"));
             var fallback3dNonLocalized = LoadMegArchive(PGFileSystem.UnderlyingFileSystem.Path
-                .Combine(firstFallback, "DATA/AUDIO/SFX/SFX3D_NON_LOCALIZED.MEG"));
+                .Combine(firstFallback, "DATA\\AUDIO\\SFX\\SFX3D_NON_LOCALIZED.MEG"));
 
             if (fallback2dNonLocalized is not null)
                 megsToAdd.Add(fallback2dNonLocalized);
@@ -188,8 +188,8 @@ internal abstract partial class GameRepository : IGameRepository
                 megsToAdd.Add(fallback3dNonLocalized);
         }
 
-        var nonLocalized2d = LoadMegArchive("DATA/AUDIO/SFX/SFX2D_NON_LOCALIZED.MEG");
-        var nonLocalized3d =  LoadMegArchive("DATA/AUDIO/SFX/SFX3D_NON_LOCALIZED.MEG");
+        var nonLocalized2d = LoadMegArchive("DATA\\AUDIO\\SFX\\SFX2D_NON_LOCALIZED.MEG");
+        var nonLocalized3d =  LoadMegArchive("DATA\\AUDIO\\SFX\\SFX3D_NON_LOCALIZED.MEG");
 
         if (nonLocalized2d is not null)
             megsToAdd.Add(nonLocalized2d);
@@ -231,7 +231,7 @@ internal abstract partial class GameRepository : IGameRepository
 
     protected IList<IMegFile> LoadMegArchivesFromXml(string lookupPath)
     {
-        var megFilesXmlPath = PGFileSystem.CombinePath(lookupPath, "Data/MegaFiles.xml");
+        var megFilesXmlPath = PGFileSystem.CombinePath(lookupPath, "Data\\MegaFiles.xml");
 
         using var xmlStream = TryOpenFile(megFilesXmlPath);
 
@@ -314,8 +314,8 @@ internal abstract partial class GameRepository : IGameRepository
         {
             Language = language;
             var languageString = language.ToString().ToUpperInvariant();
-            MasterTextDatFilePath = $"DATA/TEXT/MasterTextFile_{languageString}.DAT";
-            Sfx2dMegFilePath = $"DATA/AUDIO/SFX/SFX2D_{languageString}.MEG";
+            MasterTextDatFilePath = $"DATA\\TEXT\\MasterTextFile_{languageString}.DAT";
+            Sfx2dMegFilePath = $"DATA\\AUDIO\\SFX\\SFX2D_{languageString}.MEG";
             SpeechMegFileName = $"{languageString}SPEECH.MEG";
         }
     }

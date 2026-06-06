@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AET.ModVerify.Reporting;
+﻿using AET.ModVerify.Reporting;
 using CommandLine;
 using PG.StarWarsGame.Engine;
 
@@ -52,8 +51,12 @@ internal abstract class BaseModVerifyOptions
                    "Multiple paths can be separated using the platform-specific path separator (';' on Windows, ':' on Linux).")]
     public string? AdditionalFallbackPath { get; init; }
 
-    [Option("parallel", Default = false,
-        HelpText = "When set, game verifiers will run in parallel. " +
-                   "While this may reduce analysis time, console output might be harder to read.")]
-    public bool Parallel { get; init; }
+    [Option("baseline", Required = false,
+        HelpText = "Path(s) to one or more JSON baseline files. Multiple paths can be separated using the platform-specific path separator (';' on Windows, ':' on Linux). " +
+                   "For 'verify' this is mutually exclusive with --searchBaseline. May be combined with --useDefaultBaseline.")]
+    public string? BaselinePaths { get; init; }
+
+    [Option("useDefaultBaseline", Required = false,
+        HelpText = "When set, additionally applies the default embedded baseline for the detected game engine. May be combined with --baseline (or --searchBaseline for 'verify').")]
+    public bool UseDefaultBaseline { get; init; }
 }

@@ -34,6 +34,34 @@ public class ModVerifyOptionsParserTest_Updateable : ModVerifyOptionsParserTestB
         Assert.NotNull(settings.UpdateOptions);
         Assert.Equal("test", settings.UpdateOptions.BranchName);
         Assert.Equal("https://examlple.com", settings.UpdateOptions.ManifestUrl);
+        Assert.Null(settings.UpdateOptions.ServerUrl);
+    }
+
+    [Fact]
+    public void Parse_UpdateAppArg_ServerUrl()
+    {
+        const string argString = "updateApplication --updateBranch test --updateServerUrl https://example.com/updates";
+
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.True(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
+        Assert.NotNull(settings.UpdateOptions);
+        Assert.Equal("test", settings.UpdateOptions.BranchName);
+        Assert.Equal("https://example.com/updates", settings.UpdateOptions.ServerUrl);
+        Assert.Null(settings.UpdateOptions.ManifestUrl);
+    }
+
+    [Fact]
+    public void Parse_UpdateAppArg_ManifestAndServerUrl_AreMutuallyExclusive()
+    {
+        const string argString = "updateApplication --updateManifestUrl https://example.com/manifest.json --updateServerUrl https://example.com";
+
+        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        Assert.False(settings.HasOptions);
+        Assert.Null(settings.ModVerifyOptions);
+        Assert.Null(settings.UpdateOptions);
     }
 
     [Fact]
@@ -65,6 +93,7 @@ public class ModVerifyOptionsParserTest_NotUpdateable : ModVerifyOptionsParserTe
     [InlineData("createBaseline --junkOption")]
     [InlineData("updateApplication")]
     [InlineData("updateApplication --updateBranch test --updateManifestUrl https://examlple.com")]
+    [InlineData("updateApplication --updateBranch test --updateServerUrl https://example.com")]
     public void Parse_InvalidArgs_NotUpdateable(string argString)
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
@@ -214,32 +243,16 @@ public abstract class ModVerifyOptionsParserTestBase
     }
 
     [Theory]
-    [InlineData("verify --mods myMod --baseline myBaseline.json", "myBaseline.json", false, false)]
-    [InlineData("verify --mods myMod --searchBaseline", null, true, false)]
-    [InlineData("verify --path myMod --useDefaultBaseline", null, false, true)]
-    public void Parse_Verify_BaselineOptions(string argString, string? expectedBaseline, bool expectedSearchBaseline, bool expectedUseDefaultBaseline)
+    [InlineData("verify --mods myMod --baseline myBaseline.json", "myBaseline.json", false)]
+    [InlineData("verify --path myMod --useDefaultBaseline", null, true)]
+    public void Parse_Verify_BaselineOptions(string argString, string? expectedBaseline, bool expectedUseDefaultBaseline)
     {
         var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
         Assert.True(settings.HasOptions);
         var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
-        Assert.Equal(expectedBaseline, verify.Baseline);
-        Assert.Equal(expectedSearchBaseline, verify.SearchBaselineLocally);
+        Assert.Equal(expectedBaseline, verify.BaselinePaths);
         Assert.Equal(expectedUseDefaultBaseline, verify.UseDefaultBaseline);
-    }
-
-    [Fact]
-    public void Parse_Verify_Baseline_And_SearchBaseline_CanBeParsedTogether()
-    {
-        // Mutual exclusivity of --baseline and --searchBaseline is enforced later by SettingsBuilder, not by the parser.
-        const string argString = "verify --mods myMod --baseline myBaseline.json --searchBaseline";
-
-        var settings = Parser.Parse(argString.Split(' ', StringSplitOptions.RemoveEmptyEntries));
-
-        Assert.True(settings.HasOptions);
-        var verify = Assert.IsType<VerifyVerbOption>(settings.ModVerifyOptions);
-        Assert.Equal("myBaseline.json", verify.Baseline);
-        Assert.True(verify.SearchBaselineLocally);
     }
 
     [Theory]

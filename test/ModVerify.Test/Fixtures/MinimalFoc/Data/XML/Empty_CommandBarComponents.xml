@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandBarComponents>
+  <Component Name="MinimalFocPlaceholder">
+    <Type>Icon</Type>
+  </Component>
+</CommandBarComponents>

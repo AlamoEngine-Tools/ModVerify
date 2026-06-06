@@ -4,8 +4,6 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 
 namespace PG.StarWarsGame.Engine.IO;
 
@@ -18,8 +16,8 @@ namespace PG.StarWarsGame.Engine.IO;
 /// </remarks>
 public sealed partial class PetroglyphFileSystem
 {
-    private const char DirectorySeparatorChar = '/';
-    private const char AltDirectorySeparatorChar = '\\';
+    internal const char DirectorySeparatorChar = '/';
+    internal const char AltDirectorySeparatorChar = '\\';
 
     // ReSharper disable once InconsistentNaming
     private static readonly PathNormalizeOptions PGFileSystemDirectorySeparatorNormalizeOptions = new()
@@ -29,12 +27,10 @@ public sealed partial class PetroglyphFileSystem
         UnifySeparatorKind = DirectorySeparatorKind.System
     };
 
-    private readonly IFileSystem _underlyingFileSystem;
-    
     /// <summary>
     /// Gets the underlying file system abstraction.
     /// </summary>
-    public IFileSystem UnderlyingFileSystem => _underlyingFileSystem;
+    public IFileSystem UnderlyingFileSystem { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PetroglyphFileSystem"/> class.
@@ -45,11 +41,9 @@ public sealed partial class PetroglyphFileSystem
     {
         if (serviceProvider == null)
             throw new ArgumentNullException(nameof(serviceProvider));
-        _underlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+        UnderlyingFileSystem = serviceProvider.GetRequiredService<IFileSystem>();
 
-        _strategy = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? new WindowsFileExistsStrategy(_underlyingFileSystem)
-            : new VirtualFileExistsStrategy(_underlyingFileSystem, new WineFileExistsStrategy(_underlyingFileSystem));
+        Strategy = CreateDefaultStrategy();
     }
     
     /// <summary>
@@ -69,7 +63,7 @@ public sealed partial class PetroglyphFileSystem
     
     internal FileSystemStream OpenRead(string filePath)
     {
-        return _underlyingFileSystem.FileStream.New(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return UnderlyingFileSystem.FileStream.New(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
     }
     
     private static bool IsPathRooted(ReadOnlySpan<char> path)

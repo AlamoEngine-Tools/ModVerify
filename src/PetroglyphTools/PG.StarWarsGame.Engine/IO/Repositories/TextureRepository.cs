@@ -1,12 +1,12 @@
-﻿using PG.StarWarsGame.Engine.Utilities;
+using PG.StarWarsGame.Engine.Utilities;
 using System;
 
 namespace PG.StarWarsGame.Engine.IO.Repositories;
 
 internal class TextureRepository(GameRepository baseRepository) : MultiPassRepository(baseRepository)
 {
-    private static readonly string DdsExtension = ".dds";
-    private static readonly string TexturePath = "./Data/art/Textures/";
+    private const string DdsExtension = ".dds";
+    private const string TexturePath = "./Data/art/Textures/";
 
     private protected override FileFoundInfo MultiPassAction(
         ReadOnlySpan<char> filePath, 
@@ -46,10 +46,9 @@ internal class TextureRepository(GameRepository baseRepository) : MultiPassRepos
 
         multiPassStringBuilder.Insert(0, TexturePath);
 
-        if (multiPassStringBuilder.AsSpan().Length > PGConstants.MaxTextureFileName)
-            return new FileFoundInfo { PathTooLong = true };
-
-        return BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref pathStringBuilder);
+        return multiPassStringBuilder.AsSpan().Length > PGConstants.MaxTextureFileName 
+            ? new FileFoundInfo { PathTooLong = true } 
+            : BaseRepository.FindFile(multiPassStringBuilder.AsSpan(), ref pathStringBuilder);
     }
 
     private static void ChangeExtensionTo(ref ValueStringBuilder stringBuilder, ReadOnlySpan<char> extension)
@@ -60,11 +59,12 @@ internal class TextureRepository(GameRepository baseRepository) : MultiPassRepos
 
         // Also, while there are many cases, where this method breaks (such as "c:/test.abc/path.dds"),
         // it's the way how the engine works 🤷‍
+        // The engine does strtok(name, ".") + strcat(".dds"): truncate at the first '.' if there is one,
+        // then always append the extension — so a name with no '.' still gets the extension appended.
         var firstPeriod = stringBuilder.AsSpan().IndexOf('.');
-        if (firstPeriod == -1)
-            return;
+        if (firstPeriod != -1)
+            stringBuilder.Length = firstPeriod;
 
-        stringBuilder.Length = firstPeriod;
         stringBuilder.Append(extension);
     }
 }

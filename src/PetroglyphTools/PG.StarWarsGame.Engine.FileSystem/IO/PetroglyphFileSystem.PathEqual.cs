@@ -18,13 +18,13 @@ public sealed partial class PetroglyphFileSystem
     public bool PathsAreEqual(string pathA, string pathB)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return _underlyingFileSystem.Path.AreEqual(pathA, pathB);
+            return UnderlyingFileSystem.Path.AreEqual(pathA, pathB);
         
         var normalizedA = PathNormalizer.Normalize(pathA, PGFileSystemDirectorySeparatorNormalizeOptions);
         var normalizedB = PathNormalizer.Normalize(pathB, PGFileSystemDirectorySeparatorNormalizeOptions);
 
-        var fullA = _underlyingFileSystem.Path.GetFullPath(normalizedA);
-        var fullB = _underlyingFileSystem.Path.GetFullPath(normalizedB);
+        var fullA = UnderlyingFileSystem.Path.GetFullPath(normalizedA);
+        var fullB = UnderlyingFileSystem.Path.GetFullPath(normalizedB);
         
         return PathsEqual(fullA.AsSpan(), fullB.AsSpan(), Math.Max(fullA.Length, fullB.Length));
     }

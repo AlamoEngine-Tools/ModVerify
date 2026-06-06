@@ -1,6 +1,7 @@
 ﻿using System.IO.Abstractions;
 using System.Reflection;
 using AnakinRaW.ApplicationBase.Environment;
+using AnakinRaW.AppUpdaterFramework.Security;
 #if !NET
 using System;
 using System.IO;
@@ -25,12 +26,15 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
 
 #if NETFRAMEWORK
 
+    // The /v2/ path segment is the post-migration update channel: deployed legacy clients
+    // still fetch from the historical /downloads/ModVerify path (frozen with the migration
+    // release), while this and every subsequent build pulls from /v2/.
     public override ICollection<Uri> UpdateMirrors { get; } = new List<Uri>
     {
 #if DEBUG
-        new(CreateDebugPath()),    
+        new(CreateDebugPath()),
 #endif
-        new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}")
+        new($"https://republicatwar.com/downloads/{ModVerifyConstants.ModVerifyToolPath}/v2")
     };
 
     private static string CreateDebugPath()
@@ -64,11 +68,9 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
                 DownloadRetryDelay = 500,
                 ValidationPolicy = ValidationPolicy.Required
             },
-            ManifestDownloadConfiguration = new DownloadManagerConfiguration
+            ManifestDownloadConfiguration = new ManifestDownloadConfiguration
             {
-                AllowEmptyFileDownload = false,
-                DownloadRetryDelay = 500,
-                ValidationPolicy = ValidationPolicy.Optional
+                DownloadRetryDelay = 500
             },
             BranchDownloadConfiguration = new DownloadManagerConfiguration
             {
@@ -82,7 +84,12 @@ internal sealed class ModVerifyAppEnvironment(Assembly assembly, IFileSystem fil
                 SupportsRestart = true,
                 PassCurrentArgumentsForRestart = true
             },
-            ValidateInstallation = true
+            ValidateInstallation = true,
+            ManifestSigningConfiguration = new SigningConfiguration
+            {
+                Policy = SignaturePolicy.Required,
+                SignatureAlgorithm = SignatureAlgorithm.ES256
+            }
         };
     }
 #endif

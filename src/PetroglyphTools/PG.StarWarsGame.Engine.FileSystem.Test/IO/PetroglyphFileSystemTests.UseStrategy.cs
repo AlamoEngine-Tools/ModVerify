@@ -2,7 +2,6 @@ using System;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using AnakinRaW.CommonUtilities.Testing.Attributes;
-using PG.StarWarsGame.Engine.Utilities;
 using Testably.Abstractions;
 using Xunit;
 
@@ -61,6 +60,13 @@ public class FileExistsStrategySwitchingTests : TestBaseWithPGFileSystem, IDispo
         AssertExists();
     }
 
+    [Fact]
+    public void UseLiveVirtualStrategy_DefaultFallback_Resolves()
+    {
+        PgFileSystem.UseLiveVirtualStrategy();
+        AssertExists();
+    }
+
     [PlatformSpecificFact(TestPlatformIdentifier.Windows)]
     public void UseWindowsStrategy_OnWindows_Resolves()
     {
@@ -80,6 +86,12 @@ public class FileExistsStrategySwitchingTests : TestBaseWithPGFileSystem, IDispo
         Assert.Throws<PlatformNotSupportedException>(() => PgFileSystem.UseVirtualStrategy(windowsFallback: true));
     }
 
+    [PlatformSpecificFact(TestPlatformIdentifier.Linux)]
+    public void UseLiveVirtualStrategy_WindowsFallback_OnNonWindows_Throws()
+    {
+        Assert.Throws<PlatformNotSupportedException>(() => PgFileSystem.UseLiveVirtualStrategy(windowsFallback: true));
+    }
+
     [Fact]
     public void Switching_BetweenStrategies_LeavesFileSystemUsable()
     {
@@ -87,6 +99,9 @@ public class FileExistsStrategySwitchingTests : TestBaseWithPGFileSystem, IDispo
         AssertExists();
 
         PgFileSystem.UseVirtualStrategy();
+        AssertExists();
+
+        PgFileSystem.UseLiveVirtualStrategy();
         AssertExists();
 
         if (IsWindows)

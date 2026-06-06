@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using PG.StarWarsGame.Engine.IO;
+using PG.StarWarsGame.Engine.IO.FileExistStrategies;
 using Xunit;
 
 namespace PG.StarWarsGame.Engine.FileSystem.Test.IO.FileExistStrategies;
@@ -16,5 +17,12 @@ public sealed class WindowsFileExistsStrategyTests : FileExistsStrategyTestBase
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Assert.Skip("Windows strategy requires a Windows host.");
         fs.UseWindowsStrategy();
+    }
+
+    private protected override FileExistsStrategy CreateStrategyForCleanupTest()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            Assert.Skip("Windows strategy requires a Windows host.");
+        return new WindowsFileExistsStrategy(FileSystem);
     }
 }

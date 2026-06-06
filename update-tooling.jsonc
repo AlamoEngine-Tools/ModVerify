@@ -1,0 +1,30 @@
+// Per-app configuration for the shared ModdingToolBase release/deploy tooling.
+// Consumed by ModdingToolBase/scripts/*.ps1 (local dev/test) and by .github/workflows/release.yml (CI).
+{
+  // ===== SHARED -- consumed by BOTH dev/test (local scripts) and prod (release.yml CI) =======
+  "toolProject": "./src/ModVerify.CliApp/ModVerify.CliApp.csproj", // app csproj to build
+  "appExe": "ModVerify.exe", // built app exe name
+  "updaterExe": "AnakinRaW.ExternalUpdater.exe", // external updater exe name
+  "scriptsDir": "./modules/ModdingToolBase/scripts", // ModdingToolBase scripts dir (its submodule path)
+
+  // ===== DEV/TEST ONLY -- the local self-update test scripts ===
+  "testUpdateBranch": "beta", // the update-server channel the local test publishes to and reads from
+  "appLogDir": "ModVerify", // %APPDATA% subfolder with the app log (failure diagnostics)
+
+  // ===== PROD / RELEASE ONLY -- published by release.yml (CI) ======
+  "embeddedTrustCert": "src/ModVerify.CliApp/Resources/Certs/AET-root.cer", // public trust .cer shipped in the app
+  "origin": "https://republicatwar.com/downloads/ModVerify", // manifest origin URL
+  "sftpBasePath": "downloads/ModVerify", // SFTP upload base path
+  "sftpHost": "republicatwar.com",
+  "sftpPort": 1579,
+
+  // Migration release (cross-API). Leave all three empty for a normal release; populate them to
+  // publish a next-generation channel alongside the current one.
+  //   nextOrigin       - origin URL of the next-gen channel
+  //   nextSftpBasePath - SFTP base path for the next-gen channel (set together with nextOrigin)
+  //   compatUpdater    - previous-gen updater used for the PRIMARY deploy during the cutover
+  //                      (only valid when nextOrigin + nextSftpBasePath are set)
+  "nextOrigin": "https://republicatwar.com/downloads/ModVerify/v2",
+  "nextSftpBasePath": "downloads/ModVerify/v2",
+  "compatUpdater": "tools/v1/AnakinRaW.ExternalUpdater.exe"
+}

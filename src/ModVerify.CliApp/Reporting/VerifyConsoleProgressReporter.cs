@@ -61,10 +61,12 @@ public sealed class VerifyConsoleProgressReporter(string toVerifyName, AppReport
         Console.WriteLine();
     }
 
+    private const int MaxTicks = 10000;
+
     private ProgressBar EnsureProgressBar()
     {
         return LazyInitializer.EnsureInitialized(ref _progressBar,
-            () => new ProgressBar(100, $"Verifying '{toVerifyName}'", ProgressBarOptions))!;
+            () => new ProgressBar(MaxTicks, $"Verifying '{toVerifyName}'", ProgressBarOptions))!;
     }
 
     private static int WriteQueuedMessage(ConsoleOutLine arg)

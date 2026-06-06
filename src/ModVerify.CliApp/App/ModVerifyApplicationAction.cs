@@ -6,6 +6,7 @@ using AET.ModVerify.App.GameFinder;
 using AET.ModVerify.App.Reporting;
 using AET.ModVerify.App.Settings;
 using AET.ModVerify.App.TargetSelectors;
+using AET.ModVerify.App.Utilities;
 using AET.ModVerify.Reporting;
 using AET.ModVerify.Reporting.Baseline;
 using AET.ModVerify.Reporting.Suppressions;
@@ -105,14 +106,30 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
     }
 
     protected abstract Task<int> ProcessResult(VerificationResult result);
-    
-    protected abstract VerificationBaseline GetBaseline(VerificationTarget verificationTarget);
+
+    protected virtual BaselineCollection GetBaselines(VerificationTarget verificationTarget)
+    {
+        var baselineSelector = new BaselineSelector(Settings, ServiceProvider);
+        var baselines = baselineSelector.SelectBaselines(verificationTarget);
+        if (!baselines.IsEmpty)
+        {
+            Console.WriteLine();
+            ModVerifyConsoleUtilities.WriteBaselineInfo(baselines);
+            foreach (var entry in baselines)
+            {
+                Logger?.LogDebug("Using baseline {Baseline} from source '{Identifier}'",
+                    entry.Baseline.ToString(), entry.Identifier);
+            }
+            Console.WriteLine();
+        }
+        return baselines;
+    }
 
     private async Task<VerificationResult> VerifyTargetAsync(VerificationTarget verificationTarget)
     {
         var progressReporter = new VerifyConsoleProgressReporter(verificationTarget.Name, Settings.ReportSettings);
 
-        var baseline = GetBaseline(verificationTarget);
+        var baselines = GetBaselines(verificationTarget);
         var suppressions = GetSuppressions();
 
         try
@@ -122,11 +139,11 @@ internal abstract class ModVerifyApplicationAction<T> : IModVerifyAppAction wher
             Logger?.LogInformation(ModVerifyConstants.ConsoleEventId, "Verifying '{Target}'...", verificationTarget.Name);
             
             var verificationResult = await verifierService.VerifyAsync(
-                verificationTarget, 
+                verificationTarget,
                 Settings.VerifierServiceSettings,
-                baseline, 
+                baselines,
                 suppressions,
-                progressReporter, 
+                progressReporter,
                 new EngineInitializeProgressReporter(verificationTarget.Engine));
 
             progressReporter.Report(string.Empty, 1.0);

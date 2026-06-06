@@ -116,6 +116,22 @@ Uses manual mod setup, including sub-mods and the EaW fallback game, and uses th
   --useDefaultBaseline
 ```
 
+#### Example 3: Layering a mod-specific baseline on top of the default baseline
+A typical mod-dev workflow: filter the base game's known findings with the embedded default baseline, *and* filter your mod's own accepted findings with your own baseline. The two baselines stay independent — you can regenerate your mod baseline without touching the default.
+
+**Windows:**
+```bat
+.\ModVerify.exe verify --path "C:\My Games\FoC\Mods\MyMod" --useDefaultBaseline --baseline ./myModBaseline.json
+```
+
+**Linux:**
+```bash
+./ModVerify verify \
+  --path "/home/user/games/FoC/Mods/MyMod" \
+  --useDefaultBaseline \
+  --baseline ./myModBaseline.json
+```
+
 ---
 
 ## Available Checks
@@ -156,3 +172,22 @@ ModVerify.exe createBaseline --outFile myBaseline.json --path "C:\My Games\FoC\M
   --outFile myBaseline.json \
   --path "C:\My Games\FoC\Mods\MyMod"
 ```
+
+### Creating a mod baseline on top of a base baseline
+
+If you maintain a mod and only want your baseline to contain findings your mod is responsible for, supply the base baselines you want to subtract out. Findings already covered by the base baselines are excluded from the new file. The base baselines themselves are not modified, so they can keep being maintained independently.
+
+**Windows**
+```bat
+.\ModVerify.exe createBaseline --outFile myModBaseline.json --path "C:\My Games\FoC\Mods\MyMod" --useDefaultBaseline
+```
+
+**Linux**
+```bash
+./ModVerify createBaseline \
+  --outFile myModBaseline.json \
+  --path "/home/user/games/FoC/Mods/MyMod" \
+  --useDefaultBaseline
+```
+
+You can also chain a custom base baseline via `--baseline <path>`, and combine it with `--useDefaultBaseline`.

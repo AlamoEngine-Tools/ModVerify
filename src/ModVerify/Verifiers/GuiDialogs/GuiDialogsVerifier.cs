@@ -14,7 +14,7 @@ using System.Threading;
 
 namespace AET.ModVerify.Verifiers.GuiDialogs;
 
-sealed class GuiDialogsVerifier : GameVerifier
+public sealed class GuiDialogsVerifier : GameVerifier
 {
     internal const string DefaultComponentIdentifier = "<<DEFAULT>>";
 

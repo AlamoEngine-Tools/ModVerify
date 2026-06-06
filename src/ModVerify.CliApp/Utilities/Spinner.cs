@@ -30,6 +30,7 @@ internal sealed class ConsoleSpinner : IAsyncDisposable
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _observedTask;
     private readonly bool _origCursorVisibility;
+    private readonly bool _canToggleCursor;
     private readonly string[] _animation;
     private int _frame;
     private int _lastTextLength;
@@ -39,9 +40,20 @@ internal sealed class ConsoleSpinner : IAsyncDisposable
         _observedTask = observedTask;
         _options = options;
         _animation = options.Animation;
-        _origCursorVisibility = Console.CursorVisible;
 
-        if (_options.HideCursor)
+        // Console.CursorVisible throws "the handle is invalid" when stdout is redirected
+        // (CI, piped invocation, Start-Process -RedirectStandardOutput). Degrade gracefully.
+        try
+        {
+            _origCursorVisibility = Console.CursorVisible;
+            _canToggleCursor = true;
+        }
+        catch (IOException)
+        {
+            _canToggleCursor = false;
+        }
+
+        if (_options.HideCursor && _canToggleCursor)
             Console.CursorVisible = false;
 
         SpinnerLoop().Forget();
@@ -134,7 +146,8 @@ internal sealed class ConsoleSpinner : IAsyncDisposable
         }
 
         await _options.Writer.FlushAsync();
-        Console.CursorVisible = _origCursorVisibility;
+        if (_canToggleCursor)
+            Console.CursorVisible = _origCursorVisibility;
     }
 
     private async Task ClearTextAsync(int length)

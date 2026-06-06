@@ -9,4 +9,6 @@ public sealed class VerifierServiceSettings
     public FailFastSetting FailFastSettings { get; init; } = FailFastSetting.NoFailFast;
 
     public int ParallelVerifiers { get; init; } = 4;
+
+    public bool UseLiveVirtualFileSystem { get; init; } = false;
 }

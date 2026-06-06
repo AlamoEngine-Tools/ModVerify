@@ -48,10 +48,12 @@ internal sealed class ModVerifyUpdater
             return;
         }
 
-        var updater = new ModVerifyApplicationUpdater(updatableEnvironment, _serviceProvider);
+        var updater = new ModVerifyApplicationUpdater(updatableEnvironment, _serviceProvider, restartHostAfterUpdate: !updateOptions.NoRestart);
 
         var actualBranchName = updater.GetBranchNameFromRegistry(updateOptions.BranchName, false);
-        var branch = updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
+        var branch = !string.IsNullOrEmpty(updateOptions.ServerUrl)
+            ? updater.CreateBranchFromServerUrl(updateOptions.ServerUrl!, actualBranchName)
+            : updater.CreateBranch(actualBranchName, updateOptions.ManifestUrl);
 
         using (ConsoleUtilities.CreateHorizontalFrame(length: 40, startWithNewLine: true, newLineAtEnd: true))
         {
@@ -83,7 +85,7 @@ internal sealed class ModVerifyUpdater
 
                 if (mode == ModVerifyUpdateMode.InteractiveUpdate)
                 {
-                    var shallUpdate = ConsoleUtilities.UserYesNoQuestion("Do you want to update now?");
+                    var shallUpdate = ConsoleUtilities.UserYesNoQuestion("Do you want to update now?", defaultAnswer: true);
                     if (!shallUpdate)
                         return;
                 }
@@ -122,7 +124,20 @@ internal sealed class ModVerifyUpdater
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine("New Update Available!");
                     Console.ResetColor();
-                    Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+                    if (_appEnvironment.IsUpdatable())
+                    {
+                        Console.WriteLine($"Version: {updateInfo.NewVersion}, More info: {updateInfo.DownloadLink}");
+                        Console.WriteLine();
+                        Console.WriteLine(
+                            $"To install the update, start {ModVerifyConstants.AppNameString} without any arguments, " +
+                            "or run it with the 'updateApplication' verb.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Version: {updateInfo.NewVersion}, Download here: {updateInfo.DownloadLink}");
+                        Console.WriteLine();
+                        Console.WriteLine("Download the new version from the link above and replace your current installation.");
+                    }
                 }
             }
             else

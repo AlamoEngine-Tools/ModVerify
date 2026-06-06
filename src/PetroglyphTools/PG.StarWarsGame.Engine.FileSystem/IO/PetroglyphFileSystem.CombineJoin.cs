@@ -6,10 +6,31 @@ namespace PG.StarWarsGame.Engine.IO;
 
 public sealed partial class PetroglyphFileSystem
 {
+    /// <summary>
+    /// Combines strings into a path.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method is intended to concatenate individual strings into a single string that represents a file path.
+    /// However, if an argument other than the first contains a rooted path, any previous path components are ignored,
+    /// and the returned string begins with that rooted path component.
+    /// </para>
+    /// <para>
+    /// This method supports the directory separator characters ("/") and ("\").
+    /// </para>
+    /// </remarks>
+    /// <param name="pathA">The first path to combine.</param>
+    /// <param name="pathB">The second path to combine.</param>
+    /// <returns>
+    /// The combined paths. If one of the specified paths is a zero-length string, this method returns the other path.
+    /// If <paramref name="pathB"/> contains an absolute path, this method returns <paramref name="pathB"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="pathA"/> or <paramref name="pathB"/> is <see langword="null"/>.
+    /// </exception>
     public string CombinePath(string pathA, string pathB)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
-            return _underlyingFileSystem.Path.Combine(pathA, pathB);
+            return UnderlyingFileSystem.Path.Combine(pathA, pathB);
         
         if (pathA == null)
             throw new ArgumentNullException(nameof(pathA));
@@ -17,7 +38,7 @@ public sealed partial class PetroglyphFileSystem
             throw new ArgumentNullException(nameof(pathB));
         return CombineInternal(pathA, pathB);
     }
-    
+
     internal void JoinPath(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ref ValueStringBuilder stringBuilder)
     {
         if (path1.Length == 0 && path2.Length == 0)
@@ -34,11 +55,48 @@ public sealed partial class PetroglyphFileSystem
         
         var hasSeparator = IsDirectorySeparator(path1[path1.Length - 1]) || IsDirectorySeparator(path2[0]);
         if (!hasSeparator)
-            stringBuilder.Append(_underlyingFileSystem.Path.DirectorySeparatorChar);
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
         
         stringBuilder.Append(path2);
     }
-    
+
+    internal void JoinPath(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, ref ValueStringBuilder stringBuilder)
+    {
+        if (path1.IsEmpty)
+        {
+            JoinPath(path2, path3, ref stringBuilder);
+            return;
+        }
+
+        if (path2.IsEmpty)
+        {
+            JoinPath(path1, path3, ref stringBuilder);
+            return;
+        }
+
+        if (path3.IsEmpty)
+        {
+            JoinPath(path1, path2, ref stringBuilder);
+            return;
+        }
+        
+        stringBuilder.Append(path1);
+
+        var firstHasSeparator = IsDirectorySeparator(path1[path1.Length - 1]) || IsDirectorySeparator(path2[0]);
+        var secondHasSeparator = IsDirectorySeparator(path2[path2.Length - 1]) || IsDirectorySeparator(path3[0]);
+        
+        if (!firstHasSeparator)
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
+        
+        stringBuilder.Append(path2);
+
+        if (!secondHasSeparator)
+            stringBuilder.Append(UnderlyingFileSystem.Path.DirectorySeparatorChar);
+
+        stringBuilder.Append(path3);
+    }
+
+
     private string CombineInternal(string first, string second)
     {
         if (string.IsNullOrEmpty(first))
@@ -58,6 +116,6 @@ public sealed partial class PetroglyphFileSystem
         var hasSeparator = IsDirectorySeparator(first[first.Length - 1]) || IsDirectorySeparator(second[0]);
         return hasSeparator
             ? string.Concat(first, second)
-            : string.Concat(first, _underlyingFileSystem.Path.DirectorySeparatorChar, second);
+            : string.Concat(first, UnderlyingFileSystem.Path.DirectorySeparatorChar, second);
     }
 }
