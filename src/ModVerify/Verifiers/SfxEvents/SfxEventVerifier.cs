@@ -1,5 +1,4 @@
-﻿using AET.ModVerify.Reporting;
-using AET.ModVerify.Settings;
+﻿using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
 using AnakinRaW.CommonUtilities.FileSystem.Normalization;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading;
+using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.SfxEvents;
 
@@ -48,9 +48,7 @@ public sealed partial class SfxEventVerifier : NamedGameEntityVerifier<SfxEvent>
     {
         if (entity.Name.Length >= PGConstants.MaxSFXEventName)
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.NameTooLong,
-                $"The SFXEvent name '{entity.Name}' is too long. Maximum length is {PGConstants.MaxSFXEventName}.",
-                VerificationSeverity.Critical, entity.Name));
+            AddError(Diagnostics.Sfx.NameTooLong(this, entity.Name, PGConstants.MaxSFXEventName, []));
         }
         VerifyPresetRef(entity, context);
         VerifySamples(entity, context, token);

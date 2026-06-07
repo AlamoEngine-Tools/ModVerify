@@ -1,5 +1,5 @@
 ﻿using System;
-using AET.ModVerify.Reporting;
+using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.CommandBar.Components;
@@ -25,18 +25,10 @@ partial class CommandBarVerifier
         }
 
         if (shellGroups.Count == 0) 
-            AddError(VerificationError.Create(this,
-                CommandBarNoShellsGroup, 
-                $"No CommandBarGroup '{CommandBarConstants.ShellGroupName}' found.", 
-                VerificationSeverity.Error, 
-                "GameCommandBar"));
+            AddError(Diagnostics.CommandBar.NoShellsGroup(this, CommandBarConstants.ShellGroupName, []));
 
         if (shellGroups.Count > 1) 
-            AddError(VerificationError.Create(this, 
-                CommandBarManyShellsGroup, 
-                $"Found more than one Shells CommandBarGroup. Mind that group names are case-sensitive. Correct name is '{CommandBarConstants.ShellGroupName}'",
-                VerificationSeverity.Warning, 
-                shellGroups, "GameCommandBar"));
+            AddError(Diagnostics.CommandBar.ManyShellsGroups(this, CommandBarConstants.ShellGroupName, shellGroups));
     }
 
     private void VerifyShellGroup(CommandBarComponentGroup shellGroup)
@@ -46,10 +38,7 @@ partial class CommandBarVerifier
             var shellComponent = component as CommandBarShellComponent;
             if (shellComponent?.Type is not CommandBarComponentType.Shell)
             {
-                AddError(VerificationError.Create(this,
-                    CommandBarNoShellsComponentInShellGroup, 
-                    $"The CommandBar component '{component.Name}' is not a shell component, but part of the '{CommandBarConstants.ShellGroupName}' group.", 
-                    VerificationSeverity.Warning, component.Name));
+                AddError(Diagnostics.CommandBar.NonShellInShellGroup(this, component.Name, CommandBarConstants.ShellGroupName, []));
             }
         }
     }

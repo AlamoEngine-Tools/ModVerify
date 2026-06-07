@@ -2,7 +2,7 @@
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.GameObjects;
 using System.Threading;
-using AET.ModVerify.Reporting;
+using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
 using PG.StarWarsGame.Engine.Xml.Parsers.Tags;
 using PG.StarWarsGame.Files.ALO.Data;
 
@@ -21,11 +21,8 @@ public sealed partial class GameObjectTypeVerifier
             
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(VerificationError.Create(this, VerifierErrorCodes.UnexpectedBinaryFormat,
-                    $"Expected Model or Particle for as galactic model for {gameObjectType.Name}, but found an animation.", 
-                    VerificationSeverity.Error, 
-                    [..context, $"Tag: {GameObjectTypeXmlTags.GalacticModelName}"],
-                    model.File.FileName.ToUpperInvariant()));
+                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "galactic model", gameObjectType.Name,
+                    model.File.FileName.ToUpperInvariant(), [..context, $"Tag: {GameObjectTypeXmlTags.GalacticModelName}"]));
             }
         }
         if (!string.IsNullOrEmpty(gameObjectType.LandModel))
@@ -35,11 +32,8 @@ public sealed partial class GameObjectTypeVerifier
 
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(VerificationError.Create(this, VerifierErrorCodes.UnexpectedBinaryFormat,
-                    $"Expected Model or Particle for as land model for {gameObjectType.Name}, but found an animation.",
-                    VerificationSeverity.Error,
-                    [.. context, $"Tag: {GameObjectTypeXmlTags.LandModelName}"],
-                    model.File.FileName.ToUpperInvariant()));
+                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "land model", gameObjectType.Name,
+                    model.File.FileName.ToUpperInvariant(), [.. context, $"Tag: {GameObjectTypeXmlTags.LandModelName}"]));
             }
         }
         if (!string.IsNullOrEmpty(gameObjectType.SpaceModel))
@@ -49,11 +43,8 @@ public sealed partial class GameObjectTypeVerifier
 
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(VerificationError.Create(this, VerifierErrorCodes.UnexpectedBinaryFormat,
-                    $"Expected Model or Particle for as space model for {gameObjectType.Name}, but found an animation.",
-                    VerificationSeverity.Error,
-                    [.. context, $"Tag: {GameObjectTypeXmlTags.SpaceModelName}"],
-                    model.File.FileName.ToUpperInvariant()));
+                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "space model", gameObjectType.Name,
+                    model.File.FileName.ToUpperInvariant(), [.. context, $"Tag: {GameObjectTypeXmlTags.SpaceModelName}"]));
             }
         }
         if (!string.IsNullOrEmpty(gameObjectType.DamagedSmokeAssetModel))
@@ -63,11 +54,8 @@ public sealed partial class GameObjectTypeVerifier
 
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(VerificationError.Create(this, VerifierErrorCodes.UnexpectedBinaryFormat,
-                    $"Expected Model or Particle for as damaged smoke asset for {gameObjectType.Name}, but found an animation.",
-                    VerificationSeverity.Error,
-                    [.. context, $"Tag: {GameObjectTypeXmlTags.DamagedSmokeAssetName}"],
-                    model.File.FileName.ToUpperInvariant()));
+                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "damaged smoke asset", gameObjectType.Name,
+                    model.File.FileName.ToUpperInvariant(), [.. context, $"Tag: {GameObjectTypeXmlTags.DamagedSmokeAssetName}"]));
             }
         }
 
@@ -95,27 +83,16 @@ public sealed partial class GameObjectTypeVerifier
             // This is likely an unintentional mistake in the XML.
             if (mapping.Value.Count > 1)
             {
-                AddError(VerificationError.Create(
-                    this, 
-                    VerifierErrorCodes.Duplicate,
-                    $"Terrain type '{mapping.Key}' for land model override is defined multiple times for game object type {gameObjectType.Name}.",
-                    VerificationSeverity.Warning,
-                    context,
-                    mapping.Key.ToString()));
+                AddError(Diagnostics.GameObjects.DuplicateTerrainMapping(this, mapping.Key.ToString(), gameObjectType.Name, context));
             }
         }
 
         foreach (var invalidTerrain in invalidTerrainTypes)
         {
-            AddError(VerificationError.Create(
-                this, 
-                VerifierErrorCodes.UnrecognizedEnum,
-                $"Invalid terrain type '{invalidTerrain}' specified in {GameObjectTypeXmlTags.LandTerrainModelMapping} for GameObjectType '{gameObjectType.Name}'.",
-                // Error, since this indicates a likely typo in the XML that results in the terrain type being ignored,
-                // which can lead to missing models in-game and is likely not intentional. 
-                VerificationSeverity.Error,
-                [..context, nameof(MapEnvironmentType)], 
-                invalidTerrain));
+            // Error, since this indicates a likely typo in the XML that results in the terrain type being ignored,
+            // which can lead to missing models in-game and is likely not intentional.
+            AddError(Diagnostics.GameObjects.InvalidTerrainType(this, invalidTerrain,
+                GameObjectTypeXmlTags.LandTerrainModelMapping, gameObjectType.Name, [..context, nameof(MapEnvironmentType)]));
         }
     }
     

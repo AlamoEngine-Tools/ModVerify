@@ -1,4 +1,4 @@
-﻿using AET.ModVerify.Reporting;
+﻿using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
 using PG.StarWarsGame.Engine.GameObjects;
 
 namespace AET.ModVerify.Verifiers.GameObjects;
@@ -33,9 +33,7 @@ public sealed partial class GameObjectTypeVerifier
 
         if (!GameEngine.CommandBar.IconExists(gameObjectType))
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound, 
-                $"Could not find icon '{gameObjectType.IconName}' for game object type '{gameObjectType.Name}'.",
-                VerificationSeverity.Warning, context, gameObjectType.IconName!));
+            AddError(Diagnostics.GameObjects.IconNotFound(this, gameObjectType.IconName!, gameObjectType.Name, context));
         }
     }
 }

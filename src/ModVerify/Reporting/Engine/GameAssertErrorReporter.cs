@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 
@@ -14,15 +13,16 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
 
     protected override ErrorData CreateError(EngineAssert assert)
     {
+        var descriptor = GetDescriptor(assert.Kind);
         var context = new List<string>();
         context.AddRange(assert.Context);
         context.Add($"location='{GetLocation(assert)}'");
         return new ErrorData(
-            GetIdFromError(assert.Kind),
-            assert.Message, 
-            context, 
-            assert.Value, 
-            VerificationSeverity.Warning);
+            descriptor.Id,
+            assert.Message,
+            context,
+            assert.Value,
+            descriptor.Severity);
     }
 
     private static string GetLocation(EngineAssert assert)
@@ -38,15 +38,16 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
         return sb.ToString();
     }
 
-    private static string GetIdFromError(EngineAssertKind assertKind)
+    private static ErrorDescriptor GetDescriptor(EngineAssertKind assertKind)
     {
         return assertKind switch
         {
-            EngineAssertKind.NullOrEmptyValue => VerifierErrorCodes.AssertValueNullOrEmpty,
-            EngineAssertKind.ValueOutOfRange => VerifierErrorCodes.AssertValueOutOfRange,
-            EngineAssertKind.InvalidValue => VerifierErrorCodes.AssertValueInvalid,
-            EngineAssertKind.FileNotFound => VerifierErrorCodes.FileNotFound,
-            EngineAssertKind.DuplicateEntry => VerifierErrorCodes.Duplicate,
+            EngineAssertKind.NullOrEmptyValue => Diagnostics.Asserts.NullOrEmptyValue,
+            EngineAssertKind.ValueOutOfRange => Diagnostics.Asserts.ValueOutOfRange,
+            EngineAssertKind.InvalidValue => Diagnostics.Asserts.InvalidValue,
+            EngineAssertKind.FileNotFound => Diagnostics.Asserts.FileNotFound,
+            EngineAssertKind.DuplicateEntry => Diagnostics.Asserts.DuplicateEntry,
+            EngineAssertKind.CorruptBinary => Diagnostics.Asserts.CorruptBinary,
             _ => throw new ArgumentOutOfRangeException(nameof(assertKind), assertKind, null)
         };
     }

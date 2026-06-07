@@ -62,33 +62,6 @@ public sealed class VerificationError : IEquatable<VerificationError>
         Asset = error.Asset;
     }
 
-    public static VerificationError Create(
-        IGameVerifierInfo verifier,
-        string id,
-        string message,
-        VerificationSeverity severity,
-        IEnumerable<string> context,
-        string asset)
-    {
-        return new VerificationError(id, message, verifier, context, asset, severity);
-    }
-
-    public static VerificationError Create(
-        IGameVerifierInfo verifier,
-        string id,
-        string message,
-        VerificationSeverity severity,
-        string asset)
-    {
-        return new VerificationError(
-            id,
-            message, 
-            verifier,
-            [], 
-            asset, 
-            severity);
-    }
-
     public bool Equals(VerificationError? other)
     {
         if (other is null)

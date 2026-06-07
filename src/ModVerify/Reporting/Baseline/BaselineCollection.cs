@@ -105,7 +105,13 @@ public sealed class BaselineCollection : IReadOnlyCollection<IdentifiedBaseline>
         return new VerificationErrors(newErrors, readOnlyExisting, resolvedErrors);
     }
 
-    public IEnumerator<IdentifiedBaseline> GetEnumerator() => _baselines.GetEnumerator();
+    public IEnumerator<IdentifiedBaseline> GetEnumerator()
+    {
+        return _baselines.GetEnumerator();
+    }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }

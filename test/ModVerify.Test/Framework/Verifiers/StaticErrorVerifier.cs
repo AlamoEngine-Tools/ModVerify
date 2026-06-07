@@ -19,7 +19,7 @@ internal sealed class StaticErrorVerifier(
     public override void Verify(CancellationToken token)
     {
         foreach (var spec in errors)
-            AddError(VerificationError.Create(this, spec.Id, spec.Message, spec.Severity, spec.Context, spec.Asset));
+            AddError(new VerificationError(spec.Id, spec.Message, this, spec.Context, spec.Asset, spec.Severity));
     }
 }
 

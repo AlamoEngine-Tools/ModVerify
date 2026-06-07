@@ -1,7 +1,7 @@
-﻿using AET.ModVerify.Reporting;
-using PG.StarWarsGame.Engine.CommandBar;
+﻿using PG.StarWarsGame.Engine.CommandBar;
 using System.Linq;
 using System.Threading;
+using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.CommandBar;
 
@@ -24,12 +24,7 @@ partial class CommandBarVerifier
 
             if (!occupiedComponentIds.TryGetValue(component.Id, out var alreadyOccupied))
             {
-                AddError(VerificationError.Create(
-                    this,
-                    CommandBarUnsupportedComponent,
-                    $"The CommandBar component '{component.Name}' is not supported by the game.",
-                    VerificationSeverity.Information,
-                    component.Name));
+                AddError(Diagnostics.CommandBar.UnsupportedComponent(this, component.Name, []));
             }
             else
             {
@@ -38,11 +33,7 @@ partial class CommandBarVerifier
 
             if (alreadyOccupied)
             {
-                AddError(VerificationError.Create(this,
-                    VerifierErrorCodes.Duplicate,
-                    $"The CommandBar component '{component.Name}' with ID '{component.Id}' already exists.",
-                    VerificationSeverity.Warning,
-                    component.Name));
+                AddError(Diagnostics.CommandBar.DuplicateComponent(this, component.Name, component.Id, []));
             }
 
             VerifySingleComponent(component, token);

@@ -46,4 +46,12 @@ public static class VerifierErrorCodes
     public const string XmlUnsupportedTag = "XML10";
     public const string XmlElementsInTag = "XML11";
     public const string XmlUnexceptedElementName = "XML12";
+    public const string XmlEmptyNodeName = "XML13";
+
+    public const string CommandBarNoShellsGroup = "CMDBAR00";
+    public const string CommandBarManyShellsGroup = "CMDBAR01";
+    public const string CommandBarNoShellsComponentInShellGroup = "CMDBAR02";
+    public const string CommandBarUnsupportedComponent = "CMDBAR03";
+    public const string CommandBarShellNoModel = "CMDBAR04";
+    public const string CommandBarComponentNotConnected = "CMDBAR05";
 }

@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using AET.ModVerify.Reporting;
+using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
 using AET.ModVerify.Verifiers.Commons;
 using AET.ModVerify.Verifiers.Utilities;
 using PG.StarWarsGame.Engine.CommandBar;
@@ -12,9 +12,7 @@ partial class CommandBarVerifier
     {
         if (CommandBar.MtdFile is null)
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
-                $"Cannot find CommandBar MegaTextureDirectory '{CommandBarConstants.MegaTextureBaseName}.mtd'", 
-                VerificationSeverity.Critical, $"{CommandBarConstants.MegaTextureBaseName}.mtd"));
+            AddError(Diagnostics.CommandBar.MegaTextureDirectoryNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
         }
         else
         {
@@ -27,15 +25,11 @@ partial class CommandBarVerifier
 
         if (CommandBar.MegaTextureFileName is null)
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
-                $"Cannot find CommandBar MegaTexture '{CommandBarConstants.MegaTextureBaseName}.tga'",
-                VerificationSeverity.Critical, $"{CommandBarConstants.MegaTextureBaseName}.tga"));
+            AddError(Diagnostics.CommandBar.MegaTextureNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
         }
         else if (!GameEngine.GameRepository.TextureRepository.FileExists(CommandBar.MegaTextureFileName))
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
-                $"Cannot find CommandBar MegaTexture '{CommandBarConstants.MegaTextureBaseName}.tga'",
-                VerificationSeverity.Critical, $"{CommandBarConstants.MegaTextureBaseName}.tga"));
+            AddError(Diagnostics.CommandBar.MegaTextureNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
         }
     }
 }
