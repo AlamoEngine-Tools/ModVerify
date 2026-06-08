@@ -9,680 +9,8 @@
   "minSeverity": "Information",
   "errors": [
     {
-      "id": "CMDBAR03",
-      "severity": "Information",
-      "asset": "g_credit_bar",
-      "message": "The CommandBar component \u0027g_credit_bar\u0027 is not supported by the game.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "b_beacon_t",
-      "message": "The CommandBar component \u0027b_beacon_t\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "b_planet_left",
-      "message": "The CommandBar component \u0027b_planet_left\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "b_planet_right",
-      "message": "The CommandBar component \u0027b_planet_right\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "b_quick_ref",
-      "message": "The CommandBar component \u0027b_quick_ref\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "balance_pip",
-      "message": "The CommandBar component \u0027balance_pip\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "bm_title_4010",
-      "message": "The CommandBar component \u0027bm_title_4010\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "bm_title_4011",
-      "message": "The CommandBar component \u0027bm_title_4011\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "bribe_display",
-      "message": "The CommandBar component \u0027bribe_display\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "bribed_icon",
-      "message": "The CommandBar component \u0027bribed_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "cs_ability_button",
-      "message": "The CommandBar component \u0027cs_ability_button\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "cs_ability_text",
-      "message": "The CommandBar component \u0027cs_ability_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_back",
-      "message": "The CommandBar component \u0027encyclopedia_back\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_center_text",
-      "message": "The CommandBar component \u0027encyclopedia_center_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_cost_text",
-      "message": "The CommandBar component \u0027encyclopedia_cost_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_header_text",
-      "message": "The CommandBar component \u0027encyclopedia_header_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_icon",
-      "message": "The CommandBar component \u0027encyclopedia_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_right_text",
-      "message": "The CommandBar component \u0027encyclopedia_right_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "encyclopedia_text",
-      "message": "The CommandBar component \u0027encyclopedia_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_bounty_hunter",
-      "message": "The CommandBar component \u0027g_bounty_hunter\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_build",
-      "message": "The CommandBar component \u0027g_build\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_conflict",
-      "message": "The CommandBar component \u0027g_conflict\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_corruption_icon",
-      "message": "The CommandBar component \u0027g_corruption_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_corruption_text",
-      "message": "The CommandBar component \u0027g_corruption_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_credit_bar",
-      "message": "The CommandBar component \u0027g_credit_bar\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_enemy_hero",
-      "message": "The CommandBar component \u0027g_enemy_hero\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_ground_icon",
-      "message": "The CommandBar component \u0027g_ground_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_ground_level",
-      "message": "The CommandBar component \u0027g_ground_level\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_ground_level_pips",
-      "message": "The CommandBar component \u0027g_ground_level_pips\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_ground_sell",
-      "message": "The CommandBar component \u0027g_ground_sell\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_hero",
-      "message": "The CommandBar component \u0027g_hero\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_hero_icon",
-      "message": "The CommandBar component \u0027g_hero_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_planet_ability",
-      "message": "The CommandBar component \u0027g_planet_ability\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_planet_fleet",
-      "message": "The CommandBar component \u0027g_planet_fleet\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_planet_land_forces",
-      "message": "The CommandBar component \u0027g_planet_land_forces\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_planet_name",
-      "message": "The CommandBar component \u0027g_planet_name\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_planet_ring",
-      "message": "The CommandBar component \u0027g_planet_ring\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_planet_value",
-      "message": "The CommandBar component \u0027g_planet_value\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_political_control",
-      "message": "The CommandBar component \u0027g_political_control\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_radar_blip",
-      "message": "The CommandBar component \u0027g_radar_blip\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_radar_view",
-      "message": "The CommandBar component \u0027g_radar_view\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_smuggled",
-      "message": "The CommandBar component \u0027g_smuggled\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_smuggler",
-      "message": "The CommandBar component \u0027g_smuggler\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_space_icon",
-      "message": "The CommandBar component \u0027g_space_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_space_level",
-      "message": "The CommandBar component \u0027g_space_level\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_space_level_pips",
-      "message": "The CommandBar component \u0027g_space_level_pips\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_special_ability",
-      "message": "The CommandBar component \u0027g_special_ability\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "g_weather",
-      "message": "The CommandBar component \u0027g_weather\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "garrison_respawn_counter",
-      "message": "The CommandBar component \u0027garrison_respawn_counter\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "garrison_slot_icon",
-      "message": "The CommandBar component \u0027garrison_slot_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "generic_collision",
-      "message": "The CommandBar component \u0027generic_collision\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "generic_flytext",
-      "message": "The CommandBar component \u0027generic_flytext\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "gui_dialog_tooltip",
-      "message": "The CommandBar component \u0027gui_dialog_tooltip\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "help_back",
-      "message": "The CommandBar component \u0027help_back\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "lt_weather_icon",
-      "message": "The CommandBar component \u0027lt_weather_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "objective_back",
-      "message": "The CommandBar component \u0027objective_back\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "objective_header_text",
-      "message": "The CommandBar component \u0027objective_header_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "objective_icon",
-      "message": "The CommandBar component \u0027objective_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "objective_text",
-      "message": "The CommandBar component \u0027objective_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "radar_blip",
-      "message": "The CommandBar component \u0027radar_blip\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "reinforcement_counter",
-      "message": "The CommandBar component \u0027reinforcement_counter\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "remote_bomb_icon",
-      "message": "The CommandBar component \u0027remote_bomb_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "skirmish_upgrade",
-      "message": "The CommandBar component \u0027skirmish_upgrade\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_ability_icon",
-      "message": "The CommandBar component \u0027st_ability_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_bracket_large",
-      "message": "The CommandBar component \u0027st_bracket_large\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_bracket_medium",
-      "message": "The CommandBar component \u0027st_bracket_medium\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_bracket_small",
-      "message": "The CommandBar component \u0027st_bracket_small\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_control_group",
-      "message": "The CommandBar component \u0027st_control_group\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_garrison_icon",
-      "message": "The CommandBar component \u0027st_garrison_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_grab_bar",
-      "message": "The CommandBar component \u0027st_grab_bar\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_health",
-      "message": "The CommandBar component \u0027st_health\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_health_bar",
-      "message": "The CommandBar component \u0027st_health_bar\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_health_large",
-      "message": "The CommandBar component \u0027st_health_large\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_health_medium",
-      "message": "The CommandBar component \u0027st_health_medium\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_hero_health",
-      "message": "The CommandBar component \u0027st_hero_health\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_hero_icon",
-      "message": "The CommandBar component \u0027st_hero_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_power",
-      "message": "The CommandBar component \u0027st_power\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_shields",
-      "message": "The CommandBar component \u0027st_shields\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_shields_large",
-      "message": "The CommandBar component \u0027st_shields_large\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "st_shields_medium",
-      "message": "The CommandBar component \u0027st_shields_medium\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "surface_mod_icon",
-      "message": "The CommandBar component \u0027surface_mod_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tactical_sell",
-      "message": "The CommandBar component \u0027tactical_sell\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tooltip_back",
-      "message": "The CommandBar component \u0027tooltip_back\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tooltip_icon",
-      "message": "The CommandBar component \u0027tooltip_icon\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tooltip_icon_land",
-      "message": "The CommandBar component \u0027tooltip_icon_land\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tooltip_left_text",
-      "message": "The CommandBar component \u0027tooltip_left_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tooltip_name",
-      "message": "The CommandBar component \u0027tooltip_name\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tooltip_price",
-      "message": "The CommandBar component \u0027tooltip_price\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tutorial_text",
-      "message": "The CommandBar component \u0027tutorial_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "tutorial_text_back",
-      "message": "The CommandBar component \u0027tutorial_text_back\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "zoomed_back",
-      "message": "The CommandBar component \u0027zoomed_back\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "zoomed_center_text",
-      "message": "The CommandBar component \u0027zoomed_center_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "zoomed_cost_text",
-      "message": "The CommandBar component \u0027zoomed_cost_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "zoomed_header_text",
-      "message": "The CommandBar component \u0027zoomed_header_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "zoomed_right_text",
-      "message": "The CommandBar component \u0027zoomed_right_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
-      "id": "CMDBAR04",
-      "severity": "Information",
-      "asset": "zoomed_text",
-      "message": "The CommandBar component \u0027zoomed_text\u0027 is not connected to a shell component.",
-      "context": []
-    },
-    {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "AMB_DES_CLEAR_LOOP_1.WAV",
       "message": "Audio file \u0027AMB_DES_CLEAR_LOOP_1.WAV\u0027 could not be found.",
       "context": [
@@ -691,7 +19,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "AMB_URB_CLEAR_LOOP_1.WAV",
       "message": "Audio file \u0027AMB_URB_CLEAR_LOOP_1.WAV\u0027 could not be found.",
       "context": [
@@ -700,7 +28,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "C000_DST0102_ENG.WAV",
       "message": "Audio file \u0027C000_DST0102_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -709,9 +37,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CINE_EV_STARDESTROYER.ALO",
-      "message": "Unable to find Alamo file \u0027CINE_EV_StarDestroyer.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027CINE_EV_STARDESTROYER.ALO\u0027.",
       "context": [
         "CIN_Star_Destroyer3X",
         "Tag: Space_Model_Name"
@@ -719,9 +47,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_BIKER_ROW.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Biker_Row.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_BIKER_ROW.ALO\u0027.",
       "context": [
         "Cin_Biker_Row",
         "Tag: Land_Model_Name"
@@ -729,9 +57,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_BRIDGE.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_bridge.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_BRIDGE.ALO\u0027.",
       "context": [
         "Imperial_Bridge",
         "Tag: Space_Model_Name"
@@ -739,9 +67,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_BRIDGE.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_bridge.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_BRIDGE.ALO\u0027.",
       "context": [
         "UM05_PROP_BRIDGE",
         "Tag: Land_Model_Name"
@@ -749,9 +77,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_CORUSCANT.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_Coruscant.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_CORUSCANT.ALO\u0027.",
       "context": [
         "Corusant_Backdrop_Large 6x",
         "Tag: Space_Model_Name"
@@ -759,9 +87,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DEATHSTAR_HANGAR.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_DeathStar_Hangar.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DEATHSTAR_HANGAR.ALO\u0027.",
       "context": [
         "Cin_DeathStar_Hangar",
         "Tag: Land_Model_Name"
@@ -769,9 +97,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DEATHSTAR_HIGH.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DeathStar_High.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DEATHSTAR_HIGH.ALO\u0027.",
       "context": [
         "Death_Star_Whole",
         "Tag: Space_Model_Name"
@@ -779,9 +107,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DEATHSTAR_HIGH.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DeathStar_High.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DEATHSTAR_HIGH.ALO\u0027.",
       "context": [
         "Death_Star_Whole_Vsmall",
         "Tag: Space_Model_Name"
@@ -789,9 +117,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DEATHSTAR_HIGH.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DeathStar_High.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DEATHSTAR_HIGH.ALO\u0027.",
       "context": [
         "Death_Star_Whole_small",
         "Tag: Space_Model_Name"
@@ -799,9 +127,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DEATHSTAR_HIGH.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DeathStar_High.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DEATHSTAR_HIGH.ALO\u0027.",
       "context": [
         "UM05_PROP_DSTAR",
         "Tag: Land_Model_Name"
@@ -809,9 +137,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DEATHSTAR_WALL.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DeathStar_Wall.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DEATHSTAR_WALL.ALO\u0027.",
       "context": [
         "Death_Star_Hangar_Outside",
         "Tag: Space_Model_Name"
@@ -819,9 +147,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DSTAR_DISH_CLOSE.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DStar_Dish_close.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DSTAR_DISH_CLOSE.ALO\u0027.",
       "context": [
         "Death_Star_Dish_Close",
         "Tag: Space_Model_Name"
@@ -829,9 +157,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DSTAR_LEVERPANEL.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DStar_LeverPanel.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DSTAR_LEVERPANEL.ALO\u0027.",
       "context": [
         "Death_Star_LeverPanel",
         "Tag: Space_Model_Name"
@@ -839,9 +167,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DSTAR_PROTONS.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DStar_protons.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DSTAR_PROTONS.ALO\u0027.",
       "context": [
         "Protons_DStar_Xplode",
         "Tag: Space_Model_Name"
@@ -849,9 +177,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_DSTAR_TURRETLASERS.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_DStar_TurretLasers.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_DSTAR_TURRETLASERS.ALO\u0027.",
       "context": [
         "TurretLasers_DStar_Xplode",
         "Tag: Space_Model_Name"
@@ -859,9 +187,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EI_PALPATINE.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EI_Palpatine.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EI_PALPATINE.ALO\u0027.",
       "context": [
         "Cin_Emperor_Shot_5",
         "Tag: Land_Model_Name"
@@ -869,9 +197,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EI_PALPATINE.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EI_Palpatine.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EI_PALPATINE.ALO\u0027.",
       "context": [
         "Cin_Emperor_Shot_6-9",
         "Tag: Land_Model_Name"
@@ -879,9 +207,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EI_VADER.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EI_Vader.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EI_VADER.ALO\u0027.",
       "context": [
         "Cin_Vader",
         "Tag: Land_Model_Name"
@@ -889,9 +217,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EI_VADER.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EI_Vader.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EI_VADER.ALO\u0027.",
       "context": [
         "Cin_Vader_Shot_6-9",
         "Tag: Land_Model_Name"
@@ -899,9 +227,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EV_LAMBDASHUTTLE_150.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EV_lambdaShuttle_150.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EV_LAMBDASHUTTLE_150.ALO\u0027.",
       "context": [
         "Lambda_Shuttle_150",
         "Tag: Land_Model_Name"
@@ -909,9 +237,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EV_LAMBDASHUTTLE_150.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EV_lambdaShuttle_150.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EV_LAMBDASHUTTLE_150.ALO\u0027.",
       "context": [
         "Lambda_Shuttle_150X6-9",
         "Tag: Land_Model_Name"
@@ -919,9 +247,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EV_STARDESTROYER_WARP.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EV_Stardestroyer_Warp.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EV_STARDESTROYER_WARP.ALO\u0027.",
       "context": [
         "Star_Destroyer_Warp",
         "Tag: Space_Model_Name"
@@ -929,9 +257,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_EV_TIEADVANCED.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_EV_TieAdvanced.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_EV_TIEADVANCED.ALO\u0027.",
       "context": [
         "Fin_Vader_TIE",
         "Tag: Space_Model_Name"
@@ -939,9 +267,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_FIRE_HUGE.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Fire_Huge.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_FIRE_HUGE.ALO\u0027.",
       "context": [
         "Fin_Fire_Huge",
         "Tag: Land_Model_Name"
@@ -949,9 +277,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_FIRE_MEDIUM.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Fire_Medium.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_FIRE_MEDIUM.ALO\u0027.",
       "context": [
         "Fin_Fire_Medium",
         "Tag: Land_Model_Name"
@@ -959,9 +287,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_IMPERIALCRAFT.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_ImperialCraft.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_IMPERIALCRAFT.ALO\u0027.",
       "context": [
         "Intro2_ImperialCraft",
         "Tag: Space_Model_Name"
@@ -969,9 +297,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_LAMBDA_HEAD.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Lambda_Head.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_LAMBDA_HEAD.ALO\u0027.",
       "context": [
         "Cin_Lambda_Head",
         "Tag: Land_Model_Name"
@@ -979,9 +307,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_LAMBDA_MOUTH.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Lambda_Mouth.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_LAMBDA_MOUTH.ALO\u0027.",
       "context": [
         "Cin_Lambda_Mouth",
         "Tag: Land_Model_Name"
@@ -989,9 +317,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_NAVYTROOPER_ROW.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_NavyTrooper_Row.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_NAVYTROOPER_ROW.ALO\u0027.",
       "context": [
         "Cin_NavyTrooper_Row",
         "Tag: Land_Model_Name"
@@ -999,9 +327,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_OFFICER.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_Officer.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_OFFICER.ALO\u0027.",
       "context": [
         "FIN_Officer",
         "Tag: Space_Model_Name"
@@ -1009,9 +337,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_OFFICER_ROW.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Officer_Row.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_OFFICER_ROW.ALO\u0027.",
       "context": [
         "Cin_Officer_Row",
         "Tag: Land_Model_Name"
@@ -1019,9 +347,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_PLANET_ALDERAAN_HIGH.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_Planet_Alderaan_High.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_PLANET_ALDERAAN_HIGH.ALO\u0027.",
       "context": [
         "Alderaan_Backdrop_Large 6x",
         "Tag: Space_Model_Name"
@@ -1029,9 +357,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_PLANET_HOTH_HIGH.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_Planet_Hoth_High.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_PLANET_HOTH_HIGH.ALO\u0027.",
       "context": [
         "Hoth_Backdrop_Large 6x",
         "Tag: Space_Model_Name"
@@ -1039,9 +367,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_PROBE_DROID.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Probe_Droid.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_PROBE_DROID.ALO\u0027.",
       "context": [
         "Empire_Droid",
         "Tag: Land_Model_Name"
@@ -1049,9 +377,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_P_PROTON_TORPEDO.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_p_proton_torpedo.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_P_PROTON_TORPEDO.ALO\u0027.",
       "context": [
         "Cin_Proj_Ground_Proton_Torpedo",
         "Tag: Land_Model_Name"
@@ -1059,9 +387,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RBEL_GREY.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Rbel_grey.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RBEL_GREY.ALO\u0027.",
       "context": [
         "Cin_Rebel_Grey",
         "Tag: Land_Model_Name"
@@ -1069,9 +397,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RBEL_GREYGROUP.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Rbel_GreyGroup.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RBEL_GREYGROUP.ALO\u0027.",
       "context": [
         "Cin_Rebel_GreyGroup",
         "Tag: Land_Model_Name"
@@ -1079,9 +407,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RBEL_NAVYROW.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Rbel_NavyRow.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RBEL_NAVYROW.ALO\u0027.",
       "context": [
         "Cin_Rebel_NavyRow",
         "Tag: Land_Model_Name"
@@ -1089,9 +417,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RBEL_SOLDIER.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Rbel_Soldier.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RBEL_SOLDIER.ALO\u0027.",
       "context": [
         "Cin_Rebel_soldier",
         "Tag: Land_Model_Name"
@@ -1099,9 +427,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RBEL_SOLDIER_GROUP.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Rbel_Soldier_Group.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RBEL_SOLDIER_GROUP.ALO\u0027.",
       "context": [
         "Cin_Rebel_SoldierRow",
         "Tag: Land_Model_Name"
@@ -1109,9 +437,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_REB_CELEBCHARACTERS.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_REb_CelebCharacters.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_REB_CELEBCHARACTERS.ALO\u0027.",
       "context": [
         "REb_CelebCharacters",
         "Tag: Land_Model_Name"
@@ -1119,9 +447,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_REB_CELEBHALL.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Reb_CelebHall.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_REB_CELEBHALL.ALO\u0027.",
       "context": [
         "REb_CelebHall",
         "Tag: Land_Model_Name"
@@ -1129,9 +457,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RV_XWINGPROP.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_rv_XWingProp.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RV_XWINGPROP.ALO\u0027.",
       "context": [
         "Cin_X-WingProp",
         "Tag: Land_Model_Name"
@@ -1139,9 +467,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_RV_XWINGPROP.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_rv_XWingProp.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_RV_XWINGPROP.ALO\u0027.",
       "context": [
         "Grounded_Xwing",
         "Tag: Land_Model_Name"
@@ -1149,9 +477,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_SHUTTLE_TYDERIUM.ALO",
-      "message": "Unable to find Alamo file \u0027Cin_Shuttle_Tyderium.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_SHUTTLE_TYDERIUM.ALO\u0027.",
       "context": [
         "Intro2_Shuttle_Tyderium",
         "Tag: Space_Model_Name"
@@ -1159,9 +487,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "CIN_TROOPER_ROW.ALO",
-      "message": "Unable to find Alamo file \u0027CIN_Trooper_Row.alo\u0027",
+      "message": "Unable to find Alamo file \u0027CIN_TROOPER_ROW.ALO\u0027.",
       "context": [
         "Cin_Trooper_Row",
         "Tag: Land_Model_Name"
@@ -1169,9 +497,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_DeathStar.tga",
-      "message": "Could not find texture \u0027Cin_DeathStar.tga\u0027 for context: [Test_Base_Hector--\u003ETag: Land_Model_Name--\u003EALTTEST.ALO].",
+      "message": "Could not find texture \u0027Cin_DeathStar.tga\u0027.",
       "context": [
         "Test_Base_Hector",
         "Tag: Land_Model_Name",
@@ -1180,9 +508,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_Reb_CelebHall_Wall.tga",
-      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall.tga\u0027 for context: [Cin_sith_console--\u003ETag: Land_Model_Name--\u003EW_SITH_CONSOLE.ALO].",
+      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall.tga\u0027.",
       "context": [
         "Cin_sith_console",
         "Tag: Land_Model_Name",
@@ -1191,9 +519,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_Reb_CelebHall_Wall.tga",
-      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall.tga\u0027 for context: [Cin_sith_lefthall--\u003ETag: Land_Model_Name--\u003EW_SITH_LEFTHALL.ALO].",
+      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall.tga\u0027.",
       "context": [
         "Cin_sith_lefthall",
         "Tag: Land_Model_Name",
@@ -1202,9 +530,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_Reb_CelebHall_Wall.tga",
-      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall.tga\u0027 for context: [Cin_w_tile--\u003ETag: Land_Model_Name--\u003EW_TILE.ALO].",
+      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall.tga\u0027.",
       "context": [
         "Cin_w_tile",
         "Tag: Land_Model_Name",
@@ -1213,9 +541,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_Reb_CelebHall_Wall_B.tga",
-      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall_B.tga\u0027 for context: [Cin_sith_console--\u003ETag: Land_Model_Name--\u003EW_SITH_CONSOLE.ALO].",
+      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall_B.tga\u0027.",
       "context": [
         "Cin_sith_console",
         "Tag: Land_Model_Name",
@@ -1224,9 +552,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_Reb_CelebHall_Wall_B.tga",
-      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall_B.tga\u0027 for context: [Cin_sith_lefthall--\u003ETag: Land_Model_Name--\u003EW_SITH_LEFTHALL.ALO].",
+      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall_B.tga\u0027.",
       "context": [
         "Cin_sith_lefthall",
         "Tag: Land_Model_Name",
@@ -1235,9 +563,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Cin_Reb_CelebHall_Wall_B.tga",
-      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall_B.tga\u0027 for context: [Cin_w_tile--\u003ETag: Land_Model_Name--\u003EW_TILE.ALO].",
+      "message": "Could not find texture \u0027Cin_Reb_CelebHall_Wall_B.tga\u0027.",
       "context": [
         "Cin_w_tile",
         "Tag: Land_Model_Name",
@@ -1246,7 +574,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Default.fx",
       "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027UV_CRUSADERCLASSCORVETTE.ALO\u0027.",
       "context": [
@@ -1257,7 +585,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Default.fx",
       "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027EV_MDU_SENSORNODE.ALO\u0027.",
       "context": [
@@ -1268,7 +596,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Default.fx",
       "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027EV_TIE_LANCET.ALO\u0027.",
       "context": [
@@ -1279,7 +607,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Default.fx",
       "message": "Shader effect \u0027Default.fx\u0027 not found for model \u0027UV_SKIPRAY.ALO\u0027.",
       "context": [
@@ -1290,7 +618,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "EGL_STAR_VIPER_SPINNING_1.WAV",
       "message": "Audio file \u0027EGL_STAR_VIPER_SPINNING_1.WAV\u0027 could not be found.",
       "context": [
@@ -1299,7 +627,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "FS_BEETLE_1.WAV",
       "message": "Audio file \u0027FS_BEETLE_1.WAV\u0027 could not be found.",
       "context": [
@@ -1308,7 +636,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "FS_BEETLE_2.WAV",
       "message": "Audio file \u0027FS_BEETLE_2.WAV\u0027 could not be found.",
       "context": [
@@ -1317,7 +645,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "FS_BEETLE_3.WAV",
       "message": "Audio file \u0027FS_BEETLE_3.WAV\u0027 could not be found.",
       "context": [
@@ -1326,7 +654,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "FS_BEETLE_4.WAV",
       "message": "Audio file \u0027FS_BEETLE_4.WAV\u0027 could not be found.",
       "context": [
@@ -1335,9 +663,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Lensflare0",
-      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_CINE.ALO\u0027",
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_CINE.ALO\u0027.",
       "context": [
         "Stars_Cinematic",
         "Tag: Space_Model_Name",
@@ -1346,9 +674,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Lensflare0",
-      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_HIGH.ALO\u0027",
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_HIGH.ALO\u0027.",
       "context": [
         "Stars_High",
         "Tag: Space_Model_Name",
@@ -1357,9 +685,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Lensflare0",
-      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_LOW.ALO\u0027",
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_LOW.ALO\u0027.",
       "context": [
         "Stars_Low",
         "Tag: Space_Model_Name",
@@ -1368,9 +696,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Lensflare0",
-      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_CINE_LUA.ALO\u0027",
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_CINE_LUA.ALO\u0027.",
       "context": [
         "Stars_Lua_Cinematic",
         "Tag: Land_Model_Name",
@@ -1379,9 +707,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "Lensflare0",
-      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_MEDIUM.ALO\u0027",
+      "message": "Proxy particle \u0027Lensflare0\u0027 not found for model \u0027W_STARS_MEDIUM.ALO\u0027.",
       "context": [
         "Stars_Medium",
         "Tag: Space_Model_Name",
@@ -1390,9 +718,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "NB_YsalamiriTree_B.tga",
-      "message": "Could not find texture \u0027NB_YsalamiriTree_B.tga\u0027 for context: [Underworld_Ysalamiri_Cage--\u003ETag: Land_Model_Name--\u003EUV_MDU_CAGE.ALO].",
+      "message": "Could not find texture \u0027NB_YsalamiriTree_B.tga\u0027.",
       "context": [
         "Underworld_Ysalamiri_Cage",
         "Tag: Land_Model_Name",
@@ -1401,9 +729,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "NB_YsalamiriTree_B.tga",
-      "message": "Could not find texture \u0027NB_YsalamiriTree_B.tga\u0027 for context: [Ysalamiri_Tree--\u003ETag: Land_Model_Name--\u003ENB_YSALAMIRI_TREE.ALO].",
+      "message": "Could not find texture \u0027NB_YsalamiriTree_B.tga\u0027.",
       "context": [
         "Ysalamiri_Tree",
         "Tag: Land_Model_Name",
@@ -1412,9 +740,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "P_SPLASH_WAKE_LAVA.ALO",
-      "message": "Unable to find Alamo file \u0027p_splash_wake_lava.alo\u0027",
+      "message": "Unable to find Alamo file \u0027P_SPLASH_WAKE_LAVA.ALO\u0027.",
       "context": [
         "Splash_Wake_Lava",
         "Tag: Land_Model_Name"
@@ -1422,9 +750,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "P_heat_small01",
-      "message": "Proxy particle \u0027P_heat_small01\u0027 not found for model \u0027NB_VCH.ALO\u0027",
+      "message": "Proxy particle \u0027P_heat_small01\u0027 not found for model \u0027NB_VCH.ALO\u0027.",
       "context": [
         "Volcanic_Civilian_Spawn_House_Independent_AI",
         "Tag: Land_Model_Name",
@@ -1433,9 +761,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "P_mptl-2a_Die",
-      "message": "Proxy particle \u0027P_mptl-2a_Die\u0027 not found for model \u0027RV_MPTL-2A.ALO\u0027",
+      "message": "Proxy particle \u0027P_mptl-2a_Die\u0027 not found for model \u0027RV_MPTL-2A.ALO\u0027.",
       "context": [
         "MPTL",
         "Tag: Land_Model_Name",
@@ -1444,7 +772,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "TESTUNITMOVE_ENG.WAV",
       "message": "Audio file \u0027TESTUNITMOVE_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1453,7 +781,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_ARC3104_ENG.WAV",
       "message": "Audio file \u0027U000_ARC3104_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1462,7 +790,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_ARC3105_ENG.WAV",
       "message": "Audio file \u0027U000_ARC3105_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1471,7 +799,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_ARC3106_ENG.WAV",
       "message": "Audio file \u0027U000_ARC3106_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1480,7 +808,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_DEF3006_ENG.WAV",
       "message": "Audio file \u0027U000_DEF3006_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1489,7 +817,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_DEF3106_ENG.WAV",
       "message": "Audio file \u0027U000_DEF3106_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1498,7 +826,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0101_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0101_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1507,7 +835,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0102_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0102_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1516,7 +844,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0103_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0103_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1525,7 +853,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0104_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0104_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1534,7 +862,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0105_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0105_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1543,7 +871,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0106_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0106_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1552,7 +880,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0107_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0107_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1561,7 +889,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0108_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0108_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1570,7 +898,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0109_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0109_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1579,7 +907,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0110_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0110_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1588,7 +916,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0111_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0111_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1597,7 +925,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0112_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0112_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1606,7 +934,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0113_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0113_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1615,7 +943,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0114_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0114_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1624,7 +952,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0115_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0115_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1633,7 +961,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0201_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0201_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1642,7 +970,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0201_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0201_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1651,7 +979,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0201_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0201_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1660,7 +988,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0202_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0202_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1669,7 +997,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0202_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0202_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1678,7 +1006,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0202_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0202_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1687,7 +1015,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0203_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0203_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1696,7 +1024,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0203_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0203_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1705,7 +1033,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0203_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0203_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1714,7 +1042,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0204_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0204_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1723,7 +1051,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0204_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0204_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1732,7 +1060,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0205_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0205_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1741,7 +1069,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0205_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0205_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1750,7 +1078,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0205_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0205_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1759,7 +1087,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0206_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0206_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1768,7 +1096,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0206_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0206_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1777,7 +1105,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0206_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0206_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1786,7 +1114,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0207_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0207_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1795,7 +1123,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0207_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0207_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1804,7 +1132,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0207_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0207_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1813,7 +1141,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0208_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0208_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1822,7 +1150,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0208_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0208_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1831,7 +1159,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0208_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0208_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1840,7 +1168,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0209_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0209_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1849,7 +1177,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0209_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0209_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1858,7 +1186,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0210_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0210_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1867,7 +1195,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0210_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0210_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1876,7 +1204,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0211_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0211_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1885,7 +1213,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0211_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0211_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1894,7 +1222,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0212_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0212_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1903,7 +1231,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0212_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0212_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1912,7 +1240,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0213_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0213_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1921,7 +1249,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0213_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0213_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1930,7 +1258,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0215_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0215_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1939,7 +1267,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0215_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0215_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1948,7 +1276,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0301_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0301_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1957,7 +1285,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0301_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0301_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1966,7 +1294,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0303_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0303_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1975,7 +1303,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0303_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0303_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1984,7 +1312,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0304_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0304_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -1993,7 +1321,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0304_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0304_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2002,7 +1330,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0305_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0305_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2011,7 +1339,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0305_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0305_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2020,7 +1348,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0306_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0306_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2029,7 +1357,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0306_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0306_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2038,7 +1366,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0307_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0307_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2047,7 +1375,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0307_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0307_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2056,7 +1384,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0308_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0308_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2065,7 +1393,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0308_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0308_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2074,7 +1402,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0309_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0309_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2083,7 +1411,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0309_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0309_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2092,7 +1420,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0311_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0311_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2101,7 +1429,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0311_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0311_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2110,7 +1438,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0312_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0312_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2119,7 +1447,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0312_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0312_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2128,7 +1456,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0313_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0313_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2137,7 +1465,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0313_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0313_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2146,7 +1474,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0314_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0314_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2155,7 +1483,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0314_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0314_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2164,7 +1492,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0315_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0315_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2173,7 +1501,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0315_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0315_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2182,7 +1510,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0401_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0401_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2191,7 +1519,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0402_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0402_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2200,7 +1528,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0403_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0403_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2209,7 +1537,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0404_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0404_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2218,7 +1546,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0501_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0501_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2227,7 +1555,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0502_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0502_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2236,7 +1564,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0503_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0503_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2245,7 +1573,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0504_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0504_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2254,7 +1582,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0601_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0601_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2263,7 +1591,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0602_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0602_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2272,7 +1600,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0603_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0603_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2281,7 +1609,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_LEI0604_ENG.WAV",
       "message": "Audio file \u0027U000_LEI0604_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2290,7 +1618,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_MAL0503_ENG.WAV",
       "message": "Audio file \u0027U000_MAL0503_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2299,7 +1627,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_MCF1601_ENG.WAV",
       "message": "Audio file \u0027U000_MCF1601_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2308,7 +1636,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_TMC0212_ENG.WAV",
       "message": "Audio file \u0027U000_TMC0212_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2317,7 +1645,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "U000_TMC0212_ENG.WAV",
       "message": "Audio file \u0027U000_TMC0212_ENG.WAV\u0027 could not be found.",
       "context": [
@@ -2326,9 +1654,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "UB_girder_B.tga",
-      "message": "Could not find texture \u0027UB_girder_B.tga\u0027 for context: [Underworld_Ysalamiri_Cage--\u003ETag: Land_Model_Name--\u003EUV_MDU_CAGE.ALO].",
+      "message": "Could not find texture \u0027UB_girder_B.tga\u0027.",
       "context": [
         "Underworld_Ysalamiri_Cage",
         "Tag: Land_Model_Name",
@@ -2337,9 +1665,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_ALLSHADERS.ALO",
-      "message": "Unable to find Alamo file \u0027W_AllShaders.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_ALLSHADERS.ALO\u0027.",
       "context": [
         "Prop_AllShaders",
         "Tag: Land_Model_Name"
@@ -2347,9 +1675,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_BUSH_SWMP00.ALO",
-      "message": "Unable to find Alamo file \u0027W_Bush_Swmp00.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_BUSH_SWMP00.ALO\u0027.",
       "context": [
         "Prop_Swamp_Bush00",
         "Tag: Land_Model_Name"
@@ -2357,9 +1685,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_DROID_STEAM.ALO",
-      "message": "Unable to find Alamo file \u0027W_droid_steam.alo\u0027",
+      "message": "Unable to find Alamo file \u0027W_DROID_STEAM.ALO\u0027.",
       "context": [
         "Prop_Droid_Steam",
         "Tag: Land_Model_Name"
@@ -2367,9 +1695,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_KAMINO_REFLECT.ALO",
-      "message": "Unable to find Alamo file \u0027W_Kamino_Reflect.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_KAMINO_REFLECT.ALO\u0027.",
       "context": [
         "Prop_Kamino_Reflection_00",
         "Tag: Land_Model_Name"
@@ -2377,9 +1705,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_KAMINO_REFLECT.ALO",
-      "message": "Unable to find Alamo file \u0027W_Kamino_Reflect.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_KAMINO_REFLECT.ALO\u0027.",
       "context": [
         "Prop_Kamino_Reflection_01",
         "Tag: Land_Model_Name"
@@ -2387,9 +1715,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_PLANET_VOLCANIC.ALO",
-      "message": "Unable to find Alamo file \u0027w_planet_volcanic.alo\u0027",
+      "message": "Unable to find Alamo file \u0027W_PLANET_VOLCANIC.ALO\u0027.",
       "context": [
         "Volcanic_Backdrop_Large",
         "Tag: Space_Model_Name"
@@ -2397,9 +1725,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_SITH_ARCH.ALO",
-      "message": "Unable to find Alamo file \u0027w_sith_arch.alo\u0027",
+      "message": "Unable to find Alamo file \u0027W_SITH_ARCH.ALO\u0027.",
       "context": [
         "Cin_sith_arch",
         "Tag: Land_Model_Name"
@@ -2407,9 +1735,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_SWAMPGASEMIT.ALO",
-      "message": "Unable to find Alamo file \u0027W_SwampGasEmit.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_SWAMPGASEMIT.ALO\u0027.",
       "context": [
         "Prop_SwampGasEmitter",
         "Tag: Land_Model_Name"
@@ -2417,9 +1745,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_TE_Rock_f_02_b.tga",
-      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027 for context: [F9TZ_Cloaking_Transport--\u003ETag: Land_Model_Name--\u003EUV_F9TZTRANSPORT.ALO].",
+      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027.",
       "context": [
         "F9TZ_Cloaking_Transport",
         "Tag: Land_Model_Name",
@@ -2428,9 +1756,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_TE_Rock_f_02_b.tga",
-      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027 for context: [TIE_Phantom--\u003ETag: Space_Model_Name--\u003EEV_TIE_PHANTOM.ALO].",
+      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027.",
       "context": [
         "TIE_Phantom",
         "Tag: Space_Model_Name",
@@ -2439,9 +1767,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_TE_Rock_f_02_b.tga",
-      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027 for context: [The_Peacebringer--\u003ETag: Space_Model_Name--\u003EUV_KRAYTCLASSDESTROYER_TYBER.ALO].",
+      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027.",
       "context": [
         "The_Peacebringer",
         "Tag: Space_Model_Name",
@@ -2450,9 +1778,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_TE_Rock_f_02_b.tga",
-      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027 for context: [Vengeance_Frigate--\u003ETag: Space_Model_Name--\u003EUV_VENGEANCE.ALO].",
+      "message": "Could not find texture \u0027W_TE_Rock_f_02_b.tga\u0027.",
       "context": [
         "Vengeance_Frigate",
         "Tag: Space_Model_Name",
@@ -2461,9 +1789,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_VOLCANO_ROCK02.ALO",
-      "message": "Unable to find Alamo file \u0027W_Volcano_Rock02.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_VOLCANO_ROCK02.ALO\u0027.",
       "context": [
         "Prop_Volcano_RockForm03",
         "Tag: Land_Model_Name"
@@ -2471,9 +1799,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "W_VOL_STEAM01.ALO",
-      "message": "Unable to find Alamo file \u0027W_Vol_Steam01.ALO\u0027",
+      "message": "Unable to find Alamo file \u0027W_VOL_STEAM01.ALO\u0027.",
       "context": [
         "Prop_Vol_Steam01",
         "Tag: Land_Model_Name"
@@ -2481,9 +1809,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "i_button_blank.tga",
-      "message": "Could not find texture \u0027i_button_blank.tga\u0027 for context: [map_shell--\u003EPLANETARY_MODE.ALO].",
+      "message": "Could not find texture \u0027i_button_blank.tga\u0027.",
       "context": [
         "map_shell",
         "PLANETARY_MODE.ALO"
@@ -2491,25 +1819,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
-      "asset": "i_button_general_dodonna.tga",
-      "message": "Could not find icon \u0027i_button_general_dodonna.tga\u0027 for game object type \u0027General_Dodonna\u0027.",
-      "context": [
-        "General_Dodonna"
-      ]
-    },
-    {
-      "id": "FILE00",
-      "severity": "Information",
-      "asset": "i_button_ni_nightsister_ranger.tga",
-      "message": "Could not find icon \u0027i_button_ni_nightsister_ranger.tga\u0027 for game object type \u0027Dathomir_Night_Sister\u0027.",
-      "context": [
-        "Dathomir_Night_Sister"
-      ]
-    },
-    {
-      "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "i_dialogue_button_large_middle_off.tga",
       "message": "Could not find GUI texture \u0027i_dialogue_button_large_middle_off.tga\u0027 of type \u0027ButtonMiddleDisabled\u0027 at origin \u0027Repository\u0027 for component \u0027IDC_PLAY_FACTION_B_BUTTON_BIG\u0027.",
       "context": [
@@ -2518,9 +1828,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "lookat",
-      "message": "Proxy particle \u0027lookat\u0027 not found for model \u0027UV_ECLIPSE.ALO\u0027",
+      "message": "Proxy particle \u0027lookat\u0027 not found for model \u0027UV_ECLIPSE.ALO\u0027.",
       "context": [
         "Eclipse_Prop",
         "Tag: Space_Model_Name",
@@ -2529,9 +1839,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "lookat",
-      "message": "Proxy particle \u0027lookat\u0027 not found for model \u0027UV_ECLIPSE_UC.ALO\u0027",
+      "message": "Proxy particle \u0027lookat\u0027 not found for model \u0027UV_ECLIPSE_UC.ALO\u0027.",
       "context": [
         "Eclipse_Super_Star_Destroyer",
         "Tag: Space_Model_Name",
@@ -2540,9 +1850,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_bomb_spin",
-      "message": "Proxy particle \u0027p_bomb_spin\u0027 not found for model \u0027W_THERMAL_DETONATOR_EMPIRE.ALO\u0027",
+      "message": "Proxy particle \u0027p_bomb_spin\u0027 not found for model \u0027W_THERMAL_DETONATOR_EMPIRE.ALO\u0027.",
       "context": [
         "TIE_Bomber_Bombing_Run_Bomb",
         "Tag: Land_Model_Name",
@@ -2551,9 +1861,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_cold_tiny01",
-      "message": "Proxy particle \u0027p_cold_tiny01\u0027 not found for model \u0027NB_SCH.ALO\u0027",
+      "message": "Proxy particle \u0027p_cold_tiny01\u0027 not found for model \u0027NB_SCH.ALO\u0027.",
       "context": [
         "Arctic_Civilian_Spawn_House",
         "Tag: Land_Model_Name",
@@ -2562,9 +1872,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_desert_ground_dust",
-      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027UI_IG88.ALO\u0027",
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027UI_IG88.ALO\u0027.",
       "context": [
         "IG-88",
         "Tag: Land_Model_Name",
@@ -2573,9 +1883,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_desert_ground_dust",
-      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027RI_KYLEKATARN.ALO\u0027",
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027RI_KYLEKATARN.ALO\u0027.",
       "context": [
         "Kyle_Katarn",
         "Tag: Land_Model_Name",
@@ -2584,9 +1894,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_desert_ground_dust",
-      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027EI_MARAJADE.ALO\u0027",
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027EI_MARAJADE.ALO\u0027.",
       "context": [
         "Mara_Jade",
         "Tag: Land_Model_Name",
@@ -2595,9 +1905,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_desert_ground_dust",
-      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027UI_SABOTEUR.ALO\u0027",
+      "message": "Proxy particle \u0027p_desert_ground_dust\u0027 not found for model \u0027UI_SABOTEUR.ALO\u0027.",
       "context": [
         "Underworld_Saboteur",
         "Tag: Land_Model_Name",
@@ -2606,9 +1916,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_ewok_drag_dirt",
-      "message": "Proxy particle \u0027p_ewok_drag_dirt\u0027 not found for model \u0027UI_EWOK_HANDLER.ALO\u0027",
+      "message": "Proxy particle \u0027p_ewok_drag_dirt\u0027 not found for model \u0027UI_EWOK_HANDLER.ALO\u0027.",
       "context": [
         "Ewok_Handler",
         "Tag: Land_Model_Name",
@@ -2617,9 +1927,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_explosion_small_delay00",
-      "message": "Proxy particle \u0027p_explosion_small_delay00\u0027 not found for model \u0027EB_COMMANDCENTER.ALO\u0027",
+      "message": "Proxy particle \u0027p_explosion_small_delay00\u0027 not found for model \u0027EB_COMMANDCENTER.ALO\u0027.",
       "context": [
         "Imperial_Command_Center",
         "Tag: Land_Model_Name",
@@ -2628,9 +1938,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_explosion_smoke_small_thin5",
-      "message": "Proxy particle \u0027p_explosion_smoke_small_thin5\u0027 not found for model \u0027NB_NOGHRI_HUT.ALO\u0027",
+      "message": "Proxy particle \u0027p_explosion_smoke_small_thin5\u0027 not found for model \u0027NB_NOGHRI_HUT.ALO\u0027.",
       "context": [
         "Noghri_Spawn_House",
         "Tag: Land_Model_Name",
@@ -2639,9 +1949,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_hp_archammer-damage",
-      "message": "Proxy particle \u0027p_hp_archammer-damage\u0027 not found for model \u0027EV_ARCHAMMER.ALO\u0027",
+      "message": "Proxy particle \u0027p_hp_archammer-damage\u0027 not found for model \u0027EV_ARCHAMMER.ALO\u0027.",
       "context": [
         "Arc_Hammer",
         "Tag: Space_Model_Name",
@@ -2650,9 +1960,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_prison_light",
-      "message": "Proxy particle \u0027p_prison_light\u0027 not found for model \u0027NB_PRISON.ALO\u0027",
+      "message": "Proxy particle \u0027p_prison_light\u0027 not found for model \u0027NB_PRISON.ALO\u0027.",
       "context": [
         "Imperial_Prison_Facility",
         "Tag: Land_Model_Name",
@@ -2661,9 +1971,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_smoke_small_thin2",
-      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027RB_HYPERVELOCITYGUN.ALO\u0027",
+      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027RB_HYPERVELOCITYGUN.ALO\u0027.",
       "context": [
         "Ground_Empire_Hypervelocity_Gun",
         "Tag: Land_Model_Name",
@@ -2672,9 +1982,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_smoke_small_thin2",
-      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027NB_PRISON.ALO\u0027",
+      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027NB_PRISON.ALO\u0027.",
       "context": [
         "Imperial_Prison_Facility",
         "Tag: Land_Model_Name",
@@ -2683,9 +1993,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_smoke_small_thin2",
-      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027NB_MONCAL_BUILDING.ALO\u0027",
+      "message": "Proxy particle \u0027p_smoke_small_thin2\u0027 not found for model \u0027NB_MONCAL_BUILDING.ALO\u0027.",
       "context": [
         "MonCalamari_Spawn_House",
         "Tag: Land_Model_Name",
@@ -2694,9 +2004,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_smoke_small_thin4",
-      "message": "Proxy particle \u0027p_smoke_small_thin4\u0027 not found for model \u0027NB_PRISON.ALO\u0027",
+      "message": "Proxy particle \u0027p_smoke_small_thin4\u0027 not found for model \u0027NB_PRISON.ALO\u0027.",
       "context": [
         "Imperial_Prison_Facility",
         "Tag: Land_Model_Name",
@@ -2705,9 +2015,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_ssd_debris",
-      "message": "Proxy particle \u0027p_ssd_debris\u0027 not found for model \u0027UV_ECLIPSE_UC_DC.ALO\u0027",
+      "message": "Proxy particle \u0027p_ssd_debris\u0027 not found for model \u0027UV_ECLIPSE_UC_DC.ALO\u0027.",
       "context": [
         "Eclipse_Super_Star_Destroyer_Death_Clone",
         "Tag: Space_Model_Name",
@@ -2716,9 +2026,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_steam_small",
-      "message": "Proxy particle \u0027p_steam_small\u0027 not found for model \u0027RB_HEAVYVEHICLEFACTORY.ALO\u0027",
+      "message": "Proxy particle \u0027p_steam_small\u0027 not found for model \u0027RB_HEAVYVEHICLEFACTORY.ALO\u0027.",
       "context": [
         "R_Ground_Heavy_Vehicle_Factory",
         "Tag: Land_Model_Name",
@@ -2727,9 +2037,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_uwstation_death",
-      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_01_STATION_D.ALO\u0027",
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_01_STATION_D.ALO\u0027.",
       "context": [
         "Underworld_Star_Base_1_Death_Clone",
         "Tag: Space_Model_Name",
@@ -2738,9 +2048,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_uwstation_death",
-      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_02_STATION_D.ALO\u0027",
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_02_STATION_D.ALO\u0027.",
       "context": [
         "Underworld_Star_Base_2_Death_Clone",
         "Tag: Space_Model_Name",
@@ -2749,9 +2059,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_uwstation_death",
-      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_03_STATION_D.ALO\u0027",
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_03_STATION_D.ALO\u0027.",
       "context": [
         "Underworld_Star_Base_3_Death_Clone",
         "Tag: Space_Model_Name",
@@ -2760,9 +2070,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_uwstation_death",
-      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_04_STATION_D.ALO\u0027",
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_04_STATION_D.ALO\u0027.",
       "context": [
         "Underworld_Star_Base_4_Death_Clone",
         "Tag: Space_Model_Name",
@@ -2771,9 +2081,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "p_uwstation_death",
-      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_05_STATION_D.ALO\u0027",
+      "message": "Proxy particle \u0027p_uwstation_death\u0027 not found for model \u0027UB_05_STATION_D.ALO\u0027.",
       "context": [
         "Underworld_Star_Base_5_Death_Clone",
         "Tag: Space_Model_Name",
@@ -2782,9 +2092,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "pe_bwing_yellow",
-      "message": "Proxy particle \u0027pe_bwing_yellow\u0027 not found for model \u0027RV_BWING.ALO\u0027",
+      "message": "Proxy particle \u0027pe_bwing_yellow\u0027 not found for model \u0027RV_BWING.ALO\u0027.",
       "context": [
         "B-Wing",
         "Tag: Space_Model_Name",
@@ -2793,7 +2103,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "underworld_logo_off.tga",
       "message": "Could not find GUI texture \u0027underworld_logo_off.tga\u0027 of type \u0027ButtonMiddle\u0027 at origin \u0027MegaTexture\u0027 for component \u0027IDC_PLAY_FACTION_A_BUTTON_BIG\u0027.",
       "context": [
@@ -2802,7 +2112,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "underworld_logo_rollover.tga",
       "message": "Could not find GUI texture \u0027underworld_logo_rollover.tga\u0027 of type \u0027ButtonMiddleMouseOver\u0027 at origin \u0027MegaTexture\u0027 for component \u0027IDC_PLAY_FACTION_A_BUTTON_BIG\u0027.",
       "context": [
@@ -2811,7 +2121,7 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "underworld_logo_selected.tga",
       "message": "Could not find GUI texture \u0027underworld_logo_selected.tga\u0027 of type \u0027ButtonMiddlePressed\u0027 at origin \u0027MegaTexture\u0027 for component \u0027IDC_PLAY_FACTION_A_BUTTON_BIG\u0027.",
       "context": [
@@ -2820,9 +2130,9 @@
     },
     {
       "id": "FILE00",
-      "severity": "Information",
+      "severity": "Error",
       "asset": "w_grenade.tga",
-      "message": "Could not find texture \u0027w_grenade.tga\u0027 for context: [Proj_Merc_Concussion_Grenade--\u003ETag: Land_Model_Name--\u003EW_GRENADE.ALO].",
+      "message": "Could not find texture \u0027w_grenade.tga\u0027.",
       "context": [
         "Proj_Merc_Concussion_Grenade",
         "Tag: Land_Model_Name",
@@ -2830,18 +2140,691 @@
       ]
     },
     {
-      "id": "FILE03",
-      "severity": "Information",
-      "asset": "MOV_EMPIRE_INTRO_SHUTTLE_FIRE_DIE_00.ALA",
-      "message": "Possible file CRC32 collision: \u0027MOV_EMPIRE_INTRO_SHUTTLE_FIRE_DIE_00.ALA\u0027 was requested but \u0027U000_EMP0212_ENG.WAV\u0027 was found by the engine.",
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "b_beacon_t",
+      "message": "The CommandBar component \u0027b_beacon_t\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "b_planet_left",
+      "message": "The CommandBar component \u0027b_planet_left\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "b_planet_right",
+      "message": "The CommandBar component \u0027b_planet_right\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "b_quick_ref",
+      "message": "The CommandBar component \u0027b_quick_ref\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "balance_pip",
+      "message": "The CommandBar component \u0027balance_pip\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "bm_title_4010",
+      "message": "The CommandBar component \u0027bm_title_4010\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "bm_title_4011",
+      "message": "The CommandBar component \u0027bm_title_4011\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "bribe_display",
+      "message": "The CommandBar component \u0027bribe_display\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "bribed_icon",
+      "message": "The CommandBar component \u0027bribed_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "cs_ability_button",
+      "message": "The CommandBar component \u0027cs_ability_button\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "cs_ability_text",
+      "message": "The CommandBar component \u0027cs_ability_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_back",
+      "message": "The CommandBar component \u0027encyclopedia_back\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_center_text",
+      "message": "The CommandBar component \u0027encyclopedia_center_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_cost_text",
+      "message": "The CommandBar component \u0027encyclopedia_cost_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_header_text",
+      "message": "The CommandBar component \u0027encyclopedia_header_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_icon",
+      "message": "The CommandBar component \u0027encyclopedia_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_right_text",
+      "message": "The CommandBar component \u0027encyclopedia_right_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "encyclopedia_text",
+      "message": "The CommandBar component \u0027encyclopedia_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_bounty_hunter",
+      "message": "The CommandBar component \u0027g_bounty_hunter\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_build",
+      "message": "The CommandBar component \u0027g_build\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_conflict",
+      "message": "The CommandBar component \u0027g_conflict\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_corruption_icon",
+      "message": "The CommandBar component \u0027g_corruption_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_corruption_text",
+      "message": "The CommandBar component \u0027g_corruption_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_credit_bar",
+      "message": "The CommandBar component \u0027g_credit_bar\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_enemy_hero",
+      "message": "The CommandBar component \u0027g_enemy_hero\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_ground_icon",
+      "message": "The CommandBar component \u0027g_ground_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_ground_level",
+      "message": "The CommandBar component \u0027g_ground_level\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_ground_level_pips",
+      "message": "The CommandBar component \u0027g_ground_level_pips\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_ground_sell",
+      "message": "The CommandBar component \u0027g_ground_sell\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_hero",
+      "message": "The CommandBar component \u0027g_hero\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_hero_icon",
+      "message": "The CommandBar component \u0027g_hero_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_planet_ability",
+      "message": "The CommandBar component \u0027g_planet_ability\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_planet_fleet",
+      "message": "The CommandBar component \u0027g_planet_fleet\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_planet_land_forces",
+      "message": "The CommandBar component \u0027g_planet_land_forces\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_planet_name",
+      "message": "The CommandBar component \u0027g_planet_name\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_planet_ring",
+      "message": "The CommandBar component \u0027g_planet_ring\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_planet_value",
+      "message": "The CommandBar component \u0027g_planet_value\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_political_control",
+      "message": "The CommandBar component \u0027g_political_control\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_radar_blip",
+      "message": "The CommandBar component \u0027g_radar_blip\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_radar_view",
+      "message": "The CommandBar component \u0027g_radar_view\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_smuggled",
+      "message": "The CommandBar component \u0027g_smuggled\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_smuggler",
+      "message": "The CommandBar component \u0027g_smuggler\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_space_icon",
+      "message": "The CommandBar component \u0027g_space_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_space_level",
+      "message": "The CommandBar component \u0027g_space_level\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_space_level_pips",
+      "message": "The CommandBar component \u0027g_space_level_pips\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_special_ability",
+      "message": "The CommandBar component \u0027g_special_ability\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "g_weather",
+      "message": "The CommandBar component \u0027g_weather\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "garrison_respawn_counter",
+      "message": "The CommandBar component \u0027garrison_respawn_counter\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "garrison_slot_icon",
+      "message": "The CommandBar component \u0027garrison_slot_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "generic_collision",
+      "message": "The CommandBar component \u0027generic_collision\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "generic_flytext",
+      "message": "The CommandBar component \u0027generic_flytext\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "gui_dialog_tooltip",
+      "message": "The CommandBar component \u0027gui_dialog_tooltip\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "help_back",
+      "message": "The CommandBar component \u0027help_back\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "lt_weather_icon",
+      "message": "The CommandBar component \u0027lt_weather_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "objective_back",
+      "message": "The CommandBar component \u0027objective_back\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "objective_header_text",
+      "message": "The CommandBar component \u0027objective_header_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "objective_icon",
+      "message": "The CommandBar component \u0027objective_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "objective_text",
+      "message": "The CommandBar component \u0027objective_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "radar_blip",
+      "message": "The CommandBar component \u0027radar_blip\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "reinforcement_counter",
+      "message": "The CommandBar component \u0027reinforcement_counter\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "remote_bomb_icon",
+      "message": "The CommandBar component \u0027remote_bomb_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "skirmish_upgrade",
+      "message": "The CommandBar component \u0027skirmish_upgrade\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_ability_icon",
+      "message": "The CommandBar component \u0027st_ability_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_bracket_large",
+      "message": "The CommandBar component \u0027st_bracket_large\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_bracket_medium",
+      "message": "The CommandBar component \u0027st_bracket_medium\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_bracket_small",
+      "message": "The CommandBar component \u0027st_bracket_small\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_control_group",
+      "message": "The CommandBar component \u0027st_control_group\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_garrison_icon",
+      "message": "The CommandBar component \u0027st_garrison_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_grab_bar",
+      "message": "The CommandBar component \u0027st_grab_bar\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_health",
+      "message": "The CommandBar component \u0027st_health\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_health_bar",
+      "message": "The CommandBar component \u0027st_health_bar\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_health_large",
+      "message": "The CommandBar component \u0027st_health_large\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_health_medium",
+      "message": "The CommandBar component \u0027st_health_medium\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_hero_health",
+      "message": "The CommandBar component \u0027st_hero_health\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_hero_icon",
+      "message": "The CommandBar component \u0027st_hero_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_power",
+      "message": "The CommandBar component \u0027st_power\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_shields",
+      "message": "The CommandBar component \u0027st_shields\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_shields_large",
+      "message": "The CommandBar component \u0027st_shields_large\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "st_shields_medium",
+      "message": "The CommandBar component \u0027st_shields_medium\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "surface_mod_icon",
+      "message": "The CommandBar component \u0027surface_mod_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tactical_sell",
+      "message": "The CommandBar component \u0027tactical_sell\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tooltip_back",
+      "message": "The CommandBar component \u0027tooltip_back\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tooltip_icon",
+      "message": "The CommandBar component \u0027tooltip_icon\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tooltip_icon_land",
+      "message": "The CommandBar component \u0027tooltip_icon_land\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tooltip_left_text",
+      "message": "The CommandBar component \u0027tooltip_left_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tooltip_name",
+      "message": "The CommandBar component \u0027tooltip_name\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tooltip_price",
+      "message": "The CommandBar component \u0027tooltip_price\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tutorial_text",
+      "message": "The CommandBar component \u0027tutorial_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "tutorial_text_back",
+      "message": "The CommandBar component \u0027tutorial_text_back\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "zoomed_back",
+      "message": "The CommandBar component \u0027zoomed_back\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "zoomed_center_text",
+      "message": "The CommandBar component \u0027zoomed_center_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "zoomed_cost_text",
+      "message": "The CommandBar component \u0027zoomed_cost_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "zoomed_header_text",
+      "message": "The CommandBar component \u0027zoomed_header_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "zoomed_right_text",
+      "message": "The CommandBar component \u0027zoomed_right_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "CMDBAR05",
+      "severity": "Warning",
+      "asset": "zoomed_text",
+      "message": "The CommandBar component \u0027zoomed_text\u0027 is not connected to a shell component.",
+      "context": []
+    },
+    {
+      "id": "FILE00",
+      "severity": "Warning",
+      "asset": "i_button_general_dodonna.tga",
+      "message": "Could not find icon \u0027i_button_general_dodonna.tga\u0027 for game object type \u0027General_Dodonna\u0027.",
       "context": [
-        "Shuttle_Tyderium_Lua_Cinematic",
-        "Tag: Land_Model_Name"
+        "General_Dodonna"
+      ]
+    },
+    {
+      "id": "FILE00",
+      "severity": "Warning",
+      "asset": "i_button_ni_nightsister_ranger.tga",
+      "message": "Could not find icon \u0027i_button_ni_nightsister_ranger.tga\u0027 for game object type \u0027Dathomir_Night_Sister\u0027.",
+      "context": [
+        "Dathomir_Night_Sister"
       ]
     },
     {
       "id": "XML04",
-      "severity": "Information",
+      "severity": "Warning",
       "asset": "Probability",
       "message": "Expected integer but got \u002780, 20\u0027. File=\u0027DATA\\XML\\SFXEVENTSWEAPONS.XML #90\u0027",
       "context": [
@@ -2852,13 +2835,30 @@
     },
     {
       "id": "XML04",
-      "severity": "Information",
+      "severity": "Warning",
       "asset": "Size",
       "message": "Expected double but got value \u002737\u0060\u0027. File=\u0027DATA\\XML\\COMMANDBARCOMPONENTS.XML #11571\u0027",
       "context": [
         "Parser: PG.StarWarsGame.Files.XML.Parsers.PetroglyphXmlFloatParser",
         "File: DATA\\XML\\COMMANDBARCOMPONENTS.XML",
         "bm_text_steal"
+      ]
+    },
+    {
+      "id": "CMDBAR03",
+      "severity": "Information",
+      "asset": "g_credit_bar",
+      "message": "The CommandBar component \u0027g_credit_bar\u0027 is not supported by the game.",
+      "context": []
+    },
+    {
+      "id": "FILE03",
+      "severity": "Information",
+      "asset": "MOV_EMPIRE_INTRO_SHUTTLE_FIRE_DIE_00.ALA",
+      "message": "Possible file CRC32 collision: \u0027MOV_EMPIRE_INTRO_SHUTTLE_FIRE_DIE_00.ALA\u0027 was requested but \u0027U000_EMP0212_ENG.WAV\u0027 was found by the engine.",
+      "context": [
+        "Shuttle_Tyderium_Lua_Cinematic",
+        "Tag: Land_Model_Name"
       ]
     },
     {
