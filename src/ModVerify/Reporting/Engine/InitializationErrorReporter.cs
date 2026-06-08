@@ -12,9 +12,9 @@ internal sealed class InitializationErrorReporter(IGameRepository gameRepository
     protected override ErrorData CreateError(InitializationError error)
     {
         return new ErrorData(
-            Diagnostics.Engine.InitializationError.Id,
+            Diagnostics.EngineErrors.InitializationError.Id,
             error.Message,
             error.GameManager,
-            Diagnostics.Engine.InitializationError.Severity);
+            Diagnostics.EngineErrors.InitializationError.Severity);
     }
 }

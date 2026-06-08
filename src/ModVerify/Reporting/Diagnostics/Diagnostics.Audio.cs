@@ -4,7 +4,7 @@ using AET.ModVerify.Verifiers;
 namespace AET.ModVerify.Reporting.Diagnostics;
 
 /// <summary>Provides factories for findings produced while verifying audio sample files.</summary>
-public static class Audio
+public static class AudioErrors
 {
     private static readonly ErrorDescriptor _fileNotFound = new(
         VerifierErrorCodes.FileNotFound, "AudioFileNotFound", VerificationSeverity.Error, "Audio");

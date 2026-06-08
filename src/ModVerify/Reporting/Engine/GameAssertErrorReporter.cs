@@ -42,12 +42,12 @@ internal sealed class GameAssertErrorReporter(IGameRepository gameRepository, IS
     {
         return assertKind switch
         {
-            EngineAssertKind.NullOrEmptyValue => Diagnostics.Asserts.NullOrEmptyValue,
-            EngineAssertKind.ValueOutOfRange => Diagnostics.Asserts.ValueOutOfRange,
-            EngineAssertKind.InvalidValue => Diagnostics.Asserts.InvalidValue,
-            EngineAssertKind.FileNotFound => Diagnostics.Asserts.FileNotFound,
-            EngineAssertKind.DuplicateEntry => Diagnostics.Asserts.DuplicateEntry,
-            EngineAssertKind.CorruptBinary => Diagnostics.Asserts.CorruptBinary,
+            EngineAssertKind.NullOrEmptyValue => Diagnostics.AssertErrors.NullOrEmptyValue,
+            EngineAssertKind.ValueOutOfRange => Diagnostics.AssertErrors.ValueOutOfRange,
+            EngineAssertKind.InvalidValue => Diagnostics.AssertErrors.InvalidValue,
+            EngineAssertKind.FileNotFound => Diagnostics.AssertErrors.FileNotFound,
+            EngineAssertKind.DuplicateEntry => Diagnostics.AssertErrors.DuplicateEntry,
+            EngineAssertKind.CorruptBinary => Diagnostics.AssertErrors.CorruptBinary,
             _ => throw new ArgumentOutOfRangeException(nameof(assertKind), assertKind, null)
         };
     }

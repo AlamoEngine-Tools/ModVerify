@@ -4,7 +4,7 @@ using AET.ModVerify.Verifiers;
 namespace AET.ModVerify.Reporting.Diagnostics;
 
 /// <summary>Provides factories for findings produced while verifying the command bar.</summary>
-public static class CommandBar
+public static class CommandBarErrors
 {
     private const string GameCommandBarAsset = "GameCommandBar";
 

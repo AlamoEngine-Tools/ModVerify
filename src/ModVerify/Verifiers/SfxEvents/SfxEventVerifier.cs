@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.SfxEvents;
 
@@ -48,7 +48,7 @@ public sealed partial class SfxEventVerifier : NamedGameEntityVerifier<SfxEvent>
     {
         if (entity.Name.Length >= PGConstants.MaxSFXEventName)
         {
-            AddError(Diagnostics.Sfx.NameTooLong(this, entity.Name, PGConstants.MaxSFXEventName, []));
+            AddError(SfxErrors.NameTooLong(this, entity.Name, PGConstants.MaxSFXEventName, []));
         }
         VerifyPresetRef(entity, context);
         VerifySamples(entity, context, token);

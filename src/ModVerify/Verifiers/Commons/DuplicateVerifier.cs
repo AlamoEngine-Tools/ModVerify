@@ -3,7 +3,7 @@ using PG.StarWarsGame.Engine;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.Commons;
 
@@ -30,7 +30,7 @@ public sealed class DuplicateVerifier : GameVerifier<IDuplicateVerificationConte
         {
             if (toVerify.HasDuplicates(crc32, out var entryNames, out var context, out var errorMessage))
             {
-                AddError(Diagnostics.Common.Duplicate(this, entryNames, errorMessage, context));
+                AddError(CommonErrors.Duplicate(this, entryNames, errorMessage, context));
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using PG.StarWarsGame.Engine.GameObjects;
 
 namespace AET.ModVerify.Verifiers.GameObjects;
@@ -10,7 +10,7 @@ public sealed partial class GameObjectTypeVerifier
     {
         if (!string.IsNullOrEmpty(gameObjectType.VariantOfExistingTypeName) && gameObjectType.VariantOfExistingType is null)
         {
-            AddError(Diagnostics.GameObjects.MissingBaseType(this, gameObjectType.VariantOfExistingTypeName,
+            AddError(GameObjectErrors.MissingBaseType(this, gameObjectType.VariantOfExistingTypeName,
                 gameObjectType.Name, [..context, "VariantOfExistingType"]));
         }
 
@@ -30,7 +30,7 @@ public sealed partial class GameObjectTypeVerifier
         {
             if (GameEngine.GameObjectTypeManager.FindObjectType(companyUnit) is null)
             {
-                AddError(Diagnostics.GameObjects.MissingCompanyUnit(this, companyUnit,
+                AddError(GameObjectErrors.MissingCompanyUnit(this, companyUnit,
                     gameObjectType.Name, [..context, "CompanyUnits"]));
             }
         }

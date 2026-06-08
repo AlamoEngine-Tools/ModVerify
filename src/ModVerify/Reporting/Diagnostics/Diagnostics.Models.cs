@@ -4,7 +4,7 @@ using AET.ModVerify.Verifiers;
 namespace AET.ModVerify.Reporting.Diagnostics;
 
 /// <summary>Provides factories for findings produced while verifying models, particles, and animations.</summary>
-public static class Models
+public static class ModelErrors
 {
     private static readonly ErrorDescriptor _alamoFileNotFound = new(
         VerifierErrorCodes.FileNotFound, "AlamoFileNotFound", VerificationSeverity.Error, "Models");
@@ -110,22 +110,4 @@ public static class Models
     /// <summary>Creates an error for a shader effect that could not be found for a model.</summary>
     public static VerificationError ShaderNotFound(IGameVerifierInfo verifier, string shaderEffect, string modelFile, IEnumerable<string> context)
         => _shaderNotFound.Create(verifier, $"Shader effect '{shaderEffect}' not found for model '{modelFile}'.", shaderEffect, context);
-}
-
-/// <summary>Provides factories for findings produced while verifying textures.</summary>
-public static class Textures
-{
-    private static readonly ErrorDescriptor _pathTooLong = new(
-        VerifierErrorCodes.FilePathTooLong, "TexturePathTooLong", VerificationSeverity.Error, "Textures");
-
-    private static readonly ErrorDescriptor _notFound = new(
-        VerifierErrorCodes.FileNotFound, "TextureNotFound", VerificationSeverity.Error, "Textures");
-
-    /// <summary>Creates an error for a texture that could not be found because the resolved path is too long.</summary>
-    public static VerificationError PathTooLong(IGameVerifierInfo verifier, string texturePath, IEnumerable<string> context)
-        => _pathTooLong.Create(verifier, $"Could not find texture '{texturePath}' because the engine resolved a path that is too long.", texturePath, context);
-
-    /// <summary>Creates an error for a texture that could not be found.</summary>
-    public static VerificationError NotFound(IGameVerifierInfo verifier, string texturePath, IEnumerable<string> context)
-        => _notFound.Create(verifier, $"Could not find texture '{texturePath}'.", texturePath, context);
 }

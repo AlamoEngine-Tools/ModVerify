@@ -1,7 +1,7 @@
 ﻿using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.CommandBar.Components;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.CommandBar;
 
@@ -21,7 +21,7 @@ partial class CommandBarVerifier
         if (component.Name.Length > PGConstants.MaxCommandBarComponentNameBuffer)
         {
             // Deliberately not reporting the buffer length as max, as it's considered to be internal data
-            AddError(Diagnostics.CommandBar.ComponentNameTooLong(this, component.Name, PGConstants.MaxCommandBarComponentName, []));
+            AddError(CommandBarErrors.ComponentNameTooLong(this, component.Name, PGConstants.MaxCommandBarComponentName, []));
         }
     }
 
@@ -32,7 +32,7 @@ partial class CommandBarVerifier
 
         if (shellComponent.ModelName is null)
         {
-            AddError(Diagnostics.CommandBar.ShellNoModel(this, shellComponent.Name, [shellComponent.Name]));
+            AddError(CommandBarErrors.ShellNoModel(this, shellComponent.Name, [shellComponent.Name]));
             return;
         }
         
@@ -46,7 +46,7 @@ partial class CommandBarVerifier
 
         if (component.Bone == -1)
         {
-            AddError(Diagnostics.CommandBar.ComponentNotConnected(this, component.Name, []));
+            AddError(CommandBarErrors.ComponentNotConnected(this, component.Name, []));
         }
     }
 }

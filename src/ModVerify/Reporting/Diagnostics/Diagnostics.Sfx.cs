@@ -4,7 +4,7 @@ using AET.ModVerify.Verifiers;
 namespace AET.ModVerify.Reporting.Diagnostics;
 
 /// <summary>Provides factories for findings produced while verifying SFX events.</summary>
-public static class Sfx
+public static class SfxErrors
 {
     private static readonly ErrorDescriptor _nameTooLong = new(
         VerifierErrorCodes.NameTooLong, "SfxEventNameTooLong", VerificationSeverity.Critical, "Sfx");

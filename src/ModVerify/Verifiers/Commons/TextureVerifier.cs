@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 
@@ -38,10 +38,10 @@ public sealed class TextureVerifier : GameVerifier<string>
 
         if (tooLongPath)
         {
-            AddError(Diagnostics.Textures.PathTooLong(this, pathString, contextInfo));
+            AddError(TextureErrors.PathTooLong(this, pathString, contextInfo));
             return;
         }
 
-        AddError(Diagnostics.Textures.NotFound(this, pathString, contextInfo));
+        AddError(TextureErrors.NotFound(this, pathString, contextInfo));
     }
 }

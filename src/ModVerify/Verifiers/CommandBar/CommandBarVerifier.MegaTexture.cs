@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using AET.ModVerify.Verifiers.Commons;
 using AET.ModVerify.Verifiers.Utilities;
 using PG.StarWarsGame.Engine.CommandBar;
@@ -12,7 +12,7 @@ partial class CommandBarVerifier
     {
         if (CommandBar.MtdFile is null)
         {
-            AddError(Diagnostics.CommandBar.MegaTextureDirectoryNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
+            AddError(CommandBarErrors.MegaTextureDirectoryNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
         }
         else
         {
@@ -25,11 +25,11 @@ partial class CommandBarVerifier
 
         if (CommandBar.MegaTextureFileName is null)
         {
-            AddError(Diagnostics.CommandBar.MegaTextureNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
+            AddError(CommandBarErrors.MegaTextureNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
         }
         else if (!GameEngine.GameRepository.TextureRepository.FileExists(CommandBar.MegaTextureFileName))
         {
-            AddError(Diagnostics.CommandBar.MegaTextureNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
+            AddError(CommandBarErrors.MegaTextureNotFound(this, CommandBarConstants.MegaTextureBaseName, []));
         }
     }
 }

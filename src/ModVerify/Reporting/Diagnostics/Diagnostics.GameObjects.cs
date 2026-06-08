@@ -4,7 +4,7 @@ using AET.ModVerify.Verifiers;
 namespace AET.ModVerify.Reporting.Diagnostics;
 
 /// <summary>Provides factories for findings produced while verifying game object types.</summary>
-public static class GameObjects
+public static class GameObjectErrors
 {
     private static readonly ErrorDescriptor _nameTooLong = new(
         VerifierErrorCodes.NameTooLong, "GameObjectNameTooLong", VerificationSeverity.Critical, "GameObjects");

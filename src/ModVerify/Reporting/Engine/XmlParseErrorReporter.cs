@@ -61,20 +61,20 @@ internal sealed class XmlParseErrorReporter(IGameRepository gameRepository, ISer
     {
         return xmlErrorErrorKind switch
         {
-            XmlParseErrorKind.EmptyRoot => Diagnostics.Xml.EmptyRoot,
-            XmlParseErrorKind.MissingFile => Diagnostics.Xml.MissingFile,
-            XmlParseErrorKind.InvalidValue => Diagnostics.Xml.InvalidValue,
-            XmlParseErrorKind.MalformedValue => Diagnostics.Xml.MalformedValue,
-            XmlParseErrorKind.MissingAttribute => Diagnostics.Xml.MissingAttribute,
-            XmlParseErrorKind.MissingReference => Diagnostics.Xml.MissingReference,
-            XmlParseErrorKind.TooLongData => Diagnostics.Xml.ValueTooLong,
-            XmlParseErrorKind.Unknown => Diagnostics.Xml.Generic,
-            XmlParseErrorKind.DataBeforeHeader => Diagnostics.Xml.DataBeforeHeader,
-            XmlParseErrorKind.MissingNode => Diagnostics.Xml.MissingNode,
-            XmlParseErrorKind.UnknownNode => Diagnostics.Xml.UnknownNode,
-            XmlParseErrorKind.TagHasElements => Diagnostics.Xml.TagHasElements,
-            XmlParseErrorKind.UnexceptedElementName => Diagnostics.Xml.UnexpectedElementName,
-            XmlParseErrorKind.EmptyNodeName => Diagnostics.Xml.EmptyNodeName,
+            XmlParseErrorKind.EmptyRoot => Diagnostics.XmlErrors.EmptyRoot,
+            XmlParseErrorKind.MissingFile => Diagnostics.XmlErrors.MissingFile,
+            XmlParseErrorKind.InvalidValue => Diagnostics.XmlErrors.InvalidValue,
+            XmlParseErrorKind.MalformedValue => Diagnostics.XmlErrors.MalformedValue,
+            XmlParseErrorKind.MissingAttribute => Diagnostics.XmlErrors.MissingAttribute,
+            XmlParseErrorKind.MissingReference => Diagnostics.XmlErrors.MissingReference,
+            XmlParseErrorKind.TooLongData => Diagnostics.XmlErrors.ValueTooLong,
+            XmlParseErrorKind.Unknown => Diagnostics.XmlErrors.Generic,
+            XmlParseErrorKind.DataBeforeHeader => Diagnostics.XmlErrors.DataBeforeHeader,
+            XmlParseErrorKind.MissingNode => Diagnostics.XmlErrors.MissingNode,
+            XmlParseErrorKind.UnknownNode => Diagnostics.XmlErrors.UnknownNode,
+            XmlParseErrorKind.TagHasElements => Diagnostics.XmlErrors.TagHasElements,
+            XmlParseErrorKind.UnexceptedElementName => Diagnostics.XmlErrors.UnexpectedElementName,
+            XmlParseErrorKind.EmptyNodeName => Diagnostics.XmlErrors.EmptyNodeName,
             _ => throw new ArgumentOutOfRangeException(nameof(xmlErrorErrorKind), xmlErrorErrorKind, null)
         };
     }

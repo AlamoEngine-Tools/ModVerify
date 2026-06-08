@@ -1,5 +1,5 @@
 ﻿using System;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.CommandBar;
 using PG.StarWarsGame.Engine.CommandBar.Components;
@@ -25,10 +25,10 @@ partial class CommandBarVerifier
         }
 
         if (shellGroups.Count == 0) 
-            AddError(Diagnostics.CommandBar.NoShellsGroup(this, CommandBarConstants.ShellGroupName, []));
+            AddError(CommandBarErrors.NoShellsGroup(this, CommandBarConstants.ShellGroupName, []));
 
         if (shellGroups.Count > 1) 
-            AddError(Diagnostics.CommandBar.ManyShellsGroups(this, CommandBarConstants.ShellGroupName, shellGroups));
+            AddError(CommandBarErrors.ManyShellsGroups(this, CommandBarConstants.ShellGroupName, shellGroups));
     }
 
     private void VerifyShellGroup(CommandBarComponentGroup shellGroup)
@@ -38,7 +38,7 @@ partial class CommandBarVerifier
             var shellComponent = component as CommandBarShellComponent;
             if (shellComponent?.Type is not CommandBarComponentType.Shell)
             {
-                AddError(Diagnostics.CommandBar.NonShellInShellGroup(this, component.Name, CommandBarConstants.ShellGroupName, []));
+                AddError(CommandBarErrors.NonShellInShellGroup(this, component.Name, CommandBarConstants.ShellGroupName, []));
             }
         }
     }

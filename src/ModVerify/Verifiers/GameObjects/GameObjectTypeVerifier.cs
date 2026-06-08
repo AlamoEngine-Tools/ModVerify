@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Commons;
 using PG.StarWarsGame.Engine;
@@ -32,7 +32,7 @@ public sealed partial class GameObjectTypeVerifier : NamedGameEntityVerifier<Gam
     {
         if (entity.Name.Length >= PGConstants.MaxGameObjectTypeName)
         {
-            AddError(Diagnostics.GameObjects.NameTooLong(this, entity.Name, PGConstants.MaxGameObjectTypeName, []));
+            AddError(GameObjectErrors.NameTooLong(this, entity.Name, PGConstants.MaxGameObjectTypeName, []));
         }
         VerifyXRefs(entity, context);
         VerifyModels(entity, context, token);

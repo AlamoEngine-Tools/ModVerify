@@ -4,7 +4,7 @@ using System.IO;
 using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using AET.ModVerify.Verifiers.Caching;
 
@@ -37,7 +37,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
         {
             if (!cached.Value.AssetExists)
             {
-                AddError(Diagnostics.Audio.FileNotFound(this, sampleInfo.SampleName, [.. contextInfo]));
+                AddError(AudioErrors.FileNotFound(this, sampleInfo.SampleName, [.. contextInfo]));
             }
             return;
         }
@@ -51,7 +51,7 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
 
         if (sampleStream is null)
         {
-            AddError(Diagnostics.Audio.FileNotFound(this, sampleString, [..contextInfo]));
+            AddError(AudioErrors.FileNotFound(this, sampleString, [..contextInfo]));
             return;
         }
 
@@ -78,22 +78,22 @@ public class AudioFileVerifier : GameVerifier<AudioFileInfo>
 
         if (format != WaveFormats.PCM)
         {
-            AddError(Diagnostics.Audio.NotPcm(this, sampleString, format.ToString(), [..contextInfo]));
+            AddError(AudioErrors.NotPcm(this, sampleString, format.ToString(), [..contextInfo]));
         }
 
         if (channels > 1 && !sampleInfo.IsAmbient)
         {
-            AddError(Diagnostics.Audio.NotMono(this, sampleString, []));
+            AddError(AudioErrors.NotMono(this, sampleString, []));
         }
 
         if (sampleRate > 48_000)
         {
-            AddError(Diagnostics.Audio.InvalidSampleRate(this, sampleString, sampleRate, [..contextInfo]));
+            AddError(AudioErrors.InvalidSampleRate(this, sampleString, sampleRate, [..contextInfo]));
         }
 
         if (bitPerSecondPerChannel > 16)
         {
-            AddError(Diagnostics.Audio.InvalidBitsPerSecond(this, sampleString, bitPerSecondPerChannel, [..contextInfo]));
+            AddError(AudioErrors.InvalidBitsPerSecond(this, sampleString, bitPerSecondPerChannel, [..contextInfo]));
         }
     }
 

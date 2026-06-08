@@ -2,7 +2,7 @@
 using AnakinRaW.CommonUtilities.Collections;
 using PG.StarWarsGame.Engine.GameObjects;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 using PG.StarWarsGame.Engine.Xml.Parsers.Tags;
 using PG.StarWarsGame.Files.ALO.Data;
 
@@ -21,7 +21,7 @@ public sealed partial class GameObjectTypeVerifier
             
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "galactic model", gameObjectType.Name,
+                AddError(GameObjectErrors.ExpectedModelOrParticle(this, "galactic model", gameObjectType.Name,
                     model.File.FileName.ToUpperInvariant(), [..context, $"Tag: {GameObjectTypeXmlTags.GalacticModelName}"]));
             }
         }
@@ -32,7 +32,7 @@ public sealed partial class GameObjectTypeVerifier
 
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "land model", gameObjectType.Name,
+                AddError(GameObjectErrors.ExpectedModelOrParticle(this, "land model", gameObjectType.Name,
                     model.File.FileName.ToUpperInvariant(), [.. context, $"Tag: {GameObjectTypeXmlTags.LandModelName}"]));
             }
         }
@@ -43,7 +43,7 @@ public sealed partial class GameObjectTypeVerifier
 
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "space model", gameObjectType.Name,
+                AddError(GameObjectErrors.ExpectedModelOrParticle(this, "space model", gameObjectType.Name,
                     model.File.FileName.ToUpperInvariant(), [.. context, $"Tag: {GameObjectTypeXmlTags.SpaceModelName}"]));
             }
         }
@@ -54,7 +54,7 @@ public sealed partial class GameObjectTypeVerifier
 
             if (model?.RenderableContent is AlamoAnimation)
             {
-                AddError(Diagnostics.GameObjects.ExpectedModelOrParticle(this, "damaged smoke asset", gameObjectType.Name,
+                AddError(GameObjectErrors.ExpectedModelOrParticle(this, "damaged smoke asset", gameObjectType.Name,
                     model.File.FileName.ToUpperInvariant(), [.. context, $"Tag: {GameObjectTypeXmlTags.DamagedSmokeAssetName}"]));
             }
         }
@@ -83,7 +83,7 @@ public sealed partial class GameObjectTypeVerifier
             // This is likely an unintentional mistake in the XML.
             if (mapping.Value.Count > 1)
             {
-                AddError(Diagnostics.GameObjects.DuplicateTerrainMapping(this, mapping.Key.ToString(), gameObjectType.Name, context));
+                AddError(GameObjectErrors.DuplicateTerrainMapping(this, mapping.Key.ToString(), gameObjectType.Name, context));
             }
         }
 
@@ -91,7 +91,7 @@ public sealed partial class GameObjectTypeVerifier
         {
             // Error, since this indicates a likely typo in the XML that results in the terrain type being ignored,
             // which can lead to missing models in-game and is likely not intentional.
-            AddError(Diagnostics.GameObjects.InvalidTerrainType(this, invalidTerrain,
+            AddError(GameObjectErrors.InvalidTerrainType(this, invalidTerrain,
                 GameObjectTypeXmlTags.LandTerrainModelMapping, gameObjectType.Name, [..context, nameof(MapEnvironmentType)]));
         }
     }

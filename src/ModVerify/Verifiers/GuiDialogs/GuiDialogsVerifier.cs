@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.GuiDialogs;
 
@@ -64,7 +64,7 @@ public sealed class GuiDialogsVerifier : GameVerifier
         if (GameEngine.GuiDialogManager.MtdFile is null)
         {
             var mtdFileName = megaTextureName ?? "<<MTD_NOT_SPECIFIED>>";
-            AddError(Diagnostics.GuiDialogs.MtdFileNotFound(this, mtdFileName, []));
+            AddError(GuiDialogErrors.MtdFileNotFound(this, mtdFileName, []));
         }
 
         if (megaTextureName is not null)
@@ -146,7 +146,7 @@ public sealed class GuiDialogsVerifier : GameVerifier
                 {
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
-                        AddError(Diagnostics.GuiDialogs.TextureNameTooLong(this, texture.Texture, MtdFileConstants.MaxFileNameSize, []));
+                        AddError(GuiDialogErrors.TextureNameTooLong(this, texture.Texture, MtdFileConstants.MaxFileNameSize, []));
                     }
                     else
                     {
@@ -177,7 +177,7 @@ public sealed class GuiDialogsVerifier : GameVerifier
             sb.Append(" The file name is too long.");
 
         // Origin is not interesting for context, but might be for the error message
-        AddError(Diagnostics.GuiDialogs.GuiTextureNotFound(this, texture.Texture, sb.ToString(), [component]));
+        AddError(GuiDialogErrors.GuiTextureNotFound(this, texture.Texture, sb.ToString(), [component]));
     }
 
     private IReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> GetTextureEntriesForComponents(string component, out bool defined)

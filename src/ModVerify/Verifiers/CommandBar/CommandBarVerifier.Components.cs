@@ -1,7 +1,7 @@
 ﻿using PG.StarWarsGame.Engine.CommandBar;
 using System.Linq;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.CommandBar;
 
@@ -24,7 +24,7 @@ partial class CommandBarVerifier
 
             if (!occupiedComponentIds.TryGetValue(component.Id, out var alreadyOccupied))
             {
-                AddError(Diagnostics.CommandBar.UnsupportedComponent(this, component.Name, []));
+                AddError(CommandBarErrors.UnsupportedComponent(this, component.Name, []));
             }
             else
             {
@@ -33,7 +33,7 @@ partial class CommandBarVerifier
 
             if (alreadyOccupied)
             {
-                AddError(Diagnostics.CommandBar.DuplicateComponent(this, component.Name, component.Id, []));
+                AddError(CommandBarErrors.DuplicateComponent(this, component.Name, component.Id, []));
             }
 
             VerifySingleComponent(component, token);

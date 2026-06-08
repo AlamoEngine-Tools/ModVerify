@@ -3,7 +3,7 @@ using AET.ModVerify.Verifiers.Commons;
 using PG.StarWarsGame.Engine;
 using System;
 using System.Threading;
-using Diagnostics = AET.ModVerify.Reporting.Diagnostics;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.Engine;
 
@@ -49,7 +49,7 @@ public sealed class HardcodedAssetsVerifier : GameVerifier
             token.ThrowIfCancellationRequested();
             
             if (!repo.FileExists(shadersName))
-                AddError(Diagnostics.HardcodedAssets.ShaderNotFound(this, shadersName, []));
+                AddError(HardcodedAssetErrors.ShaderNotFound(this, shadersName, []));
         }
 
         // The engine loads the following shaders on terrain load. For simplicity, we try to find them once here
@@ -58,7 +58,7 @@ public sealed class HardcodedAssetsVerifier : GameVerifier
             token.ThrowIfCancellationRequested();
 
             if (!repo.FileExists(shadersName))
-                AddError(Diagnostics.HardcodedAssets.TerrainShaderNotFound(this, shadersName, []));
+                AddError(HardcodedAssetErrors.TerrainShaderNotFound(this, shadersName, []));
         }
     }
 }

@@ -4,7 +4,7 @@ using AET.ModVerify.Verifiers;
 namespace AET.ModVerify.Reporting.Diagnostics;
 
 /// <summary>Provides factories for findings produced while verifying GUI dialog textures.</summary>
-public static class GuiDialogs
+public static class GuiDialogErrors
 {
     private static readonly ErrorDescriptor _mtdFileNotFound = new(
         VerifierErrorCodes.FileNotFound, "GuiMtdFileNotFound", VerificationSeverity.Critical, "GuiDialogs");
