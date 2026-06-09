@@ -19,7 +19,7 @@ public sealed record VerificationResult
     /// <summary>
     /// Gets or sets the collection of verification errors that were found during the verification process.
     /// </summary>
-    public required VerificationErrors Errors
+    public required CategorizedVerificationErrors Errors
     {
         get;
         init => field = value ?? throw new ArgumentNullException(nameof(value));

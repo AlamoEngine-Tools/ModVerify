@@ -17,6 +17,6 @@ public class MinimalFocTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider());
 
         Assert.Empty(result.NewErrors);
-        Assert.Empty(result.ExistingErrors.Values);
+        Assert.Empty(result.PersistentErrors.Values);
     }
 }

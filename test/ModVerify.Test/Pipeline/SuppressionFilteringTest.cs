@@ -23,6 +23,6 @@ public class SuppressionFilteringTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, suppressions: suppressions);
 
         Assert.Empty(result.NewErrors);
-        Assert.Empty(result.ExistingErrors.Values);
+        Assert.Empty(result.PersistentErrors.Values);
     }
 }

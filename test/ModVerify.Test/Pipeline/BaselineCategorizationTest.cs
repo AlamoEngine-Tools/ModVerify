@@ -26,7 +26,8 @@ public class BaselineCategorizationTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, baselines: baseline);
 
         Assert.Empty(result.NewErrors);
-        Assert.Single(result.ExistingErrors.Values);
+        Assert.Equal("test-baseline", Assert.Single(result.PersistentErrors.Keys));
+        Assert.Single(result.PersistentErrors.Values);
     }
 
     [Fact]
@@ -49,6 +50,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
 
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider(), baselines: baseline);
 
+        Assert.Equal("test-baseline", Assert.Single(result.ResolvedErrors.Keys));
         Assert.Single(result.ResolvedErrors.Values,
             e => e is { Id: "TEST00", Asset: "asset-1" });
         Assert.Empty(result.NewErrors);
@@ -70,7 +72,8 @@ public class BaselineCategorizationTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, baselines: baseline, suppressions: suppressions);
 
         Assert.Empty(result.NewErrors);
-        Assert.Empty(result.ExistingErrors.Values);
+        Assert.Empty(result.PersistentErrors.Values);
+        Assert.Equal("test-baseline", Assert.Single(result.ResolvedErrors.Keys));
         Assert.Single(result.ResolvedErrors.Values,
             e => e is { Id: "TEST00", Asset: "asset-1" });
     }
@@ -94,8 +97,10 @@ public class BaselineCategorizationTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, baselines: baseline, suppressions: suppressions);
 
         Assert.Empty(result.NewErrors);
-        Assert.Single(result.ExistingErrors.Values,
+        Assert.Equal("test-baseline", Assert.Single(result.PersistentErrors.Keys));
+        Assert.Single(result.PersistentErrors.Values,
             e => e is { Id: "TEST01", Asset: "asset-2" });
+        Assert.Equal("test-baseline", Assert.Single(result.ResolvedErrors.Keys));
         Assert.Single(result.ResolvedErrors.Values,
             e => e is { Id: "TEST00", Asset: "asset-1" });
     }

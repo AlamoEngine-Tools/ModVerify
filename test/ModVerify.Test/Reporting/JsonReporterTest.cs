@@ -232,7 +232,7 @@ public class JsonReporterTest
         Assert.Equal(["ctx-a", "ctx-b"], contexts);
     }
 
-    private static VerificationErrors Errors(
+    private static CategorizedVerificationErrors Errors(
         IReadOnlyList<VerificationError> newErrors,
         (string Baseline, VerificationError[] Errors)[] resolved)
     {
@@ -240,14 +240,14 @@ public class JsonReporterTest
         foreach (var (baseline, baselineErrors) in resolved)
             resolvedDictionary.AddRange(baseline, baselineErrors);
 
-        return new VerificationErrors(
+        return new CategorizedVerificationErrors(
             newErrors,
             ReadOnlyValueListDictionary<string, VerificationError>.Empty,
             new ReadOnlyValueListDictionary<string, VerificationError>(resolvedDictionary));
     }
 
     private static async Task<JsonElement> Report(
-        VerificationErrors errors,
+        CategorizedVerificationErrors errors,
         bool aggregate = false,
         bool verbose = false,
         VerificationCompletionStatus status = VerificationCompletionStatus.Completed,

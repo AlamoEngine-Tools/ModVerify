@@ -34,11 +34,11 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     private readonly IGameEngineInitializationReporter? _engineInitializationReporter;
     private readonly BaselineCollection _baselines;
     private readonly SuppressionList _suppressions;
-    private VerificationErrors _errors = VerificationErrors.Empty;
+    private CategorizedVerificationErrors _errors = CategorizedVerificationErrors.Empty;
 
     private IStarWarsGameEngineHandle? _gameEngine;
 
-    internal VerificationErrors Errors => _errors;
+    internal CategorizedVerificationErrors Errors => _errors;
 
     internal IReadOnlyCollection<IGameVerifierInfo> Verifiers => [.. _verifiers];
 
@@ -79,7 +79,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     protected override async Task PrepareCoreAsync(CancellationToken token)
     {
         _verifiers.Clear();
-        _errors = VerificationErrors.Empty;
+        _errors = CategorizedVerificationErrors.Empty;
 
         try
         {

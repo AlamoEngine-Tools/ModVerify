@@ -29,11 +29,13 @@ namespace AET.ModVerify.Reporting.Json;
 /// </remarks>
 internal sealed class ValueListDictionaryJsonConverter : JsonConverterFactory
 {
+    /// <inheritdoc/>
     public override bool CanConvert(Type typeToConvert)
     {
         return GetValueListDictionaryInterface(typeToConvert) is not null;
     }
 
+    /// <inheritdoc/>
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
         var dictionaryInterface =

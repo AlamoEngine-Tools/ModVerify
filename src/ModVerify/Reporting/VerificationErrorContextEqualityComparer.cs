@@ -4,7 +4,7 @@ namespace AET.ModVerify.Reporting;
 
 internal class VerificationErrorContextEqualityComparer : IEqualityComparer<HashSet<string>>
 {
-    readonly IEqualityComparer<HashSet<string>> _setComparer = HashSet<string>.CreateSetComparer();
+    private readonly IEqualityComparer<HashSet<string>> _setComparer = HashSet<string>.CreateSetComparer();
 
     public static VerificationErrorContextEqualityComparer Instance { get; } = new();
 
@@ -12,7 +12,7 @@ internal class VerificationErrorContextEqualityComparer : IEqualityComparer<Hash
     {
     }
 
-    public bool Equals(HashSet<string> x, HashSet<string> y)
+    public bool Equals(HashSet<string>? x, HashSet<string>? y)
     {
         return _setComparer.Equals(x, y);
     }

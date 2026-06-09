@@ -62,7 +62,7 @@ public abstract class ModVerifyTestBase : TestBaseWithFileSystem
         };
     }
 
-    protected async Task<VerificationErrors> RunPipelineAsync(
+    protected async Task<CategorizedVerificationErrors> RunPipelineAsync(
         VirtualGameRepo repo,
         IGameVerifiersProvider? verifiers = null,
         BaselineCollection? baselines = null,

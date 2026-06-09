@@ -68,7 +68,7 @@ public sealed class BaselineCollection : IReadOnlyCollection<IdentifiedBaseline>
         return errors.Where(e => !Contains(e));
     }
 
-    public VerificationErrors Categorize(IEnumerable<VerificationError> errors)
+    public CategorizedVerificationErrors Categorize(IEnumerable<VerificationError> errors)
     {
         if (errors is null)
             throw new ArgumentNullException(nameof(errors));
@@ -96,7 +96,7 @@ public sealed class BaselineCollection : IReadOnlyCollection<IdentifiedBaseline>
             }
         }
 
-        return new VerificationErrors(
+        return new CategorizedVerificationErrors(
             newErrors,
             new ReadOnlyValueListDictionary<string, VerificationError>(existing),
             new ReadOnlyValueListDictionary<string, VerificationError>(resolved));
