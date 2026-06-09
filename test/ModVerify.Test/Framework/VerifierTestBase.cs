@@ -24,6 +24,6 @@ public abstract class VerifierTestBase<TVerifier> : ModVerifyTestBase
 
         var provider = new SingleVerifierProvider<TVerifier>(factory);
         var result = await RunPipelineAsync(repo, verifiers: provider, settings: settings).ConfigureAwait(false);
-        return result.NewErrors.Concat(result.ExistingErrors.Values.SelectMany(v => v)).ToList();
+        return result.NewErrors.Concat(result.ExistingErrors.Values).ToList();
     }
 }

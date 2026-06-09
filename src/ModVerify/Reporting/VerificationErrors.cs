@@ -1,25 +1,26 @@
 using System;
 using System.Collections.Generic;
+using AnakinRaW.CommonUtilities.Collections;
 
 namespace AET.ModVerify.Reporting;
 
-public sealed record VerificationErrors
+public sealed class VerificationErrors
 {
     public static readonly VerificationErrors Empty = new(
         [],
-        new Dictionary<string, IReadOnlyList<VerificationError>>(),
-        new Dictionary<string, IReadOnlyList<VerificationError>>());
+        ReadOnlyValueListDictionary<string, VerificationError>.Empty,
+        ReadOnlyValueListDictionary<string, VerificationError>.Empty);
 
     public IReadOnlyList<VerificationError> NewErrors { get; }
 
-    public IReadOnlyDictionary<string, IReadOnlyList<VerificationError>> ExistingErrors { get; }
+    public IReadOnlyValueListDictionary<string, VerificationError> ExistingErrors { get; }
 
-    public IReadOnlyDictionary<string, IReadOnlyList<VerificationError>> ResolvedErrors { get; }
+    public IReadOnlyValueListDictionary<string, VerificationError> ResolvedErrors { get; }
 
     public VerificationErrors(
         IReadOnlyList<VerificationError> newErrors,
-        IReadOnlyDictionary<string, IReadOnlyList<VerificationError>> existingErrors,
-        IReadOnlyDictionary<string, IReadOnlyList<VerificationError>> resolvedErrors)
+        IReadOnlyValueListDictionary<string, VerificationError> existingErrors,
+        IReadOnlyValueListDictionary<string, VerificationError> resolvedErrors)
     {
         NewErrors = newErrors ?? throw new ArgumentNullException(nameof(newErrors));
         ExistingErrors = existingErrors ?? throw new ArgumentNullException(nameof(existingErrors));

@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using AET.ModVerify.Reporting.Suppressions;
 using ModVerify.Test.Framework;
@@ -24,6 +23,6 @@ public class SuppressionFilteringTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, suppressions: suppressions);
 
         Assert.Empty(result.NewErrors);
-        Assert.Empty(result.ExistingErrors.Values.SelectMany(v => v));
+        Assert.Empty(result.ExistingErrors.Values);
     }
 }

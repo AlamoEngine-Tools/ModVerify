@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AnakinRaW.CommonUtilities.Collections;
 
 namespace AET.ModVerify.Reporting.Baseline;
 
@@ -73,36 +74,32 @@ public sealed class BaselineCollection : IReadOnlyCollection<IdentifiedBaseline>
             throw new ArgumentNullException(nameof(errors));
 
         var newErrors = new List<VerificationError>();
-        var existingErrors = new Dictionary<string, List<VerificationError>>(StringComparer.Ordinal);
-        foreach (var entry in _baselines)
-            existingErrors[entry.Identifier] = [];
+        var existing = new ValueListDictionary<string, VerificationError>();
 
         foreach (var error in errors)
         {
             if (TryGetMatchingBaseline(error, out var identifier))
-                existingErrors[identifier].Add(error);
+                existing.Add(identifier, error);
             else
                 newErrors.Add(error);
         }
 
-        var resolvedErrors = new Dictionary<string, IReadOnlyList<VerificationError>>(StringComparer.Ordinal);
+        var resolved = new ValueListDictionary<string, VerificationError>();
         foreach (var entry in _baselines)
         {
-            var seen = new HashSet<VerificationError>(existingErrors[entry.Identifier]);
-            var solved = new List<VerificationError>();
+            existing.TryGetValues(entry.Identifier, out var matched);
+            var seen = new HashSet<VerificationError>(matched);
             foreach (var baselineError in entry.Baseline)
             {
                 if (!seen.Contains(baselineError))
-                    solved.Add(baselineError);
+                    resolved.Add(entry.Identifier, baselineError);
             }
-            resolvedErrors[entry.Identifier] = solved;
         }
 
-        var readOnlyExisting = new Dictionary<string, IReadOnlyList<VerificationError>>(StringComparer.Ordinal);
-        foreach (var kvp in existingErrors)
-            readOnlyExisting[kvp.Key] = kvp.Value;
-
-        return new VerificationErrors(newErrors, readOnlyExisting, resolvedErrors);
+        return new VerificationErrors(
+            newErrors,
+            new ReadOnlyValueListDictionary<string, VerificationError>(existing),
+            new ReadOnlyValueListDictionary<string, VerificationError>(resolved));
     }
 
     public IEnumerator<IdentifiedBaseline> GetEnumerator()

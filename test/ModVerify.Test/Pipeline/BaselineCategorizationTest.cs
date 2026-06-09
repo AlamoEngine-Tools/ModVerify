@@ -26,7 +26,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, baselines: baseline);
 
         Assert.Empty(result.NewErrors);
-        Assert.Single(result.ExistingErrors.Values.SelectMany(v => v));
+        Assert.Single(result.ExistingErrors.Values);
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class BaselineCategorizationTest : ModVerifyTestBase
 
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider(), baselines: baseline);
 
-        Assert.Single(result.ResolvedErrors.Values.SelectMany(v => v),
+        Assert.Single(result.ResolvedErrors.Values,
             e => e is { Id: "TEST00", Asset: "asset-1" });
         Assert.Empty(result.NewErrors);
     }
@@ -70,8 +70,8 @@ public class BaselineCategorizationTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, baselines: baseline, suppressions: suppressions);
 
         Assert.Empty(result.NewErrors);
-        Assert.Empty(result.ExistingErrors.Values.SelectMany(v => v));
-        Assert.Single(result.ResolvedErrors.Values.SelectMany(v => v),
+        Assert.Empty(result.ExistingErrors.Values);
+        Assert.Single(result.ResolvedErrors.Values,
             e => e is { Id: "TEST00", Asset: "asset-1" });
     }
 
@@ -94,9 +94,9 @@ public class BaselineCategorizationTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: provider, baselines: baseline, suppressions: suppressions);
 
         Assert.Empty(result.NewErrors);
-        Assert.Single(result.ExistingErrors.Values.SelectMany(v => v),
+        Assert.Single(result.ExistingErrors.Values,
             e => e is { Id: "TEST01", Asset: "asset-2" });
-        Assert.Single(result.ResolvedErrors.Values.SelectMany(v => v),
+        Assert.Single(result.ResolvedErrors.Values,
             e => e is { Id: "TEST00", Asset: "asset-1" });
     }
 
