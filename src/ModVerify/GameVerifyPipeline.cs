@@ -34,11 +34,10 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     private readonly IGameEngineInitializationReporter? _engineInitializationReporter;
     private readonly BaselineCollection _baselines;
     private readonly SuppressionList _suppressions;
-    private CategorizedVerificationErrors _errors = CategorizedVerificationErrors.Empty;
 
     private IStarWarsGameEngineHandle? _gameEngine;
 
-    internal CategorizedVerificationErrors Errors => _errors;
+    internal CategorizedVerificationErrors Errors { get; private set; } = CategorizedVerificationErrors.Empty;
 
     internal IReadOnlyCollection<IGameVerifierInfo> Verifiers => [.. _verifiers];
 
@@ -79,7 +78,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     protected override async Task PrepareCoreAsync(CancellationToken token)
     {
         _verifiers.Clear();
-        _errors = CategorizedVerificationErrors.Empty;
+        Errors = CategorizedVerificationErrors.Empty;
 
         try
         {
@@ -129,7 +128,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
         var afterSuppressions = _verifiers
             .SelectMany(s => s.VerifyErrors)
             .ApplySuppressions(_suppressions);
-        _errors = _baselines.Categorize(afterSuppressions);
+        Errors = _baselines.Categorize(afterSuppressions);
         _progressReporter?.Report(1.0, $"Finished Verifying {_verificationTarget.Name}",
             VerifyProgress.ProgressType, default);
     }
@@ -138,7 +137,7 @@ internal sealed class GameVerifyPipeline : StepRunnerPipelineBase<AsyncStepRunne
     {
         if (FailFast && e.Exception is GameVerificationException verificationException)
         {
-            var minSeverity = _serviceSettings.FailFastSettings.MinumumSeverity;
+            var minSeverity = _serviceSettings.FailFastSettings.MinimumSeverity;
             var ignoreError = verificationException.Errors
                 .Where(error => error.Severity >= minSeverity)
                 .All(error => _baselines.Contains(error) || _suppressions.Suppresses(error));

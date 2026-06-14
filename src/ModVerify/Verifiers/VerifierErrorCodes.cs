@@ -1,19 +1,40 @@
 ﻿namespace AET.ModVerify.Verifiers;
 
+/// <summary>
+/// Provides the error codes used by the verifiers in the ModVerify framework.
+/// </summary>
 public static class VerifierErrorCodes
 {
+    /// <summary>
+    /// The error code for initialization errors that occur on critical failures when a game manager is initializing.
+    /// </summary>
     public const string InitializationError = "INIT00";
 
+    /// <summary>
+    /// The error code for an engine assertion that occur when a value is null or empty.
+    /// </summary>
     public const string AssertValueNullOrEmpty = "ASRT00";
+    /// <summary>
+    /// The error code for an engine assertion that occur when a value is out of the expected range.
+    /// </summary>
     public const string AssertValueOutOfRange = "ASRT01";
+    /// <summary>
+    /// The error code for an engine assertion that occur when a value is invalid or malformed.
+    /// </summary>
     public const string AssertValueInvalid = "ASRT02";
 
-    public const string GenericExceptionErrorCode = "MV00";
-
+    /// <summary>
+    /// The error code for a binary file that is corrupt or cannot be parsed.
+    /// </summary>
     public const string BinaryFileCorrupt = "BIN00";
+    /// <summary>
+    /// The error code for a binary file that has an unexpected format or structure.
+    /// </summary>
     public const string UnexpectedBinaryFormat = "BIN01";
+    /// <summary>
+    /// The error code for a binary file that contains an invalid or unsupported value.
+    /// </summary>
     public const string InvalidValue = "BIN02";
-
 
     public const string FileNotFound = "FILE00";
     public const string FilePathTooLong = "FILE01";
