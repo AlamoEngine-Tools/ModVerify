@@ -207,7 +207,7 @@ internal partial class GameRepository
             return null;
 
         if (fileFoundInfo.InMeg)
-            return _megExtractor.GetData(fileFoundInfo.MegDataEntryReference.Location);
+            return fileFoundInfo.MegDataEntryReference.GetData();
 
         return PGFileSystem.OpenRead(fileFoundInfo.FilePath.ToString());
     }

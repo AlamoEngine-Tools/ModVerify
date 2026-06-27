@@ -25,7 +25,7 @@ internal partial class CommandBarGameManager(
     : GameManagerBase<CommandBarBaseComponent>(repository, errorReporter, serviceProvider), ICommandBarGameManager
 {
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
-    private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
+    private readonly IMtdService _mtdFileService = serviceProvider.GetRequiredService<IMtdService>();
     private readonly Dictionary<string, CommandBarComponentGroup> _groups = new();
 
     private FontData? _defaultFont;

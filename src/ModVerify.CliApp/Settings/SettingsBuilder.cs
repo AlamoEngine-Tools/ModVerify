@@ -41,7 +41,7 @@ internal sealed class SettingsBuilder(IServiceProvider serviceProvider)
                 {
                     IgnoreAsserts = verifyOptions.IgnoreAsserts,
                     ThrowsOnMinimumSeverity = failFastSetting.IsFailFast
-                        ? failFastSetting.MinumumSeverity
+                        ? failFastSetting.MinimumSeverity
                         // The app shall not make a specific verifier throw, but it should always run to completion.
                         : null
                 }

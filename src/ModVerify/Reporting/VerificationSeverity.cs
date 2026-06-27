@@ -1,5 +1,8 @@
 ﻿namespace AET.ModVerify.Reporting;
 
+/// <summary>
+/// Defines the severity levels for findings reported by game verifiers.
+/// </summary>
 public enum VerificationSeverity
 {
     /// <summary>

@@ -5,11 +5,17 @@ using AET.ModVerify.Reporting;
 
 namespace AET.ModVerify;
 
+/// <summary>
+/// The exception that is thrown by a game verifier when one or more verification errors occur during the verification process.
+/// </summary>
 public sealed class GameVerificationException : Exception
 {
     /// <inheritdoc/>
     public override string Message => ErrorMessage;
 
+    /// <summary>
+    /// Gets the verification errors that caused this exception to be thrown.
+    /// </summary>
     public IReadOnlyCollection<VerificationError> Errors { get; }
 
     private string ErrorMessage

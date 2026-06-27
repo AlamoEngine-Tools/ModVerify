@@ -1,5 +1,4 @@
-﻿using AET.ModVerify.Reporting;
-using AET.ModVerify.Settings;
+﻿using AET.ModVerify.Settings;
 using AET.ModVerify.Verifiers.Caching;
 using AET.ModVerify.Verifiers.Commons;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.GuiDialogs;
 
@@ -64,8 +64,7 @@ public sealed class GuiDialogsVerifier : GameVerifier
         if (GameEngine.GuiDialogManager.MtdFile is null)
         {
             var mtdFileName = megaTextureName ?? "<<MTD_NOT_SPECIFIED>>";
-            AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound, $"MtdFile '{mtdFileName}.mtd' could not be found",
-                VerificationSeverity.Critical, mtdFileName));
+            AddError(GuiDialogErrors.MtdFileNotFound(this, mtdFileName, []));
         }
 
         if (megaTextureName is not null)
@@ -147,9 +146,7 @@ public sealed class GuiDialogsVerifier : GameVerifier
                 {
                     if (origin == GuiTextureOrigin.MegaTexture && texture.Texture.Length > MtdFileConstants.MaxFileNameSize)
                     {
-                        AddError(VerificationError.Create(this, VerifierErrorCodes.FilePathTooLong,
-                            $"The filename is too long. Max length is {MtdFileConstants.MaxFileNameSize} characters.",
-                            VerificationSeverity.Error, texture.Texture));
+                        AddError(GuiDialogErrors.TextureNameTooLong(this, texture.Texture, MtdFileConstants.MaxFileNameSize, []));
                     }
                     else
                     {
@@ -179,10 +176,8 @@ public sealed class GuiDialogsVerifier : GameVerifier
         if (texture.Texture.Length > PGConstants.MaxMegEntryPathLength)
             sb.Append(" The file name is too long.");
 
-        AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound,
-            sb.ToString(), VerificationSeverity.Error, 
-            [component], // Origin is not interesting for context, but might be for the error message
-            texture.Texture));
+        // Origin is not interesting for context, but might be for the error message
+        AddError(GuiDialogErrors.GuiTextureNotFound(this, texture.Texture, sb.ToString(), [component]));
     }
 
     private IReadOnlyDictionary<GuiComponentType, ComponentTextureEntry> GetTextureEntriesForComponents(string component, out bool defined)
