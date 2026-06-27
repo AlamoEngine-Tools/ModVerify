@@ -2,6 +2,7 @@ using System;
 using System.IO.Abstractions;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using PG.StarWarsGame.Files.MEG.Data;
 using PG.StarWarsGame.Files.MEG.Files;
 using PG.StarWarsGame.Files.MEG.Services.Builder;
 
@@ -66,7 +67,7 @@ internal sealed class RepoOriginWriter(IServiceProvider services, string originP
 
         using var megBuilder = new EmpireAtWarMegBuilder(_fileSystem.Path.GetDirectoryName(dst)!, _services);
         configure(new MegContentBuilder(megBuilder));
-        using var fileInfo = new MegFileInformation(dst, MegFileVersion.V1, encryptionData: null);
+        using var fileInfo = new MegFileInformation(dst, MegVersion.V1, encryptionData: null);
         megBuilder.Build(fileInfo, overwrite: true);
     }
 

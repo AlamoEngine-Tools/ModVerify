@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PG.Commons.Hashing;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.Localization;
+using PG.StarWarsGame.Files.MEG.Data;
 using PG.StarWarsGame.Files.MEG.Data.Archives;
 using PG.StarWarsGame.Files.MEG.Data.Entries;
 using PG.StarWarsGame.Files.MEG.Data.EntryLocations;
@@ -21,7 +22,7 @@ namespace PG.StarWarsGame.Engine.IO.Repositories;
 
 internal abstract partial class GameRepository : IGameRepository
 {
-    private readonly IMegFileService _megFileService;
+    private readonly IMegService _megFileService;
     private readonly IMegFileExtractor _megExtractor;
     private readonly PetroglyphMegDataEntryPathNormalizer _megPathNormalizer;
     private readonly ICrc32HashingService _crc32HashingService;
@@ -65,7 +66,7 @@ internal abstract partial class GameRepository : IGameRepository
         _logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType()) ?? NullLogger.Instance;
 
         _megExtractor = serviceProvider.GetRequiredService<IMegFileExtractor>();
-        _megFileService = serviceProvider.GetRequiredService<IMegFileService>();
+        _megFileService = serviceProvider.GetRequiredService<IMegService>();
         _virtualMegBuilder = serviceProvider.GetRequiredService<IVirtualMegArchiveBuilder>();
         _crc32HashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
         _megPathNormalizer = new EmpireAtWarMegDataEntryPathNormalizer();
@@ -281,9 +282,9 @@ internal abstract partial class GameRepository : IGameRepository
             return null;
         }
 
-        var megFile = _megFileService.Load(fileSystemStream);
+        var megFile = _megFileService.LoadFile(fileSystemStream);
 
-        if (megFile.FileInformation.FileVersion != MegFileVersion.V1)
+        if (megFile.FileInformation.Version != MegVersion.V1)
             throw new InvalidOperationException("MEG data version must be V1.");
 
         return megFile;

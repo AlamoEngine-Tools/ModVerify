@@ -20,7 +20,7 @@ internal partial class GuiDialogGameManager(
     IServiceProvider serviceProvider)
     : GameManagerBase(repository, errorReporter, serviceProvider), IGuiDialogManager
 {
-    private readonly IMtdFileService _mtdFileService = serviceProvider.GetRequiredService<IMtdFileService>();
+    private readonly IMtdService _mtdFileService = serviceProvider.GetRequiredService<IMtdService>();
     private readonly ICrc32HashingService _hashingService = serviceProvider.GetRequiredService<ICrc32HashingService>();
 
     private bool _megaTextureExists;
