@@ -72,37 +72,6 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         return suppresses;
     }
 
-    /// <summary>Gets the number of criteria that this filter matches on.</summary>
-    /// <returns>The number of non-null criteria, between 0 and 3.</returns>
-    public int Specificity()
-    {
-        var specificity = 0;
-        if (Id != null) 
-            specificity++;
-        if (Verifier != null)
-            specificity++;
-        if (Asset != null)
-            specificity++;
-        return specificity;
-    }
-
-    /// <summary>Determines whether this filter is made redundant by another, less specific filter.</summary>
-    /// <param name="other">The filter to compare against.</param>
-    /// <returns><see langword="true"/> if <paramref name="other"/> is a broader filter that makes this filter redundant; otherwise, <see langword="false"/>.</returns>
-    public bool IsSupersededBy(SuppressionFilter other)
-    {
-        if (Id != null && other.Id != null && other.Id != Id)
-            return false;
-
-        if (Verifier != null && other.Verifier != null && other.Verifier != Verifier)
-            return false;
-
-        if (Asset != null && other.Asset != null)
-            return false;
-
-        return other.Specificity() < Specificity();
-    }
-
     /// <inheritdoc />
     public bool Equals(SuppressionFilter? other)
     {

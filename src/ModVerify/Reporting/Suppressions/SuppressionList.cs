@@ -16,7 +16,6 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
     public static readonly SuppressionList Empty = new([]);
 
     private readonly IReadOnlyCollection<SuppressionFilter> _filters;
-    private readonly IReadOnlyCollection<SuppressionFilter> _minimizedFilters;
 
     /// <inheritdoc />
     public int Count => _filters.Count;
@@ -26,11 +25,10 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
     /// <exception cref="ArgumentNullException"><paramref name="suppressionFilters"/> is <see langword="null"/>.</exception>
     public SuppressionList(IEnumerable<SuppressionFilter> suppressionFilters)
     {
-        if (suppressionFilters == null) 
+        if (suppressionFilters == null)
             throw new ArgumentNullException(nameof(suppressionFilters));
 
         _filters = [..suppressionFilters];
-        _minimizedFilters = MinimizeSuppressions(_filters);
     }
 
     internal SuppressionList(JsonSuppressionList suppressionList)
@@ -39,7 +37,6 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
             throw new ArgumentNullException(nameof(suppressionList));
 
         _filters = suppressionList.Filters.Select(x => new SuppressionFilter(x)).ToList();
-        _minimizedFilters = MinimizeSuppressions(_filters);
     }
 
     /// <summary>Serializes the suppression list as JSON to the specified stream.</summary>
@@ -74,7 +71,7 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
     /// <returns><see langword="true"/> if a filter in the list suppresses <paramref name="error"/>; otherwise, <see langword="false"/>.</returns>
     public bool Suppresses(VerificationError error)
     {
-        foreach (var filter in _minimizedFilters)
+        foreach (var filter in _filters)
         {
             if (filter.Suppresses(error))
             {
@@ -83,22 +80,6 @@ public sealed class SuppressionList : IReadOnlyCollection<SuppressionFilter>
         }
 
         return false;
-    }
-
-    private static IReadOnlyCollection<SuppressionFilter> MinimizeSuppressions(IEnumerable<SuppressionFilter> filters)
-    {
-        var sortedFilters = filters.Where(f => !f.IsDisabled)
-            .OrderBy(x => x.Specificity());
-
-        var result = new List<SuppressionFilter>();
-
-        foreach (var filter in sortedFilters)
-        {
-            if (result.All(x => !filter.IsSupersededBy(x)))
-                result.Add(filter);
-        }
-
-        return result;
     }
 
     /// <inheritdoc />
