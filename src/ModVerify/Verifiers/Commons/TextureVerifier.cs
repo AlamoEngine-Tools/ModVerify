@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using AET.ModVerify.Reporting;
+using AET.ModVerify.Reporting.Diagnostics;
 using AET.ModVerify.Settings;
 using PG.StarWarsGame.Engine;
 
@@ -39,25 +38,10 @@ public sealed class TextureVerifier : GameVerifier<string>
 
         if (tooLongPath)
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.FilePathTooLong,
-                $"Could not find texture '{pathString}' because the engine resolved a path that is too long.",
-                VerificationSeverity.Error, contextInfo, pathString));
+            AddError(TextureErrors.PathTooLong(this, pathString, contextInfo));
             return;
         }
 
-
-        var messageBuilder = new StringBuilder($"Could not find texture '{pathString}'");
-        if (contextInfo.Count > 0)
-        {
-            messageBuilder.Append(" for context: [");
-            messageBuilder.Append(string.Join("-->", contextInfo));
-            messageBuilder.Append(']');
-        }
-
-        messageBuilder.Append('.');
-
-        AddError(VerificationError.Create(this, VerifierErrorCodes.FileNotFound, 
-            messageBuilder.ToString(),
-            VerificationSeverity.Error, contextInfo, pathString));
+        AddError(TextureErrors.NotFound(this, pathString, contextInfo));
     }
 }

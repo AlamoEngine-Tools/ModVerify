@@ -11,8 +11,16 @@ using System.Collections.Generic;
 
 namespace AET.ModVerify;
 
+/// <summary>
+/// Default implementation of <see cref="IGameVerifiersProvider"/> that provides
+/// the default set of verifiers for verifying a game installation.
+/// </summary>
 public sealed class DefaultGameVerifiersProvider : IGameVerifiersProvider
 {
+    /// <summary>
+    /// Returns the default set of verifiers to use for verifying a game installation.
+    /// </summary>
+    /// <inheritdoc/>
     public IEnumerable<GameVerifier> GetVerifiers(
         IStarWarsGameEngine gameEngine, 
         GameVerifySettings settings, 

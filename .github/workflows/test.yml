@@ -19,27 +19,29 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
         submodules: recursive
     - uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
-    - name: Build & Test in Release Mode (Windows)
-      if: runner.os == 'Windows'
+    - name: Build & Test in Release Mode
       run: dotnet test --configuration Release --report-github
 
-    - name: Build & Test in Release Mode (Linux)
-      if: runner.os == 'Linux'
-      shell: bash
-      # ExternalUpdater.App.Test is net481-only — it spawns the real ExternalUpdater.exe
-      # and uses Windows-only helpers (cmd .bat stubs, ping.exe). It cannot run on Linux
-      # (no mono in the runner image, and the helpers don't exist anyway). Build the
-      # whole solution, then test every project except that one.
-      run: |
-        set -euo pipefail
-        dotnet build --configuration Release
-        for proj in $(find . -name '*.Test.csproj' -not -path '*/ExternalUpdater.App.Test/*'); do
-          dotnet test "$proj" --no-build --configuration Release --report-github
-        done
+  test-moddingtoolbase:
+    name: Test ModdingToolBase
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Test ModdingToolBase (submodule)
+        shell: pwsh
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          & "$($c.scriptsDir)/Test-ModdingToolBase.ps1"

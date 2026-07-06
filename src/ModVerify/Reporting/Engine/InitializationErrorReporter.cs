@@ -1,5 +1,4 @@
 ﻿using System;
-using AET.ModVerify.Verifiers;
 using PG.StarWarsGame.Engine.ErrorReporting;
 using PG.StarWarsGame.Engine.IO;
 
@@ -13,9 +12,9 @@ internal sealed class InitializationErrorReporter(IGameRepository gameRepository
     protected override ErrorData CreateError(InitializationError error)
     {
         return new ErrorData(
-            VerifierErrorCodes.InitializationError, 
-            error.Message, 
+            Diagnostics.EngineErrors.InitializationError.Id,
+            error.Message,
             error.GameManager,
-            VerificationSeverity.Critical);
+            Diagnostics.EngineErrors.InitializationError.Severity);
     }
 }

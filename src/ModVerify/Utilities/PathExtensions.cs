@@ -4,7 +4,7 @@ using AnakinRaW.CommonUtilities.FileSystem;
 
 namespace AET.ModVerify.Utilities;
 
-public static class PathExtensions
+internal static class PathExtensions
 {
     public static ReadOnlySpan<char> GetGameStrippedPath(this IPath path, ReadOnlySpan<char> gamePath, ReadOnlySpan<char> modPath)
     {

@@ -11,14 +11,12 @@ internal class JsonVerificationReportMetadata
     public VerificationCompletionStatus Status { get; init; }
 
     [JsonPropertyName("target")]
-    public JsonVerificationTarget Target { get; init; }
+    public required JsonVerificationTarget Target { get; init; }
 
     [JsonPropertyName("time")]
     public string Date { get; } = DateTime.Now.ToString("s");
 
-    [JsonPropertyName("duration")]
-    public string Duration { get; init; }
+    [JsonPropertyName("duration")] public string Duration { get; init; } = string.Empty;
 
-    [JsonPropertyName("verifiers")]
-    public IReadOnlyCollection<string> Verifiers { get; init; }
+    [JsonPropertyName("verifiers")] public IReadOnlyCollection<string> Verifiers { get; init; } = [];
 }

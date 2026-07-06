@@ -12,27 +12,9 @@ on:
         required: true
 
 env:
-  TOOL_PROJ_PATH: ./src/ModVerify.CliApp/ModVerify.CliApp.csproj
-  PUBLISH_SCRIPT: ./modules/ModdingToolBase/scripts/Publish-Release.ps1
-  TOOL_EXE: ModVerify.exe
-  UPDATER_EXE: AnakinRaW.ExternalUpdater.exe
-  EMBEDDED_TRUST_CERT: src/ModVerify.CliApp/Resources/Certs/AET-root.cer
-  ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify
-  SFTP_BASE_PATH: downloads/ModVerify/
+  # Per-run release channel. Every other per-app value lives in update-tooling.jsonc and is loaded
+  # into the environment by the "Load app config" step in each job below.
   BRANCH_NAME: ${{ github.event.inputs.branch || 'stable' }}
-
-  # Migration-release values. Leave empty for a normal release; populate to enable.
-  #
-  # Origin URL of the next-generation channel, written into the manifest's componentOriginInfo.
-  NEXT_ORIGIN_BASE: https://republicatwar.com/downloads/ModVerify/v2
-
-  # SFTP path the next-generation channel uploads to. Set together with NEXT_ORIGIN_BASE.
-  NEXT_SFTP_BASE_PATH: downloads/ModVerify/v2/
-
-  # Previously-deployed updater used in place of the build-output one for the primary deploy.
-  # Only the old-gen manifest lists this binary; the next-gen manifest still uses the build-output updater.
-  # Requires NEXT_ORIGIN_BASE + NEXT_SFTP_BASE_PATH to be set.
-  COMPAT_UPDATER: tools/v1/AnakinRaW.ExternalUpdater.exe
 
 jobs:
 
@@ -40,10 +22,24 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
-  # End-to-end self-update test (single-channel + dual-channel via /v2/).
+  # End-to-end self-update test.
   integration-test:
+    name: Integration test
     needs: [test]
-    uses: ./.github/workflows/integration-test.yml
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Run self-update integration suite
+        shell: pwsh
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          & "$($c.scriptsDir)/Test-LocalUpdateSuite.ps1" -ConfigPath ./update-tooling.jsonc
 
   pack:
     name: Pack
@@ -51,10 +47,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Load app config
+        shell: pwsh
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          "TOOL_PROJ_PATH=$($c.toolProject)" >> $env:GITHUB_ENV
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
       - name: Create NetFramework Release
@@ -83,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: recursive
@@ -97,6 +98,23 @@ jobs:
         with:
             dotnet-version: 10.0.x
 
+      - name: Load app config
+        shell: pwsh
+        # Per-app release values come from update-tooling.jsonc.
+        run: |
+          $c = Get-Content -Raw ./update-tooling.jsonc | ConvertFrom-Json
+          "PUBLISH_SCRIPT=$($c.scriptsDir)/Publish-Release.ps1" >> $env:GITHUB_ENV
+          "TOOL_EXE=$($c.appExe)"                       >> $env:GITHUB_ENV
+          "UPDATER_EXE=$($c.updaterExe)"                >> $env:GITHUB_ENV
+          "EMBEDDED_TRUST_CERT=$($c.embeddedTrustCert)" >> $env:GITHUB_ENV
+          "ORIGIN_BASE=$($c.origin)"                    >> $env:GITHUB_ENV
+          "SFTP_BASE_PATH=$($c.sftpBasePath)"           >> $env:GITHUB_ENV
+          "SFTP_HOST=$($c.sftpHost)"                    >> $env:GITHUB_ENV
+          "SFTP_PORT=$($c.sftpPort)"                    >> $env:GITHUB_ENV
+          "NEXT_ORIGIN_BASE=$($c.nextOrigin)"           >> $env:GITHUB_ENV
+          "NEXT_SFTP_BASE_PATH=$($c.nextSftpBasePath)"  >> $env:GITHUB_ENV
+          "COMPAT_UPDATER=$($c.compatUpdater)"          >> $env:GITHUB_ENV
+
       - name: Publish self-update release
         shell: pwsh
         run: |
@@ -109,8 +127,8 @@ jobs:
               -Branch                      "$env:BRANCH_NAME" `
               -SigningPfxBase64            "${{ secrets.UPDATER_SIGNING_PFX_B64 }}" `
               -SigningPfxPassword          "${{ secrets.UPDATER_SIGNING_PFX_PASSWORD }}" `
-              -SftpHost                    "republicatwar.com" `
-              -SftpPort                    1579 `
+              -SftpHost                    "$env:SFTP_HOST" `
+              -SftpPort                    $env:SFTP_PORT `
               -SftpUser                    "${{ secrets.SFTP_USER }}" `
               -SftpPassword                "${{ secrets.SFTP_PASSWORD }}" `
               -NextOrigin                  "$env:NEXT_ORIGIN_BASE" `
@@ -135,5 +153,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
           files: |
-            ./releases/net481/ModVerify.exe
+            ./releases/net481/${{ env.TOOL_EXE }}
             ./releases/ModVerify-Net10.zip

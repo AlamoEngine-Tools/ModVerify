@@ -158,8 +158,8 @@ internal partial class GuiDialogGameManager
 
             using var megaTexture = GameRepository.TryOpenFile(mtdPath);
             try
-            {
-                MtdFile = megaTexture is null ? null : _mtdFileService.Load(megaTexture);
+            { 
+                MtdFile = megaTexture is null ? null : _mtdFileService.LoadFile(megaTexture);
             }
             catch (BinaryCorruptedException e)
             {

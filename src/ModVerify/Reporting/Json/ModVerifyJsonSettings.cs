@@ -6,6 +6,7 @@ internal static class ModVerifyJsonSettings
 {
     public static readonly JsonSerializerOptions JsonSettings = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        Converters = { new ValueListDictionaryJsonConverter() }
     };
 }

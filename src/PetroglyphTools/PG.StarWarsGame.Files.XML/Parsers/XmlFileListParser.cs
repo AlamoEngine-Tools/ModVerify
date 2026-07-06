@@ -25,7 +25,7 @@ public sealed class XmlFileListParser(IServiceProvider serviceProvider, IXmlPars
                 });
             }
 
-            // NB: There intentionally is not else branch here, because that's how the engine behaves.
+            // NB: There intentionally is no else branch here, because that's how the engine behaves:
             // It checks whether the tag is called "File" and reports an assert if not.
             // However, it still consumes the value and treats it as file.
 

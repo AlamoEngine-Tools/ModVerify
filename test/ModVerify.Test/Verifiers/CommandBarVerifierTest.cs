@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using AET.ModVerify.Verifiers;
 using AET.ModVerify.Verifiers.CommandBar;
 using ModVerify.Test.Framework;
 using Xunit;
@@ -18,7 +19,7 @@ public class CommandBarVerifierTest : VerifierTestBase<CommandBarVerifier>
             (engine, settings, sp) => new CommandBarVerifier(engine, settings, sp));
 
         ErrorAssertions.Single(errors,
-            id: CommandBarVerifier.CommandBarNoShellsGroup,
+            id: VerifierErrorCodes.CommandBarNoShellsGroup,
             asset: "GameCommandBar");
     }
 }

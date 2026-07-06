@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using ModVerify.Test.Framework;
 using ModVerify.Test.Framework.Providers;
@@ -18,6 +17,6 @@ public class MinimalFocTest : ModVerifyTestBase
         var result = await RunPipelineAsync(repo, verifiers: new NoVerifiersProvider());
 
         Assert.Empty(result.NewErrors);
-        Assert.Empty(result.ExistingErrors.Values.SelectMany(v => v));
+        Assert.Empty(result.PersistentErrors.Values);
     }
 }

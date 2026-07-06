@@ -1,7 +1,7 @@
-﻿using AET.ModVerify.Reporting;
-using PG.StarWarsGame.Engine;
+﻿using PG.StarWarsGame.Engine;
 using PG.StarWarsGame.Engine.CommandBar.Components;
 using System.Threading;
+using AET.ModVerify.Reporting.Diagnostics;
 
 namespace AET.ModVerify.Verifiers.CommandBar;
 
@@ -20,10 +20,8 @@ partial class CommandBarVerifier
     {
         if (component.Name.Length > PGConstants.MaxCommandBarComponentNameBuffer)
         {
-            AddError(VerificationError.Create(this, VerifierErrorCodes.NameTooLong, 
-                // Deliberately not reporting the buffer length as max, as it's considered to be internal data
-                $"The CommandBarShellComponent name '{component.Name}' is too long. Maximum length is {PGConstants.MaxCommandBarComponentName}.",
-                VerificationSeverity.Critical, [], component.Name));
+            // Deliberately not reporting the buffer length as max, as it's considered to be internal data
+            AddError(CommandBarErrors.ComponentNameTooLong(this, component.Name, PGConstants.MaxCommandBarComponentName, []));
         }
     }
 
@@ -34,9 +32,7 @@ partial class CommandBarVerifier
 
         if (shellComponent.ModelName is null)
         {
-            AddError(VerificationError.Create(this,
-                CommandBarShellNoModel, $"The CommandBarShellComponent '{component.Name}' has no model specified.",
-                VerificationSeverity.Error, [shellComponent.Name], shellComponent.Name));
+            AddError(CommandBarErrors.ShellNoModel(this, shellComponent.Name, [shellComponent.Name]));
             return;
         }
         
@@ -50,9 +46,7 @@ partial class CommandBarVerifier
 
         if (component.Bone == -1)
         {
-            AddError(VerificationError.Create(this,
-                CommandBarShellNoModel, $"The CommandBar component '{component.Name}' is not connected to a shell component.",
-                VerificationSeverity.Warning, component.Name));
+            AddError(CommandBarErrors.ComponentNotConnected(this, component.Name, []));
         }
     }
 }

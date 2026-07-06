@@ -24,7 +24,13 @@ internal class JsonVerificationBaseline
 
     public JsonVerificationBaseline(VerificationBaseline baseline)
     {
-        Errors = baseline.Select(x => new JsonVerificationError(x));
+        Errors = baseline
+            .OrderByDescending(x => x.Severity)
+            .ThenBy(x => x.Id, StringComparer.Ordinal)
+            .ThenBy(x => x.Asset, StringComparer.Ordinal)
+            .ThenBy(x => string.Join("\n", x.ContextEntries), StringComparer.Ordinal)
+            .Select(x => new JsonVerificationError(x))
+            .ToList();
         Version = baseline.Version;
         MinimumSeverity = baseline.MinimumSeverity;
         Target = baseline.Target is not null ? new JsonVerificationTarget(baseline.Target) : null;
