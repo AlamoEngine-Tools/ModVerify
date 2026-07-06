@@ -15,7 +15,7 @@ internal abstract class EngineErrorReporterBase<T> : IGameVerifierInfo
 
     public IReadOnlyList<IGameVerifierInfo> VerifierChain { get; }
 
-    public string Name => GetType().FullName;
+    public string Name => GetType().FullName!;
 
     public abstract string FriendlyName { get; }
 

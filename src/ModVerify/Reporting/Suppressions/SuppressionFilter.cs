@@ -1,19 +1,29 @@
-﻿using System;
+using System;
 using System.Linq;
 using AET.ModVerify.Reporting.Suppressions.Json;
 
 namespace AET.ModVerify.Reporting.Suppressions;
 
+/// <summary>Represents a filter that suppresses verification errors matching a combination of error identifier, verifier, and asset.</summary>
 public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
 {
+    /// <summary>Gets the error identifier to match, or <see langword="null"/> to match any identifier.</summary>
     public string? Id { get; }
 
+    /// <summary>Gets the verifier name to match, or <see langword="null"/> to match any verifier.</summary>
     public string? Verifier { get; }
 
+    /// <summary>Gets the asset to match, or <see langword="null"/> to match any asset.</summary>
     public string? Asset { get; }
 
+    /// <summary>Gets a value that indicates whether the filter is disabled because no matching criterion is set.</summary>
+    /// <value><see langword="true"/> if none of <see cref="Id"/>, <see cref="Verifier"/>, and <see cref="Asset"/> is set; otherwise, <see langword="false"/>.</value>
     public bool IsDisabled => Id == null && Verifier == null && Asset == null;
 
+    /// <summary>Initializes a new instance of the <see cref="SuppressionFilter"/> class.</summary>
+    /// <param name="id">The error identifier to match, or <see langword="null"/> to match any identifier.</param>
+    /// <param name="verifier">The verifier name to match, or <see langword="null"/> to match any verifier.</param>
+    /// <param name="asset">The asset to match, or <see langword="null"/> to match any asset.</param>
     public SuppressionFilter(string? id, string? verifier, string? asset)
     {
         Id = id;
@@ -28,6 +38,9 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         Asset = filter.Asset;
     }
 
+    /// <summary>Determines whether this filter suppresses the specified error.</summary>
+    /// <param name="error">The verification error to test.</param>
+    /// <returns><see langword="true"/> if the filter suppresses <paramref name="error"/>; otherwise, <see langword="false"/>.</returns>
     public bool Suppresses(VerificationError error)
     {
         var suppresses = false;
@@ -59,6 +72,8 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         return suppresses;
     }
 
+    /// <summary>Gets the number of criteria that this filter matches on.</summary>
+    /// <returns>The number of non-null criteria, between 0 and 3.</returns>
     public int Specificity()
     {
         var specificity = 0;
@@ -71,6 +86,9 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         return specificity;
     }
 
+    /// <summary>Determines whether this filter is made redundant by another, less specific filter.</summary>
+    /// <param name="other">The filter to compare against.</param>
+    /// <returns><see langword="true"/> if <paramref name="other"/> is a broader filter that makes this filter redundant; otherwise, <see langword="false"/>.</returns>
     public bool IsSupersededBy(SuppressionFilter other)
     {
         if (Id != null && other.Id != null && other.Id != Id)
@@ -85,6 +103,7 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         return other.Specificity() < Specificity();
     }
 
+    /// <inheritdoc />
     public bool Equals(SuppressionFilter? other)
     {
         if (ReferenceEquals(null, other))
@@ -99,11 +118,13 @@ public sealed class SuppressionFilter : IEquatable<SuppressionFilter>
         return Asset == other.Asset;
     }
 
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return obj is SuppressionFilter other && Equals(other);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         var hashCode = new HashCode();
