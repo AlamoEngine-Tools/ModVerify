@@ -78,11 +78,12 @@ internal class ConsoleReporter(ConsoleReporterSettings settings, IServiceProvide
             $"Reduced issues: {resolvedCount} error(s) present in the baseline are no longer reported.");
         Console.ResetColor();
 
-        if (Settings.Verbose
 #if DEBUG
-            || true
+        const bool debugBuild = true;
+#else
+        const bool debugBuild = false;
 #endif
-            )
+        if (Settings.Verbose || debugBuild)
         {
             foreach (var baseline in resolvedErrors)
             {

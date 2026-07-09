@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using PG.StarWarsGame.Engine.ErrorReporting;
@@ -6,16 +6,20 @@ using PG.StarWarsGame.Files.XML.ErrorHandling;
 
 namespace AET.ModVerify.Reporting.Engine;
 
+/// <summary>Collects the XML, initialization, and assertion errors reported by the game engine during verification.</summary>
 public sealed class GameEngineErrorCollection : IGameEngineErrorCollection, IGameEngineErrorReporter
 {
-    private readonly ConcurrentBag<XmlError> _xmlErrors = new();
-    private readonly ConcurrentBag<InitializationError> _initializationErrors = new();
-    private readonly ConcurrentBag<EngineAssert> _asserts = new();
+    private readonly ConcurrentBag<XmlError> _xmlErrors = [];
+    private readonly ConcurrentBag<InitializationError> _initializationErrors = [];
+    private readonly ConcurrentBag<EngineAssert> _asserts = [];
 
+    /// <inheritdoc />
     public IEnumerable<XmlError> XmlErrors => _xmlErrors.ToList();
 
+    /// <inheritdoc />
     public IEnumerable<InitializationError> InitializationErrors => _initializationErrors.ToList();
 
+    /// <inheritdoc />
     public IEnumerable<EngineAssert> Asserts => _asserts.ToList();
 
     void IXmlParserErrorReporter.Report(XmlError error)
