@@ -30,23 +30,23 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
             switch (chunk.Type)
             {
                 case (int)ParticleChunkType.Name:
-                    ReadName(chunk.Size, out name);
+                    ReadName(chunk.BodySize, out name);
                     break;
                 case (int)ParticleChunkType.Emitters:
-                    ReadEmitters(chunk.Size, textures);
+                    ReadEmitters(chunk.BodySize, textures);
                     break;
                 default:
-                    ChunkReader.Skip(chunk.Size);
+                    ChunkReader.Skip(chunk.BodySize);
                     break;
             }
 
-            actualSize += chunk.Size;
+            actualSize += chunk.BodySize;
 
-        } while (actualSize < rootChunk.Size);
+        } while (actualSize < rootChunk.BodySize);
 
        
 
-        if (actualSize != rootChunk.Size)
+        if (actualSize != rootChunk.BodySize)
             throw new BinaryCorruptedException();
 
         if (string.IsNullOrEmpty(name)) 
@@ -70,9 +70,9 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
             if (chunk.Type != (int)ParticleChunkType.Emitter)
                 throw new BinaryCorruptedException("Unable to read particle");
 
-            ReadEmitter(chunk.Size, textures);
+            ReadEmitter(chunk.BodySize, textures);
 
-            actualSize += chunk.Size;
+            actualSize += chunk.BodySize;
 
 
         } while (actualSize < size);
@@ -92,24 +92,24 @@ internal class ParticleReaderV1(AloLoadOptions loadOptions, Stream stream) : Alo
             if (chunk.Type == (int)ParticleChunkType.Properties)
             {
                 var shader = ChunkReader.ReadDword();
-                ChunkReader.Skip(chunk.Size - sizeof(uint));
+                ChunkReader.Skip(chunk.BodySize - sizeof(uint));
             }
             else if (chunk.Type == (int)ParticleChunkType.ColorTextureName)
             {
-                var texture = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true);
+                var texture = ChunkReader.ReadString(chunk.BodySize, Encoding.ASCII, true);
                 textures.Add(texture);
             }
             else if (chunk.Type == (int)ParticleChunkType.BumpTextureName)
             {
-                var bump = ChunkReader.ReadString(chunk.Size, Encoding.ASCII, true);
+                var bump = ChunkReader.ReadString(chunk.BodySize, Encoding.ASCII, true);
                 textures.Add(bump);
             }
             else
             {
-                ChunkReader.Skip(chunk.Size);
+                ChunkReader.Skip(chunk.BodySize);
             }
 
-            actualSize += chunk.Size;
+            actualSize += chunk.BodySize;
 
         } while (actualSize < chunkSize);
 
