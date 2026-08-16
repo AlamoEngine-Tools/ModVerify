@@ -33,7 +33,7 @@
 
 	<ItemGroup>
 		<PackageReference Update="SauceControl.InheritDoc" Version="2.0.2" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All"/>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400" PrivateAssets="All"/>
 		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
 			<PrivateAssets>all</PrivateAssets>
 			<Version>3.10.91</Version>
